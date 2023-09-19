@@ -8,9 +8,9 @@ Routes
 
 
 @app.route("/", methods=["GET"])
-def index() -> str:
-    return "Hello World"
-    # return render_template("home.html")
+def index():
+    # return "Hello World"
+    return render_template("home.html")
 
 
 """
