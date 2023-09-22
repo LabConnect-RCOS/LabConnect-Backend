@@ -3,9 +3,11 @@ Database management systems are specialized software to store and manage large s
 2 main types of databases: relational and non-relational. 
 
 **About relational databases and schemas**
+
 One key distinction between them is that relational databases have a schema, which outlines the relations of the database. In other words, the schema is just the collection of tables, with all the attributes (columns) the database will have. Schemas offer guarantees, but it requires careful design to be effective. 
 
 **Why relational databases for us?**
+
 We imagine that our product prioritizes accuracy - students and researchers need the right connections. The emphasis is on the matching of people to projects. I think relational databases will serve us well regarding our priority.
 
 How the database will be designed and implemented
@@ -18,5 +20,6 @@ How the database will be designed and implemented
 7. Integration of database into website environment
    
 **Why schema first?**
+
 Knowing and designing a good schema early on is quite important. On one hand, besides the benefits of schemas, the schema outlines the database itself - without schema, I don’t know what to put in the database. On the other hand, relational schemas tend to organize data in unnatural (normalized) ways - at least that’s how I wanna do it - and thus data collection and insertion into the database can be made easier if we know what to look for. 
 
