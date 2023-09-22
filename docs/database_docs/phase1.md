@@ -19,3 +19,20 @@ Professors:
 Students
 * What do they look for in a research project? 
 * Major, matching prerequisites, compensation, availability, compensation?
+
+Once these questions are answered, the entity relationship diagram can be drawn and the database can be designed in its entirety.
+
+**Entities**
+Database stores "opportunity" entities. 
+* Name
+* Type
+* Department (what if more than 1 department?) ***GET BACK TO THIS LATER***
+* Student Major Requirements
+* Required Skills
+* Student Year Requirements (Fr, So, Jr, Sr)
+* Estimated Time Requirements
+Each row represents one of these instances, or an individual opportunity.
+All entities contain simple attributes and each column can only contain a single piece of data and each attribute must characterize the entity it belongs to. 
+
+**Relationships**
+Relationships then can be drawn in between the different entities.
