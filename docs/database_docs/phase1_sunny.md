@@ -24,18 +24,53 @@ Students
 
 Once these questions are answered, the entity relationship diagram can be drawn and the database can be designed in its entirety.
 
+Opportunities require and/or recommend stuff:
+- courses taken
+- majors
+- class year (i.e. sophomore)
+- experience
+
 ## Entities and relationships
 
 **Entities**
+
 Database stores opportunities
-* Name: each opportunity has a unique name in the database
-* Type: opportunities belong to a type: 
-* Start date:
-* End date:
-* Description:
+* name: all opportunities are uniquely identified by name in the database
+* description: some text describing the opportunity
+* active_status: boolean describing whether the opportunity is active
 
-Database stores
+Database stores rpi_departments:
+* name: each department at RPI has a unique name
+* description: some text describing the department at RPI
 
+Database stores lab_runner: 
+* rcs_id: a string to uniquely identify a lab_runner
+* name: their name.
+
+Database stores contact_links:
+* contact link: the particular link used to contact someone, or group of people, or something.
+* contact type: the type of contact information: email, phone number, website
+
+--------
+These 4 entities will likely not receive a table representation (due to being eliminated after normalization).
+
+Database stores courses:
+* course_code: a code for the course. (i.e. CSCI 4380) This is the key.
+* course_name: name of the course.
+
+Database stores majors:
+* major_name: a unique major name
+
+Database stores class_years:
+* class_years: a unique class year (i.e. freshmen, sophomore, ...,senior, graduate)
+  
+Database stores experiences:
+* description: a text describing a potential requirement/recommendation for experiences.
+---------
 
 **Relationships**
-Relationships then can be drawn in between the different entities.
+
+A lab runner can promote many opportunities. An opportunity can be promoted by many lab runners.
+
+
+
