@@ -11,6 +11,7 @@ So we should ask some questions to each group.
 The goal is to form a natural description of the database. Keep in mind 2 things: Entities and Relationships between them. For more details, see entities_and_relationships document
 
 Questions we ask them
+
 Professors:
 * What research projects do they offer?
 * Prerequisites for each project: sometimes coursework, sometimes experience -> hard to figure out database structure
@@ -52,7 +53,7 @@ Database stores contact_links:
 * contact type: the type of contact information: email, phone number, website
 
 --------
-These 4 entities will likely not receive a table representation (due to being eliminated after normalization).
+These entities will likely not receive a table representation (due to being eliminated after normalization). They feel like merely formalities.
 
 Database stores courses:
 * course_code: a code for the course. (i.e. CSCI 4380) This is the key.
@@ -66,6 +67,14 @@ Database stores class_years:
   
 Database stores experiences:
 * description: a text describing a potential requirement/recommendation for experiences.
+
+Database stores pay_compensation_info:
+* pay_usd_per_hour: the pay in US Dollars per hour of work in an opportunity
+
+Database stores credit_compensation_info:
+* number_of_credits: the number of credits awarded from an opportunity
+* course_code: the course code that the credits go to.
+
 ---------
 
 **Relationships**
