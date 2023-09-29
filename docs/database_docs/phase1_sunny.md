@@ -51,9 +51,10 @@ Database stores lab_runner:
 Database stores contact_links:
 * contact link: the particular link used to contact someone, or group of people, or something.
 * contact type: the type of contact information: email, phone number, website
+* key: contact link, contact type
 
 --------
-These entities will likely not receive a table representation (due to being eliminated after normalization). They feel like merely formalities.
+These entities will likely not receive a table representation (due to being eliminated after normalization). They feel like merely formalities. But these entities will still be included in the diagram. 
 
 Database stores courses:
 * course_code: a code for the course. (i.e. CSCI 4380) This is the key.
@@ -89,6 +90,19 @@ A lab runner can promote many opportunities. An opportunity can be promoted by m
 A lab runner is part of many departments. A department has many lab runners.
 A lab runner can have many contact links. A contact link can belong to many lab runners (group contacts).
 
-An opportunity can have: 
+An opportunity can have: many required and/or recommended courses taken, majors, class years, and experiences.
+Each of those entities can be required and/or recommended by many opportunities.
+
+An opportunity can have: many pay compensation information and credit compensation information. 
+Each pay or credit compensation information can be associated with many opportunities.
+
+An opportunity can have applications due on many application_due_dates, while each due date may be shared 
+by many opportunities.
+
+An opportunity can be active in many semesters, while each semester 
+
+
+
+
 
 
