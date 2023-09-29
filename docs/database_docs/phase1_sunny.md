@@ -75,11 +75,20 @@ Database stores credit_compensation_info:
 * number_of_credits: the number of credits awarded from an opportunity
 * course_code: the course code that the credits go to.
 
+Database stores application_due_date:
+* date: the application due date to something (opportunity)
+
+Database stores semesters:
+* season: the season the semester is in (Spring, Summer, Fall, Winter)  
+* year: the year the semester is in. 
 ---------
 
 **Relationships**
 
 A lab runner can promote many opportunities. An opportunity can be promoted by many lab runners.
+A lab runner is part of many departments. A department has many lab runners.
+A lab runner can have many contact links. A contact link can belong to many lab runners (group contacts).
 
+An opportunity can have: 
 
 
