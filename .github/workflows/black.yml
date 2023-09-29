@@ -1,4 +1,4 @@
-name: Lint
+name: Black Formatter
 
 on: [pull_request]
 
