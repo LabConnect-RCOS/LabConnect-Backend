@@ -99,7 +99,9 @@ Each pay or credit compensation information can be associated with many opportun
 An opportunity can have applications due on many application_due_dates, while each due date may be shared 
 by many opportunities.
 
-An opportunity can be active in many semesters, while each semester 
+An opportunity can be active in many semesters, while each semester can have many active opportunities.
+
+
 
 
 
