@@ -1,4 +1,4 @@
-from flask import make_response, redirect, render_template, url_for, Response
+from flask import Response, make_response, redirect, render_template, url_for
 
 from labconnect import app
 
