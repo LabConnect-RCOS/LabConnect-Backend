@@ -90,8 +90,8 @@ A lab runner can promote many opportunities. An opportunity can be promoted by m
 A lab runner is part of many departments. A department has many lab runners.
 A lab runner can have many contact links. A contact link can belong to many lab runners (group contacts).
 
-An opportunity can have: many required and/or recommended courses taken, majors, class years, and experiences.
-Each of those entities can be required and/or recommended by many opportunities.
+An opportunity can recommend courses, majors, class years, and experiences.
+Each of those entities can be recommended by many opportunities.
 
 An opportunity can have: many pay compensation information and credit compensation information. 
 Each pay or credit compensation information can be associated with many opportunities.
