@@ -14,10 +14,11 @@ How the database will be designed and implemented
 1. Discuss with potential users about the data they’d expect the system to have, to yield a natural description of the data needs.
 2. Draw an ER Diagram of the data based on the natural description.
 3. Devise database schema from ER Diagram
-4. Database implementation
-5. Develop commonly used queries based on use cases collected by the project.
-6. Database testing: data insertion and querying.
-7. Integration of database into website environment
+4. Database implementation and testing:
+   - Database definition
+   - Data collection and insertion
+   - Develop commonly used queries based on use cases collected by the project.
+5. Integration of database into website environment
    
 **Why schema first?**
 
