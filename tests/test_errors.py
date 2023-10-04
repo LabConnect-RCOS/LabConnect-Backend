@@ -12,4 +12,7 @@ def test_404_page_with_fixture(test_client) -> None:
     response = test_client.get("/abcsd")
     assert response.status_code == 404
     assert b"Not Found" in response.data
-    assert b"The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again." in response.data
+    assert (
+        b"The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again."
+        in response.data
+    )
