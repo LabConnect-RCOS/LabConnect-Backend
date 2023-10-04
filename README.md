@@ -56,12 +56,19 @@
     $ git clone https://github.com/RafaelCenzano/LabConnect
     ```
     * To fork, press the fork button on the top right of the repo, or [here](https://github.com/RafaelCenzano/LabConnect/fork)
+ * Install Python 3.11.4 [here](https://www.python.org/downloads/release/python-3114/)
  * Install Libraries 
     * Download through the command line
     ```sh
     $ python -m pip install -r requirements.txt
     ```
 
+## Testing
+ * Run pytest
+   * Run all the test files
+   ```sh
+   $ python -m pytest
+   ```
 
 ## License
 
