@@ -3,8 +3,8 @@ Phase 3: Devise database schema from ER Diagram
 Steps to convert ER Diagram to relational model
 
 1. Convert entities to relational model
-   - Effectively, there's 4 in this case: rpi_departments, contact_links, lab_runner, opportunities
-   - The other entities related to opportunities would be discarded after normalization
+   - Effectively, there's at least 4 in this case: rpi_departments, contact_links, lab_runner, opportunities
+   - The other entities related to opportunities are: courses, majors, experiences, class_years, application_due_dates, semesters, pay_compensation_info, credit_compensation_info
 
 2. Convert weak entities to relational model
    - There are no weak entities in the diagram
