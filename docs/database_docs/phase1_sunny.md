@@ -36,9 +36,11 @@ Opportunities require and/or recommend stuff:
 **Entities**
 
 Database stores opportunities
-* name: all opportunities are uniquely identified by name in the database
+* id: the id is used to uniquely identify an opportunity in the database.
+* name: opportunities have a name.
 * description: some text describing the opportunity
 * active_status: boolean describing whether the opportunity is active
+* recommended_experience: a long string describing recommended experience (VARCHAR: 65535 characters maximum)
 
 Database stores rpi_departments:
 * name: each department at RPI has a unique name
@@ -53,27 +55,18 @@ Database stores contact_links:
 * contact type: the type of contact information: email, phone number, website
 * key: contact link
 
---------
-Initially, these entities were likely not going to receive a table representation (due to being eliminated after normalization). They feel like merely formalities. These entities are still be included in the diagram. 
-
-But upon closer examination, there is more nuance. The Third Normal Form decomposition would mean that many of these entities do not need a relational representation. But under Boyce-Codd Normal Form decomposition, those entities will need relations to represent them. Also, even under 3NF decomposition, at least 1 entity still needs representation: the course entity. The relationship recommends_courses alone will not be suffice because it wouldn't have course_name attribute seen in course relation...
-
-I'm also leaning towards keeping the BCNF. The cost would be having to store these tables. But you know what they say about memory: just buy more hard disks lmao.
-
-These entites will be represented in the relational model. Also, in any case, they're going to be part of the ER Diagram. 
+*Entities about opportunities*
 
 Database stores courses:
-* course_code: a code for the course. (i.e. CSCI 4380) This is the key.
+* course_code: a code for the course. (i.e. CSCI-4380) This is the key.
 * course_name: name of the course.
 
 Database stores majors:
-* major_name: a unique major name
+* major_code: a major code (for example: CSCI, BIOL, ESCE etc.) uniquely identifies a major in the database
+* major_name: name of the major. 
 
 Database stores class_years:
-* class_years: a unique class year (i.e. freshmen, sophomore, ...,senior, graduate)
-  
-Database stores experiences:
-* description: a text describing a potential requirement/recommendation for experiences.
+* class_years: a unique class year (i.e. freshmen, ...,senior, graduate)
 
 Database stores pay_compensation_info:
 * pay_usd_per_hour: the pay in US Dollars per hour of work in an opportunity
@@ -96,7 +89,7 @@ A lab runner can promote many opportunities. An opportunity can be promoted by m
 A lab runner is part of many departments. A department has many lab runners.
 A lab runner can have many contact links. A contact link can belong to many lab runners (group contacts).
 
-An opportunity can recommend courses, majors, class years, and experiences.
+An opportunity can recommend courses, majors, and class years.
 Each of those entities can be recommended by many opportunities.
 
 An opportunity can have: many pay compensation information and credit compensation information. 
@@ -108,7 +101,9 @@ by many opportunities.
 An opportunity can be active in many semesters, while each semester can have many active opportunities.
 
 
+## REFERENCES
 
+https://www.w3schools.com/sql/sql_datatypes.asp
 
 
 
