@@ -66,7 +66,8 @@ Database stores majors:
 * major_name: name of the major. 
 
 Database stores class_years:
-* class_years: a unique class year (i.e. freshmen, ...,senior, graduate)
+* class_year: a unique class year number (1,2,3,4,5)
+* class_name: a name to describe class (i.e. freshmen, ...,senior, graduate)  
 
 Database stores pay_compensation_info:
 * pay_usd_per_hour: the pay in US Dollars per hour of work in an opportunity
@@ -86,17 +87,17 @@ Database stores semesters:
 **Relationships**
 
 A lab runner can promote many opportunities. An opportunity can be promoted by many lab runners.
+
 A lab runner is part of many departments. A department has many lab runners.
+
 A lab runner can have many contact links. A contact link can belong to many lab runners (group contacts).
 
 An opportunity can recommend courses, majors, and class years.
 Each of those entities can be recommended by many opportunities.
 
-An opportunity can have: many pay compensation information and credit compensation information. 
-Each pay or credit compensation information can be associated with many opportunities.
+An opportunity can have: many pay compensation information and credit compensation information. Each pay or credit compensation information can be associated with many opportunities.
 
-An opportunity can have applications due on many application_due_dates, while each due date may be shared 
-by many opportunities.
+An opportunity can have applications due on many application_due_dates, while each due date may be shared by many opportunities.
 
 An opportunity can be active in many semesters, while each semester can have many active opportunities.
 
