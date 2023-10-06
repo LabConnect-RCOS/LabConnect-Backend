@@ -51,10 +51,16 @@ Database stores lab_runner:
 Database stores contact_links:
 * contact link: the particular link used to contact someone, or group of people, or something.
 * contact type: the type of contact information: email, phone number, website
-* key: contact link, contact type
+* key: contact link
 
 --------
-These entities will likely not receive a table representation (due to being eliminated after normalization). They feel like merely formalities. But these entities will still be included in the diagram. 
+Initially, these entities were likely not going to receive a table representation (due to being eliminated after normalization). They feel like merely formalities. These entities are still be included in the diagram. 
+
+But upon closer examination, there is more nuance. The Third Normal Form decomposition would mean that many of these entities do not need a relational representation. But under Boyce-Codd Normal Form decomposition, those entities will need relations to represent them. Also, even under 3NF decomposition, at least 1 entity still needs representation: the course entity. The relationship recommends_courses alone will not be suffice because it wouldn't have course_name attribute seen in course relation...
+
+I'm also leaning towards keeping the BCNF. The cost would be having to store these tables. But you know what they say about memory: just buy more hard disks lmao.
+
+These entites will be represented in the relational model. Also, in any case, they're going to be part of the ER Diagram. 
 
 Database stores courses:
 * course_code: a code for the course. (i.e. CSCI 4380) This is the key.
@@ -90,8 +96,8 @@ A lab runner can promote many opportunities. An opportunity can be promoted by m
 A lab runner is part of many departments. A department has many lab runners.
 A lab runner can have many contact links. A contact link can belong to many lab runners (group contacts).
 
-An opportunity can have: many required and/or recommended courses taken, majors, class years, and experiences.
-Each of those entities can be required and/or recommended by many opportunities.
+An opportunity can recommend courses, majors, class years, and experiences.
+Each of those entities can be recommended by many opportunities.
 
 An opportunity can have: many pay compensation information and credit compensation information. 
 Each pay or credit compensation information can be associated with many opportunities.
