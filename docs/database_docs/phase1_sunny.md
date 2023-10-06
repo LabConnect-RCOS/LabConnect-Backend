@@ -51,7 +51,7 @@ Database stores lab_runner:
 Database stores contact_links:
 * contact link: the particular link used to contact someone, or group of people, or something.
 * contact type: the type of contact information: email, phone number, website
-* key: contact link, contact type
+* key: contact link
 
 --------
 These entities will likely not receive a table representation (due to being eliminated after normalization). They feel like merely formalities. But these entities will still be included in the diagram. 
