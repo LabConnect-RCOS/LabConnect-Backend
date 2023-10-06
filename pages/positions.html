@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.118.2">
-    <title>Pricing test · Bootstrap v5.3</title>
+    <title>Positions</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/pricing/">
 
@@ -200,95 +200,211 @@
   
   <main>
     
-    <h2>
-      Your Recommendations
-    </h2>
-    
     <div class="container">
       <div class="row">
         <div style="
         display: grid;
-        columns: 8;
+        columns: 2;
         " 
         class="col">
-          
-          <div 
-          style="margin-top: 1rem; margin-bottom: 1rem; width: 40rem;"
-          class="card bg-light text-black">
-            <div class="card-body">
-              <h5 class="card-title">
-                Quantum Computing
-                <span class="badge bg-primary">Flexible</span>
-                <span class="badge bg-warning">In-Person</span>
-                <span class="badge bg-danger">$40 Per Hour</span> 
-              </h5>
-              <h6 class="card-subtitle mb-2 text-body-secondary">Rensselaer Quantum Center</h6>
-              <p class="card-text">
-                "🚀 Exciting Quantum Computing Research Opportunity at Rensselaer Quantum Center! 🌌 Join our cutting-edge projects at the forefront of quantum innovation. Dive into quantum algorithms, hardware development, and quantum information theory with a team of passionate researchers. Immerse yourself in a dynamic environment that fosters curiosity and collaboration. Whether you're an aspiring student or a seasoned quantum enthusiast, this is your chance to be part of the quantum revolution. Unlock the potential of quantum computing with us at Rensselaer Quantum Center – where the future meets quantum possibilities! 🌐✨ #QuantumResearch #InnovationHub #RQCOpportunity"</p>
-              <button type="button" class="btn btn-primary">Save</button>
-              <button type="button" class="btn btn-primary">Apply</button>
+        
+            <div style="color: white; grid-column: 1" >
+                Search
             </div>
-          </div>
-          
-          <div 
-          style="margin-top: 1rem; margin-bottom: 1rem; width: 40rem;"
-          class="card bg-light text-black">
-            <div class="card-body">
-              <h5 class="card-title">
-                Quantum Computing
-                <span class="badge bg-primary">Flexible</span>
-                <span class="badge bg-warning">In-Person</span>
-                <span class="badge bg-danger">$40 Per Hour</span> 
-              </h5>
-              <h6 class="card-subtitle mb-2 text-body-secondary">Rensselaer Quantum Center</h6>
-              <p class="card-text">
-                "🚀 Exciting Quantum Computing Research Opportunity at Rensselaer Quantum Center! 🌌 Join our cutting-edge projects at the forefront of quantum innovation. Dive into quantum algorithms, hardware development, and quantum information theory with a team of passionate researchers. Immerse yourself in a dynamic environment that fosters curiosity and collaboration. Whether you're an aspiring student or a seasoned quantum enthusiast, this is your chance to be part of the quantum revolution. Unlock the potential of quantum computing with us at Rensselaer Quantum Center – where the future meets quantum possibilities! 🌐✨ #QuantumResearch #InnovationHub #RQCOpportunity"</p>
-              <button type="button" class="btn btn-primary">Save</button>
-              <button type="button" class="btn btn-primary">Apply</button>
-            </div>
-          </div>
-          
-          <div 
-          style="margin-top: 1rem; margin-bottom: 1rem; width: 40rem;"
-          class="card bg-light text-black">
-            <div class="card-body">
-              <h5 class="card-title">
-                Quantum Computing
-                <span class="badge bg-primary">Flexible</span>
-                <span class="badge bg-warning">In-Person</span>
-                <span class="badge bg-danger">$40 Per Hour</span> 
-              </h5>
-              <h6 class="card-subtitle mb-2 text-body-secondary">Rensselaer Quantum Center</h6>
-              <p class="card-text">
-                "🚀 Exciting Quantum Computing Research Opportunity at Rensselaer Quantum Center! 🌌 Join our cutting-edge projects at the forefront of quantum innovation. Dive into quantum algorithms, hardware development, and quantum information theory with a team of passionate researchers. Immerse yourself in a dynamic environment that fosters curiosity and collaboration. Whether you're an aspiring student or a seasoned quantum enthusiast, this is your chance to be part of the quantum revolution. Unlock the potential of quantum computing with us at Rensselaer Quantum Center – where the future meets quantum possibilities! 🌐✨ #QuantumResearch #InnovationHub #RQCOpportunity"</p>
-              <button type="button" class="btn btn-primary">Save</button>
-              <button type="button" class="btn btn-primary">Apply</button>
-            </div>
-          </div>
+        
+        <div style="grid-column: 2;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        ">
+            <button type="button" class="btn btn-primary">Applied</button>
+            
+            <button type="button" class="btn btn-primary">Saved</button>
+            
+            <button type="button" class="btn btn-primary">Filters</button>
+            
+        </div>
           
         </div>
       
+        </div>
+        
+        <!--  -->
+        <div class="mt-4" style="border-radius: 0%;">
+            <div
+            class="card"
+            style="
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            ">
+        
+                <!-- Holds all the jobs -->
+                <div 
+                class="card"
+                style="
+                height: 50rem;
+                grid-column: span 4;
+                overflow: scroll;
+                ">
+                    <div class="card" style="border-radius: 0%;">
+                      <div class="card-body">
+                        <h6>
+                          <span class="badge bg-danger">Professor Turner</span>
+                          <span class="badge bg-primary">$40 Per Hour</span>
+                        </h6>
+                        <h5 class="card-title">Quantum Computing to solve NP-Complete Problems</h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary">Computer Science</h6>
+                        <p class="card-text">Russel Sage <br> CS • In-Person</p>
+                      </div>
+                    </div>
+                    
+                    
+                    <div class="card" style="border-radius: 0%;">
+                      <div class="card-body">
+                        <h6>
+                          <span class="badge bg-danger">Professor Turner</span>
+                          <span class="badge bg-primary">$40 Per Hour</span>
+                        </h6>
+                        <h5 class="card-title">Quantum Computing to solve NP-Complete Problems</h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary">Computer Science</h6>
+                        <p class="card-text">Russel Sage <br> CS • In-Person</p>
+                      </div>
+                    </div>
+                    
+                    
+                    <div class="card" style="border-radius: 0%;">
+                      <div class="card-body">
+                        <h6>
+                          <span class="badge bg-danger">Professor Turner</span>
+                          <span class="badge bg-primary">$40 Per Hour</span>
+                        </h6>
+                        <h5 class="card-title">Quantum Computing to solve NP-Complete Problems</h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary">Computer Science</h6>
+                        <p class="card-text">Russel Sage <br> CS • In-Person</p>
+                      </div>
+                    </div>
+                    
+                    <nav style="margin-top: 1rem;" aria-label="Page navigation example">
+                      <ul class="pagination">
+                        <li class="page-item">
+                          <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                          </a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                          <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </nav>
+                    
+                    
+            
+                </div>
+        
+                <!-- Shows job information -->
+                <div
+                class=""
+                style="
+                border-radius: 0px;
+                grid-column: span 8;">
+                    
+                    <div class="container p-4 text-xl">
+                      
+                      <h5>
+                        <span class="badge bg-danger">Professor Turner</span>
+                        <span class="fs-6">Full Time Internship</span>
+                      </h5>
+                      
+                      <h2 class="fs-2">
+                        Quantum Computing to solve NP-Complete Problems
+                      </h2>
+                      
+                      <!-- TODO: Include Circle Shape -->
+                      
+                      <h2 class="fs-4" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+                        About This Role
+                      </h2>
+                      
+                      <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; justify-content: space-around;">
+                          <div class="card" style="width: 30%;">
+                            <ul class="list-group list-group-flush">
+                              <li class="list-group-item">Deadline</li>
+                              <li class="list-group-item">October 6th, 2023</li>
+                            </ul>
+                          </div>
+                          
+                          <div class="card" style="width: 30%;">
+                            <ul class="list-group list-group-flush">
+                              <li class="list-group-item">Posted Date</li>
+                              <li class="list-group-item">October 6th, 2023</li>
+                            </ul>
+                          </div>
+                          
+                          <div class="card" style="width: 30%;">
+                            <ul class="list-group list-group-flush">
+                              <li class="list-group-item">Seasonal Role</li>
+                              <li class="list-group-item">Summer 2024</li>
+                            </ul>
+                          </div>
+                          
+                        </div>
+                        
+                        <!-- Separation -->
+                        
+                        <div style="display: flex; justify-content: space-around;">
+                          <div class="card" style="width: 30%;">
+                            <ul class="list-group list-group-flush">
+                              <li class="list-group-item">Location</li>
+                              <li class="list-group-item">Russel Sage</li>
+                            </ul>
+                          </div>
+                          
+                          <div class="card" style="width: 30%;">
+                            <ul class="list-group list-group-flush">
+                              <li class="list-group-item">Location</li>
+                              <li class="list-group-item">Russel Sage</li>
+                            </ul>
+                          </div>
+                          
+                          <div class="card" style="width: 30%;">
+                            <ul class="list-group list-group-flush">
+                              <li class="list-group-item">Location</li>
+                              <li class="list-group-item">Russel Sage</li>
+                            </ul>
+                          </div>
+                          
+                        </div>
+                      </div>
+                      
+                      <h2 class="fs-4" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+                        Description
+                      </h2>
+                      
+                      <p class="list-group-item" style="font-weight: 400;">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                      </p>
+                      
+                      
+                      <button type="button" class="btn btn-primary">Apply</button>
+            
+                      <button type="button" class="btn btn-primary">Save</button>                
+                    </div>
+                    
+                </div>
+            
+            </div>
+        
     </div>
     
-    <button style="margin-top: 5rem;" type="button" class="btn btn-light">Report Bug</button>
     
-    <nav style="margin-top: 1rem;" aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item">
-          <a class="page-link" href="#" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item">
-          <a class="page-link" href="#" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
+    <!-- Report bug button -->
+    <button style="margin-top: 5rem;" type="button" class="btn btn-light">Report Bug</button>
   </main>
 
   <footer class="pt-4 my-md-5 pt-md-5 border-top">
