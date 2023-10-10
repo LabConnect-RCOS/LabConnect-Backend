@@ -69,10 +69,13 @@ Database stores class_years:
 * class_year: a unique class year number (1,2,3,4,5)
 * class_name: a name to describe class (i.e. freshmen, ...,senior, graduate)  
 
-Database stores pay_compensation_info:
-* pay_usd_per_hour: the pay in US Dollars per hour of work in an opportunity
+Database stores salary_comp_info:
+* usd_per_hour: the pay in US Dollars per hour of work in an opportunity
 
-Database stores credit_compensation_info:
+Database stores upfront_pay_comp_info:
+* usd: the upfront pay in US Dollars for work in an opportunity
+
+Database stores credit_comp_info:
 * number_of_credits: the number of credits awarded from an opportunity
 * course_code: the course code that the credits go to.
 
