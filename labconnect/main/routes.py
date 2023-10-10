@@ -6,4 +6,10 @@ from . import main_blueprint
 @main_blueprint.route("/")
 def index():
     # return "Hello World"
-    return render_template("home.html")
+    return render_template("index.html")
+
+
+@main_blueprint.route("/login")
+def login():
+    return "Login page"
+    # return render_template("index.html")
