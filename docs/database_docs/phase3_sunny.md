@@ -48,15 +48,25 @@ upfront_pay_comp_info( usd ), key: usd
 credit_comp_info( number_of_credits, course_code ), key: (number_of_credits, course_code)
 
 
-isPartOf(dep_name, lab_runner_rcs_id), key: (dep_name, lab_runner_rcs_id)
-hasLink()
-promotes()
-recommends_courses()
-recommends_majors()
-recommends_c_years()
-application_due()
-active_semesters()
-has_salary_comp()
-has_upfront_pay_comp()
-has_credit_comp()
+isPartOf( lab_runner_rcs_id, dep_name ), key: (lab_runner_rcs_id, dep_name)
+
+hasLink( lab_runner_rcs_id, contact_link ), key: (lab_runner_rcs_id, contact_link)
+
+promotes( lab_runner_rcs_id, opportunity_id ), key: (lab_runner_rcs_id, opportunity_id)
+
+recommends_courses( opportunity_id, course_code ), key: (opportunity_id, course_code)
+
+recommends_majors( opportunity_id, major_code ), key: (opportunity_id, major_code)
+
+recommends_c_years( opportunity_id, class_year ), key: (opportunity_id, class_year)
+
+application_due( opportunity_id, date ), key: (opportunity_id, date)
+
+active_semesters( opportunity_id, year, season ), key: (opportunity_id, year, season)
+
+has_salary_comp( opportunity_id, usd_per_hour ), key: (opportunity_id, usd_per_hour)
+
+has_upfront_pay_comp( opportunity_id, usd ), key: (opportunity_id, usd)
+
+has_credit_comp( opportunity_id, number_of_credits, course_code ), key: (opportunity_id, number_of_credits, course_code)
 
