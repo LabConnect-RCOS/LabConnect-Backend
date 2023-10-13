@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#7585F0;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{fill:#FFFFFF;}
+	.st3{fill:#E4B75C;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st4{fill:#DE5A5A;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st5{fill:#D4F4FF;}
+	.st6{fill:#D4F4FF;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st7{fill:#F2DF98;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st8{fill:#FFFFFF;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st9{fill:#87BF8C;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st10{fill:#7585F0;}
+	.st11{fill:#EDD4B4;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st12{fill:#E4B75C;}
+	.st13{fill:#AACF9A;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st14{fill:#E8C673;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st15{fill:#F2DF98;}
+	.st16{fill:#D0524E;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st17{fill:#87BF8C;}
+	.st18{fill:#AACF9A;}
+	.st19{fill:#DE5A5A;}
+	.st20{fill:#E8C673;}
+	.st21{fill:#7ACBAA;}
+	.st22{fill:#EFCDC2;}
+	.st23{fill:#6B7DFA;stroke:#000000;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g id="GUIDELINES">
+</g>
+<g id="ICON_1_">
+	<g>
+		<circle class="st10" cx="256" cy="256" r="246"/>
+		<path class="st1" d="M41.9,377.2C21.6,341.4,10,300.1,10,256C10,120.1,120.1,10,256,10s246,110.1,246,246S391.9,502,256,502
+			c-55.7,0-107.1-18.5-148.3-49.7"/>
+		<path class="st2" d="M455,256c0,109.9-89.1,199-199,199S57,365.9,57,256S146.1,57,256,57c59.9,0,113.7,26.5,150.2,68.4
+			c19.1,21.9,33.4,48.1,41.5,76.8C452.5,219.3,455,237.4,455,256z"/>
+		<path class="st8" d="M447.7,202.2c4.8,17.1,7.4,35.1,7.4,53.8c0,109.9-89.1,199-199,199S57,365.9,57,256S146.1,57,256,57
+			c59.9,0,113.7,26.5,150.2,68.4"/>
+		<g>
+			<path class="st6" d="M304.6,373.6C292,396.3,275.7,410,257.9,410c-40,0-72.5-68.9-72.5-154s32.4-154,72.5-154s72.5,68.9,72.5,154
+				c0,28.5-3.6,55.1-10,78"/>
+			<path class="st1" d="M396.7,201.9c-1.5,26.8-25.1,60.7-62.9,90.4c-2,1.6-4,3.1-6.1,4.7"/>
+			<path class="st1" d="M222.4,192.8c63.5-35.7,128.4-44.8,158-24.8"/>
+			<path class="st1" d="M119.1,315.7c-1.9-28.3,23.8-66.2,66.3-98.6"/>
+			<path class="st1" d="M255.9,337.2c-48.9,19.6-94.3,22.7-118.6,8"/>
+			<path class="st1" d="M332.3,354.3c28.5,1.2,50.5-6.3,59.8-22.8c19.6-34.9-24.6-96.9-98.8-138.6"/>
+			<path class="st1" d="M162,158.7c-18,2.6-31.5,9.8-38.3,21.9c-19.6,34.9,24.6,96.9,98.8,138.6c23.7,13.3,47.6,22.9,69.8,28.7"/>
+			<circle class="st4" cx="257.9" cy="256" r="32.1"/>
+			<circle class="st3" cx="393" cy="183.5" r="18.3"/>
+			<circle class="st0" cx="312" cy="352.4" r="18.3"/>
+			<circle class="st0" cx="182.6" cy="158.1" r="18.3"/>
+			<circle class="st3" cx="119" cy="336.6" r="18.3"/>
+		</g>
+	</g>
+</g>
+</svg>
