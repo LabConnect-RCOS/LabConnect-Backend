@@ -25,15 +25,18 @@
     {% block head_css %}{% endblock %}
 
     <!-- JS -->
+    <script src="{{ url_for('static', filename='js/color-modes.js') }}"></script>
     {% block head_js %}
     {% endblock %}
     
 </head>
 <body>
     {% include "flash.html" %}
+    <div class="container py-3">
     {% include "navbar.html" %}
     {% block content %}
     {% endblock %}
+    </div>
     {% include "footer.html" %}
     {% block trailing_js %}
     {% endblock %}
