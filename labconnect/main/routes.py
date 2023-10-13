@@ -5,8 +5,12 @@ from . import main_blueprint
 
 @main_blueprint.route("/")
 def index():
-    # return "Hello World"
     return render_template("index.html")
+
+
+@main_blueprint.route("/positions")
+def positions():
+    return render_template("positions.html")
 
 
 @main_blueprint.route("/login")
