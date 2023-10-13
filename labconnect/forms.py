@@ -32,6 +32,13 @@ class PostOpportunity(FlaskForm):
     recommended_experiences = TextAreaField('Recommended Experiences', widget=TextArea(), validators=[Length(max=1500, message='Recommended experiences must be 1500 characters or less')])
     recommended_majors = SelectMultipleField('Recommended Majors', choices=MAJORS)
     recommended_courses = SelectMultipleField('Recommended Courses', choices=COURSES)
-    email = StringField("Email", validators=[DataRequired(), Email(), Length(max=120)])
+    email = StringField('Email', validators=[DataRequired(), Email(), Length(max=120)])
     #active_semesters
     submit = SubmitField("Submit")
+
+class NewStudent(FlaskForm):
+    firstname = StringField('First Name', validators=[DataRequired(), Length(max=20, message='Enter your first name')])
+    lastname = StringField('Last Name', validators=[DataRequired(), Length(max=20, message='Enter your last name')])
+    class_year = SelectField('Recommended Class Years', choices=['Freshman','Sophomore','Junior','Senior','Grad Student'])
+    rcs_id = StringField('RCS ID', validators=[DataRequired(), Length(max=8, message='Enter your RCS ID')])
+    email = StringField('Email', validators=[DataRequired(), Email(), Length(max=120)])
