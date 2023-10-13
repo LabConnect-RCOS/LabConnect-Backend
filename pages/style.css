@@ -178,3 +178,12 @@
 #report-button {
   margin-top: 5rem;
 }
+
+.discover-card-row {
+  display: flex; gap: 2rem; margin-top: 2rem;
+}
+
+.discover-card img{
+  padding: 5px;
+  height: 200px;
+}
