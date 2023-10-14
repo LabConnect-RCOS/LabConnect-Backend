@@ -201,3 +201,13 @@
 .posting-alignment label {
   display: flex; align-items: center;
 }
+
+.position-cards-container {
+  height: 100%;
+                grid-column: span 4;
+                overflow: scroll;
+}
+
+.position-cards-container div {
+  border-radius: 0%;
+}
