@@ -11,9 +11,8 @@
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/pricing/">
 
-
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+    <link rel="stylesheet" href="style.css">
 
 <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -206,29 +205,23 @@
 
     <form action="/create_post" method="POST">
 
-        <div 
-        style="display: flex; gap: 2rem;"
-        class="mb-3">
+        <div
+        class="mb-3 posting-alignment">
             <label
-            style="display: flex; align-items: center;"
             for="title" class="form-label">Title</label>
             <input type="text" class="form-control" id="title" placeholder="Your Title Here ...">
         </div>
 
-        <div 
-        style="display: flex; gap: 2rem;"
-        class="mb-3">
+        <div
+        class="mb-3 posting-alignment">
             <label
-            style="display: flex; align-items: center;"
             for="title" class="form-label">Major</label>
             <input type="text" class="form-control" id="title" placeholder="What majors apply for this project ?">
         </div>
 
-        <div 
-        style="display: flex; gap: 2rem;"
-        class="mb-3">
+        <div
+        class="mb-3 posting-alignment">
             <label
-            style="display: flex; align-items: center;"
             for="title" class="form-label">Term</label>
             <select id="termSelection" class="form-select" aria-label="Default select example">
                 <option selected>Select Term</option>
@@ -238,20 +231,16 @@
             </select>
         </div>
 
-        <div 
-        style="display: flex; gap: 2rem;"
-        class="mb-3">
+        <div
+        class="mb-3 posting-alignment">
             <label
-            style="display: flex; align-items: center;"
             for="title" class="form-label">Deadline</label>
             <input class="form-select" type="date" id="start" name="deadline" value="2023-10-06"/>
         </div>
 
-        <div 
-        style="display: flex; gap: 2rem;"
-        class="mb-3">
+        <div
+        class="mb-3 posting-alignment">
             <label
-            style="display: flex; align-items: center;"
             for="title" class="form-label">Grade</label>
             <select id="termSelection" class="form-select" aria-label="Default select example">
                 <option selected>What is the lowest grade elevel student that can apply here?</option>
@@ -263,18 +252,16 @@
             </select>
         </div>
 
-        <div 
-        style="display: flex; gap: 2rem;"
-        class="mb-3">
+        <div
+        class="mb-3 posting-alignment">
             <label
             style="display: flex; align-items: start;"
             for="title" class="form-label">Description</label>
             <textarea style="height: 10rem;" class="form-control" id="title" placeholder="What is this project about?"></textarea>
         </div>
 
-        <div 
-        style="display: flex; gap: 2rem;"
-        class="mb-3">
+        <div
+        class="mb-3 posting-alignment">
             <label
             style="display: flex; align-items: center;"
             for="title" class="form-label">Compensation</label>
@@ -295,7 +282,7 @@
     </form>
 
     <!-- Report bug button -->
-    <button style="margin-top: 5rem;" type="button" class="btn btn-light">Report Bug</button>
+    <button type="button" class="report-button btn btn-light">Report Bug</button>
   </main>
 
   <footer class="pt-4 my-md-5 pt-md-5 border-top">

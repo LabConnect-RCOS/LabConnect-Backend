@@ -170,12 +170,17 @@
   margin-top: 1rem; margin-bottom: 1rem; width: 40rem;
 }
 
-.flex-center {
+.flex-align-center {
   display: flex;
   align-items: center;
 }
 
-#report-button {
+.flex-justify-center {
+  display: flex;
+  justify-content: center;
+}
+
+.report-button {
   margin-top: 5rem;
 }
 
@@ -186,4 +191,13 @@
 .discover-card img{
   padding: 5px;
   height: 200px;
+}
+
+.posting-alignment {
+  display: flex;
+  gap: 2rem;
+}
+
+.posting-alignment label {
+  display: flex; align-items: center;
 }
