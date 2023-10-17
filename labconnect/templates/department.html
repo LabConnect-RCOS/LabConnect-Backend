@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<main>
+    <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Departments</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Computer Science</li>
+        </ol>
+    </nav>
+    
+    <div class="container row">
+        <!-- Actual Content -->
+        <div class="col-9">
+            <!-- Department Description -->
+            <div style="display: flex; gap: 1rem;">
+                <!-- Image -->
+                <div style="display: flex; align-items: center; width: 25%;">
+                    <div class="card">
+                        <img src="{{ departmentImage }}" class="card-img-top" alt="...">
+                        <!-- <div class="card-body">
+                          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                        </div> -->
+                    </div>
+                </div>
+                
+                <!-- Image Description -->
+                <div style="width: 75%;">
+                    <h2> {{ departmentTitle }} </h2>
+                    
+                    <h5 class="fs-6 fw-light">
+                        {{ departmentDescription }}
+                    </h5>
+                </div>
+            </div>
+            
+            <!-- Research Centers -->
+            
+            <div class="mt-3">
+                <h2>
+                    Research Centers
+                </h2>
+                
+                {% for research_center in research_centers %}
+                  {% if loop.index is divisibleby 3 or loop.index==1 %}
+                    <div class="mt-3" style=" display: flex; gap: 1rem;">
+                  {% endif %}
+                    <div class="" style="padding: 0.3rem; border: solid gray 1px; border-radius: 5px;  display: flex; gap: 1rem;  width: 18rem;">
+                      <img src="{{ research_center.icon }}" style="width: 30%; border-radius: 100%;" alt="...">
+                      <div class="fs-6 fw-semibold" style="display: flex; align-items: center;">
+                        {{ research_center.title }}
+                      </div>
+                    </div>
+            
+                  {% if loop.index is divisibleby 3 or loop.last %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
+            </div>
+            
+            <div style="margin-top: 3rem;">
+                <h2>
+                    Professors
+                </h2>
+                
+                {% for professor in professors %}
+                  {% if loop.index is divisibleby 3 or loop.index==1 %}
+                    <div class="mt-3" style=" display: flex; gap: 1rem;">
+                  {% endif %}
+                    <div class="" style="padding: 0.3rem; border: solid gray 1px; border-radius: 5px;  display: flex; gap: 1rem;  width: 18rem;">
+                      <img src="{{ professor.icon }}" style="width: 30%; border-radius: 100%;" alt="...">
+                      <div class="fs-6 fw-semibold" style="display: flex; align-items: center;">
+                        {{ professor.name }}
+                      </div>
+                    </div>
+            
+                  {% if loop.index is divisibleby 3 or loop.last %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
+            </div>
+            
+        </div>
+        
+        <!-- Table of Contents -->
+        <div class="col-3">
+        Contents
+        <ul>
+            <li>
+                <a href="">
+                    Description
+                </a>
+            </li>
+            
+            <li>
+                <a href="">
+                    Research Centers
+                </a>
+            </li>
+            
+            <li>
+                <a href="">
+                    Professors
+                </a>
+            </li>
+        </ul>  
+        </div>
+    </div>
+    
+    
+  </main>
+</div>
+
+{% endblock %}
