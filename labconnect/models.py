@@ -1,12 +1,11 @@
 from labconnect import db
-from labconnect import app
 
 # DDL
 
 # rpi_departments( name, description ), key: name
 class RPIDepartments(db.Model):
 	__tablename__ = "rpi_departments"
-	name = db.Column(db.String(64), primary_key=True, unique=True)
+	name = db.Column(db.String(64), primary_key=True)
 	description = db.Column(db.String(256), nullable=True, unique=False)
 
 	def __str__(self) -> str: 
@@ -14,6 +13,7 @@ class RPIDepartments(db.Model):
 
 # DML
 # I need to move DML code into its own file, then use a create app function to get the app context.
+"""
 with app.app_context():
 	
 	row = RPIDepartments(
@@ -26,6 +26,7 @@ with app.app_context():
 	data = db.engine.execute("SELECT * FROM rpi_departments;").scalars()
 	print(data)
 
+"""
 """
 Example table in SQLAlchemy
 
