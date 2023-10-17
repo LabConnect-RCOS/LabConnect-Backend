@@ -41,10 +41,40 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        contact_links_rows = [
+            ("www.abc.com", "abc company"),
+            ("www.discord.com", "discord main page")
+        ]
 
-        stmt = select(RPIDepartments)
-        result = db.session.execute(stmt)
+        for row_tuple in contact_links_rows: 
+            row = ContactLinks(
+                contact_link=row_tuple[0],
+                contact_type=row_tuple[1],
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        lab_runner_rows = [
+            ("led", "Duy Le"),
+            ("cenzar", "Rafael")
+        ]
+
+        for row_tuple in lab_runner_rows: 
+            row = LabRunner(
+                rcs_id=row_tuple[0],
+                name=row_tuple[1],
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        for table in [RPIDepartments, ContactLinks, LabRunner]:
+
+            stmt = select(table)
+            result = db.session.execute(stmt)
         
-        for row in result.scalars():
-            print(row)
+            print(f"{table.__tablename__} rows:")
+            for row in result.scalars():
+                print(row)
+            print()
+
         

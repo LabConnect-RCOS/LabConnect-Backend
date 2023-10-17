@@ -9,24 +9,77 @@ class RPIDepartments(db.Model):
 	description = db.Column(db.String(256), nullable=True, unique=False)
 
 	def __str__(self) -> str: 
-		return f"{self.name} {self.description}"
+		return f"{self.name}, {self.description}"
 
-# DML
-# I need to move DML code into its own file, then use a create app function to get the app context.
-"""
-with app.app_context():
+# contact_links( contact_link, contact_type ), key: contact_link
+class ContactLinks(db.Model):
+	__tablename__ = "contact_links"
+	contact_link = db.Column(db.String(256), primary_key=True)
+	contact_type = db.Column(db.String(64), nullable=True, unique=False)
 	
-	row = RPIDepartments(
-    	name=request.form["Computer Science"],
-		description=request.form["pretty cool"],
-	)
-	db.session.add(row)
-	db.session.commit()
+	def __str__(self) -> str: 
+		return f"{self.contact_link}, {self.contact_type}"	
 
-	data = db.engine.execute("SELECT * FROM rpi_departments;").scalars()
-	print(data)
+# lab_runner( rcs_id, name ), key: rcs_id
+class LabRunner(db.Model):
+	__tablename__ = "lab_runner"
+	rcs_id = db.Column(db.String(64), primary_key=True)
+	name = db.Column(db.String(64), nullable=True, unique=False)
 
-"""
+	def __str__(self) -> str: 
+		return f"{self.rcs_id}, {self.name}"
+
+# opportunities( id, name, description, active_status, recommended_experience ), key: id
+class Opportunities(db.Model):
+	__tablename__ = "opportunities"
+	opp_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	name = db.Column(db.String(64), nullable=True, unique=False)
+	description = db.Column(db.String(256), nullable=True, unique=False)
+	active_status = db.Column(db.Boolean, nullable=False, unique=False)
+	recommended_experience = db.Column(db.String(256), nullable=True, unique=False)
+
+	def __str__(self) -> str:
+		return f"{self.opp_id}, {self.name}, {self.description}, {self.active_status}, {self.recommended_experience}"
+
+# courses( course_code, course_name ), key: course_code
+class Courses(db.Model):
+	__tablename__ = "courses"
+	course_code = db.Column(db.String(8), primary_key=True)
+	course_name = db.Column(db.String(64), nullable=True, unique=False)
+
+	def __str__(self) -> str:
+		return f"{self.course_code}, {self.course_name}"
+
+# majors( major_code, major_name ), key: major_code
+class Majors(db.Model):
+	__tablename__ = "majors"
+	major_code = db.Column(db.String(4), primary_key=True)
+	major_name = db.Column(db.String(64), nullable=True, unique=False)
+
+	def __str__(self) -> str:
+		return f"{self.major_code}, {self.major_name}"
+
+# class_years( class_year, class_name ), key: class_year
+class ClassYears(db.Model):
+	__tablename__ = "class_years"
+	class_year = db.Column(db.String(64), primary_key=True)
+	class_name = db.Column(db.String(64), nullable=True, unique=False)
+
+	def __str__(self) -> str:
+		return f"{self.class_year}, {self.class_name}"
+
+# application_due_dates( date ), key: date
+# class ApplicationDueDates(db.Model):
+
+
+# semesters( year, season ), key: (year, season)
+
+# salary_comp_info( usd_per_hour ), key: usd_per_hour
+
+# upfront_pay_comp_info( usd ), key: usd
+
+# credit_comp_info( number_of_credits, course_code ), key: (number_of_credits, course_code)
+
 """
 Example table in SQLAlchemy
 
