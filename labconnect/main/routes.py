@@ -13,8 +13,8 @@ def positions():
     return render_template("positions.html")
 
 
-@main_blueprint.route("/profile")
-def profile():
+@main_blueprint.route("/profile/<str:rcs_id>")
+def profile(rcs_id: str):
     return render_template("profile.html")
 
 
@@ -26,6 +26,16 @@ def department():
 @main_blueprint.route("/discover")
 def discover():
     return render_template("discover.html")
+
+
+@main_blueprint.route("/professor/<str:rcs_id>")
+def professor(rcs_id: str):
+    return render_template("professor.html")
+
+
+@main_blueprint.route("/create_post")
+def create_post():
+    return render_template("posting.html")
 
 
 @main_blueprint.route("/login")
