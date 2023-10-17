@@ -234,3 +234,40 @@ body {
     grid-column: span 4;
     overflow: scroll;
 }
+
+.profile-contacts {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.center-flex {
+    display: flex;
+    align-items: center;
+}
+
+.profile-img {
+    width: 10rem;
+    height: 10rem;
+    border-radius: 100%;
+    background-color: white;
+}
+
+.flex-gap {
+    display: flex;
+    gap: 3rem;
+}
+
+.profile-card {
+    min-width: 500px;
+}
+
+.left-float {
+    float: left;
+}
+
+.documents {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
