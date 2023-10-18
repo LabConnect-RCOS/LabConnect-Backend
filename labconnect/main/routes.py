@@ -40,5 +40,4 @@ def create_post():
 
 @main_blueprint.route("/login")
 def login():
-    return "Login page"
-    # return render_template("index.html")
+    return render_template("sign_in.html")
