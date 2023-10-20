@@ -1,6 +1,6 @@
 from labconnect import db
 
-# DDL
+# DDL - Entities
 
 # rpi_departments( name, description ), key: name
 class RPIDepartments(db.Model):
@@ -62,24 +62,53 @@ class Majors(db.Model):
 # class_years( class_year, class_name ), key: class_year
 class ClassYears(db.Model):
 	__tablename__ = "class_years"
-	class_year = db.Column(db.String(64), primary_key=True)
+	class_year = db.Column(db.Integer, primary_key=True)
 	class_name = db.Column(db.String(64), nullable=True, unique=False)
 
 	def __str__(self) -> str:
 		return f"{self.class_year}, {self.class_name}"
 
 # application_due_dates( date ), key: date
-# class ApplicationDueDates(db.Model):
+class ApplicationDueDates(db.Model):
+	__tablename__ = "application_due_dates"
+	date = db.Column(db.DateTime(), primary_key=True)
 
+	def __str__(self) -> str:
+		return f"{self.date}"
 
 # semesters( year, season ), key: (year, season)
+class Semesters(db.Model):
+	__tablename__ = "semesters"
+	year = db.Column(db.Integer, primary_key=True)
+	season = db.Column(db.String(64), primary_key=True)
+
+	def __str__(self) -> str: 
+		return f"{self.year}, {self.season}"
 
 # salary_comp_info( usd_per_hour ), key: usd_per_hour
+class SalaryCompInfo(db.Model):
+	__tablename__ = "salary_comp_info"
+	usd_per_hour = db.Column(db.Float(64), primary_key=True)
+
+	def __str__(self) -> str:
+		return f"{self.usd_per_hour}"
 
 # upfront_pay_comp_info( usd ), key: usd
+class UpfrontPayCompInfo(db.Model):
+	__tablename__ = "upfront_pay_comp_info"
+	usd = db.Column(db.Float(64), primary_key=True)
+
+	def __str__(self) -> str:
+		return f"{self.usd}"
 
 # credit_comp_info( number_of_credits, course_code ), key: (number_of_credits, course_code)
+class CreditCompInfo(db.Model):
+	__tablename__ = "credit_comp_info"
+	number_of_credits = db.Column(db.Integer, primary_key=True)
+	course_code = db.Column(db.String(8), primary_key=True)
 
+	def __str__(self) -> str:
+		return f"{self.number_of_credits}, {self.course_code}"
 """
 Example table in SQLAlchemy
 

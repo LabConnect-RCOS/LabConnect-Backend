@@ -66,8 +66,85 @@ elif sys.argv[1] == "create":
             )
             db.session.add(row)
             db.session.commit()
+        
+        opportunities_rows = [
+            ("Automated Cooling System", "Energy efficient AC system", True, "Thermodynamics"),
+            ("Iphone 15 durability test", "Scratching the Iphone, drop testing etc.", True, "Experienced in getting angry and throwing temper tantrum"),
+        ]
 
-        for table in [RPIDepartments, ContactLinks, LabRunner]:
+        for row_tuple in opportunities_rows:
+            row = Opportunities(
+                name=row_tuple[0],
+                description=row_tuple[1],
+                active_status=row_tuple[2],
+                recommended_experience=row_tuple[3]
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        courses_rows = [
+            ("CSCI4430", "Programming Languages"),
+            ("CSCI2961", "Rensselaer Center for Open Source"),
+            ("CSCI4390", "Data Mining"),
+        ]
+
+        for row_tuple in courses_rows:
+            row = Courses(
+                course_code=row_tuple[0],
+                course_name=row_tuple[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        majors_rows = [
+            ("CSCI", "Computer Science"),
+            ("ECSE", "Electrical, Computer, and Systems Engineering"),
+            ("BIOL", "Biological Science"),
+            ("MATH", "Mathematics"),
+            ("COGS", "Cognitive Science")
+        ]
+        
+        for row_tuple in majors_rows:
+            row = Majors(
+                major_code=row_tuple[0],
+                major_name=row_tuple[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        class_years_rows = [
+            (1, "Freshman"),
+            (2, "Sophomore"),
+            (3, "Junior"),
+            (4, "Senior"),
+            (5, "Graduate")
+        ]
+
+        for row_tuple in class_years_rows:
+            row = ClassYears(
+                class_year=row_tuple[0],
+                class_name=row_tuple[1],
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        
+
+        tables = [
+            RPIDepartments, 
+            ContactLinks, 
+            LabRunner, 
+            Opportunities,
+            Courses,
+            Majors,
+            ClassYears,
+            ApplicationDueDates,
+            Semesters,
+            SalaryCompInfo,
+            UpfrontPayCompInfo,
+            CreditCompInfo
+        ]
+        for table in tables:
 
             stmt = select(table)
             result = db.session.execute(stmt)
