@@ -8,6 +8,7 @@ Then pass an Executable into Session.execute()
 
 import sys
 import random
+import pytz
 from datetime import datetime, date, timezone
 
 from sqlalchemy import select
@@ -128,7 +129,61 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        # https://www.geeksforgeeks.org/datetime-timezone-in-sqlalchemy/
+        # https://www.tutorialspoint.com/handling-timezone-in-python
         
+        UTC_TZ = pytz.timezone("UTC")
+        app_due_dates_rows = [
+            datetime(year=2023, month=10, day=24, hour=16, minute=30, tzinfo=UTC_TZ),
+            datetime(year=2024, month=1, day=8, hour=6, minute=30, tzinfo=UTC_TZ),
+            datetime(year=2025, month=12, day=20, hour=5, minute=40, tzinfo=UTC_TZ)
+        ]
+
+        for app_due_dates_row in app_due_dates_rows:
+            row = ApplicationDueDates(
+                date = app_due_dates_row
+            )
+            db.session.add(row)
+            db.session.commit()        
+
+        semester_rows = [
+            (2024, "Fall"),
+            (2023, "Fall"),
+            (3024, "Spring")
+        ]
+        for semester_tuple in semester_rows:
+            row = Semesters(
+                year=semester_tuple[0],
+                season=semester_tuple[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        rows = [15.5, 20, 18.75]
+        for r in rows:
+            row = SalaryCompInfo(usd_per_hour=r)
+            db.session.add(row)
+            db.session.commit()
+
+        rows = [9000, 15000, 500, 2500]
+        for r in rows:
+            row = UpfrontPayCompInfo(usd = r)
+            db.session.add(row)
+            db.session.commit()
+
+        rows = [
+            (4, "CSCI4430"),
+            (3, "CSCI2961"),
+            (2, "CSCI4430"),
+            (1, "CSCI1000")
+        ]
+        for r in rows:
+            row = CreditCompInfo(
+                number_of_credits=r[0],
+                course_code=r[1]
+            )
+            db.session.add(row)
+            db.session.commit()
 
         tables = [
             RPIDepartments, 

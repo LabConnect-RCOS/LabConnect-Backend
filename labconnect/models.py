@@ -1,6 +1,7 @@
 from labconnect import db
+import pytz
 
-# DDL - Entities
+# DD - Entities
 
 # rpi_departments( name, description ), key: name
 class RPIDepartments(db.Model):
@@ -74,7 +75,7 @@ class ApplicationDueDates(db.Model):
 	date = db.Column(db.DateTime(), primary_key=True)
 
 	def __str__(self) -> str:
-		return f"{self.date}"
+		return self.date.isoformat()
 
 # semesters( year, season ), key: (year, season)
 class Semesters(db.Model):
@@ -109,6 +110,10 @@ class CreditCompInfo(db.Model):
 
 	def __str__(self) -> str:
 		return f"{self.number_of_credits}, {self.course_code}"
+
+# DD - Relationships
+
+
 """
 Example table in SQLAlchemy
 
