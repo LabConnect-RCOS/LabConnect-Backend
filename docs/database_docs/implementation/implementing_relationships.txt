@@ -1,10 +1,31 @@
-
 The relationships usually depend on entities. So whenever rows are inserted, updated or deleted, the order of the operations with respect to tables must account for these constraints.
 
 Databases provide many ways to implement constraints to ensure data integrity.
 For example, postgresql uses triggers. In SQL, table creation can define foreign key constraints and actions upon events where referred data changes.
 
-Here's some more notes about database constraints. Code examples are in postgresql.
+For this database specifically, users will insert human-readable data. This data will be inserted in a specific, cascading order in the database.
+
+The data that users will most likely provide is about lab runners and opportunities.
+Details about lab runners and opportunities will cascade into tables holding that information.
+
+Which means the other tables will have foreign key constraints, that refer to lab runner or opportunities tuples.
+
+To simplify the constraints, the approach is "strictly necessary":
+
+Insertion lab runners and opportunities: 
+- new lab runner or opportunity tuples are inserted. 
+- After that, if there are relevant details provided, the data of relevant details will be inserted into relationship tables. 
+- Finally, the data of relevant details will be inserted into standalone entity tables
+
+Updating lab runners and opportunities:
+- lab runner and opportunities entities will be updated first
+- Updates will cascade to the related tables.
+
+Updating details of lab runners and opportunities:
+- 
+
+
+Here's some more details about database constraints. Code examples are in postgresql.
 
 CONSTRAINTS
 Integrity rules for the database. 
