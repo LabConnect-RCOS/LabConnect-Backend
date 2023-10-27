@@ -197,8 +197,9 @@ elif sys.argv[1] == "create":
             Semesters,
             SalaryCompInfo,
             UpfrontPayCompInfo,
-            CreditCompInfo
+            CreditCompInfo,
         ]
+
         for table in tables:
 
             stmt = select(table)
@@ -208,5 +209,4 @@ elif sys.argv[1] == "create":
             for row in result.scalars():
                 print(row)
             print()
-
         
