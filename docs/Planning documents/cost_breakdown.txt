@@ -1,0 +1,2 @@
+| Category | Name of Thing | # Units | $ / Unit | Context | 
+| Hosting | Digitial Ocean Droplet | 1 | $6 / month | Hosting the website code and database |
