@@ -1,5 +1,6 @@
 from labconnect import db
 import pytz
+from sqlalchemy.orm import relationship
 
 # DD - Entities
 
@@ -8,6 +9,8 @@ class RPIDepartments(db.Model):
 	__tablename__ = "rpi_departments"
 	name = db.Column(db.String(64), primary_key=True)
 	description = db.Column(db.String(256), nullable=True, unique=False)
+
+	lab_runners = relationship("LabRunner", secondary="isPartOf", back_populates="rpi_departments")
 
 	def __str__(self) -> str: 
 		return f"{self.name}, {self.description}"
@@ -26,6 +29,8 @@ class LabRunner(db.Model):
 	__tablename__ = "lab_runner"
 	rcs_id = db.Column(db.String(64), primary_key=True)
 	name = db.Column(db.String(64), nullable=True, unique=False)
+
+	rpi_departments = relationship("RPIDepartments", secondary="isPartOf", back_populates="lab_runner")
 
 	def __str__(self) -> str: 
 		return f"{self.rcs_id}, {self.name}"
@@ -115,6 +120,13 @@ class CreditCompInfo(db.Model):
 
 # isPartOf( lab_runner_rcs_id, dep_name ), key: (lab_runner_rcs_id, dep_name)
 
+class isPartOf(db.Model):
+    __tablename__ = "isPartOf"
+
+    id = db.Column(db.Integer, primary_key=True)
+    lab_runner_rcs_id = db.Column(db.String(64), db.ForeignKey("lab_runner.rcs_id"))
+    dep_name = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
+
 # hasLink( lab_runner_rcs_id, contact_link ), key: (lab_runner_rcs_id, contact_link)
 
 # promotes( lab_runner_rcs_id, opportunity_id ), key: (lab_runner_rcs_id, opportunity_id)
@@ -135,7 +147,14 @@ class CreditCompInfo(db.Model):
 
 # has_credit_comp( opportunity_id, number_of_credits, course_code ), key: (opportunity_id, number_of_credits, course_code)
 
+
 """
+
+https://docs.sqlalchemy.org/en/20/orm/basic_relationships.html
+https://docs.sqlalchemy.org/en/20/orm/relationship_api.html#sqlalchemy.orm.relationship
+https://www.digitalocean.com/community/tutorials/how-to-use-many-to-many-database-relationships-with-flask-sqlalchemy#step-2-setting-up-database-models-for-a-many-to-many-relationship
+Ben's response: https://stackoverflow.com/questions/5756559/how-to-build-many-to-many-relations-using-sqlalchemy-a-good-example 
+
 Example table in SQLAlchemy
 
 class BacktestClasses(db.Model):
