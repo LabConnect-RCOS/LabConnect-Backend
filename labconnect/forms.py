@@ -26,7 +26,7 @@ class PostOpportunity(FlaskForm):
     COURSES = []
     name = StringField('Job Title', validators=[DataRequired(), Length(max=150, message='Job Title must be 150 characters or less')])
     description = TextAreaField('Job Description', widget=TextArea(), validators=[DataRequired(), Length(max=1500, message='Job Description must be 1500 characters or less')])
-    compensation = SelectField('Mode of Compensation', choices=['Pay','Credit','Both'], validators=[DataRequired()])
+    compensation = SelectField('Mode of Compensation', choices=['Select', 'Pay','Credit','Both'], validators=[DataRequired()])
     application_due = DateField('Application Due Date', format='%m/%d/%Y', validators=[DataRequired()])
     recommended_class_years = SelectMultipleField('Recommended Class Years', choices=['Freshman','Sophomore','Junior','Senior','Grad Student'])
     recommended_experiences = TextAreaField('Recommended Experiences', widget=TextArea(), validators=[Length(max=1500, message='Recommended experiences must be 1500 characters or less')])
