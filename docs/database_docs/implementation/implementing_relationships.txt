@@ -14,6 +14,20 @@ Which means the other tables will have foreign key constraints, that refer to la
 https://dba.stackexchange.com/questions/39833/why-are-constraints-applied-in-the-database-rather-than-the-code
 
 -------------------------------------
+
+10/31 
+
+(Duy "Sunny" Le) I just realized something slightly inconvenient about the database. The opportunities table uses an autoincrement integer as a synthetic primary key (opp_id). 
+
+When the client inserts new opportunities, they necessarily do not know this key. Yet, the relationships surrounding the opportunities table rely on this key to connect opportunities to other data. 
+
+I'm not too familiar with the implementation of inserting rows with autoincrement. So I speculate that it may be possible to accidentally insert 2 opportunity rows with values being identical in all attributes, besides the opp_id. 
+
+The database may allow this: 2 different keys can point to the same row. (It's only problematic when the same values for the key point to 2 different row - please refer to materials online on functional dependencies and primary key for more details). That's duplicate data...
+
+The good news is that once inserted, the opportunities will have a fixed opp_id. However, I think the application will benefit hugely if it can query for an opportunities' opp_id. That opp_id can then be used to query for all data related to opportunities (see the ER diagram)
+
+-------------------------------------
 Here's some more details about database constraints. Code examples are in postgresql.
 
 CONSTRAINTS
