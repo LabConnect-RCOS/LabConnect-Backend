@@ -11,7 +11,7 @@ import random
 import pytz
 from datetime import datetime, date, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, inspect
 
 from labconnect import create_app, db
 from labconnect.models import *
@@ -44,7 +44,10 @@ elif sys.argv[1] == "create":
 
         contact_links_rows = [
             ("www.abc.com", "abc company"),
-            ("www.discord.com", "discord main page")
+            ("www.discord.com", "discord main page"),
+            ("https://github.com/SabreBirdOne", "Duy Le's Github"),
+            ("https://github.com/RafaelCenzano", "Rafael's Github"),
+            ("https://science.rpi.edu/computer-science", "RPI Computer Science Department"),
         ]
 
         for row_tuple in contact_links_rows: 
@@ -198,6 +201,19 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        has_link_rows = [
+            ("led", "https://github.com/SabreBirdOne"),
+            ("led", "https://science.rpi.edu/computer-science"),
+            ("cenzar", "https://github.com/RafaelCenzano"),
+        ]
+        for r in has_link_rows:
+            row = HasLink(
+                lab_runner_rcs_id= r[0],
+                contact_link= r[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
         tables = [
             RPIDepartments, 
             ContactLinks, 
@@ -211,16 +227,24 @@ elif sys.argv[1] == "create":
             SalaryCompInfo,
             UpfrontPayCompInfo,
             CreditCompInfo,
-            IsPartOf
+            IsPartOf,
+            HasLink
         ]
 
         for table in tables:
 
             stmt = select(table)
             result = db.session.execute(stmt)
-        
-            print(f"{table.__tablename__} rows:")
+
+            inst = inspect(table)
+            attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
+            
+            print(f"{table.__tablename__}")
+            print(attr_names)
             for row in result.scalars():
                 print(row)
             print()
         
+"""
+https://stackoverflow.com/questions/6039342/how-to-print-all-columns-in-sqlalchemy-orm
+"""
