@@ -50,6 +50,7 @@ class Opportunities(db.Model):
 
 	lab_runners = relationship("LabRunner", secondary="promotes", back_populates="promoted_opportunities")
 	recommends_courses = relationship("Courses", secondary="recommends_courses")
+	recommends_majors = relationship("Majors", secondary="recommends_majors")
 
 	def __str__(self) -> str:
 		return f"{self.opp_id}, {self.name}, {self.description}, {self.active_status}, {self.recommended_experience}"
@@ -70,6 +71,8 @@ class Majors(db.Model):
 	__tablename__ = "majors"
 	major_code = db.Column(db.String(4), primary_key=True)
 	major_name = db.Column(db.String(64), nullable=True, unique=False)
+
+	recommended_by_opportunities = relationship("Opportunities", secondary="recommends_majors", back_populates="recommends_majors")
 
 	def __str__(self) -> str:
 		return f"{self.major_code}, {self.major_name}"
@@ -168,6 +171,14 @@ class RecommendsCourses(db.Model):
 		return f"{self.opportunity_id}, {self.course_code}"
 
 # recommends_majors( opportunity_id, major_code ), key: (opportunity_id, major_code)
+class RecommendsMajors(db.Model):
+	__tablename__ = "recommends_majors"
+
+	opportunity_id = db.Column(db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True)
+	major_code = db.Column(db.String(4), db.ForeignKey("majors.major_code"), primary_key=True)
+
+	def __str__(self) -> str:
+		return f"{self.opportunity_id}, {self.major_code}"
 
 # recommends_c_years( opportunity_id, class_year ), key: (opportunity_id, class_year)
 
