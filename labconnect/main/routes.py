@@ -55,3 +55,8 @@ def login():
 @main_blueprint.route("/info")
 def information():
     return render_template("URP_Basic_Information_Page.html")
+
+
+@main_blueprint.route("/tips")
+def tips():
+    return render_template("tips_and_tricks.html")
