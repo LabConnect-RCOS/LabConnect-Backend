@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
+
 <head>
     <!-- Title -->
     <title>{% block title %}{% endblock %} - LabConnect</title>
@@ -29,15 +30,16 @@
     <script src="{{ url_for('static', filename='js/color-modes.js') }}"></script>
     {% block head_js %}
     {% endblock %}
-    
+
 </head>
+
 <body>
     {% include "flash.html" %}
     <div class="container py-3">
-    {% include "navbar.html" %}
-    {% block content %}
-    {% endblock %}
-    {% include "footer.html" %}
+        {% include "navbar.html" %}
+        {% block content %}
+        {% endblock %}
+        {% include "footer.html" %}
     </div>
     {% block trailing_js %}
     {% endblock %}
@@ -45,4 +47,5 @@
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
 </body>
+
 </html>
