@@ -49,6 +49,7 @@ class Opportunities(db.Model):
 	recommended_experience = db.Column(db.String(256), nullable=True, unique=False)
 
 	lab_runners = relationship("LabRunner", secondary="promotes", back_populates="promoted_opportunities")
+	recommends_courses = relationship("Courses", secondary="recommends_courses")
 
 	def __str__(self) -> str:
 		return f"{self.opp_id}, {self.name}, {self.description}, {self.active_status}, {self.recommended_experience}"
@@ -58,6 +59,8 @@ class Courses(db.Model):
 	__tablename__ = "courses"
 	course_code = db.Column(db.String(8), primary_key=True)
 	course_name = db.Column(db.String(64), nullable=True, unique=False)
+
+	recommended_by_opportunities = relationship("Opportunities", secondary="recommends_courses", back_populates="recommends_courses")
 
 	def __str__(self) -> str:
 		return f"{self.course_code}, {self.course_name}"
@@ -155,6 +158,14 @@ class Promotes(db.Model):
 		return f"{self.lab_runner_rcs_id}, {self.opportunity_id}"
 
 # recommends_courses( opportunity_id, course_code ), key: (opportunity_id, course_code)
+class RecommendsCourses(db.Model):
+	__tablename__ = "recommends_courses"
+
+	opportunity_id = db.Column(db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True)
+	course_code = db.Column(db.String(8), db.ForeignKey("courses.course_code"), primary_key=True)
+
+	def __str__(self) -> str:
+		return f"{self.opportunity_id}, {self.course_code}"
 
 # recommends_majors( opportunity_id, major_code ), key: (opportunity_id, major_code)
 

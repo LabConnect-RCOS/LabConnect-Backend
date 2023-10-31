@@ -228,6 +228,19 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        recommends_courses_rows = [
+            (1, "CSCI4430"),
+            (1, "CSCI2961"),
+            (2, "CSCI4390"),
+        ]
+        for r in recommends_courses_rows:
+            row = RecommendsCourses(
+                opportunity_id=r[0],
+                course_code=r[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
         tables = [ 
             RPIDepartments, 
             ContactLinks, 
@@ -243,7 +256,8 @@ elif sys.argv[1] == "create":
             CreditCompInfo,
             IsPartOf,
             HasLink,
-            Promotes
+            Promotes,
+            RecommendsCourses,
         ]
 
         for table in tables:
