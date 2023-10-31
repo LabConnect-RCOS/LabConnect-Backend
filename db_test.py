@@ -254,6 +254,20 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        recommends_class_years_rows = [
+            (2, 4),
+            (2, 3),
+            (2, 1),
+            (1, 3)
+        ]
+        for r in recommends_class_years_rows:
+            row = RecommendsClassYears(
+                opportunity_id=r[0],
+                class_year=r[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
         tables = [ 
             RPIDepartments, 
             ContactLinks, 
@@ -272,6 +286,7 @@ elif sys.argv[1] == "create":
             Promotes,
             RecommendsCourses,
             RecommendsMajors,
+            RecommendsClassYears,
         ]
 
         for table in tables:
