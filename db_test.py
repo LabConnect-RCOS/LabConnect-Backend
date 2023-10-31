@@ -159,28 +159,41 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        rows = [15.5, 20, 18.75]
-        for r in rows:
+        salary_rows = [15.5, 20, 18.75]
+        for r in salary_rows:
             row = SalaryCompInfo(usd_per_hour=r)
             db.session.add(row)
             db.session.commit()
 
-        rows = [9000, 15000, 500, 2500]
-        for r in rows:
+        upfront_rows = [9000, 15000, 500, 2500]
+        for r in upfront_rows:
             row = UpfrontPayCompInfo(usd = r)
             db.session.add(row)
             db.session.commit()
 
-        rows = [
+        credit_comp_rows = [
             (4, "CSCI4430"),
             (3, "CSCI2961"),
             (2, "CSCI4430"),
             (1, "CSCI1000")
         ]
-        for r in rows:
+        for r in credit_comp_rows:
             row = CreditCompInfo(
                 number_of_credits=r[0],
                 course_code=r[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        is_part_of_rows = [
+            ("led", "Computer Science"),
+            ("led", "Humanities, Arts and Social Sciences"),
+            ("cenzar", "Computer Science"),
+        ]
+        for r in is_part_of_rows:
+            row = IsPartOf(
+                lab_runner_rcs_id= r[0],
+                dep_name= r[1]
             )
             db.session.add(row)
             db.session.commit()
@@ -198,6 +211,7 @@ elif sys.argv[1] == "create":
             SalaryCompInfo,
             UpfrontPayCompInfo,
             CreditCompInfo,
+            IsPartOf
         ]
 
         for table in tables:

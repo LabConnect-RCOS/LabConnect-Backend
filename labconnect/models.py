@@ -30,7 +30,7 @@ class LabRunner(db.Model):
 	rcs_id = db.Column(db.String(64), primary_key=True)
 	name = db.Column(db.String(64), nullable=True, unique=False)
 
-	rpi_departments = relationship("RPIDepartments", secondary="isPartOf", back_populates="lab_runner")
+	rpi_departments = relationship("RPIDepartments", secondary="isPartOf")
 
 	def __str__(self) -> str: 
 		return f"{self.rcs_id}, {self.name}"
@@ -120,12 +120,12 @@ class CreditCompInfo(db.Model):
 
 # isPartOf( lab_runner_rcs_id, dep_name ), key: (lab_runner_rcs_id, dep_name)
 
-class isPartOf(db.Model):
+class IsPartOf(db.Model):
     __tablename__ = "isPartOf"
 
-    id = db.Column(db.Integer, primary_key=True)
-    lab_runner_rcs_id = db.Column(db.String(64), db.ForeignKey("lab_runner.rcs_id"))
-    dep_name = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
+    # id = db.Column(db.Integer, primary_key=True)
+    lab_runner_rcs_id = db.Column(db.String(64), db.ForeignKey("lab_runner.rcs_id"), primary_key=True)
+    dep_name = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"), primary_key=True)
 
 # hasLink( lab_runner_rcs_id, contact_link ), key: (lab_runner_rcs_id, contact_link)
 
