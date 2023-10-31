@@ -20,6 +20,8 @@ class ContactLinks(db.Model):
 	__tablename__ = "contact_links"
 	contact_link = db.Column(db.String(256), primary_key=True)
 	contact_type = db.Column(db.String(64), nullable=True, unique=False)
+
+	lab_runners = relationship("LabRunner", secondary="hasLink", back_populates="contact_links")
 	
 	def __str__(self) -> str: 
 		return f"{self.contact_link}, {self.contact_type}"	
@@ -31,6 +33,7 @@ class LabRunner(db.Model):
 	name = db.Column(db.String(64), nullable=True, unique=False)
 
 	rpi_departments = relationship("RPIDepartments", secondary="isPartOf")
+	contact_links = relationship("ContactLinks", secondary="hasLink")
 
 	def __str__(self) -> str: 
 		return f"{self.rcs_id}, {self.name}"
@@ -119,15 +122,24 @@ class CreditCompInfo(db.Model):
 # DD - Relationships
 
 # isPartOf( lab_runner_rcs_id, dep_name ), key: (lab_runner_rcs_id, dep_name)
-
 class IsPartOf(db.Model):
     __tablename__ = "isPartOf"
 
-    # id = db.Column(db.Integer, primary_key=True)
     lab_runner_rcs_id = db.Column(db.String(64), db.ForeignKey("lab_runner.rcs_id"), primary_key=True)
     dep_name = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"), primary_key=True)
 
+    def __str__(self) -> str:
+    	return f"{self.lab_runner_rcs_id}, {self.dep_name}"
+
 # hasLink( lab_runner_rcs_id, contact_link ), key: (lab_runner_rcs_id, contact_link)
+class HasLink(db.Model):
+	__tablename__ = "hasLink"
+
+	lab_runner_rcs_id = db.Column(db.String(64), db.ForeignKey("lab_runner.rcs_id"), primary_key=True)
+	contact_link = db.Column(db.String(256), db.ForeignKey("contact_links.contact_link"), primary_key=True)
+
+	def __str__(self) -> str:
+		return f"{self.lab_runner_rcs_id}, {self.contact_link}"
 
 # promotes( lab_runner_rcs_id, opportunity_id ), key: (lab_runner_rcs_id, opportunity_id)
 
