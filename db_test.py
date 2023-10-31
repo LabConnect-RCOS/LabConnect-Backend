@@ -241,6 +241,19 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        recommends_majors_rows = [
+            (1, "CSCI"),
+            (1, "PHYS"),
+            (2, "BIOL"),
+        ]
+        for r in recommends_majors_rows:
+            row = RecommendsMajors(
+                opportunity_id=r[0],
+                major_code=r[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
         tables = [ 
             RPIDepartments, 
             ContactLinks, 
@@ -258,6 +271,7 @@ elif sys.argv[1] == "create":
             HasLink,
             Promotes,
             RecommendsCourses,
+            RecommendsMajors,
         ]
 
         for table in tables:
