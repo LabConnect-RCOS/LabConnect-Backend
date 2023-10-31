@@ -1,4 +1,4 @@
-from flask import render_template, Response, abort
+from flask import render_template, abort
 
 from . import main_blueprint
 
@@ -8,9 +8,14 @@ def index():
     return render_template("index.html")
 
 
-@main_blueprint.route("/positions")
+@main_blueprint.route("/opportunities")
 def positions():
-    return render_template("positions.html")
+    return render_template("opportunitys.html")
+
+
+@main_blueprint.route("/opportunity/<int:id>")
+def opportunity(id: int):
+    return render_template("opportunity_details.html")
 
 
 @main_blueprint.route("/profile/<string:rcs_id>")
@@ -44,3 +49,9 @@ def create_post():
 @main_blueprint.route("/login")
 def login():
     return render_template("sign_in.html")
+
+
+@main_blueprint.route("/information")
+@main_blueprint.route("/info")
+def information():
+    return render_template("URP_Basic_Information_Page.html")
