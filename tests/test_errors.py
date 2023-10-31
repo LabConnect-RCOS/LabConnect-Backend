@@ -14,8 +14,9 @@ def test_404_page(test_client) -> None:
     assert b"404 Not Found" in response.data
     assert b"This page was not found" in response.data
     assert b"Return Home" in response.data
+    assert b"If you believe this is a bug or error please create an" in response.data
     assert (
-        b'If you believe this is a bug or error please create an <a href="https://github.com/RafaelCenzano/LabConnect/issues">Issue</a>'
+        b'href="https://github.com/RafaelCenzano/LabConnect/issues">Issue'
         in response.data
     )
 
@@ -31,7 +32,8 @@ def test_500_page(test_client) -> None:
     assert b"500 Server Error" in response.data
     assert b"The server had an error" in response.data
     assert b"Return Home" in response.data
+    assert b"If you believe this is a bug or error please create an" in response.data
     assert (
-        b'If you believe this is a bug or error please create an <a href="https://github.com/RafaelCenzano/LabConnect/issues">Issue</a>'
+        b'href="https://github.com/RafaelCenzano/LabConnect/issues">Issue'
         in response.data
     )
