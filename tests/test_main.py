@@ -15,17 +15,30 @@ def test_home_page(test_client) -> None:
     assert b"Your Recommendations" in response.data
 
 
-def test_positions_page(test_client) -> None:
+def test_opportunities_page(test_client) -> None:
     """
     GIVEN a Flask application configured for testing
-    WHEN the '/positions' page is requested (GET)
+    WHEN the '/opportunities' page is requested (GET)
     THEN check that the response is valid
     """
-    response = test_client.get("/positions")
+    response = test_client.get("/opportunities")
     assert response.status_code == 200
     assert b"Applied" in response.data
     assert b"Saved" in response.data
     assert b"Filters" in response.data
+
+
+def test_opportunity_detail_page(test_client) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/opportunity/<int:id>' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/opportunity/4")
+    assert response.status_code == 200
+    assert b"Quantum Computing to solve NP-Complete Problems" in response.data
+    assert b"About This Role" in response.data
+    assert b"Deadline" in response.data
 
 
 def test_discover_page(test_client) -> None:
@@ -105,3 +118,31 @@ def test_profile_page(test_client) -> None:
     assert b"Name:" in response.data
     assert b"Department:" in response.data
     assert b"Contact:" in response.data
+
+
+def test_tips_and_tricks_page(test_client) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/profile/<user>' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/tips")
+    assert response.status_code == 200
+    assert b"Tips and Tricks for LabConnect" in response.data
+
+
+def test_info_page(test_client) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/profile/<user>' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/info")
+    assert response.status_code == 200
+    assert b"URP for Credit" in response.data
+    assert b"URP for Funding" in response.data
+
+    response = test_client.get("/information")
+    assert response.status_code == 200
+    assert b"URP for Credit" in response.data
+    assert b"URP for Funding" in response.data
