@@ -214,7 +214,21 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        tables = [
+        promotes_rows = [
+            ("led", 1),
+            ("led", 2),
+            ("cenzar", 1),
+            ("cenzar", 2),
+        ]
+        for r in promotes_rows:
+            row = Promotes(
+                lab_runner_rcs_id= r[0],
+                opportunity_id= r[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        tables = [ 
             RPIDepartments, 
             ContactLinks, 
             LabRunner, 
@@ -228,7 +242,8 @@ elif sys.argv[1] == "create":
             UpfrontPayCompInfo,
             CreditCompInfo,
             IsPartOf,
-            HasLink
+            HasLink,
+            Promotes
         ]
 
         for table in tables:

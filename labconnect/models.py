@@ -34,6 +34,7 @@ class LabRunner(db.Model):
 
 	rpi_departments = relationship("RPIDepartments", secondary="isPartOf")
 	contact_links = relationship("ContactLinks", secondary="hasLink")
+	promoted_opportunities = relationship("Opportunities", secondary="promotes")
 
 	def __str__(self) -> str: 
 		return f"{self.rcs_id}, {self.name}"
@@ -46,6 +47,8 @@ class Opportunities(db.Model):
 	description = db.Column(db.String(256), nullable=True, unique=False)
 	active_status = db.Column(db.Boolean, nullable=False, unique=False)
 	recommended_experience = db.Column(db.String(256), nullable=True, unique=False)
+
+	lab_runners = relationship("LabRunner", secondary="promotes", back_populates="promoted_opportunities")
 
 	def __str__(self) -> str:
 		return f"{self.opp_id}, {self.name}, {self.description}, {self.active_status}, {self.recommended_experience}"
@@ -142,6 +145,14 @@ class HasLink(db.Model):
 		return f"{self.lab_runner_rcs_id}, {self.contact_link}"
 
 # promotes( lab_runner_rcs_id, opportunity_id ), key: (lab_runner_rcs_id, opportunity_id)
+class Promotes(db.Model):
+	__tablename__ = "promotes"
+
+	lab_runner_rcs_id = db.Column(db.String(64), db.ForeignKey("lab_runner.rcs_id"), primary_key=True)
+	opportunity_id = db.Column(db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True)
+
+	def __str__(self) -> str:
+		return f"{self.lab_runner_rcs_id}, {self.opportunity_id}"
 
 # recommends_courses( opportunity_id, course_code ), key: (opportunity_id, course_code)
 
