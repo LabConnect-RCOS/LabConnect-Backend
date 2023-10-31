@@ -1,4 +1,4 @@
-from flask import render_template, Response
+from flask import render_template, Response, abort
 
 from . import main_blueprint
 
@@ -17,8 +17,8 @@ def profile(rcs_id: str):
     return render_template("profile.html")
 
 
-@main_blueprint.route("/department")
-def department():
+@main_blueprint.route("/department/<string:department>")
+def department(department: str):
     return render_template("department.html")
 
 
@@ -29,7 +29,10 @@ def discover():
 
 @main_blueprint.route("/professor/<string:rcs_id>")
 def professor(rcs_id: str):
-    return render_template("professor.html")
+    # test code until database code is added
+    if "bob" == rcs_id:
+        return render_template("professor.html")
+    abort(500)
 
 
 @main_blueprint.route("/create_post")
