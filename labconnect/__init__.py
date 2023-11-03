@@ -39,7 +39,6 @@ def initialize_extensions(app) -> None:
     # Flask-Login configuration
     from labconnect.models import RPIDepartments
 
-
     # @login.user_loader
     # def load_user(user_id):
     #     return User.query.filter(User.id == int(user_id)).first()
