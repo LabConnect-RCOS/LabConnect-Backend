@@ -1,8 +1,9 @@
-from labconnect import db
-import pytz
 from sqlalchemy.orm import relationship
 
+from labconnect import db
+
 # DD - Entities
+
 
 # rpi_departments( name, description ), key: name
 class RPIDepartments(db.Model):
@@ -193,6 +194,7 @@ class CreditCompInfo(db.Model):
 
 
 # DD - Relationships
+
 
 # isPartOf( lab_runner_rcs_id, dep_name ), key: (lab_runner_rcs_id, dep_name)
 class IsPartOf(db.Model):

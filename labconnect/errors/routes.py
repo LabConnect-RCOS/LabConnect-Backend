@@ -1,4 +1,4 @@
-from flask import make_response, render_template, Response
+from flask import Response, make_response, render_template
 
 from . import error_blueprint
 

@@ -7,14 +7,37 @@ Then pass an Executable into Session.execute()
 """
 
 import sys
-import random
-import pytz
-from datetime import datetime, date, timezone
+from datetime import datetime
 
-from sqlalchemy import select, inspect
+import pytz
+from sqlalchemy import inspect, select
 
 from labconnect import create_app, db
-from labconnect.models import *
+from labconnect.models import (
+    RPIDepartments,
+    ContactLinks,
+    LabRunner,
+    Opportunities,
+    Courses,
+    Majors,
+    ClassYears,
+    ApplicationDueDates,
+    Semesters,
+    SalaryCompInfo,
+    UpfrontPayCompInfo,
+    CreditCompInfo,
+    IsPartOf,
+    HasLink,
+    Promotes,
+    RecommendsCourses,
+    RecommendsMajors,
+    RecommendsClassYears,
+    ApplicationDue,
+    ActiveSemesters,
+    HasSalaryComp,
+    HasUpfrontPayComp,
+    HasCreditComp,
+)
 
 app = create_app()
 
@@ -291,7 +314,6 @@ elif sys.argv[1] == "create":
         ]
 
         for table in tables:
-
             stmt = select(table)
             result = db.session.execute(stmt)
 
