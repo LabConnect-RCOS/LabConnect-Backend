@@ -1,12 +1,10 @@
-import os
 import logging
+import os
 
 # Import Flask modules
 from flask import Flask
-
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
-
 
 csrf_protection = CSRFProtect()
 
@@ -47,8 +45,8 @@ def initialize_extensions(app) -> None:
 def register_blueprints(app) -> None:
     # Since the application instance is now created, register each Blueprint
     # with the Flask application instance (app)
-    from labconnect.main import main_blueprint
     from labconnect.errors import error_blueprint
+    from labconnect.main import main_blueprint
 
     app.register_blueprint(main_blueprint)
     app.register_blueprint(error_blueprint)
