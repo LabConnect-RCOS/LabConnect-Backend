@@ -52,6 +52,9 @@ class Opportunities(db.Model):
 	recommends_courses = relationship("Courses", secondary="recommends_courses")
 	recommends_majors = relationship("Majors", secondary="recommends_majors")
 	recommends_class_years = relationship("ClassYears", secondary="recommends_class_years")
+	application_due = relationship("ApplicationDueDates", secondary="application_due")	
+	active_semesters = relationship("Semesters", secondary="active_semesters")
+	has_salary_comp = relationship("SalaryCompInfo", secondary="has_salary_comp")
 
 	def __str__(self) -> str:
 		return f"{self.opp_id}, {self.name}, {self.description}, {self.active_status}, {self.recommended_experience}"
@@ -94,6 +97,8 @@ class ApplicationDueDates(db.Model):
 	__tablename__ = "application_due_dates"
 	date = db.Column(db.DateTime(), primary_key=True)
 
+	application_due = relationship("Opportunities", secondary="application_due", back_populates="application_due")
+
 	def __str__(self) -> str:
 		return self.date.isoformat()
 
@@ -103,6 +108,8 @@ class Semesters(db.Model):
 	year = db.Column(db.Integer, primary_key=True)
 	season = db.Column(db.String(64), primary_key=True)
 
+	active_semesters = relationship("Opportunities", secondary="active_semesters", back_populates="active_semesters")
+
 	def __str__(self) -> str: 
 		return f"{self.year}, {self.season}"
 
@@ -110,6 +117,8 @@ class Semesters(db.Model):
 class SalaryCompInfo(db.Model):
 	__tablename__ = "salary_comp_info"
 	usd_per_hour = db.Column(db.Float(64), primary_key=True)
+
+	has_salary_comp = relationship("Opportunities", secondary="has_salary_comp", back_populates="has_salary_comp")
 
 	def __str__(self) -> str:
 		return f"{self.usd_per_hour}"
@@ -194,10 +203,42 @@ class RecommendsClassYears(db.Model):
 		return f"{self.opportunity_id}, {self.class_year}"
 
 # application_due( opportunity_id, date ), key: (opportunity_id, date)
+class ApplicationDue(db.Model):
+	__tablename__ = "application_due"
+
+	opportunity_id = db.Column(db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True)
+	date = db.Column(db.DateTime(), db.ForeignKey("application_due_dates.date"), primary_key=True)
+
+	def __str__(self) -> str:
+		return f"{self.opportunity_id}, {self.date}"
 
 # active_semesters( opportunity_id, year, season ), key: (opportunity_id, year, season)
+class ActiveSemesters(db.Model):
+	__tablename__ = "active_semesters"
+
+	opportunity_id = db.Column(db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True)
+	year = db.Column(db.Integer, primary_key=True)
+	season = db.Column(db.String(64), primary_key=True)
+
+	__table_args__ = (
+		db.ForeignKeyConstraint(
+			["year", "season"],
+			["semesters.year", "semesters.season"],
+		), 
+	)
+
+	def __str__(self) -> str: 
+		return f"{self.opportunity_id}, {self.year}, {self.season}"
 
 # has_salary_comp( opportunity_id, usd_per_hour ), key: (opportunity_id, usd_per_hour)
+class HasSalaryComp(db.Model):
+	__tablename__ = "has_salary_comp"
+
+	opportunity_id = db.Column(db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True)
+	usd_per_hour = db.Column(db.Float(64), db.ForeignKey("salary_comp_info.usd_per_hour"), primary_key=True)
+
+	def __str__(self) -> str:
+		return f"{self.opportunity_id}, {self.usd_per_hour}"
 
 # has_upfront_pay_comp( opportunity_id, usd ), key: (opportunity_id, usd)
 
@@ -205,11 +246,12 @@ class RecommendsClassYears(db.Model):
 
 
 """
-
 https://docs.sqlalchemy.org/en/20/orm/basic_relationships.html
 https://docs.sqlalchemy.org/en/20/orm/relationship_api.html#sqlalchemy.orm.relationship
 https://www.digitalocean.com/community/tutorials/how-to-use-many-to-many-database-relationships-with-flask-sqlalchemy#step-2-setting-up-database-models-for-a-many-to-many-relationship
 Ben's response: https://stackoverflow.com/questions/5756559/how-to-build-many-to-many-relations-using-sqlalchemy-a-good-example 
+https://stackoverflow.com/questions/7504753/relations-on-composite-keys-using-sqlalchemy
+https://avacariu.me/writing/2019/composite-foreign-keys-and-many-to-many-relationships-in-sqlalchemy
 
 Example table in SQLAlchemy
 

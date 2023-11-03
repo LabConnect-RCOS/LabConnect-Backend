@@ -268,6 +268,46 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        application_due_rows = [ # app_due_dates_rows
+            (2, app_due_dates_rows[0]),
+            (2, app_due_dates_rows[1]),
+            (1, app_due_dates_rows[2]),
+        ]
+        for r in application_due_rows:
+            row = ApplicationDue(
+                opportunity_id = r[0],
+                date=r[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        active_semesters_rows = [ # semester_rows
+            (2, semester_rows[0][0], semester_rows[0][1]),
+            (2, semester_rows[1][0], semester_rows[1][1]),
+            (1, semester_rows[2][0], semester_rows[2][1]),
+        ]
+        for r in active_semesters_rows:
+            row = ActiveSemesters(
+                opportunity_id= r[0],
+                year= r[1],
+                season= r[2]
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        has_salary_comp_rows = [ # salary_rows
+            (2, salary_rows[0]),
+            (2, salary_rows[1]),
+            (1, salary_rows[2]),
+        ]
+        for r in has_salary_comp_rows:
+            row = HasSalaryComp(
+                opportunity_id = r[0],
+                usd_per_hour = r[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
         tables = [ 
             RPIDepartments, 
             ContactLinks, 
@@ -287,6 +327,9 @@ elif sys.argv[1] == "create":
             RecommendsCourses,
             RecommendsMajors,
             RecommendsClassYears,
+            ApplicationDue,
+            ActiveSemesters,
+            HasSalaryComp
         ]
 
         for table in tables:
