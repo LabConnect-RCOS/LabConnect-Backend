@@ -55,6 +55,8 @@ class Opportunities(db.Model):
 	application_due = relationship("ApplicationDueDates", secondary="application_due")	
 	active_semesters = relationship("Semesters", secondary="active_semesters")
 	has_salary_comp = relationship("SalaryCompInfo", secondary="has_salary_comp")
+	has_upfront_pay_comp = relationship("UpfrontPayCompInfo", secondary="has_upfront_pay_comp")
+	has_credit_comp = relationship("CreditCompInfo", secondary="has_credit_comp")
 
 	def __str__(self) -> str:
 		return f"{self.opp_id}, {self.name}, {self.description}, {self.active_status}, {self.recommended_experience}"
@@ -128,6 +130,8 @@ class UpfrontPayCompInfo(db.Model):
 	__tablename__ = "upfront_pay_comp_info"
 	usd = db.Column(db.Float(64), primary_key=True)
 
+	has_upfront_pay_comp = relationship("Opportunities", secondary="has_upfront_pay_comp", back_populates="has_upfront_pay_comp")
+
 	def __str__(self) -> str:
 		return f"{self.usd}"
 
@@ -136,6 +140,8 @@ class CreditCompInfo(db.Model):
 	__tablename__ = "credit_comp_info"
 	number_of_credits = db.Column(db.Integer, primary_key=True)
 	course_code = db.Column(db.String(8), primary_key=True)
+
+	has_credit_comp = relationship("Opportunities", secondary="has_credit_comp", back_populates="has_credit_comp")
 
 	def __str__(self) -> str:
 		return f"{self.number_of_credits}, {self.course_code}"
@@ -241,15 +247,42 @@ class HasSalaryComp(db.Model):
 		return f"{self.opportunity_id}, {self.usd_per_hour}"
 
 # has_upfront_pay_comp( opportunity_id, usd ), key: (opportunity_id, usd)
+class HasUpfrontPayComp(db.Model):
+	__tablename__ = "has_upfront_pay_comp"
+
+	opportunity_id = db.Column(db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True)
+	usd = db.Column(db.Float(64), db.ForeignKey("upfront_pay_comp_info.usd"), primary_key=True)
+
+	def __str__(self) -> str:
+		return f"{self.opportunity_id}, {self.usd}"
 
 # has_credit_comp( opportunity_id, number_of_credits, course_code ), key: (opportunity_id, number_of_credits, course_code)
+class HasCreditComp(db.Model):
+	__tablename__ = "has_credit_comp"
 
+	opportunity_id = db.Column(db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True)
+	number_of_credits = db.Column(db.Integer, primary_key=True)
+	course_code = db.Column(db.String(8), primary_key=True)
+
+	__table_args__ = (
+		db.ForeignKeyConstraint(
+			["number_of_credits", "course_code"],
+			["credit_comp_info.number_of_credits", "credit_comp_info.course_code"],
+		),
+	)
+
+	def __str__(self) -> str:
+		return f"{self.opportunity_id}, {self.number_of_credits}, {self.course_code}"
 
 """
+
+Many-to-many relationships:
 https://docs.sqlalchemy.org/en/20/orm/basic_relationships.html
 https://docs.sqlalchemy.org/en/20/orm/relationship_api.html#sqlalchemy.orm.relationship
 https://www.digitalocean.com/community/tutorials/how-to-use-many-to-many-database-relationships-with-flask-sqlalchemy#step-2-setting-up-database-models-for-a-many-to-many-relationship
 Ben's response: https://stackoverflow.com/questions/5756559/how-to-build-many-to-many-relations-using-sqlalchemy-a-good-example 
+
+Composite foreign keys:
 https://stackoverflow.com/questions/7504753/relations-on-composite-keys-using-sqlalchemy
 https://avacariu.me/writing/2019/composite-foreign-keys-and-many-to-many-relationships-in-sqlalchemy
 

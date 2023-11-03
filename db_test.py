@@ -308,6 +308,33 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        has_upfront_pay_comp_rows = [ # upfront_rows
+            (2, upfront_rows[0]),
+            (2, upfront_rows[1]),
+            (1, upfront_rows[2]),
+        ]
+        for r in has_upfront_pay_comp_rows:
+            row = HasUpfrontPayComp(
+                opportunity_id = r[0],
+                usd = r[1]
+            )
+            db.session.add(row)
+            db.session.commit()
+
+        has_credit_comp_rows = [ # credit_comp_rows
+            (2, credit_comp_rows[0][0], credit_comp_rows[0][1]),
+            (2, credit_comp_rows[1][0], credit_comp_rows[1][1]),
+            (1, credit_comp_rows[2][0], credit_comp_rows[2][1]),
+        ]
+        for r in has_credit_comp_rows:
+            row = HasCreditComp(
+                opportunity_id=r[0],
+                number_of_credits=r[1],
+                course_code=r[2]
+            )
+            db.session.add(row)
+            db.session.commit()
+
         tables = [ 
             RPIDepartments, 
             ContactLinks, 
@@ -329,7 +356,9 @@ elif sys.argv[1] == "create":
             RecommendsClassYears,
             ApplicationDue,
             ActiveSemesters,
-            HasSalaryComp
+            HasSalaryComp,
+            HasUpfrontPayComp,
+            HasCreditComp
         ]
 
         for table in tables:
