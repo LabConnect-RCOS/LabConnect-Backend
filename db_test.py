@@ -375,6 +375,7 @@ elif sys.argv[1] == "create":
                 print(row)
             print()
         
+        print("Number of tables:", len(tables))
 """
 https://stackoverflow.com/questions/6039342/how-to-print-all-columns-in-sqlalchemy-orm
 """
