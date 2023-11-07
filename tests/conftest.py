@@ -19,11 +19,7 @@ from labconnect.models import *
 def test_client():
     # Set the Testing configuration prior to creating the Flask application
     flask_app = create_app()
-    flask_app.config.update(
-        {
-            "TESTING": True,
-        }
-    )
+    flask_app.config.update({"TESTING": True})
 
     # Create a test client using the Flask application configured for testing
     with flask_app.test_client() as testing_client:
