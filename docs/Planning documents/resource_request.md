@@ -6,3 +6,4 @@ Digital Ocean droplet
 - Database doesn't utilize too many resources for this small app
   - Using docker or running an instance in the droplet
 - Asking if we need to purchase a domain name
+- If utilizing RPI resources the project would not have a cost to us
