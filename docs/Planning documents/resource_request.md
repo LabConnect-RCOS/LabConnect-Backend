@@ -5,5 +5,5 @@ Digital Ocean droplet
 - Flask app should use minimal resources
 - Database doesn't utilize too many resources for this small app
   - Using docker or running an instance in the droplet
-- Asking if we need to purchase a domain name
+- We can utilize an RPI domain
 - If utilizing RPI resources the project would not have a cost to us
