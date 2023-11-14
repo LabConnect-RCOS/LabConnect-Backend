@@ -20,6 +20,13 @@
             </div>
         </div>
 
+    <div>
+        <p> {{ attr_names }} </p>
+        {% for row in opp_attr_rows %}
+            <p> {{ row }} </p>
+        {% endfor %}
+    </div>
+
         <div class="mt-4 no-border-radius">
             <div class="card position-grid">
 
