@@ -1,7 +1,32 @@
 from flask import abort, render_template
 
 from . import main_blueprint
-
+from labconnect import db
+from labconnect.models import (
+    RPIDepartments,
+    ContactLinks,
+    LabRunner,
+    Opportunities,
+    Courses,
+    Majors,
+    ClassYears,
+    ApplicationDueDates,
+    Semesters,
+    SalaryCompInfo,
+    UpfrontPayCompInfo,
+    CreditCompInfo,
+    IsPartOf,
+    HasLink,
+    Promotes,
+    RecommendsCourses,
+    RecommendsMajors,
+    RecommendsClassYears,
+    ApplicationDue,
+    ActiveSemesters,
+    HasSalaryComp,
+    HasUpfrontPayComp,
+    HasCreditComp,
+)
 
 @main_blueprint.route("/")
 def index():
@@ -10,7 +35,24 @@ def index():
 
 @main_blueprint.route("/opportunities")
 def positions():
-    return render_template("opportunitys.html")
+	# pass objects into render_template. For example:
+	# lines = ...
+	# return render_template("opportunitys.html", lines=lines)
+	stmt = db.select(Opportunities)
+	result = db.session.execute(stmt)
+	
+	inst = db.inspect(Opportunities)
+	attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
+	print(attr_names)
+
+	rows = [str(row) for row in result.scalars()] 
+	print(rows)
+
+	return render_template(
+		"opportunitys.html", 
+		attr_names = attr_names, 
+		opp_attr_rows = rows
+	) 
 
 
 @main_blueprint.route("/opportunity/<int:id>")
