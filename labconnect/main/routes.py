@@ -35,24 +35,39 @@ def index():
 
 @main_blueprint.route("/opportunities")
 def positions():
-	# pass objects into render_template. For example:
-	# lines = ...
-	# return render_template("opportunitys.html", lines=lines)
-	stmt = db.select(Opportunities)
-	result = db.session.execute(stmt)
-	
-	inst = db.inspect(Opportunities)
-	attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
-	print(attr_names)
+    # pass objects into render_template. For example:
+    # lines = ...
+    # return render_template("opportunitys.html", lines=lines)
 
-	rows = [str(row) for row in result.scalars()] 
-	print(rows)
+    # https://stackoverflow.com/questions/6044309/sqlalchemy-how-to-join-several-tables-by-one-query
+    
 
-	return render_template(
-		"opportunitys.html", 
-		attr_names = attr_names, 
-		opp_attr_rows = rows
-	) 
+    inst = db.inspect(Opportunities)
+    attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
+    print("all attributes in order:", attr_names)
+
+    attr_names = attr_names[1:]
+
+    query = db.session.query(
+        # Opportunities.opp_id, 
+        Opportunities.name,
+        Opportunities.description,
+        Opportunities.active_status,
+        Opportunities.recommended_experience
+    )
+ 
+    # executing the query with db
+    result = query.all()
+
+    rows = [",".join(str(row).split(",")) for row in result]
+    print(rows)
+    
+
+    return render_template(
+        "opportunitys.html", 
+        attr_names = attr_names, 
+        opp_attr_rows = rows
+    )
 
 
 @main_blueprint.route("/opportunity/<int:id>")
