@@ -71,7 +71,8 @@
 
 ## Testing
  * Run pytest
-   * Run all the test files
+   * Run all the test files and generate a coverage report. Coverage reports are setup to output to the terminal and provide an html file that can be viewed that can show what branches or statments are not covered. It is in the projects best interest to have high coverage to ensure all statements and branches work as expected.
+
    ```sh
    $ make test
    ```
@@ -79,10 +80,15 @@
    ```sh
    $ python -m pytest
    ```
+   or manually with a coverage report generated
+   ```sh
+   $ python -m pytest --cov
+   ```
 
 ## Development
  * Run flask with python directly
    * Run all the test files
+
    ```sh
    $ make develop
    ```
@@ -92,7 +98,7 @@
    ```
 
 ## Deployment
-* TBD, planning to utilize Digital Ocean
+* TBD, planning to RPI VM
 
 ## Production
  * Run gunicorn
@@ -103,6 +109,10 @@
     ```sh
    $ gunicorn run:app -w 6 --preload --max-requests-jitter 300
    ```
+
+## Contributors
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
 
 ## License
 
