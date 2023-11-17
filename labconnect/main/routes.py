@@ -48,6 +48,7 @@ def positions():
 
     attr_names = attr_names[1:]
 
+    """
     query = db.session.query(
         # Opportunities.opp_id, 
         Opportunities.name,
@@ -58,10 +59,27 @@ def positions():
  
     # executing the query with db
     result = query.all()
-
     rows = [",".join(str(row).split(",")) for row in result]
     print(rows)
-    
+    """
+    stmt = db.select(
+        # Opportunities.opp_id, 
+        Opportunities.name,
+        LabRunner.name
+    ).join(
+        Promotes, Opportunities.opp_id == Promotes.opportunity_id
+    ).join(
+        LabRunner, Promotes.lab_runner_rcs_id == LabRunner.rcs_id
+    )
+    print(stmt)
+
+    result = db.session.execute(stmt)
+    print(result)
+
+    rows = list()
+    for row in result.scalars():
+        print(row)
+        rows.append(row)
 
     return render_template(
         "opportunitys.html", 
