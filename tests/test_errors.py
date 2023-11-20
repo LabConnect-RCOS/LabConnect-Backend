@@ -3,7 +3,7 @@ Test errors
 """
 
 
-def test_404_page_with_fixture(test_client) -> None:
+def test_404_page(test_client) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/abcsd' page is requested (GET)
@@ -11,8 +11,29 @@ def test_404_page_with_fixture(test_client) -> None:
     """
     response = test_client.get("/abcsd")
     assert response.status_code == 404
-    assert b"Not Found" in response.data
+    assert b"404 Not Found" in response.data
+    assert b"This page was not found" in response.data
+    assert b"Return Home" in response.data
+    assert b"If you believe this is a bug or error please create an" in response.data
     assert (
-        b"The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again."
+        b'href="https://github.com/RafaelCenzano/LabConnect/issues">Issue'
+        in response.data
+    )
+
+
+def test_500_page(test_client) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/professor/<professor>' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/professor/duncan")
+    assert response.status_code == 500
+    assert b"500 Server Error" in response.data
+    assert b"The server had an error" in response.data
+    assert b"Return Home" in response.data
+    assert b"If you believe this is a bug or error please create an" in response.data
+    assert (
+        b'href="https://github.com/RafaelCenzano/LabConnect/issues">Issue'
         in response.data
     )

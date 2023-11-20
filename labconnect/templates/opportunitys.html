@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Positions{% endblock %}
+
+{% block content %}
+<main>
+    <div class="container">
+        <div class="row">
+            <div class="search-grid col">
+
+                <div class="search">
+                    Search
+                </div>
+
+                <div class="search-grid-buttons">
+                    <button type="button" class="btn btn-primary">Applied</button>
+                    <button type="button" class="btn btn-primary">Saved</button>
+                    <button type="button" class="btn btn-primary">Filters</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 no-border-radius">
+            <div class="card position-grid">
+
+                <!-- Holds all the jobs -->
+                <div class="card position-card">
+                    <div class="card no-border-radius">
+                        <div class="card-body">
+                            <h6>
+                                <span class="badge bg-danger">Professor Turner</span>
+                                <span class="badge bg-primary">$40 Per Hour</span>
+                            </h6>
+                            <h5 class="card-title">Quantum Computing to solve NP-Complete Problems</h5>
+                            <h6 class="card-subtitle mb-2 text-body-secondary">Computer Science</h6>
+                            <p class="card-text">Russel Sage <br> CS • In-Person</p>
+                        </div>
+                    </div>
+
+
+                    <div class="card no-border-radius">
+                        <div class="card-body">
+                            <h6>
+                                <span class="badge bg-danger">Professor Turner</span>
+                                <span class="badge bg-primary">$40 Per Hour</span>
+                            </h6>
+                            <h5 class="card-title">Quantum Computing to solve NP-Complete Problems</h5>
+                            <h6 class="card-subtitle mb-2 text-body-secondary">Computer Science</h6>
+                            <p class="card-text">Russel Sage <br> CS • In-Person</p>
+                        </div>
+                    </div>
+
+
+                    <div class="card no-border-radius">
+                        <div class="card-body">
+                            <h6>
+                                <span class="badge bg-danger">Professor Turner</span>
+                                <span class="badge bg-primary">$40 Per Hour</span>
+                            </h6>
+                            <h5 class="card-title">Quantum Computing to solve NP-Complete Problems</h5>
+                            <h6 class="card-subtitle mb-2 text-body-secondary">Computer Science</h6>
+                            <p class="card-text">Russel Sage <br> CS • In-Person</p>
+                        </div>
+                    </div>
+
+                    <div class="top-margin">
+                        <ul class="pagination">
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="" style="border-radius: 0px; grid-column: span 8">
+                    <iframe src="position_details.html" title="Position_Details" height="800" width="610"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
