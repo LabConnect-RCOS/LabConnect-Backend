@@ -41,55 +41,48 @@ def positions():
 
     # https://stackoverflow.com/questions/6044309/sqlalchemy-how-to-join-several-tables-by-one-query
     
-
+    # opp_attr_query: returns attributes of oppportunities
     inst = db.inspect(Opportunities)
-    attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
-    print("all attributes in order:", attr_names)
-
-    attr_names = attr_names[1:]
-
-    query = db.session.query(
-        # Opportunities.opp_id, 
+    opp_attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
+    print("all <opportunities> attributes in order:", opp_attr_names)
+    
+    # opp_attr_names = opp_attr_names[1:]
+    opp_attr_query = db.session.query(
+        Opportunities.opp_id,
         Opportunities.name,
         Opportunities.description,
         Opportunities.active_status,
         Opportunities.recommended_experience,
-        Promotes.lab_runner_rcs_id,
-        ActiveSemesters.year, 
-        ActiveSemesters.season
-    ).join(Promotes, Opportunities.opp_id == Promotes.opportunity_id
-    ).join(ActiveSemesters, Opportunities.opp_id == ActiveSemesters.opportunity_id)
- 
-    # executing the query with db
-    result = query.all()
-    rows = [",".join(str(row).split(",")) for row in result]
-    print(rows)
+    )
 
-    """
-    stmt = db.select(
-        # Opportunities.opp_id, 
+    # executing the query with db
+    result = opp_attr_query.all()
+    opp_attr_rows = [", ".join(str(row).split(",")) for row in result]
+    print(opp_attr_rows)
+
+    # joined_query1: maps opp_id to names of lab runners that promote the opportunity.
+    joined_query1_attr_names = ["opp_id", "opportunities.name", "lab_runner.name"]
+    joined_query1 = db.session.query(
+        Opportunities.opp_id, 
         Opportunities.name,
-        LabRunner.name
+        LabRunner.name,
     ).join(
         Promotes, Opportunities.opp_id == Promotes.opportunity_id
     ).join(
         LabRunner, Promotes.lab_runner_rcs_id == LabRunner.rcs_id
-    )
-    print(stmt)
-
-    result = db.session.execute(stmt)
-    print(result)
-
-    rows = list()
-    for row in result.scalars():
-        print(row)
-        rows.append(row)
-    """
+    ).order_by(Opportunities.opp_id)
+    
+    # executing the query with db
+    result = joined_query1.all()
+    joined_query1_rows = [", ".join(str(row).split(",")) for row in result]
+    
 
     return render_template(
         "opportunitys.html", 
-        attr_names = attr_names, 
-        opp_attr_rows = rows
+        opp_attr_names = opp_attr_names, 
+        opp_attr_rows = opp_attr_rows,
+        joined_query1_attr_names = joined_query1_attr_names,
+        joined_query1_rows = joined_query1_rows,
     )
 
 
