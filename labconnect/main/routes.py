@@ -53,8 +53,12 @@ def positions():
         Opportunities.name,
         Opportunities.description,
         Opportunities.active_status,
-        Opportunities.recommended_experience
-    )
+        Opportunities.recommended_experience,
+        Promotes.lab_runner_rcs_id,
+        ActiveSemesters.year, 
+        ActiveSemesters.season
+    ).join(Promotes, Opportunities.opp_id == Promotes.opportunity_id
+    ).join(ActiveSemesters, Opportunities.opp_id == ActiveSemesters.opportunity_id)
  
     # executing the query with db
     result = query.all()
