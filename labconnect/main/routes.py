@@ -28,9 +28,10 @@ from labconnect.models import (
     HasCreditComp,
 )
 
+
 def get_opportunities_rows():
     """
-    @RETURNS: all rows of the opportunites table, for all attributes.
+    @RETURNS: a Query to all rows of the opportunites table, for all attributes.
     """
     return db.session.query(
         Opportunities.opp_id,
@@ -40,89 +41,144 @@ def get_opportunities_rows():
         Opportunities.recommended_experience,
     )
 
+
 def get_opportunity_promoters(opp_id):
     """
     @PARAMETERS: opp_id: an opportunity id from the database
     @REQUIRES: opp_id is an integer
-    @RETURNS: rows of the lab_runner table for all attributes, representing:
+    @RETURNS: a Query to rows of the lab_runner table for all attributes, representing:
         everything about lab runners that promote the opportunity
     """
-    return db.session.query(
-        LabRunner
+    return (
+        db.session.query(LabRunner.rcs_id, LabRunner.name)
+        .join(Promotes, Promotes.lab_runner_rcs_id == LabRunner.rcs_id)
+        .join(Opportunities, Opportunities.opp_id == Promotes.opportunity_id)
+        .filter(Opportunities.opp_id == opp_id)
+        .order_by(LabRunner.name)
     )
-    pass
+
 
 def get_opportunity_recommended_courses(opp_id):
     """
     @PARAMETERS: opp_id: an opportunity id from the database
     @REQUIRES: opp_id is an integer
-    @RETURNS: rows of the courses table for all attributes, representing:
+    @RETURNS: a Query to rows of the courses table for all attributes, representing:
         everything about courses recommended by the opportunity
     """
+    return (
+        db.session.query(Courses.course_code, Courses.course_name)
+        .join(RecommendsCourses, RecommendsCourses.course_code == Courses.course_code)
+        .join(Opportunities, Opportunities.opp_id == RecommendsCourses.opportunity_id)
+        .filter(Opportunities.opp_id == opp_id)
+        .order_by(Courses.course_name)
+    )
     pass
+
 
 def get_opportunity_recommended_majors(opp_id):
     """
     @PARAMETERS: opp_id: an opportunity id from the database
     @REQUIRES: opp_id is an integer
-    @RETURNS: rows of the majors table for all attributes, representing:
+    @RETURNS: a Query to rows of the majors table for all attributes, representing:
         everything about majors recommended by the opportunity
     """
+    return (
+        db.session.query(Majors.major_code, Majors.major_name)
+        .join(RecommendsMajors, RecommendsMajors.major_code == Majors.major_code)
+        .join(Opportunities, Opportunities.opp_id == RecommendsMajors.opportunity_id)
+        .filter(Opportunities.opp_id == opp_id)
+        .order_by(Majors.major_name)
+    )
     pass
+
 
 def get_opportunity_recommended_class_years(opp_id):
     """
     @PARAMETERS: opp_id: an opportunity id from the database
     @REQUIRES: opp_id is an integer
-    @RETURNS: rows of the class_years table for all attributes, representing:
+    @RETURNS: a Query to rows of the class_years table for all attributes, representing:
         everything about class years recommended by the opportunity
     """
+    return (
+        db.session.query(ClassYears.class_year, ClassYears.class_name)
+        .join(RecommendsClassYears, RecommendsClassYears.class_year == ClassYears.class_year)
+        .join(Opportunities, Opportunities.opp_id == RecommendsClassYears.opportunity_id)
+        .filter(Opportunities.opp_id == opp_id)
+        .order_by(ClassYears.class_year)
+    )
     pass
+
 
 def get_opportunity_hourly_rates(opp_id):
     """
     @PARAMETERS: opp_id: an opportunity id from the database
     @REQUIRES: opp_id is an integer
-    @RETURNS: rows of the salary_comp_info table for all attributes, representing:
+    @RETURNS: a Query to rows of the salary_comp_info table for all attributes, representing:
         everything about hourly salary of the opportunity
     """
+    return (
+        db.session.query(SalaryCompInfo.usd_per_hour)
+        .join(HasSalaryComp, HasSalaryComp.usd_per_hour == SalaryCompInfo.usd_per_hour)
+        .join(Opportunities, Opportunities.opp_id == HasSalaryComp.opportunity_id)
+        .filter(Opportunities.opp_id == opp_id)
+        .order_by(SalaryCompInfo.usd_per_hour)
+    )
     pass
+
 
 def get_opportunity_upfront_pay(opp_id):
     """
     @PARAMETERS: opp_id: an opportunity id from the database
     @REQUIRES: opp_id is an integer
-    @RETURNS: rows of the upfront_pay_comp_info table for all attributes, representing:
-        everything about hourly salary of the opportunity
+    @RETURNS: a Query to rows of the upfront_pay_comp_info table for all attributes, representing:
+        everything about upfront pay of the opportunity
     """
+    return (
+        db.session.query(UpfrontPayCompInfo.usd)
+        .join(HasUpfrontPayComp, HasUpfrontPayComp.usd == UpfrontPayCompInfo.usd)
+        .join(Opportunities, Opportunities.opp_id == HasUpfrontPayComp.opportunity_id)
+        .filter(Opportunities.opp_id == opp_id)
+        .order_by(UpfrontPayCompInfo.usd)
+    )
     pass
+
 
 def get_opportunity_course_credits(opp_id):
     """
     @PARAMETERS: opp_id: an opportunity id from the database
     @REQUIRES: opp_id is an integer
-    @RETURNS: rows of the credit_comp_info table for all attributes, representing:
+    @RETURNS: a Query to rows of the credit_comp_info table for all attributes, representing:
         everything about which courses are credited, and range of credits awarded by the opportunity
     """
+    return (
+        db.session.query(CreditCompInfo.course_code, CreditCompInfo.number_of_credits)
+        .join(HasCreditComp, (HasCreditComp.course_code == CreditCompInfo.course_code) & (HasCreditComp.number_of_credits == CreditCompInfo.number_of_credits))
+        .join(Opportunities, Opportunities.opp_id == HasCreditComp.opportunity_id)
+        .filter(Opportunities.opp_id == opp_id)
+        .order_by(CreditCompInfo.number_of_credits)
+    )
     pass
+
 
 def get_opportunity_application_due_dates(opp_id):
     """
     @PARAMETERS: opp_id: an opportunity id from the database
     @REQUIRES: opp_id is an integer
-    @RETURNS: rows of the application_due_dates table for all attributes, representing:
+    @RETURNS: a Query to rows of the application_due_dates table for all attributes, representing:
         everything about the opportunity's application due dates
     """
     pass
+
 
 def get_opportunity_active_semesters(opp_id):
     """
     @PARAMETERS: opp_id: an opportunity id from the database
     @REQUIRES: opp_id is an integer
-    @RETURNS: rows of the semesters table for all attributes, representing:
+    @RETURNS: a Query to rows of the semesters table for all attributes, representing:
         everything about the opportunity's active semesters
     """
     pass
+
 
 @main_blueprint.route("/")
 def index():
@@ -136,12 +192,12 @@ def positions():
     # return render_template("opportunitys.html", lines=lines)
 
     # https://stackoverflow.com/questions/6044309/sqlalchemy-how-to-join-several-tables-by-one-query
-    
+
     # opp_attr_query: returns attributes of oppportunities
     inst = db.inspect(Opportunities)
     opp_attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
     print("all <opportunities> attributes in order:", opp_attr_names)
-    
+
     # opp_attr_names = opp_attr_names[1:]
     opp_attr_query = get_opportunities_rows()
 
@@ -152,36 +208,87 @@ def positions():
 
     # joined_query1: maps opp_id to names of lab runners that promote the opportunity.
     joined_query1_attr_names = ["opp_id", "opportunities.name", "lab_runner.name"]
-    joined_query1 = db.session.query(
-        Opportunities.opp_id, 
-        Opportunities.name,
-        LabRunner.name,
-    ).join(
-        Promotes, Opportunities.opp_id == Promotes.opportunity_id
-    ).join(
-        LabRunner, Promotes.lab_runner_rcs_id == LabRunner.rcs_id
-    ).order_by(Opportunities.opp_id)
-    
+    joined_query1 = (
+        db.session.query(Opportunities.opp_id, Opportunities.name, LabRunner.name)
+        .join(Promotes, Opportunities.opp_id == Promotes.opportunity_id)
+        .join(LabRunner, Promotes.lab_runner_rcs_id == LabRunner.rcs_id)
+        .order_by(Opportunities.opp_id)
+    )
+
     # executing the query with db
     result = joined_query1.all()
     joined_query1_rows = [", ".join(str(row).split(",")) for row in result]
-    
 
     return render_template(
-        "opportunitys.html", 
-        opp_attr_names = opp_attr_names, 
-        opp_attr_rows = opp_attr_rows,
-        joined_query1_attr_names = joined_query1_attr_names,
-        joined_query1_rows = joined_query1_rows,
+        "opportunitys.html",
+        opp_attr_names=opp_attr_names,
+        opp_attr_rows=opp_attr_rows,
+        joined_query1_attr_names=joined_query1_attr_names,
+        joined_query1_rows=joined_query1_rows,
     )
 
 
 @main_blueprint.route("/opportunity/<int:id>")
 def opportunity(id: int):
 
-    
+    promoters_attr_names = ["rcs_id", "name"]
+    promoters = [
+        ", ".join(str(row).split(",")) for row in get_opportunity_promoters(id).all()
+    ]  # List of strings
 
-    return render_template("opportunity_details.html")
+    recommended_courses_attr_names = ["course_code", "course_name"]
+    recommended_courses = [
+        ", ".join(str(row).split(","))
+        for row in get_opportunity_recommended_courses(id).all()
+    ]
+
+    recommended_majors_attr_names = ["major_code", "major_name"]
+    recommended_majors = [
+        ", ".join(str(row).split(","))
+        for row in get_opportunity_recommended_majors(id).all()
+    ]
+
+    recommended_class_years_attr_names = ["class_year", "class_name"]
+    recommended_class_years = [
+        ", ".join(str(row).split(","))
+        for row in get_opportunity_recommended_class_years(id).all()
+    ]
+
+    salaries_attr_names = ["usd_per_hour"]
+    salaries = [
+        ", ".join(str(row).split(","))
+        for row in get_opportunity_hourly_rates(id).all()
+    ]
+
+    upfront_pay_attr_names = ["usd"]
+    upfront_pay = [
+        ", ".join(str(row).split(","))
+        for row in get_opportunity_upfront_pay(id).all()
+    ]
+
+    course_credits_attr_names = ["course_code", "number_of_credits"]
+    course_credits= [
+        ", ".join(str(row).split(","))
+        for row in get_opportunity_course_credits(id).all()
+    ]
+
+    return render_template(
+        "opportunity_details.html",
+        promoters_attr_names=promoters_attr_names,
+        promoters=promoters,
+        recommended_courses_attr_names=recommended_courses_attr_names,
+        recommended_courses=recommended_courses,
+        recommended_majors_attr_names=recommended_majors_attr_names,
+        recommended_majors=recommended_majors,
+        recommended_class_years_attr_names=recommended_class_years_attr_names,
+        recommended_class_years=recommended_class_years,
+        salaries_attr_names=salaries_attr_names,
+        salaries=salaries,
+        upfront_pay_attr_names=upfront_pay_attr_names,
+        upfront_pay=upfront_pay,
+        course_credits_attr_names=course_credits_attr_names,
+        course_credits=course_credits,
+    )
 
 
 @main_blueprint.route("/profile/<string:rcs_id>")
