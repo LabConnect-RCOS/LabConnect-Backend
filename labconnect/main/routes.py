@@ -28,6 +28,102 @@ from labconnect.models import (
     HasCreditComp,
 )
 
+def get_opportunities_rows():
+    """
+    @RETURNS: all rows of the opportunites table, for all attributes.
+    """
+    return db.session.query(
+        Opportunities.opp_id,
+        Opportunities.name,
+        Opportunities.description,
+        Opportunities.active_status,
+        Opportunities.recommended_experience,
+    )
+
+def get_opportunity_promoters(opp_id):
+    """
+    @PARAMETERS: opp_id: an opportunity id from the database
+    @REQUIRES: opp_id is an integer
+    @RETURNS: rows of the lab_runner table for all attributes, representing:
+        everything about lab runners that promote the opportunity
+    """
+    return db.session.query(
+        LabRunner
+    )
+    pass
+
+def get_opportunity_recommended_courses(opp_id):
+    """
+    @PARAMETERS: opp_id: an opportunity id from the database
+    @REQUIRES: opp_id is an integer
+    @RETURNS: rows of the courses table for all attributes, representing:
+        everything about courses recommended by the opportunity
+    """
+    pass
+
+def get_opportunity_recommended_majors(opp_id):
+    """
+    @PARAMETERS: opp_id: an opportunity id from the database
+    @REQUIRES: opp_id is an integer
+    @RETURNS: rows of the majors table for all attributes, representing:
+        everything about majors recommended by the opportunity
+    """
+    pass
+
+def get_opportunity_recommended_class_years(opp_id):
+    """
+    @PARAMETERS: opp_id: an opportunity id from the database
+    @REQUIRES: opp_id is an integer
+    @RETURNS: rows of the class_years table for all attributes, representing:
+        everything about class years recommended by the opportunity
+    """
+    pass
+
+def get_opportunity_hourly_rates(opp_id):
+    """
+    @PARAMETERS: opp_id: an opportunity id from the database
+    @REQUIRES: opp_id is an integer
+    @RETURNS: rows of the salary_comp_info table for all attributes, representing:
+        everything about hourly salary of the opportunity
+    """
+    pass
+
+def get_opportunity_upfront_pay(opp_id):
+    """
+    @PARAMETERS: opp_id: an opportunity id from the database
+    @REQUIRES: opp_id is an integer
+    @RETURNS: rows of the upfront_pay_comp_info table for all attributes, representing:
+        everything about hourly salary of the opportunity
+    """
+    pass
+
+def get_opportunity_course_credits(opp_id):
+    """
+    @PARAMETERS: opp_id: an opportunity id from the database
+    @REQUIRES: opp_id is an integer
+    @RETURNS: rows of the credit_comp_info table for all attributes, representing:
+        everything about which courses are credited, and range of credits awarded by the opportunity
+    """
+    pass
+
+def get_opportunity_application_due_dates(opp_id):
+    """
+    @PARAMETERS: opp_id: an opportunity id from the database
+    @REQUIRES: opp_id is an integer
+    @RETURNS: rows of the application_due_dates table for all attributes, representing:
+        everything about the opportunity's application due dates
+    """
+    pass
+
+def get_opportunity_active_semesters(opp_id):
+    """
+    @PARAMETERS: opp_id: an opportunity id from the database
+    @REQUIRES: opp_id is an integer
+    @RETURNS: rows of the semesters table for all attributes, representing:
+        everything about the opportunity's active semesters
+    """
+    pass
+
 @main_blueprint.route("/")
 def index():
     return render_template("index.html")
@@ -47,13 +143,7 @@ def positions():
     print("all <opportunities> attributes in order:", opp_attr_names)
     
     # opp_attr_names = opp_attr_names[1:]
-    opp_attr_query = db.session.query(
-        Opportunities.opp_id,
-        Opportunities.name,
-        Opportunities.description,
-        Opportunities.active_status,
-        Opportunities.recommended_experience,
-    )
+    opp_attr_query = get_opportunities_rows()
 
     # executing the query with db
     result = opp_attr_query.all()
@@ -88,6 +178,9 @@ def positions():
 
 @main_blueprint.route("/opportunity/<int:id>")
 def opportunity(id: int):
+
+    
+
     return render_template("opportunity_details.html")
 
 
