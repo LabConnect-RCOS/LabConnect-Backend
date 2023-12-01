@@ -28,6 +28,7 @@ from labconnect.models import (
     HasCreditComp,
 )
 
+# https://stackoverflow.com/questions/6044309/sqlalchemy-how-to-join-several-tables-by-one-query
 
 def get_opportunities_rows():
     """
@@ -41,6 +42,9 @@ def get_opportunities_rows():
         Opportunities.recommended_experience,
     )
 
+def get_opp_ids():
+    """ @RETURNS: a Query to all rows of the opportunities table, containing only opp_ids """
+    return db.session.query(Opportunities.opp_id)
 
 def get_opportunity_promoters(opp_id):
     """
@@ -218,40 +222,25 @@ def positions():
     # lines = ...
     # return render_template("opportunitys.html", lines=lines)
 
-    # https://stackoverflow.com/questions/6044309/sqlalchemy-how-to-join-several-tables-by-one-query
-
-    # opp_attr_query: returns attributes of oppportunities
-    inst = db.inspect(Opportunities)
-    opp_attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
-    print("all <opportunities> attributes in order:", opp_attr_names)
-
-    # opp_attr_names = opp_attr_names[1:]
+    """
+    For each opportunity summary:
+        name of opportunity,
+        description,
+        recommended majors,
+        lab runners promoting,
+        all forms of compensation,
+    Return only opportunities active in any given semester
+    """
+    
     opp_attr_query = get_opportunities_rows()
 
-    # executing the query with db
-    result = opp_attr_query.all()
-    opp_attr_rows = [", ".join(str(row).split(",")) for row in result]
-    print(opp_attr_rows)
-
-    # joined_query1: maps opp_id to names of lab runners that promote the opportunity.
-    joined_query1_attr_names = ["opp_id", "opportunities.name", "lab_runner.name"]
-    joined_query1 = (
-        db.session.query(Opportunities.opp_id, Opportunities.name, LabRunner.name)
-        .join(Promotes, Opportunities.opp_id == Promotes.opportunity_id)
-        .join(LabRunner, Promotes.lab_runner_rcs_id == LabRunner.rcs_id)
-        .order_by(Opportunities.opp_id)
-    )
-
-    # executing the query with db
+    """
     result = joined_query1.all()
     joined_query1_rows = [", ".join(str(row).split(",")) for row in result]
+    """
 
     return render_template(
         "opportunitys.html",
-        opp_attr_names=opp_attr_names,
-        opp_attr_rows=opp_attr_rows,
-        joined_query1_attr_names=joined_query1_attr_names,
-        joined_query1_rows=joined_query1_rows,
     )
 
 
