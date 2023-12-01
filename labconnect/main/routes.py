@@ -257,7 +257,6 @@ def positions():
 
 @main_blueprint.route("/opportunity/<int:id>")
 def opportunity(id: int):
-
     promoters_attr_names = ["rcs_id", "name"]
     promoters = [
         ", ".join(str(row).split(",")) for row in get_opportunity_promoters(id).all()
