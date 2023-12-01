@@ -30,6 +30,7 @@ from labconnect.models import (
 
 # https://stackoverflow.com/questions/6044309/sqlalchemy-how-to-join-several-tables-by-one-query
 
+
 def get_opportunities_rows():
     """
     @RETURNS: a Query to all rows of the opportunites table, for all attributes.
@@ -42,9 +43,11 @@ def get_opportunities_rows():
         Opportunities.recommended_experience,
     )
 
+
 def get_opp_ids():
     """ @RETURNS: a Query to all rows of the opportunities table, containing only opp_ids """
     return db.session.query(Opportunities.opp_id)
+
 
 def get_opportunity_promoters(opp_id):
     """
@@ -231,8 +234,65 @@ def positions():
         all forms of compensation,
     Return only opportunities active in any given semester
     """
-    
-    opp_attr_query = get_opportunities_rows()
+
+    # Requires application logic to update current semester
+    current_semester = (2023, "Fall")
+
+    TURN_OFF_SEMESTER_FILTER = False
+    active_opp_ids = (
+        db.session.query(Opportunities.opp_id)
+        .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
+        .filter(
+            (ActiveSemesters.year == current_semester[0])
+            & (ActiveSemesters.season == current_semester[1])
+            | TURN_OFF_SEMESTER_FILTER
+        )
+        .order_by(Opportunities.opp_id)
+    )
+
+    names = (
+        db.session.query(Opportunities.name)
+        .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
+        .filter(
+            (ActiveSemesters.year == current_semester[0])
+            & (ActiveSemesters.season == current_semester[1])
+            | TURN_OFF_SEMESTER_FILTER
+        )
+        .order_by(Opportunities.opp_id)
+    )
+
+    descriptions = (
+        db.session.query(Opportunities.description)
+        .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
+        .filter(
+            (ActiveSemesters.year == current_semester[0])
+            & (ActiveSemesters.season == current_semester[1])
+            | TURN_OFF_SEMESTER_FILTER
+        )
+        .order_by(Opportunities.opp_id)
+    )
+
+    majors = list()
+    promoters = list()
+    credits = list()
+    salaries = list()
+    upfront_pay = list()
+
+    for opp_id in active_opp_ids.all():
+        # Access via opp_id[0]
+        majors.append(get_opportunity_recommended_majors(opp_id[0]))
+        promoters.append(get_opportunity_promoters(opp_id[0]))
+        credits.append(get_opportunity_course_credits(opp_id[0]))
+        salaries.append(get_opportunity_hourly_rates(opp_id[0]))
+        upfront_pay.append(get_opportunity_upfront_pay(opp_id[0]))
+
+    print(active_opp_ids.all())
+    print(names.all())
+    print(descriptions.all())
+    for eachlist in [majors, promoters, credits, salaries, upfront_pay]:
+        print("-" * 32)
+        for each in eachlist:
+            print(each.all())
 
     """
     result = joined_query1.all()
@@ -241,13 +301,20 @@ def positions():
 
     return render_template(
         "opportunitys.html",
+        names=names,
+        descriptions=descriptions,
+        majors=majors,
+        promoters=promoters,
+        credits=credits,
+        salaries=salaries,
+        upfront_pay=upfront_pay,
     )
 
 
 @main_blueprint.route("/opportunity/<int:id>")
 def opportunity(id: int):
     promoters_attr_names = ["rcs_id", "name"]
-    
+
     promoters = get_opportunity_promoters(id).all()
 
     # Columns "course_code", "course_name"
