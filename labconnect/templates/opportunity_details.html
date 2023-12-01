@@ -128,6 +128,16 @@
     <p> {{ row }} </p>
   {% endfor %}
 
+  <p> {{ application_due_dates_attr_names }} </p>
+  {% for row in application_due_dates %}
+    <p> {{ row }} </p>
+  {% endfor %}
+
+  <p> {{ active_semesters_attr_names }} </p>
+  {% for row in active_semesters %}
+    <p> {{ row }} </p>
+  {% endfor %}
+
   <div class="container p-4 text-xl">
     <h5>
       <span class="badge bg-danger">Professor Turner</span>

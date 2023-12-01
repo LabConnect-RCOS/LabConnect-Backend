@@ -101,8 +101,13 @@ def get_opportunity_recommended_class_years(opp_id):
     """
     return (
         db.session.query(ClassYears.class_year, ClassYears.class_name)
-        .join(RecommendsClassYears, RecommendsClassYears.class_year == ClassYears.class_year)
-        .join(Opportunities, Opportunities.opp_id == RecommendsClassYears.opportunity_id)
+        .join(
+            RecommendsClassYears,
+            RecommendsClassYears.class_year == ClassYears.class_year,
+        )
+        .join(
+            Opportunities, Opportunities.opp_id == RecommendsClassYears.opportunity_id
+        )
         .filter(Opportunities.opp_id == opp_id)
         .order_by(ClassYears.class_year)
     )
@@ -152,7 +157,11 @@ def get_opportunity_course_credits(opp_id):
     """
     return (
         db.session.query(CreditCompInfo.course_code, CreditCompInfo.number_of_credits)
-        .join(HasCreditComp, (HasCreditComp.course_code == CreditCompInfo.course_code) & (HasCreditComp.number_of_credits == CreditCompInfo.number_of_credits))
+        .join(
+            HasCreditComp,
+            (HasCreditComp.course_code == CreditCompInfo.course_code)
+            & (HasCreditComp.number_of_credits == CreditCompInfo.number_of_credits),
+        )
         .join(Opportunities, Opportunities.opp_id == HasCreditComp.opportunity_id)
         .filter(Opportunities.opp_id == opp_id)
         .order_by(CreditCompInfo.number_of_credits)
@@ -167,6 +176,13 @@ def get_opportunity_application_due_dates(opp_id):
     @RETURNS: a Query to rows of the application_due_dates table for all attributes, representing:
         everything about the opportunity's application due dates
     """
+    return (
+        db.session.query(ApplicationDueDates.date)
+        .join(ApplicationDue, ApplicationDue.date == ApplicationDueDates.date)
+        .join(Opportunities, Opportunities.opp_id == ApplicationDue.opportunity_id)
+        .filter(Opportunities.opp_id == opp_id)
+        .order_by(ApplicationDueDates.date)
+    )
     pass
 
 
@@ -177,6 +193,17 @@ def get_opportunity_active_semesters(opp_id):
     @RETURNS: a Query to rows of the semesters table for all attributes, representing:
         everything about the opportunity's active semesters
     """
+    return (
+        db.session.query(Semesters.year, Semesters.season)
+        .join(
+            ActiveSemesters,
+            (ActiveSemesters.year == Semesters.year)
+            & (ActiveSemesters.season == Semesters.season),
+        )
+        .join(Opportunities, Opportunities.opp_id == ActiveSemesters.opportunity_id)
+        .filter(Opportunities.opp_id == opp_id)
+        .order_by(Semesters.year)
+    )
     pass
 
 
@@ -256,20 +283,30 @@ def opportunity(id: int):
 
     salaries_attr_names = ["usd_per_hour"]
     salaries = [
-        ", ".join(str(row).split(","))
-        for row in get_opportunity_hourly_rates(id).all()
+        ", ".join(str(row).split(",")) for row in get_opportunity_hourly_rates(id).all()
     ]
 
     upfront_pay_attr_names = ["usd"]
     upfront_pay = [
-        ", ".join(str(row).split(","))
-        for row in get_opportunity_upfront_pay(id).all()
+        ", ".join(str(row).split(",")) for row in get_opportunity_upfront_pay(id).all()
     ]
 
     course_credits_attr_names = ["course_code", "number_of_credits"]
-    course_credits= [
+    course_credits = [
         ", ".join(str(row).split(","))
         for row in get_opportunity_course_credits(id).all()
+    ]
+
+    application_due_dates_attr_names = ["date"]
+    application_due_dates = [
+        ", ".join(str(row).split(","))
+        for row in get_opportunity_application_due_dates(id).all()
+    ]
+
+    active_semesters_attr_names = ["year", "season"]
+    active_semesters = [
+        ", ".join(str(row).split(","))
+        for row in get_opportunity_active_semesters(id).all()
     ]
 
     return render_template(
@@ -288,6 +325,10 @@ def opportunity(id: int):
         upfront_pay=upfront_pay,
         course_credits_attr_names=course_credits_attr_names,
         course_credits=course_credits,
+        application_due_dates_attr_names=application_due_dates_attr_names,
+        application_due_dates=application_due_dates,
+        active_semesters_attr_names=active_semesters_attr_names,
+        active_semesters=active_semesters,
     )
 
 
