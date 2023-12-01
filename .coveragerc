@@ -1,0 +1,14 @@
+[run]
+branch = True
+omit = db_test.py
+
+[report]
+omit = db_test.py
+precision = 2
+skip_empty = True
+ignore_errors = True
+
+[html]
+directory = coverage-reports
+skip_empty = True
+title = LabConnect Test Coverage Report

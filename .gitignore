@@ -1,3 +1,6 @@
 venv/
+env/
 *.pyc
 *.DS_Store
+*.db
+.coverage

@@ -1,17 +1,15 @@
-import os
 import logging
+import os
 
 # Import Flask modules
 from flask import Flask
-
-# from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
-
 
 csrf_protection = CSRFProtect()
 
 # Create Database object
-# db = SQLAlchemy(app)
+db = SQLAlchemy()
 
 
 def create_app() -> Flask:
@@ -33,11 +31,11 @@ def create_app() -> Flask:
 def initialize_extensions(app) -> None:
     # Since the application instance is now created, pass it to each Flask
     # extension instance to bind it to the Flask application instance (app)
-    # db.init_app(app)
+    db.init_app(app)
     csrf_protection.init_app(app)
 
     # Flask-Login configuration
-    # from project.models import User
+    from labconnect.models import RPIDepartments
 
     # @login.user_loader
     # def load_user(user_id):
@@ -47,8 +45,8 @@ def initialize_extensions(app) -> None:
 def register_blueprints(app) -> None:
     # Since the application instance is now created, register each Blueprint
     # with the Flask application instance (app)
-    from labconnect.main import main_blueprint
     from labconnect.errors import error_blueprint
+    from labconnect.main import main_blueprint
 
     app.register_blueprint(main_blueprint)
     app.register_blueprint(error_blueprint)

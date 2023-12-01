@@ -11,4 +11,4 @@ develop: clean
 	python run.py
 
 test: clean
-	python -m pytest
+	python -m pytest --cov
