@@ -258,75 +258,44 @@ def positions():
 @main_blueprint.route("/opportunity/<int:id>")
 def opportunity(id: int):
     promoters_attr_names = ["rcs_id", "name"]
-    promoters = [
-        ", ".join(str(row).split(",")) for row in get_opportunity_promoters(id).all()
-    ]  # List of strings
+    
+    promoters = get_opportunity_promoters(id).all()
 
-    recommended_courses_attr_names = ["course_code", "course_name"]
-    recommended_courses = [
-        ", ".join(str(row).split(","))
-        for row in get_opportunity_recommended_courses(id).all()
-    ]
+    # Columns "course_code", "course_name"
+    recommended_courses = get_opportunity_recommended_courses(id).all()
 
-    recommended_majors_attr_names = ["major_code", "major_name"]
-    recommended_majors = [
-        ", ".join(str(row).split(","))
-        for row in get_opportunity_recommended_majors(id).all()
-    ]
+    # Columns "major_code", "major_name"
+    recommended_majors = get_opportunity_recommended_majors(id).all()
 
-    recommended_class_years_attr_names = ["class_year", "class_name"]
-    recommended_class_years = [
-        ", ".join(str(row).split(","))
-        for row in get_opportunity_recommended_class_years(id).all()
-    ]
+    # Columns "class_year", "class_name"
+    recommended_class_years = get_opportunity_recommended_class_years(id).all()
 
-    salaries_attr_names = ["usd_per_hour"]
-    salaries = [
-        ", ".join(str(row).split(",")) for row in get_opportunity_hourly_rates(id).all()
-    ]
+    # Columns "usd_per_hour"
+    salaries = get_opportunity_hourly_rates(id).all()
 
-    upfront_pay_attr_names = ["usd"]
-    upfront_pay = [
-        ", ".join(str(row).split(",")) for row in get_opportunity_upfront_pay(id).all()
-    ]
+    # Columns "usd"
+    upfront_pay = get_opportunity_upfront_pay(id).all()
 
-    course_credits_attr_names = ["course_code", "number_of_credits"]
-    course_credits = [
-        ", ".join(str(row).split(","))
-        for row in get_opportunity_course_credits(id).all()
-    ]
+    # Columns "course_code", "number_of_credits"
+    course_credits = get_opportunity_course_credits(id).all()
 
-    application_due_dates_attr_names = ["date"]
-    application_due_dates = [
-        ", ".join(str(row).split(","))
-        for row in get_opportunity_application_due_dates(id).all()
-    ]
+    # Columns "date"
+    application_due_dates = get_opportunity_application_due_dates(id).all()
 
-    active_semesters_attr_names = ["year", "season"]
-    active_semesters = [
-        ", ".join(str(row).split(","))
-        for row in get_opportunity_active_semesters(id).all()
-    ]
+    # Columns "year", "season"
+    active_semesters = get_opportunity_active_semesters(id).all()
 
     return render_template(
         "opportunity_details.html",
         promoters_attr_names=promoters_attr_names,
         promoters=promoters,
-        recommended_courses_attr_names=recommended_courses_attr_names,
         recommended_courses=recommended_courses,
-        recommended_majors_attr_names=recommended_majors_attr_names,
         recommended_majors=recommended_majors,
-        recommended_class_years_attr_names=recommended_class_years_attr_names,
         recommended_class_years=recommended_class_years,
-        salaries_attr_names=salaries_attr_names,
         salaries=salaries,
-        upfront_pay_attr_names=upfront_pay_attr_names,
         upfront_pay=upfront_pay,
-        course_credits_attr_names=course_credits_attr_names,
         course_credits=course_credits,
-        application_due_dates_attr_names=application_due_dates_attr_names,
         application_due_dates=application_due_dates,
-        active_semesters_attr_names=active_semesters_attr_names,
         active_semesters=active_semesters,
     )
 
