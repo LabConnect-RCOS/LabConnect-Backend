@@ -13,10 +13,9 @@ from labconnect.main.queries import (
     get_opportunity_recommended_majors,
     get_opportunity_upfront_pay,
 )
-from labconnect.models import LabRunner, Opportunities, Promotes
+from labconnect.models import LabRunner, Opportunities, Promotes, ActiveSemesters
 
 from . import main_blueprint
-
 
 
 @main_blueprint.route("/")
