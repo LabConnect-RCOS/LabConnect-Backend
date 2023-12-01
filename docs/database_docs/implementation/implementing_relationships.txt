@@ -1,0 +1,99 @@
+The relationships usually depend on entities. So whenever rows are inserted, updated or deleted, the order of the operations with respect to tables must account for these constraints.
+
+Databases provide many ways to implement constraints to ensure data integrity.
+For example, postgresql uses triggers. In SQL, table creation can define foreign key constraints and actions upon events where referred data changes.
+
+For this database specifically, users will insert human-readable data. This data will be inserted in a specific, cascading order in the database.
+
+The data that users will most likely provide is about lab runners and opportunities.
+
+Details about lab runners and opportunities will cascade into tables holding that information.
+
+Which means the other tables will have foreign key constraints, that refer to lab runner or opportunities tuples.
+
+https://dba.stackexchange.com/questions/39833/why-are-constraints-applied-in-the-database-rather-than-the-code
+
+-------------------------------------
+
+10/31 
+
+(Duy "Sunny" Le) I just realized something slightly inconvenient about the database. The opportunities table uses an autoincrement integer as a synthetic primary key (opp_id). 
+
+When the client inserts new opportunities, they necessarily do not know this key. Yet, the relationships surrounding the opportunities table rely on this key to connect opportunities to other data. 
+
+I'm not too familiar with the implementation of inserting rows with autoincrement. So I speculate that it may be possible to accidentally insert 2 opportunity rows with values being identical in all attributes, besides the opp_id. 
+
+The database may allow this: 2 different keys can point to the same row. (It's only problematic when the same values for the key point to 2 different row - please refer to materials online on functional dependencies and primary key for more details). That's duplicate data...
+
+The good news is that once inserted, the opportunities will have a fixed opp_id. However, I think the application will benefit hugely if it can query for an opportunities' opp_id. That opp_id can then be used to query for all data related to opportunities (see the ER diagram)
+
+-------------------------------------
+Here's some more details about database constraints. Code examples are in postgresql.
+
+CONSTRAINTS
+Integrity rules for the database. 
+
+Types:
+Database level: assertions
+Table level: Primary key, Foreign key, Unique constraint, Not Null constraint, Check (attribute level or table level)
+
+Example:
+
+DROP TABLE a;
+DROP TABLE b;
+
+CREATE TABLE a (
+	id1 int primary key
+	, id3 int
+);
+CREATE TABLE b (
+	id2 int primary key
+	, id1 int not null
+	, foreign key (id1) references a(id1)
+);
+
+INSERT INTO b VALUES(21, 1); 
+--ERROR: insert or update on table “b” violates foreign key constraint “b_id1_fkey”
+INSERT INTO a VALUES(22, 2);
+INSERT INTO a VALUES(24, 4);
+
+INSERT INTO a VALUES(1, 41);
+INSERT INTO a VALUES(2, 42);
+INSERT INTO a VALUES(4, 41);
+
+The order which data is inserted matters because foreign key constraints may stop inserts from working. 
+Generally, try inserting data to tables with no foreign key constraints.
+
+Dropping tables that other tables refer to via foreign key constraints will not work:
+ERROR: cannot drop table a because other objects depend on it
+
+Use DROP ... CASCADE to delete a table and all other tables depending on it.
+
+Foreign keys
+Example:
+
+CREATE TABLE ABC (
+    X int
+    , Y int,
+    , PRIMARY KEY(X,Y)
+) ;
+
+CREATE TABLE DEF (
+    Z int
+    , W int
+    , Q int
+    , PRIMARY KEY Z
+    , FOREIGN KEY (Z,W)
+      REFERENCES ABC(X,Y)
+      ON DELETE CASCADE
+      ON UPDATE SET NULL
+);
+
+DEF(Z,W) can be null (as there is no not null constraint), but if they have a value, the value must exist in DEF.
+
+When a tuple from ABC is deleted, tuples that reference this tuple are also deleted (CASCADE).
+If the primary key for a tuple in ABC is updated, then the corresponding tuples in DEF are set to null (SET NULL)
+
+If there is no corresponding ON DELETE or ON UPDATE actions, the default behavior is “RESTRICT”. In this case, an update/delete from ABC will fail if there are any tuples in DEF that reference it.
+
+All these cascade and set null events become part of the same transaction as the triggering update/delete/insert.
