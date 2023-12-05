@@ -13,7 +13,7 @@ from labconnect.main.queries import (
     get_opportunity_recommended_majors,
     get_opportunity_upfront_pay,
 )
-from labconnect.models import LabRunner, Opportunities, Promotes
+from labconnect.models import LabRunner, Opportunities, Promotes, ActiveSemesters
 
 from . import main_blueprint
 
@@ -29,40 +29,89 @@ def positions():
     # lines = ...
     # return render_template("opportunitys.html", lines=lines)
 
-    # https://stackoverflow.com/questions/6044309/sqlalchemy-how-to-join-several-tables-by-one-query
+    """
+    For each opportunity summary:
+        name of opportunity,
+        description,
+        recommended majors,
+        lab runners promoting,
+        all forms of compensation,
+    Return only opportunities active in any given semester
+    """
 
-    # opp_attr_query: returns attributes of oppportunities
-    inst = db.inspect(Opportunities)
-    opp_attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
-    print("all <opportunities> attributes in order:", opp_attr_names)
+    # Requires application logic to update current semester
+    current_semester = (2023, "Fall")
 
-    # opp_attr_names = opp_attr_names[1:]
-    opp_attr_query = get_opportunities_rows()
-
-    # executing the query with db
-    result = opp_attr_query.all()
-    opp_attr_rows = [", ".join(str(row).split(",")) for row in result]
-    print(opp_attr_rows)
-
-    # joined_query1: maps opp_id to names of lab runners that promote the opportunity.
-    joined_query1_attr_names = ["opp_id", "opportunities.name", "lab_runner.name"]
-    joined_query1 = (
-        db.session.query(Opportunities.opp_id, Opportunities.name, LabRunner.name)
-        .join(Promotes, Opportunities.opp_id == Promotes.opportunity_id)
-        .join(LabRunner, Promotes.lab_runner_rcs_id == LabRunner.rcs_id)
+    TURN_OFF_SEMESTER_FILTER = False
+    active_opp_ids = (
+        db.session.query(Opportunities.opp_id)
+        .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
+        .filter(
+            (ActiveSemesters.year == current_semester[0])
+            & (ActiveSemesters.season == current_semester[1])
+            | TURN_OFF_SEMESTER_FILTER
+        )
         .order_by(Opportunities.opp_id)
     )
 
-    # executing the query with db
+    names = (
+        db.session.query(Opportunities.name)
+        .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
+        .filter(
+            (ActiveSemesters.year == current_semester[0])
+            & (ActiveSemesters.season == current_semester[1])
+            | TURN_OFF_SEMESTER_FILTER
+        )
+        .order_by(Opportunities.opp_id)
+    )
+
+    descriptions = (
+        db.session.query(Opportunities.description)
+        .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
+        .filter(
+            (ActiveSemesters.year == current_semester[0])
+            & (ActiveSemesters.season == current_semester[1])
+            | TURN_OFF_SEMESTER_FILTER
+        )
+        .order_by(Opportunities.opp_id)
+    )
+
+    majors = list()
+    promoters = list()
+    credits = list()
+    salaries = list()
+    upfront_pay = list()
+
+    for opp_id in active_opp_ids.all():
+        # Access via opp_id[0]
+        majors.append(get_opportunity_recommended_majors(opp_id[0]))
+        promoters.append(get_opportunity_promoters(opp_id[0]))
+        credits.append(get_opportunity_course_credits(opp_id[0]))
+        salaries.append(get_opportunity_hourly_rates(opp_id[0]))
+        upfront_pay.append(get_opportunity_upfront_pay(opp_id[0]))
+
+    print(active_opp_ids.all())
+    print(names.all())
+    print(descriptions.all())
+    for eachlist in [majors, promoters, credits, salaries, upfront_pay]:
+        print("-" * 32)
+        for each in eachlist:
+            print(each.all())
+
+    """
     result = joined_query1.all()
     joined_query1_rows = [", ".join(str(row).split(",")) for row in result]
+    """
 
     return render_template(
         "opportunitys.html",
-        opp_attr_names=opp_attr_names,
-        opp_attr_rows=opp_attr_rows,
-        joined_query1_attr_names=joined_query1_attr_names,
-        joined_query1_rows=joined_query1_rows,
+        names=names,
+        descriptions=descriptions,
+        majors=majors,
+        promoters=promoters,
+        credits=credits,
+        salaries=salaries,
+        upfront_pay=upfront_pay,
     )
 
 
