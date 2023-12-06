@@ -2,7 +2,6 @@ from flask import abort, render_template
 
 from labconnect import db
 from labconnect.main.queries import (
-    get_opportunities_rows,
     get_opportunity_active_semesters,
     get_opportunity_application_due_dates,
     get_opportunity_course_credits,
@@ -13,7 +12,7 @@ from labconnect.main.queries import (
     get_opportunity_recommended_majors,
     get_opportunity_upfront_pay,
 )
-from labconnect.models import LabRunner, Opportunities, Promotes, ActiveSemesters
+from labconnect.models import Opportunities, ActiveSemesters
 
 from . import main_blueprint
 
