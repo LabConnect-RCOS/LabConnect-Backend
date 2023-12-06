@@ -22,17 +22,17 @@ from labconnect.models import (
 )
 
 
-def get_opportunities_rows():
-    """
-    @RETURNS: a Query to all rows of the opportunites table, for all attributes.
-    """
-    return db.session.query(
-        Opportunities.opp_id,
-        Opportunities.name,
-        Opportunities.description,
-        Opportunities.active_status,
-        Opportunities.recommended_experience,
-    )
+# def get_opportunities_rows():
+#     """
+#     @RETURNS: a Query to all rows of the opportunites table, for all attributes.
+#     """
+#     return db.session.query(
+#         Opportunities.opp_id,
+#         Opportunities.name,
+#         Opportunities.description,
+#         Opportunities.active_status,
+#         Opportunities.recommended_experience,
+#     )
 
 
 def get_opportunity_promoters(opp_id):

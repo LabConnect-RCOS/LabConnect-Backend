@@ -3,7 +3,10 @@ Test mains
 """
 
 
-def test_home_page(test_client) -> None:
+from flask.testing import FlaskClient
+
+
+def test_home_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/' page is requested (GET)
@@ -15,7 +18,7 @@ def test_home_page(test_client) -> None:
     assert b"Your Recommendations" in response.data
 
 
-def test_opportunities_page(test_client) -> None:
+def test_opportunities_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/opportunities' page is requested (GET)
@@ -28,7 +31,7 @@ def test_opportunities_page(test_client) -> None:
     assert b"Filters" in response.data
 
 
-def test_opportunity_detail_page(test_client) -> None:
+def test_opportunity_detail_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/opportunity/<int:id>' page is requested (GET)
@@ -41,7 +44,7 @@ def test_opportunity_detail_page(test_client) -> None:
     assert b"Deadline" in response.data
 
 
-def test_discover_page(test_client) -> None:
+def test_discover_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/discover' page is requested (GET)
@@ -53,7 +56,7 @@ def test_discover_page(test_client) -> None:
     assert b"Research Centers" in response.data
 
 
-def test_create_post_page(test_client) -> None:
+def test_create_post_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/create_post' page is requested (GET)
@@ -71,7 +74,7 @@ def test_create_post_page(test_client) -> None:
     assert b"Submit" in response.data
 
 
-def test_login_page(test_client) -> None:
+def test_login_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/login' page is requested (GET)
@@ -82,7 +85,7 @@ def test_login_page(test_client) -> None:
     assert b"Please sign in" in response.data
 
 
-def test_department_page(test_client) -> None:
+def test_department_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/department/<department>' page is requested (GET)
@@ -94,7 +97,7 @@ def test_department_page(test_client) -> None:
     assert b"Professors" in response.data
 
 
-def test_professor_page(test_client) -> None:
+def test_professor_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/professor/<professor>' page is requested (GET)
@@ -107,7 +110,7 @@ def test_professor_page(test_client) -> None:
     assert b"Contact:" in response.data
 
 
-def test_profile_page(test_client) -> None:
+def test_profile_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/profile/<user>' page is requested (GET)
@@ -120,7 +123,7 @@ def test_profile_page(test_client) -> None:
     assert b"Contact:" in response.data
 
 
-def test_tips_and_tricks_page(test_client) -> None:
+def test_tips_and_tricks_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/profile/<user>' page is requested (GET)
@@ -131,7 +134,7 @@ def test_tips_and_tricks_page(test_client) -> None:
     assert b"Tips and Tricks for LabConnect" in response.data
 
 
-def test_info_page(test_client) -> None:
+def test_info_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/profile/<user>' page is requested (GET)
