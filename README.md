@@ -38,7 +38,9 @@
     <a href="https://github.com/dinobenj/LabConnect">
 <!-- <img src="https://github.com/RafaelCenzano/LabConnect/blob/main/bargeLogo.png" alt="Barge Logo" width="360" height="216"> -->
 </a>
+<img src="LabConnect_Logo.png" alt="LabConnect Logo" width="360">
 <h3 align="center">LabConnect</h3>
+
 <p>Connecting students to research opportunities.</p>
 </div>
 
