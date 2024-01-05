@@ -1,21 +1,25 @@
-import { Fragment } from 'react'
-import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Fragment } from "react";
+import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+import { useLocation } from 'react-router-dom';
+
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function MainNavigation() {
+  const location = useLocation().pathname;
+  
   var [navigation, setNavigation] = useState([
     { name: "Jobs", href: "/jobs", current: true },
-    { name: "Create", href: "/create", current: true },
-    { name: "Staff", href: "/staff", current: true },
-    { name: "Resources", href: "/resources", current: true },
-    { name: "Profile", href: "/profile", current: true },
-    { name: "Authenticate", href: "/auth", current: true }
+    { name: "Create", href: "/create", current: false },
+    { name: "Staff", href: "/staff", current: false },
+    { name: "Resources", href: "/resources", current: false },
+    { name: "Profile", href: "/profile", current: false },
+    { name: "Authenticate", href: "/auth", current: false },
   ]);
 
   return (
@@ -38,24 +42,31 @@ export default function MainNavigation() {
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <Link to="/" className='no-underline'>
+                  <Link to="/" className="no-underline">
                     Labconnect
                   </Link>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4 ">
                     {navigation.map((item) => (
-                      <Link
+                      <NavLink
                         key={item.name}
                         to={item.href}
-                        className={classNames(
-                          "text-black hover:bg-gray-200 hover:text-white",
-                          "rounded-md px-3 py-2 text-sm font-medium no-underline"
-                        )}
-                        aria-current={item.current ? "page" : undefined}
+                        
+                        className= {`${location==item.href ? "text-black" : "text-gray-600"} hover:text-gray-800  hover:bg-gray-200  rounded-md px-3 py-2 text-sm font-medium no-underline`}
+                        aria-current={item.current}
                       >
                         {item.name}
-                      </Link>
+                      </NavLink>
+
+                      // <NavLink
+                      //   key={item.name}
+                      //   to={item.href}
+                      //   className="text-black hover:bg-gray-200 hover:text-white rounded-md px-3 py-2 text-sm font-medium no-underline"
+                      //   // aria-current={item.current ? "page" : undefined}
+                      // >
+                      //   {item.name}
+                      // </Navlink>
                     ))}
                   </div>
                 </div>
