@@ -6,7 +6,7 @@ import HorizontalIconButton from "./HorizontalIconButton";
 import { PiSlidersHorizontal } from "react-icons/pi";
 import { MdCancel } from "react-icons/md";
 
-const FiltersField = () => {
+const FiltersField = ({ deleteFilter, filters }) => {
   return (
     <div>
       <hr />
@@ -15,17 +15,17 @@ const FiltersField = () => {
           <SearchBar />
 
           <GroupedComponents gap={2}>
-            <HorizontalIconButton icon={<MdCancel />}>
-              Credit
-            </HorizontalIconButton>
-
-            <HorizontalIconButton icon={<MdCancel />}>
-              Fall
-            </HorizontalIconButton>
-
-            <HorizontalIconButton icon={<MdCancel />}>
-              Physics
-            </HorizontalIconButton>
+            {filters.map((filter) => {
+              return (
+                <HorizontalIconButton
+                  onClick={deleteFilter}
+                  icon={<MdCancel />}
+                  key={filter}
+                >
+                  {filter}
+                </HorizontalIconButton>
+              );
+            })}
           </GroupedComponents>
         </div>
 

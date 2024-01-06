@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import JobPost from "./JobPost";
+import JobDetails from "./JobDetails";
 
 let DUMMY_JOBS = [
   {
@@ -21,14 +22,47 @@ let DUMMY_JOBS = [
   },
 ];
 
-const PostsField = () => {
-  var [activeId, setActiveId] = useState("u1");
-    
+const DUMMY_DATA = [
+  {
+    title: "Software Engineer",
+    description: "Lorem Ipsum",
+    author: "John Smith",
+    id: "u1",
+    author:"https://thedailyq.org/wp-content/uploads/2018/02/H-Menge-Torsten-900x600.jpg",
+    department:"Computer Science"
+  },
+  {
+    title: "Physics Research Intern",
+    description: "Lorem Ipsum",
+    author: "John Smith",
+    id: "u2",
+    authorProfile:"https://thedailyq.org/wp-content/uploads/2018/02/H-Menge-Torsten-900x600.jpg",
+    department:"Physics"
+  }
+];
+
+const PostsField = ({ activeId, setActive }) => {
+  const findJobDetails = (id) => {
+    return DUMMY_DATA.find((item)=>item.id===id);
+  }
+  
   return (
-    <div>
-      {DUMMY_JOBS.map((job)=>{
-        return <JobPost active={job.id==activeId} onClick={setActiveId} key={job.id} {...job} />
-      })}
+    <div className="border-t border-b grid grid-cols-9">
+      <div className="col-span-2">
+        {DUMMY_JOBS.map((job) => {
+          return (
+            <JobPost
+              active={job.id == activeId}
+              onClick={setActive}
+              key={job.id}
+              {...job}
+            />
+          );
+        })}
+      </div>
+      <JobDetails
+        {...(findJobDetails(activeId))}
+      />
     </div>
   );
 };
