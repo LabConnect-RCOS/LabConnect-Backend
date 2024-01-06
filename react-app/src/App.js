@@ -5,6 +5,7 @@ import Home from "./shared/pages/Home";
 import PageNotFound from "./shared/pages/404";
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
 import Jobs from "./opportunities/pages/Jobs";
+import Backdrop from "./shared/components/UIElements/Backdrop";
 
 function App() {
   return (
