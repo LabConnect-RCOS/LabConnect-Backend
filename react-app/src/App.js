@@ -5,19 +5,22 @@ import Home from "./shared/pages/Home";
 import PageNotFound from "./shared/pages/404";
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
 import Jobs from "./opportunities/pages/Jobs";
-import Backdrop from "./shared/components/UIElements/Backdrop";
+import Browse from "./staff/pages/Browse";
 
 function App() {
   return (
     <>
       <MainNavigation />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/jobs" element={<Jobs />} />
+      <main className="container-xl">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/jobs" element={<Jobs />} />
+          <Route path="/staff" element={<Browse />} />
 
-        <Route path="/*" element={<PageNotFound />} />
-      </Routes>
+          <Route path="/*" element={<PageNotFound />} />
+        </Routes>
+      </main>
     </>
   );
 }

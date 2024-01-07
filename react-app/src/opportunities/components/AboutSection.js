@@ -1,32 +1,23 @@
 import React from "react";
 import AboutSectionElement from "./AboutSectionElement";
 
-const AboutSection = () => {
+const AboutSection = ({ aboutSection }) => {
+  let i = 0;
+  
   return (
     <section className="flex flex-col gap-3">
       <h3 className="font-extrabold text-3xl">About the role</h3>
 
       <div className="grid grid-cols-3" style={{ rowGap: "1rem" }}>
-        <AboutSectionElement
-          title={"Application Deadline"}
-          description={"July 1, 2024 9:00 AM"}
-        />
-        <AboutSectionElement
-          title={"Application Deadline"}
-          description={"July 1, 2024 9:00 AM"}
-        />
-        <AboutSectionElement
-          title={"Application Deadline"}
-          description={"July 1, 2024 9:00 AM"}
-        />
-        <AboutSectionElement
-          title={"Application Deadline"}
-          description={"July 1, 2024 9:00 AM"}
-        />
-        <AboutSectionElement
-          title={"Application Deadline"}
-          description={"July 1, 2024 9:00 AM"}
-        />
+        {aboutSection.map((item) => {
+          return (
+            <AboutSectionElement
+              key={++i}
+              title={item.title}
+              description={item.description}
+            />
+          );
+        })}
       </div>
     </section>
   );

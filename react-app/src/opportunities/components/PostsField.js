@@ -28,24 +28,70 @@ const DUMMY_DATA = [
     description: "Lorem Ipsum",
     author: "John Smith",
     id: "u1",
-    author:"https://thedailyq.org/wp-content/uploads/2018/02/H-Menge-Torsten-900x600.jpg",
-    department:"Computer Science"
+    authorProfile:
+      "https://thedailyq.org/wp-content/uploads/2018/02/H-Menge-Torsten-900x600.jpg",
+    department: "Computer Science",
+    aboutSection: [
+      {
+        title: "Application Deadline",
+        description: "July 1, 2024, 12pm",
+      },
+      {
+        title: "Application Deadline",
+        description: "July 1, 2024, 12pm",
+      },
+      {
+        title: "Application Deadline",
+        description: "July 1, 2024, 12pm",
+      },
+      {
+        title: "Application Deadline",
+        description: "July 1, 2024, 12pm",
+      },
+      {
+        title: "Application Deadline",
+        description: "July 1, 2024, 12pm",
+      },
+    ],
   },
   {
-    title: "Physics Research Intern",
+    title: "Biology Reseacher",
     description: "Lorem Ipsum",
-    author: "John Smith",
+    author: "Turner",
     id: "u2",
-    authorProfile:"https://thedailyq.org/wp-content/uploads/2018/02/H-Menge-Torsten-900x600.jpg",
-    department:"Physics"
-  }
+    authorProfile:
+      "https://thedailyq.org/wp-content/uploads/2018/02/H-Menge-Torsten-900x600.jpg",
+    department: "Biology",
+    aboutSection: [
+      {
+        title: "Application Deadline",
+        description: "July 1, 2024, 12pm",
+      },
+      {
+        title: "Application Deadline",
+        description: "July 1, 2024, 12pm",
+      },
+      {
+        title: "Application Deadline",
+        description: "July 1, 2024, 12pm",
+      },
+      {
+        title: "Application Deadline",
+        description: "July 1, 2024, 12pm",
+      },
+      {
+        title: "Application Deadline",
+        description: "July 1, 2024, 12pm",
+      },
+    ],
+  },
 ];
 
 const PostsField = ({ activeId, setActive }) => {
   const findJobDetails = (id) => {
-    return DUMMY_DATA.find((item)=>item.id===id);
-  }
-  
+    return DUMMY_DATA.find((item) => item.id === id);
+  };
+
   return (
     <div className="border-t border-b grid grid-cols-9">
       <div className="col-span-2">
@@ -60,9 +106,7 @@ const PostsField = ({ activeId, setActive }) => {
           );
         })}
       </div>
-      <JobDetails
-        {...(findJobDetails(activeId))}
-      />
+      <JobDetails {...findJobDetails(activeId)} />
     </div>
   );
 };
