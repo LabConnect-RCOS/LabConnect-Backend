@@ -3,23 +3,22 @@ import JobsNavigation from "../components/JobsNavigation";
 import { Router, Routes, Route } from "react-router-dom";
 import Posts from "../components/Posts";
 import SavedJobs from "../components/SavedJobs";
+import PageNavigation from "../../shared/components/Navigation/PageNavigation";
+import usePageNavigation from "../../shared/hooks/page-navigation-hook";
 
 const Jobs = () => {
-  const [jobPage, setJobPage] = useState(true);
-  
-  const switchPage = () => {
-    setJobPage(()=>!jobPage);
-  }
-    
+  var [pages, switchPage] = usePageNavigation(["Search", "Saved"], "Search");
+
   return (
-    <main className="container-xl flex flex-col gap-3">
-        
-      <JobsNavigation jobPage={jobPage} switchPage={switchPage} />
-      
-      {jobPage && <Posts/>}
-      
-      
-    </main>
+    <section className="flex flex-col gap-3">
+      <PageNavigation
+        title="Jobs"
+        pages={pages}
+        switchPage={switchPage}
+      />
+
+      {pages.activePage==="Search" && <Posts />}
+    </section>
   );
 };
 
