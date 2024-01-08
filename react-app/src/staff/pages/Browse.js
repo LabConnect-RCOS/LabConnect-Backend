@@ -4,7 +4,7 @@ import PageNavigation from "../../shared/components/Navigation/PageNavigation";
 import BrowseItems from "../components/BrowseItems";
 
 const DUMMY_DATA = {
-  to: "/staff/departments",
+  to: "/staff",
   items: [
     {
       id: "d1",
@@ -39,8 +39,7 @@ const Browse = () => {
     "Research Centers"
   );
   
-  console.log(pages.activePage);
-
+  
   return (
     <section className="flex flex-col gap-3">
       <PageNavigation
