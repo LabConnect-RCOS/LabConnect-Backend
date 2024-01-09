@@ -8,7 +8,7 @@ const BrowseItems = ({to, items}) => {
         return (
           <LargeImageCard
             key={item.id}
-            to={`${to}/${item.id}`}
+            to={`/center/${item.title}`}
             title={item.title}
             image={item.image}
           />

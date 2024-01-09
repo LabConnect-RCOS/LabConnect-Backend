@@ -1,8 +1,8 @@
 import React from "react";
 
-const Avatar = ({ img, name, role }) => {
+const Avatar = ({ img, name, role, className }) => {
   return (
-    <div className="flex align-items-center gap-3">
+    <div className={`${className} flex align-items-center gap-3`}>
       <img className="rounded-full w-12 h-12" src={img} alt={name} />
       <div>
         <h5 className="text-blue-800 text-base">{name}</h5>
