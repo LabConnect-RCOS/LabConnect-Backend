@@ -15,7 +15,7 @@ export default function MainNavigation() {
   
   var [navigation, setNavigation] = useState([
     { name: "Jobs", href: "/jobs", current: true },
-    { name: "Create", href: "/create", current: false },
+    { name: "Create", href: "/createPost", current: false },
     { name: "Staff", href: "/staff", current: false },
     { name: "Resources", href: "/resources", current: false },
     { name: "Profile", href: "/profile", current: false },

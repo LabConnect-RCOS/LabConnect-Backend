@@ -1,5 +1,4 @@
 import React from "react";
-import { Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 const Home = () => {
@@ -10,7 +9,7 @@ const Home = () => {
       This is the hub to find and apply to research on campus!
       <br />
       <Link to="/jobs">
-        <Button>Find Jobs</Button>
+        <button className="btn btn-primary">Find Jobs</button>
       </Link>
     </section>
   );
