@@ -1,6 +1,6 @@
 import React from "react";
 
-const Input = ({ type, name, formHook, label, options, placeHolder }) => {
+const Input = ({ type, errorMessage, errors, name, formHook, label, options, placeHolder }) => {
   // if (!formHook) {
   //   return <h1>FormHook Not Given</h1>;
   // }
@@ -36,6 +36,7 @@ const Input = ({ type, name, formHook, label, options, placeHolder }) => {
         </div>
         {((type != "textarea" || !type) && inputElement)}
         {(type == "textarea" && textAreaElement)}
+        { errors && (errors[name] && <p className="text-red-500">This is an error</p>)}
         
       </label>
     </div>
