@@ -20,6 +20,20 @@
             </div>
         </div>
 
+    <div>
+        <p> {{ opp_attr_names }} </p>
+        {% for row in opp_attr_rows %}
+            <p> {{ row }} </p>
+        {% endfor %}
+    </div>
+
+    <div>
+        <p> {{ joined_query1_attr_names }} </p>
+        {% for row in joined_query1_rows %}
+            <p> {{ row }} </p>
+        {% endfor %}
+    </div>
+
         <div class="mt-4 no-border-radius">
             <div class="card position-grid">
 

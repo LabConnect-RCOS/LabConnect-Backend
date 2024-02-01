@@ -3,7 +3,6 @@ import pytest
 from labconnect import create_app  # , db
 from labconnect.models import *
 
-
 # --------
 # Fixtures
 # https://gitlab.com/patkennedy79/flask_user_management_example/-/blob/main/tests/conftest.py

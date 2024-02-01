@@ -1,0 +1,6 @@
+11/21/2023
+
+I managed to implement table joining, and it seems to work well. 
+https://docs.sqlalchemy.org/en/20/orm/queryguide/query.html#sqlalchemy.orm.Query.join
+
+I observed that currently the website is run locally on my machine during testing, and it is affected by the "database.db" file also in the local LabConnect directory. If I *drop* all tables, a query on any table will fail. 
