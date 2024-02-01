@@ -4,22 +4,6 @@ import { set, useForm } from "react-hook-form";
 import { useEffect } from "react";
 import CheckBox from "./Checkbox";
 import Input from "./Input";
-import { useParams } from "react-router";
-
-const DUMMY_DATA = {
-  "d1": {
-    id: "d1",
-    title: "Software Intern",
-    department: "Computer Science",
-    location: "Remote",
-    date: "2024-02-08",
-    upfrontPay: 0,
-    salary: 0,
-    credits: 0,
-    description: "This is a software internship",
-    years: ["Freshman", "Junior", "Senior"],
-  },
-};
 
 const CreationForms = () => {
   const { postID } = useParams();
@@ -131,7 +115,11 @@ const CreationForms = () => {
         label="Due Date"
         name={"date"}
         errorMessage={"Due Date is required"}
+<<<<<<< HEAD
         formHook={{ ...register("date", { required: true }) }}
+=======
+        formHook={{ ...register("date", {required:true}) }}
+>>>>>>> 4e18b04 (Adding input validation and error messages for the inputs we have so far in Create Post)
         type="date"
       />
       <Input
@@ -195,7 +183,11 @@ const CreationForms = () => {
         errors={errors}
         errorMessage={"At least one year must be selected"}
         name={"years"}
+<<<<<<< HEAD
         formHook={{ ...register("years", { required: true }) }}
+=======
+        formHook={{ ...register("years", {required:true}) }}
+>>>>>>> 4e18b04 (Adding input validation and error messages for the inputs we have so far in Create Post)
       />
 
       <input type="submit" className="btn btn-primary bg-blue-700" />
