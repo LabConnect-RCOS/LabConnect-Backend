@@ -10,7 +10,6 @@ import Profile from "./staff/pages/Profile";
 import Center from "./staff/pages/Center";
 import CreatePost from "./staff/pages/CreatePost";
 import IndividualPost from "./opportunities/pages/IndividualPost";
-import ProfilePage from "./shared/pages/Profile";
 
 function App() {
   return (
@@ -26,7 +25,6 @@ function App() {
           <Route path="/center/:centerName" element={<Center />} />
           <Route path="/staff/:staffId" element={<Profile />} />
           <Route path="/createPost" element={<CreatePost />} />
-          <Route path="/editPost/:postID" element={<CreatePost edit={true} />} />
           <Route path="/post/:postID" element={<IndividualPost />} />
 
           <Route path="/*" element={<PageNotFound />} />
