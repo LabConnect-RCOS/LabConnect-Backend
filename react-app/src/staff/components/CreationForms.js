@@ -2,7 +2,6 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import CheckBox from "./Checkbox";
 import Input from "./Input";
-import { ErrorMessage } from "@hookform/error-message";
 
 const CreationForms = () => {
   const {
@@ -32,6 +31,7 @@ const CreationForms = () => {
         label="Title"
         name={"title"}
         errors={errors}
+        errorMessage={"Title must be at least 5 characters"}
         formHook={{
           ...register("title", {
             required: true,
@@ -48,6 +48,7 @@ const CreationForms = () => {
         errors={errors}
         label="Department"
         name={"department"}
+        errorMessage={"Department must be at least 3 characters"}
         formHook={{
           ...register("department", {
             required: true,
@@ -61,6 +62,7 @@ const CreationForms = () => {
         errors={errors}
         label="Location"
         name={"location"}
+        errorMessage={"Location must be at least 5 characters"}
         formHook={{
           ...register("location", {
             required: true,
@@ -73,13 +75,16 @@ const CreationForms = () => {
       <Input
         errors={errors}
         label="Due Date"
-        formHook={{ ...register("date") }}
+        name={"date"}
+        errorMessage={"Due Date is required"}
+        formHook={{ ...register("date", {required:true}) }}
         type="date"
       />
       <Input
         errors={errors}
         label="Upfront Pay"
         name={"upfrontPay"}
+        errorMessage={"Upfront Pay must be at least 0"}
         formHook={{
           ...register("upfrontPay", {
             required: true,
@@ -93,6 +98,7 @@ const CreationForms = () => {
         errors={errors}
         label="Salary"
         name={"salary"}
+        errorMessage={"Salary must be at least 0"}
         formHook={{
           ...register("salary", {
             required: true,
@@ -106,6 +112,7 @@ const CreationForms = () => {
         errors={errors}
         label="Credits"
         name={"credits"}
+        errorMessage={"Credits must be between 0 and 4"}
         formHook={{
           ...register("credits", {
             required: true,
@@ -120,6 +127,7 @@ const CreationForms = () => {
         errors={errors}
         label="Description"
         name={"description"}
+        errorMessage="Description must be at least 10 characters"
         formHook={{
           ...register("description", {
             required: true,
@@ -133,10 +141,13 @@ const CreationForms = () => {
       <CheckBox
         label="Eligible Class Years"
         options={["Freshman", "Sophomore", "Junior", "Senior"]}
-        formHook={{ ...register("years") }}
+        errors={errors}
+        errorMessage={"At least one year must be selected"}
+        name={"years"}
+        formHook={{ ...register("years", {required:true}) }}
       />
 
-      <input type="submit" className="bg-blue-700" />
+      <input type="submit" className="btn btn-primary bg-blue-700" />
     </form>
   );
 };
