@@ -1,9 +1,13 @@
 # Profile
+    The profile page will display the User's name, major/department, class and 
+    their past opportunities. 
 
 ## Current code:  
+``` Python
 @main_blueprint.route("/profile/<string:rcs_id>")  
 def profile(rcs_id: str):  
     return render_template("profile.html")
+```
 
 ## Data needed:
 Profile:
