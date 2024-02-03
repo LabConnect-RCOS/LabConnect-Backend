@@ -1,20 +1,77 @@
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { set, useForm } from "react-hook-form";
+import { useEffect } from "react";
 import CheckBox from "./Checkbox";
 import Input from "./Input";
+import { useParams } from "react-router";
+
+const DUMMY_DATA = {
+  "d1": {
+    id: "d1",
+    title: "Software Intern",
+    department: "Computer Science",
+    location: "Remote",
+    date: "2024-02-08",
+    upfrontPay: 0,
+    salary: 0,
+    credits: 0,
+    description: "This is a software internship",
+    years: ["Freshman", "Junior", "Senior"],
+  },
+};
 
 const CreationForms = () => {
+  const { postID } = useParams();
+  const [loading, setLoading] = useState(false);
+  
+  async function fetchDetails(key) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(DUMMY_DATA[key]);
+      }, 5000);
+    });
+  }
+
+  async function fetchData(key) {
+    // create fake loading time
+    
+    const response = await fetchDetails(key);
+    response && reset(response);
+    response ? setLoading(false) : setLoading("no response");
+    
+  }
+  
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+    reset
+  } = useForm({
+    defaultValues: {
+      id: "",
+      title: "",
+      department: "",
+      location: "",
+      date: "",
+      upfrontPay: 0,
+      salary: 0,
+      credits: 0,
+      description: "",
+      years: [""],
+    },
+  });
 
+  useEffect(() => {
+    postID && setLoading(true);
+    postID && fetchData(postID);    
+  }, []);
+  
   const submitHandler = (data) => {
     console.log(data);
   };
 
-  return (
+  var forms = (
     <form
       onSubmit={handleSubmit((data) => {
         submitHandler(data);
@@ -37,7 +94,6 @@ const CreationForms = () => {
             required: true,
             minLength: 5,
             maxLength: 100,
-            
           }),
         }}
       />
@@ -54,7 +110,6 @@ const CreationForms = () => {
             required: true,
             minLength: 3,
             maxLength: 40,
-            
           }),
         }}
       />
@@ -68,7 +123,6 @@ const CreationForms = () => {
             required: true,
             minLength: 5,
             maxLength: 100,
-            
           }),
         }}
       />
@@ -77,7 +131,7 @@ const CreationForms = () => {
         label="Due Date"
         name={"date"}
         errorMessage={"Due Date is required"}
-        formHook={{ ...register("date", {required:true}) }}
+        formHook={{ ...register("date", { required: true }) }}
         type="date"
       />
       <Input
@@ -89,7 +143,6 @@ const CreationForms = () => {
           ...register("upfrontPay", {
             required: true,
             min: 0,
-            
           }),
         }}
         type="number"
@@ -103,7 +156,6 @@ const CreationForms = () => {
           ...register("salary", {
             required: true,
             min: 0,
-            
           }),
         }}
         type="number"
@@ -118,7 +170,6 @@ const CreationForms = () => {
             required: true,
             min: 0,
             max: 4,
-            
           }),
         }}
         type="number"
@@ -144,11 +195,19 @@ const CreationForms = () => {
         errors={errors}
         errorMessage={"At least one year must be selected"}
         name={"years"}
-        formHook={{ ...register("years", {required:true}) }}
+        formHook={{ ...register("years", { required: true }) }}
       />
 
       <input type="submit" className="btn btn-primary bg-blue-700" />
     </form>
+  );
+
+  return !loading ? (
+    forms
+  ) : loading === "no response" ? (
+    <h1>There was no response</h1>
+  ) : (
+    <span className="loading loading-spinner loading-lg" />
   );
 };
 
