@@ -1,7 +1,6 @@
 import React from "react";
 import ProfileAvatar from "../components/UIElements/ProfileAvatar";
 import ProfileDescription from "../../staff/components/ProfileDescription";
-import OpportunityActionCard from "../components/UIElements/OpportunityActionCard";
 import ProfileOpportunities from "../components/Profile/ProfileOpportunities";
 
 const PROFILES = {
