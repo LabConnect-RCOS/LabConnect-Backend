@@ -2,10 +2,11 @@ Department
 ----------
 
 Current code:
+```
 @main_blueprint.route("/department/<string:department>")
 def department(department: str):
     return render_template("department.html")
-
+```
 Possibly:
 What school professor is under:
 - ITWS
@@ -40,6 +41,6 @@ Department:
 |School of Science 
 
 Therorticly what needs to be done to actually implement this
-- Query the data
+- Query for schools/departments
 - to get past projects for each profesors
 - Return to json    
