@@ -12,3 +12,35 @@ On the Discover page, each research opportunity will be presented as a preview o
  - Pay offered
 
 In addition to all the bits of information needed above, the time a research opporunity was posted will also be important. We'll need to obtain all this data. Since research opportunities are created as class objects, we can just query the attributes of each object in order to obtain the desired data. We can then input the data the algorithm needs, and we can display the rest of the data on the Discover page.
+
+We will send out JSON files containing the data listed in the bullet points above. Each item in our JSON file will follow this format:
+
+{"name": str, 
+"major": str,
+"experience": str,
+"description": str,
+"credits": int,
+"pay": float}
+
+The whole thing (a template):
+
+{
+   "data":[
+      {
+         "name": str,
+         "major": str,
+         "experience": str,
+         "description": str,
+         "credits": int,
+         "pay": float
+      },
+      {
+         "name": str,
+         "major": str,
+         "experience": str,
+         "description": str,
+         "credits": int,
+         "pay": float
+      }
+   ]
+}

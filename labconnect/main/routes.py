@@ -171,7 +171,27 @@ def department(department: str):
 
 @main_blueprint.route("/discover")
 def discover():
-    return render_template("discover.html")
+    return {
+        "data":
+        [
+            {
+                "name": "Nelson",
+                "major": "CS",
+                "experience": "x",
+                "description": "d",
+                "credits": 4,
+                "pay": 9000.0
+            },
+            {
+                "name": "Name",
+                "major": "Major",
+                "experience": "XP",
+                "description": "Hi",
+                "credits": 3,
+                "pay": 123
+            }
+        ]
+    }
 
 
 @main_blueprint.route("/professor/<string:rcs_id>")
