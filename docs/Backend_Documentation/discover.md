@@ -1,13 +1,13 @@
 
 Labconnect's Discover Page:
 
-Labconnect's Discover page is designed to aid students seeking research opportunities in finding strong prospects. Our Discover page will open when Labconnect is opened, and it will present the user with a series of suggested research opportunities via an algorithm. As of now, this algorithm will prioritize presenting opportunities that fit the user's major and opportunities that are new (opportunities that were recently posted). The opportunities that are presented on this page will be arranged according to how highly they score/rank in the algorithm. A few/several opportunities will be presented at a time.
+Labconnect's Discover page is designed to aid students seeking research opportunities in finding strong prospects. Our Discover page will open when Labconnect is opened, and it will present the user with a series of suggested research opportunities via an algorithm. As of now, this algorithm will prioritize presenting opportunities that fit the user's major and opportunities that are new (opportunities that were recently posted). The opportunities that are presented on this page will be arranged according to how highly they score/rank in the algorithm. A few/several opportunities will be presented at a time. The algorithm may be re-evaluated in the future if we determine we need better suggestions.
 
 On the Discover page, each research opportunity will be presented as a preview on the page. The following information should be shown:
  - Name of the Research Opportunity
- - Required/preferred major(s)
- - Required/preferred experience
- - Brief description
+ - Required/preferred major(s) (not sure if we have enough room)
+ - Required/preferred experience (not sure if we have enough room)
+ - Brief description (will be truncated)
  - Credits offered
  - Pay offered
 
