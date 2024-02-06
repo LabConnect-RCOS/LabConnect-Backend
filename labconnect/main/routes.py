@@ -164,9 +164,10 @@ def profile(rcs_id: str):
     return render_template("profile.html")
 
 
-@main_blueprint.route("/department/<string:department>")
-def department(department: str):
-    return render_template("department.html")
+@main_blueprint.route("/department")
+def department():
+    return {"professors":["Turner","Kuzmin"],
+    "projects":["project1", "project2"]}
 
 
 @main_blueprint.route("/discover")
