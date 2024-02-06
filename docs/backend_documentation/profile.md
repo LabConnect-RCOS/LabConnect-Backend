@@ -25,6 +25,26 @@ Profile:
             - credits - int  
             - description - string  
 
+
+## Output Json data
+{
+"Profile":{
+    "rcs_id": "str",
+    "title": "str",
+    "departments": "str",
+    "past_opportunities": [
+        "professor": "str",
+        "credits": int,
+        "description": "str",
+    ],
+    "current_opportunities": [
+        "professor": "str",
+        "credits": int,
+        "description": "str",
+    ],
+    }
+}
+
 ## Objectives-
 Query the Users database to access the user and get the needed  
 data from the User object. In order to access the User's current  
