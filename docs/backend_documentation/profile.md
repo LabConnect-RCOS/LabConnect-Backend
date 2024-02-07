@@ -25,6 +25,10 @@ Profile:
             - credits - int  
             - description - string  
 
+## Objectives
+Query the Users database to access the user and get the needed  
+data from the User object. In order to access the User's current  
+and previous projects, query the opportunities database.
 
 ## Output Json data
 {
@@ -44,8 +48,3 @@ Profile:
     ],
     }
 }
-
-## Objectives-
-Query the Users database to access the user and get the needed  
-data from the User object. In order to access the User's current  
-and previous projects, query the opportunities database.
