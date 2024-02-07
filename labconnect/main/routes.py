@@ -175,15 +175,14 @@ def department(department: str):
 @main_blueprint.route("/discover")
 def discover():
     return {
-        "data":
-        [
+        "data": [
             {
                 "name": "Nelson",
                 "major": "CS",
                 "experience": "x",
                 "description": "d",
                 "credits": 4,
-                "pay": 9000.0
+                "pay": 9000.0,
             },
             {
                 "name": "Name",
@@ -191,8 +190,8 @@ def discover():
                 "experience": "XP",
                 "description": "Hi",
                 "credits": 3,
-                "pay": 123
-            }
+                "pay": 123,
+            },
         ]
     }
 
