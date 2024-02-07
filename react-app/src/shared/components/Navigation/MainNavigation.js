@@ -17,7 +17,6 @@ export default function MainNavigation() {
     { name: "Jobs", href: "/jobs", current: true },
     { name: "Create", href: "/createPost", current: false },
     { name: "Staff", href: "/staff", current: false },
-    { name: "Resources", href: "/resources", current: false },
     { name: "Profile", href: "/profile", current: false },
     { name: "Authenticate", href: "/auth", current: false },
   ]);
