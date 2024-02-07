@@ -166,19 +166,20 @@ def opportunity(id: int):
 def profile():
 
     return {
-    "Profile":{
-        "rcs_id": "Turner",
-        "title": "Professor",
-        "departments": "CSCI",
-        "past_opportunities": [
-            {"professor": "Kuzman",
-            "credits": 4,
-            "description": "RCOS",}
-        ],
-        "current_opportunities": [
-            {"professor": "Xiao",
-            "credits": 4,
-            "description": "DataStructures"}],
+        "Profile": {
+            "rcs_id": "Turner",
+            "title": "Professor",
+            "departments": "CSCI",
+            "past_opportunities": [
+                {
+                    "professor": "Kuzman",
+                    "credits": 4,
+                    "description": "RCOS",
+                }
+            ],
+            "current_opportunities": [
+                {"professor": "Xiao", "credits": 4, "description": "DataStructures"}
+            ],
         }
     }
 
