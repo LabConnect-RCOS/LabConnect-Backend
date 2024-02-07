@@ -169,8 +169,7 @@ def profile(rcs_id: str):
 
 @main_blueprint.route("/department")
 def department():
-    return {"professors":["Turner","Kuzmin"],
-    "projects":["project1", "project2"]}
+    return {"professors": ["Turner", "Kuzmin"], "projects": ["project1", "project2"]}
 
 
 @main_blueprint.route("/discover")
