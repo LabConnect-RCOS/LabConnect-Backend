@@ -102,6 +102,8 @@ const CreationForms = () => {
         errors={errors}
         label="Department"
         name={"department"}
+        type="select"
+        options={["Computer Science", "Biology", "Physics"]}
         errorMessage={"Department must be at least 3 characters"}
         formHook={{
           ...register("department", {

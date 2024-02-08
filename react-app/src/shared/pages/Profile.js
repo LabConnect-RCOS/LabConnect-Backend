@@ -39,7 +39,7 @@ const PROFILES = {
 };
 
 const ProfilePage = () => {
-  const [editMode, setEditMode] = useState(true);
+  const [editMode, setEditMode] = useState(false);
 
   const changeEditMode = () => {
     setEditMode(!editMode);
