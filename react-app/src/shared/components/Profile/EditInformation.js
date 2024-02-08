@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import Input from "../../../staff/components/Input";
 
-const EditInformation = ({className, id, name, description, email, role, image }) => {
+const EditInformation = ({className, id, name, department, researchCenter, description, email, role, image }) => {
   const submitHandler = (data) => {
     console.log(data);
   };
@@ -20,6 +20,8 @@ const EditInformation = ({className, id, name, description, email, role, image }
       email: email,
       role: role,
       description,
+      department,
+      researchCenter
     },
   });
 
@@ -35,12 +37,11 @@ const EditInformation = ({className, id, name, description, email, role, image }
         type="textarea"
         name={"description"}
         errors={errors}
-        errorMessage={"Description must be at least 5 characters"}
+        errorMessage={"Description must have at least 5 characters"}
         formHook={{
           ...register("description", {
             required: true,
             minLength: 5,
-            maxLength: 100,
           }),
         }}
       />
@@ -56,6 +57,8 @@ const EditInformation = ({className, id, name, description, email, role, image }
         <h3 className="text-lg">Name: {name}</h3>
         <h3 className="text-lg">Email: {email}</h3>
         <h3 className="text-lg">Role: {role}</h3>
+        <h3 className="text-lg">Department: {department}</h3>
+        <h3 className="text-lg">Research Center: {researchCenter}</h3>
       </div>
       {forms}
       
