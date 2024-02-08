@@ -1,7 +1,9 @@
 import React from "react";
+import { useState } from "react";
 import ProfileAvatar from "../components/UIElements/ProfileAvatar";
 import ProfileDescription from "../../staff/components/ProfileDescription";
 import ProfileOpportunities from "../components/Profile/ProfileOpportunities";
+import EditProfile from "./EditProfile";
 
 const PROFILES = {
   d1: {
@@ -9,6 +11,8 @@ const PROFILES = {
     image: "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
     researchCenter: "Computational Fake Center",
     department: "Computer Science",
+    email: "johnp@rpi.edu",
+    role: "admin",
     description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
           pharetra sit amet aliquam id diam maecenas ultricies mi. Montes
@@ -35,14 +39,26 @@ const PROFILES = {
 };
 
 const ProfilePage = () => {
+  const [editMode, setEditMode] = useState(true);
+
+  const changeEditMode = () => {
+    setEditMode(!editMode);
+  };
+
   if (!PROFILES.d1) {
     return "Profile Doesn't Exist";
   }
 
   const { name, image, researchCenter, department, description } = PROFILES.d1;
+  
+  var editButton = (
+    <button className="btn btn-primary my-3" onClick={changeEditMode}>
+      {editMode ? "Cancel Changes" : "Edit Profile"}
+    </button>
+  );
 
-  return (
-    <section className="mt-5">
+  var profile = (
+    <section className="">
       <div className="flex gap-5">
         <ProfileAvatar name={name} image={image} />
         <ProfileDescription
@@ -54,6 +70,13 @@ const ProfilePage = () => {
       </div>
       <ProfileOpportunities id="d1" />
     </section>
+  );
+
+  return (
+    <div>
+      {editButton}
+      {editMode ? <EditProfile {...PROFILES.d1} id={"d1"} /> : profile}
+    </div>
   );
 };
 
