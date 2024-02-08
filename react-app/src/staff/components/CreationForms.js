@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import CheckBox from "./Checkbox";
 import Input from "./Input";
@@ -97,8 +97,6 @@ const CreationForms = () => {
           }),
         }}
       />
-
-      {errors.title && console.log(errors.title.message)}
 
       <Input
         errors={errors}
