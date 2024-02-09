@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import ProfileAvatar from "../components/UIElements/ProfileAvatar";
 import ProfileDescription from "../../staff/components/ProfileDescription";
 import ProfileOpportunities from "../components/Profile/ProfileOpportunities";
 import EditProfile from "./EditProfile";
+import useGlobalContext from "../../context/global/useGlobalContext";
 
 const PROFILES = {
   d1: {
@@ -40,43 +41,67 @@ const PROFILES = {
 
 const ProfilePage = () => {
   const [editMode, setEditMode] = useState(false);
+  const [profileFound, setProfileFound] = useState(false);
+  const [profile, setProfile] = useState(null);
+
+  const state = useGlobalContext();
+  const { loggedIn } = state;
 
   const changeEditMode = () => {
     setEditMode(!editMode);
   };
 
-  if (!PROFILES.d1) {
-    return "Profile Doesn't Exist";
-  }
+  const { id } = state;
 
-  const { name, image, researchCenter, department, description } = PROFILES.d1;
-  
+  useEffect(() => {
+    if (id) {
+      const tempProfile = PROFILES[id];
+
+      if (tempProfile) {
+        setProfile(tempProfile);
+        setProfileFound(true);
+      }
+    }
+  }, []);
+
   var editButton = (
     <button className="btn btn-primary my-3" onClick={changeEditMode}>
       {editMode ? "Cancel Changes" : "Edit Profile"}
     </button>
   );
 
-  var profile = (
-    <section className="">
+  const profilePage = (
+    <section>
       <div className="flex gap-5">
-        <ProfileAvatar name={name} image={image} />
+        <ProfileAvatar
+          name={profile ? profile.name : ""}
+          image={profile ? profile.image : ""}
+        />
         <ProfileDescription
-          name={name}
-          researchCenter={researchCenter}
-          department={department}
-          description={description}
+          name={profile ? profile.name : ""}
+          researchCenter={profile ? profile.researchCenter : ""}
+          department={profile ? profile.department : ""}
+          description={profile ? profile.description : ""}
         />
       </div>
-      <ProfileOpportunities id="d1" />
+      <ProfileOpportunities id={id} />
     </section>
   );
 
   return (
-    <div>
-      {editButton}
-      {editMode ? <EditProfile {...PROFILES.d1} id={"d1"} /> : profile}
-    </div>
+    <section>
+      {!loggedIn ? (
+        "Please log in to view your profile"
+      ) : profileFound ? (
+        <>
+          {loggedIn && editButton}
+          {loggedIn && editMode && <EditProfile />}
+          {loggedIn && !editMode && profilePage}
+        </>
+      ) : (
+        "Profile not found"
+      )}
+    </section>
   );
 };
 

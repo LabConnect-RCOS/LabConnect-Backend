@@ -10,11 +10,14 @@ import Profile from "./staff/pages/Profile";
 import Center from "./staff/pages/Center";
 import CreatePost from "./staff/pages/CreatePost";
 import IndividualPost from "./opportunities/pages/IndividualPost";
-import ProfilePage from "./shared/pages/Profile";
+import ProfilePage from "./shared/pages/Profile.js";
+import { GlobalContextProvider } from "./context/global/GlobalContextProvider.js";
+import useGlobalContext from "./context/global/useGlobalContext.js";
 
 function App() {
+  
   return (
-    <>
+    <GlobalContextProvider>
       <MainNavigation />
 
       <main className=" container-xl ">
@@ -26,13 +29,16 @@ function App() {
           <Route path="/center/:centerName" element={<Center />} />
           <Route path="/staff/:staffId" element={<Profile />} />
           <Route path="/createPost" element={<CreatePost />} />
-          <Route path="/editPost/:postID" element={<CreatePost edit={true} />} />
+          <Route
+            path="/editPost/:postID"
+            element={<CreatePost edit={true} />}
+          />
           <Route path="/post/:postID" element={<IndividualPost />} />
 
           <Route path="/*" element={<PageNotFound />} />
         </Routes>
       </main>
-    </>
+    </GlobalContextProvider>
   );
 }
 
