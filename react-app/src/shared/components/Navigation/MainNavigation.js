@@ -4,6 +4,9 @@ import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useLocation } from 'react-router-dom';
+import { useEffect } from "react";
+import useGlobalContext from "../../../context/global/useGlobalContext";
+import useAuthActions from "../../../context/global/authActions";
 
 
 function classNames(...classes) {
@@ -11,6 +14,17 @@ function classNames(...classes) {
 }
 
 export default function MainNavigation() {
+  const state = useGlobalContext();
+  
+  const {loggedIn} = state;
+  console.log(loggedIn);
+  
+  const {login, logout} = useAuthActions();
+  
+  useEffect(() => {
+    // login(state);
+  }, []);
+  
   const location = useLocation().pathname;
   
   var [navigation, setNavigation] = useState([
@@ -20,6 +34,24 @@ export default function MainNavigation() {
     { name: "Profile", href: "/profile", current: false },
     { name: "Authenticate", href: "/auth", current: false },
   ]);
+  
+  useEffect(() => {
+    if (loggedIn) {
+      setNavigation([
+        { name: "Jobs", href: "/jobs", current: true },
+        { name: "Create", href: "/createPost", current: false },
+        { name: "Staff", href: "/staff", current: false },
+        { name: "Profile", href: "/profile", current: false },
+        { name: "Sign Out", href: "/auth", current: false },
+      ]);
+    } else {
+      setNavigation([
+        { name: "Jobs", href: "/jobs", current: true },
+        { name: "Staff", href: "/staff", current: false },
+        { name: "Sign In", href: "/auth", current: false },
+      ]);
+    }
+  }, [loggedIn]);
 
   return (
     <Disclosure as="nav" className="bg-slate-50">
