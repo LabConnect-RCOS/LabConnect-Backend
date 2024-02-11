@@ -12,10 +12,9 @@ import CreatePost from "./staff/pages/CreatePost";
 import IndividualPost from "./opportunities/pages/IndividualPost";
 import ProfilePage from "./shared/pages/Profile.js";
 import { GlobalContextProvider } from "./context/global/GlobalContextProvider.js";
-import useGlobalContext from "./context/global/useGlobalContext.js";
+import useAuthActions from "./context/global/authActions.js";
 
 function App() {
-  
   return (
     <GlobalContextProvider>
       <MainNavigation />
@@ -34,6 +33,8 @@ function App() {
             element={<CreatePost edit={true} />}
           />
           <Route path="/post/:postID" element={<IndividualPost />} />
+          <Route path="/signOut" element={<Home signOut={true} />} />
+          <Route path="/signIn" element={<Home signIn={true} />} />
 
           <Route path="/*" element={<PageNotFound />} />
         </Routes>

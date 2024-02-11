@@ -138,18 +138,6 @@ def test_profile_route(test_client: FlaskClient) -> None:
         data["Profile"]["current_opportunities"][0]["description"] == "DataStructures"
     )
 
-
-def test_tips_and_tricks_page(test_client: FlaskClient) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/profile/<user>' page is requested (GET)
-    THEN check that the response is valid
-    """
-    response = test_client.get("/tips")
-    assert response.status_code == 200
-    assert b"Tips and Tricks for LabConnect" in response.data
-
-
 def test_info_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing

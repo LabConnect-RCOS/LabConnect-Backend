@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import CheckBox from "./Checkbox";
 import Input from "./Input";
 import { useParams } from "react-router";
+import useGlobalContext from "../../context/global/useGlobalContext";
 
 const DUMMY_DATA = {
   "d1": {
@@ -24,6 +25,10 @@ const DUMMY_DATA = {
 const CreationForms = () => {
   const { postID } = useParams();
   const [loading, setLoading] = useState(false);
+  const state = useGlobalContext();
+  const { loggedIn } = state;
+  const { id: authorId } = state;
+  
   
   async function fetchDetails(key) {
     return new Promise((resolve, reject) => {
@@ -68,7 +73,9 @@ const CreationForms = () => {
   }, []);
   
   const submitHandler = (data) => {
-    console.log(data);
+    if (authorId) {
+      console.log({...data, authorId});
+    }
   };
 
   var forms = (
