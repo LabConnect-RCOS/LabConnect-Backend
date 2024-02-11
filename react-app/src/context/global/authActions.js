@@ -2,10 +2,11 @@ import useGlobalContext from "./useGlobalContext";
 import { useCookies } from "react-cookie";
 
 const useAuthActions = () => {
+  
   const { dispatch } = useGlobalContext();
   const [cookie, setCookie, removeCookie] = useCookies(["userCookie"]);
 
-  async function login(state) {
+  async function login() {
     // make fake call to server
 
     async function getDetails() {
@@ -38,7 +39,7 @@ const useAuthActions = () => {
     removeCookie("userCookie", {
       path: "/",
     });
-    dispatch({ type: "logout" });
+    dispatch({ type: "logout", payload: {dispatch} });
   };
 
   return { login, logout };

@@ -32,7 +32,7 @@ const GlobalContextProvider = ({ children }) => {
       case "login":
         return { ...state, loggedIn: true, ...action.payload };
       case "logout":
-        return { loggedIn: false };
+        return { loggedIn: false, ...action.payload };
       default:
         return state;
     }
