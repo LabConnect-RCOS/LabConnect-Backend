@@ -145,7 +145,7 @@ def test_department_route(test_client: FlaskClient) -> None:
     assert {"Hello": "There"} == json.loads(response.data)
 
 
-def test_profile_page(test_client: FlaskClient) -> None:
+def test_profile_route(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/profile/<user>' page is requested (GET)
