@@ -90,6 +90,9 @@ def profile():
         }
     }
 
+    db.session.query(LabRunner.rcs_id, LabRunner.name)
+    .join(Promotes, Promotes.lab_runner_rcs_id == LabRunner.rcs_id)
+
 
 @main_blueprint.route("/department")
 def department():
