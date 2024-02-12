@@ -117,17 +117,19 @@ def test_profile_route(test_client: FlaskClient) -> None:
     THEN check that the response is valid
     """
     response = test_client.get("/profile")
-    data = json.loads(response.data.decode('utf-8'))
+    data = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 200
     assert data["Profile"]["rcs_id"] == "Turner"
     assert data["Profile"]["title"] == "Professor"
     assert data["Profile"]["departments"] == "CSCI"
-    assert data["Profile"]["past_opportunities"]["professor"] == "Kuzman"
-    assert data["Profile"]["past_opportunities"]["credits"] == 4
-    assert data["Profile"]["past_opportunities"]["description"] == "RCOS"
-    assert data["Profile"]["current_opportunities"]["professor"] == "Xiao"
-    assert data["Profile"]["current_opportunities"]["credits"] == 4
-    assert data["Profile"]["current_opportunities"]["description"] == "DataStructures"
+    assert data["Profile"]["past_opportunities"][0]["professor"] == "Kuzman"
+    assert data["Profile"]["past_opportunities"][0]["credits"] == 4
+    assert data["Profile"]["past_opportunities"][0]["description"] == "RCOS"
+    assert data["Profile"]["current_opportunities"][0]["professor"] == "Xiao"
+    assert data["Profile"]["current_opportunities"][0]["credits"] == 4
+    assert (
+        data["Profile"]["current_opportunities"][0]["description"] == "DataStructures"
+    )
 
 
 def test_tips_and_tricks_page(test_client: FlaskClient) -> None:
