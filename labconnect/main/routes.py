@@ -164,10 +164,13 @@ def opportunity(id: int):
 
 @main_blueprint.route("/profile")
 def profile():
-
     return {
         "Profile": {
-            "rcs_id": "Turner",
+            "rcs_id": "turnerw",
+            "name": "Turner",
+            "email": "turnerw@rpi.edu",
+            "phone_number": "123-456-7890",
+            "website": "turnerw.com",
             "title": "Professor",
             "departments": "CSCI",
             "past_opportunities": [
@@ -182,6 +185,9 @@ def profile():
             ],
         }
     }
+
+    db.session.query(LabRunner.rcs_id, LabRunner.name)
+    .join(Promotes, Promotes.lab_runner_rcs_id == LabRunner.rcs_id)
 
 
 @main_blueprint.route("/department/<string:department>")
