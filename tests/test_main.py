@@ -119,7 +119,11 @@ def test_profile_route(test_client: FlaskClient) -> None:
     response = test_client.get("/profile")
     data = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 200
-    assert data["Profile"]["rcs_id"] == "Turner"
+    assert data["Profile"]["rcs_id"] == "turnerw"
+    assert data["Profile"]["name"] == "Turner"
+    assert data["Profile"]["email"] == "turnerw@rpi.edu"
+    assert data["Profile"]["phone_number"] == "123-456-7890"
+    assert data["Profile"]["website"] == "turnerw.com"
     assert data["Profile"]["title"] == "Professor"
     assert data["Profile"]["departments"] == "CSCI"
     assert data["Profile"]["past_opportunities"][0]["professor"] == "Kuzman"
