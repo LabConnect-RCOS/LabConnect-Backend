@@ -34,6 +34,10 @@ and previous projects, query the opportunities database.
 {
 "Profile":{
     "rcs_id": "str",
+    "name": "str",
+    "email": "str",
+    "phone_number": "123-456-7890",
+    "website": "str",
     "title": "str",
     "departments": "str",
     "past_opportunities": [
