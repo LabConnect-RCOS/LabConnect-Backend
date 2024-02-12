@@ -3,6 +3,7 @@ Test mains
 """
 
 from flask.testing import FlaskClient
+import json
 
 
 def test_home_page(test_client: FlaskClient) -> None:
@@ -109,17 +110,24 @@ def test_professor_page(test_client: FlaskClient) -> None:
     assert b"Contact:" in response.data
 
 
-def test_profile_page(test_client: FlaskClient) -> None:
+def test_profile_route(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/profile/<user>' page is requested (GET)
     THEN check that the response is valid
     """
-    response = test_client.get("/profile/bob")
+    response = test_client.get("/profile")
+    data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 200
-    assert b"Name:" in response.data
-    assert b"Department:" in response.data
-    assert b"Contact:" in response.data
+    assert data["Profile"]["rcs_id"] == "Turner"
+    assert data["Profile"]["title"] == "Professor"
+    assert data["Profile"]["departments"] == "CSCI"
+    assert data["Profile"]["past_opportunities"]["professor"] == "Kuzman"
+    assert data["Profile"]["past_opportunities"]["credits"] == 4
+    assert data["Profile"]["past_opportunities"]["description"] == "RCOS"
+    assert data["Profile"]["current_opportunities"]["professor"] == "Xiao"
+    assert data["Profile"]["current_opportunities"]["credits"] == 4
+    assert data["Profile"]["current_opportunities"]["description"] == "DataStructures"
 
 
 def test_tips_and_tricks_page(test_client: FlaskClient) -> None:
