@@ -11,7 +11,7 @@ from labconnect.helpers import SemesterEnum
 class RPISchools(db.Model):
     __tablename__ = "rpi_schools"
     name = db.Column(db.String(64), primary_key=True)
-    description = db.Column(db.String(256), nullable=True, unique=False)
+    description = db.Column(db.String(2000), nullable=True, unique=False)
 
     departments = relationship(
         "RPIDepartments", secondary="departmentOf", backref="rpi_schools"
@@ -25,9 +25,9 @@ class RPISchools(db.Model):
 class RPIDepartments(db.Model):
     __tablename__ = "rpi_departments"
     name = db.Column(db.String(64), primary_key=True)
-    description = db.Column(db.String(256), nullable=True, unique=False)
+    description = db.Column(db.String(2000), nullable=True, unique=False)
 
-    lab_runners = relationship(
+    lab_manager = relationship(
         "LabManager", secondary="isPartOf", back_populates="rpi_departments"
     )
     school = relationship("RPISchools", secondary="departmentOf")
@@ -39,12 +39,12 @@ class RPIDepartments(db.Model):
 # lab_manager( rcs_id, name ), key: rcs_id
 class LabManager(db.Model):
     __tablename__ = "lab_manager"
-    rcs_id = db.Column(db.String(64), primary_key=True)
+    rcs_id = db.Column(db.String(9), primary_key=True)
     name = db.Column(db.String(64), nullable=True, unique=False)
     email = db.Column(db.String(64), nullable=True, unique=False)
     alt_email = db.Column(db.String(64), nullable=True, unique=False)
-    phone_number = db.Column(db.String(64), nullable=True, unique=False)
-    website = db.Column(db.String(64), nullable=True, unique=False)
+    phone_number = db.Column(db.String(15), nullable=True, unique=False)
+    website = db.Column(db.String(128), nullable=True, unique=False)
 
     rpi_departments = relationship("RPIDepartments", secondary="isPartOf")
     promoted_opportunities = relationship("Opportunities", secondary="promotes")
@@ -56,18 +56,17 @@ class LabManager(db.Model):
 # opportunities( id, name, description, active_status, recommended_experience ), key: id
 class Opportunities(db.Model):
     __tablename__ = "opportunities"
-    opp_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), nullable=True, unique=False)
-    description = db.Column(db.String(256), nullable=True, unique=False)
-    active_status = db.Column(db.Boolean, nullable=False, unique=False)
-    recommended_experience = db.Column(db.String(256), nullable=True, unique=False)
+    description = db.Column(db.String(2000), nullable=True, unique=False)
+    recommended_experience = db.Column(db.String(500), nullable=True, unique=False)
     pay = db.Column(db.Float, nullable=True, unique=False)
     credits = db.Column(db.String(8), nullable=True, unique=False)
     semester = db.Column(Enum(SemesterEnum), nullable=True, unique=False)
     year = db.Column(db.Integer, nullable=True, unique=False)
     application_due = db.Column(db.Date, nullable=True, unique=False)
 
-    lab_runners = relationship(
+    lab_manager = relationship(
         "LabManager", secondary="promotes", back_populates="promoted_opportunities"
     )
     recommends_courses = relationship("Courses", secondary="recommends_courses")
@@ -83,8 +82,8 @@ class Opportunities(db.Model):
 # courses( course_code, course_name ), key: course_code
 class Courses(db.Model):
     __tablename__ = "courses"
-    course_code = db.Column(db.String(8), primary_key=True)
-    course_name = db.Column(db.String(64), nullable=True, unique=False)
+    code = db.Column(db.String(8), primary_key=True)
+    name = db.Column(db.String(64), nullable=True, unique=False)
 
     recommended_by_opportunities = relationship(
         "Opportunities",
@@ -112,7 +111,7 @@ class Majors(db.Model):
         return str(vars(self))
 
 
-# class_years( class_year, class_name ), key: class_year
+# class_years( class_year ), key: class_year
 class ClassYears(db.Model):
     __tablename__ = "class_years"
     class_year = db.Column(db.Integer, primary_key=True)
@@ -145,14 +144,14 @@ class DepartmentOf(db.Model):
         return str(vars(self))
 
 
-# isPartOf( lab_manager_rcs_id, dep_name ), key: (lab_manager_rcs_id, dep_name)
+# isPartOf( lab_manager_rcs_id, department_name ), key: (lab_manager_rcs_id, department_name)
 class IsPartOf(db.Model):
     __tablename__ = "isPartOf"
 
     lab_manager_rcs_id = db.Column(
-        db.String(64), db.ForeignKey("lab_manager.rcs_id"), primary_key=True
+        db.String(9), db.ForeignKey("lab_manager.rcs_id"), primary_key=True
     )
-    dep_name = db.Column(
+    department_name = db.Column(
         db.String(64), db.ForeignKey("rpi_departments.name"), primary_key=True
     )
 
@@ -165,10 +164,10 @@ class Promotes(db.Model):
     __tablename__ = "promotes"
 
     lab_manager_rcs_id = db.Column(
-        db.String(64), db.ForeignKey("lab_manager.rcs_id"), primary_key=True
+        db.String(9), db.ForeignKey("lab_manager.rcs_id"), primary_key=True
     )
     opportunity_id = db.Column(
-        db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True
+        db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
     )
 
     def __str__(self) -> str:
@@ -180,7 +179,7 @@ class RecommendsCourses(db.Model):
     __tablename__ = "recommends_courses"
 
     opportunity_id = db.Column(
-        db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True
+        db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
     )
     course_code = db.Column(
         db.String(8), db.ForeignKey("courses.course_code"), primary_key=True
@@ -195,10 +194,10 @@ class RecommendsMajors(db.Model):
     __tablename__ = "recommends_majors"
 
     opportunity_id = db.Column(
-        db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True
+        db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
     )
     major_code = db.Column(
-        db.String(4), db.ForeignKey("majors.major_code"), primary_key=True
+        db.String(8), db.ForeignKey("majors.major_code"), primary_key=True
     )
 
     def __str__(self) -> str:
@@ -210,7 +209,7 @@ class RecommendsClassYears(db.Model):
     __tablename__ = "recommends_class_years"
 
     opportunity_id = db.Column(
-        db.Integer, db.ForeignKey("opportunities.opp_id"), primary_key=True
+        db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
     )
     class_year = db.Column(
         db.Integer, db.ForeignKey("class_years.class_year"), primary_key=True

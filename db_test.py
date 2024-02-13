@@ -73,7 +73,6 @@ elif sys.argv[1] == "create":
             (
                 "Automated Cooling System",
                 "Energy efficient AC system",
-                True,
                 "Thermodynamics",
                 15.0,
                 "4",
@@ -84,7 +83,6 @@ elif sys.argv[1] == "create":
             (
                 "Iphone 15 durability test",
                 "Scratching the Iphone, drop testing etc.",
-                True,
                 "Experienced in getting angry and throwing temper tantrum",
                 None,
                 "1,2,3,4",
@@ -98,25 +96,24 @@ elif sys.argv[1] == "create":
             row = Opportunities(
                 name=row_tuple[0],
                 description=row_tuple[1],
-                active_status=row_tuple[2],
-                recommended_experience=row_tuple[3],
-                pay=row_tuple[4],
-                credits=row_tuple[5],
-                semester=row_tuple[6],
-                year=row_tuple[7],
-                application_due=row_tuple[8],
+                recommended_experience=row_tuple[2],
+                pay=row_tuple[3],
+                credits=row_tuple[4],
+                semester=row_tuple[5],
+                year=row_tuple[6],
+                application_due=row_tuple[7],
             )
             db.session.add(row)
             db.session.commit()
 
         courses_rows = (
-            ("CSCI4430", "Programming Languages"),
+            ("CSCI4430","Programming Languages"),
             ("CSCI2961", "Rensselaer Center for Open Source"),
             ("CSCI4390", "Data Mining"),
         )
 
         for row_tuple in courses_rows:
-            row = Courses(course_code=row_tuple[0], course_name=row_tuple[1])
+            row = Courses(code=row_tuple[0], name=row_tuple[2])
             db.session.add(row)
             db.session.commit()
 
@@ -160,7 +157,7 @@ elif sys.argv[1] == "create":
         )
 
         for r in is_part_of_rows_lab_managers:
-            row = IsPartOf(lab_manager_rcs_id=r[0], dep_name=r[1])
+            row = IsPartOf(lab_manager_rcs_id=r[0], department_name=r[1])
             db.session.add(row)
             db.session.commit()
 
