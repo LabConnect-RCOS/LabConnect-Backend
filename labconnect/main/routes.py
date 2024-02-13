@@ -13,7 +13,7 @@ from labconnect.main.queries import (
     get_opportunity_recommended_majors,
     get_opportunity_upfront_pay,
 )
-from labconnect.models import Opportunities
+from labconnect.models import Opportunities, RPIDepartments, DepartmentOf
 
 from . import main_blueprint
 
@@ -201,7 +201,11 @@ def profile():
 
 @main_blueprint.route("/department")
 def department():
-    return {"professors": ["Turner", "Kuzmin"], "projects": ["project1", "project2"]}
+    #return {"professors": ["Turner", "Kuzmin"], "projects": ["project1", "project2"]}
+    data = db.session.query(RPIDepartments.name, RPIDepartments.description).filter(RPIDepartments.name == "Computer Science").join(DepartmentOf, DepartmentOf.department_name == RPIDepartments.name).all()
+    print(data)
+    #departmentOf department_name
+
 
 
 @main_blueprint.route("/discover")
