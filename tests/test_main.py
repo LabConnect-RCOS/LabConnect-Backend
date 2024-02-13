@@ -2,7 +2,7 @@
 Test mains
 """
 
-from flask.testing import FlaskClient 
+from flask.testing import FlaskClient
 import json
 
 
@@ -51,16 +51,16 @@ def test_discover_route(test_client: FlaskClient) -> None:
     THEN check that the response is valid
     """
     response = test_client.get("/discover")
-    data = json.loads(response.data.decode('utf-8'))
+    data = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 200
     assert data["data"][0] == {
-                "name": "Nelson",
-                "major": "CS",
-                "experience": "x",
-                "description": "d",
-                "credits": 4,
-                "pay": 9000.0
-            }
+        "name": "Nelson",
+        "major": "CS",
+        "experience": "x",
+        "description": "d",
+        "credits": 4,
+        "pay": 9000.0,
+    }
 
 
 def test_create_post_page(test_client: FlaskClient) -> None:
