@@ -1,6 +1,7 @@
 import React from "react";
 import ProfileAvatar from "../../shared/components/UIElements/ProfileAvatar";
 import ProfileDescription from "../components/ProfileDescription";
+import ProfileOpportunities from "../components/ProfileOpportunities";
 import { useParams } from "react-router";
 
 const DUMMY_STAFF_PROFILES = {
@@ -45,14 +46,17 @@ const Profile = () => {
     DUMMY_STAFF_PROFILES[staffId];
 
   return (
-    <section className="mt-5 flex gap-5">
-      <ProfileAvatar name={name} image={image} />
-      <ProfileDescription
-        name={name}
-        researchCenter={researchCenter}
-        department={department}
-        description={description}
-      />
+    <section className="mt-5">
+      <div className="flex gap-5">
+        <ProfileAvatar name={name} image={image} />
+        <ProfileDescription
+          name={name}
+          researchCenter={researchCenter}
+          department={department}
+          description={description}
+        />
+      </div>
+      <ProfileOpportunities id={staffId} />
     </section>
   );
 };

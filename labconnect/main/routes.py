@@ -1,6 +1,7 @@
 from flask import abort, render_template
 
 from labconnect import db
+from labconnect.helpers import SemesterEnum
 from labconnect.main.queries import (
     get_opportunity_active_semesters,
     get_opportunity_application_due_dates,
@@ -12,7 +13,7 @@ from labconnect.main.queries import (
     get_opportunity_recommended_majors,
     get_opportunity_upfront_pay,
 )
-from labconnect.models import Opportunities, ActiveSemesters
+from labconnect.models import Opportunities
 
 from . import main_blueprint
 
@@ -24,139 +25,141 @@ def index():
 
 @main_blueprint.route("/opportunities")
 def positions():
-    # pass objects into render_template. For example:
-    # lines = ...
-    # return render_template("opportunitys.html", lines=lines)
+    return "Hello There"
+    # # pass objects into render_template. For example:
+    # # lines = ...
+    # # return render_template("opportunitys.html", lines=lines)
 
-    """
-    For each opportunity summary:
-        name of opportunity,
-        description,
-        recommended majors,
-        lab runners promoting,
-        all forms of compensation,
-    Return only opportunities active in any given semester
-    """
+    # """
+    # For each opportunity summary:
+    #     name of opportunity,
+    #     description,
+    #     recommended majors,
+    #     lab runners promoting,
+    #     all forms of compensation,
+    # Return only opportunities active in any given semester
+    # """
 
-    # Requires application logic to update current semester
-    current_semester = (2023, "Fall")
+    # # Requires application logic to update current semester
+    # current_semester = (2023, "Fall")
 
-    TURN_OFF_SEMESTER_FILTER = False
-    active_opp_ids = (
-        db.session.query(Opportunities.opp_id)
-        .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
-        .filter(
-            (ActiveSemesters.year == current_semester[0])
-            & (ActiveSemesters.season == current_semester[1])
-            | TURN_OFF_SEMESTER_FILTER
-        )
-        .order_by(Opportunities.opp_id)
-    )
+    # TURN_OFF_SEMESTER_FILTER = False
+    # active_opp_ids = (
+    #     db.session.query(Opportunities.opp_id)
+    #     .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
+    #     .filter(
+    #         (ActiveSemesters.year == current_semester[0])
+    #         & (ActiveSemesters.season == current_semester[1])
+    #         | TURN_OFF_SEMESTER_FILTER
+    #     )
+    #     .order_by(Opportunities.opp_id)
+    # )
 
-    names = (
-        db.session.query(Opportunities.name)
-        .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
-        .filter(
-            (ActiveSemesters.year == current_semester[0])
-            & (ActiveSemesters.season == current_semester[1])
-            | TURN_OFF_SEMESTER_FILTER
-        )
-        .order_by(Opportunities.opp_id)
-    )
+    # names = (
+    #     db.session.query(Opportunities.name)
+    #     .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
+    #     .filter(
+    #         (ActiveSemesters.year == current_semester[0])
+    #         & (ActiveSemesters.season == current_semester[1])
+    #         | TURN_OFF_SEMESTER_FILTER
+    #     )
+    #     .order_by(Opportunities.opp_id)
+    # )
 
-    descriptions = (
-        db.session.query(Opportunities.description)
-        .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
-        .filter(
-            (ActiveSemesters.year == current_semester[0])
-            & (ActiveSemesters.season == current_semester[1])
-            | TURN_OFF_SEMESTER_FILTER
-        )
-        .order_by(Opportunities.opp_id)
-    )
+    # descriptions = (
+    #     db.session.query(Opportunities.description)
+    #     .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
+    #     .filter(
+    #         (ActiveSemesters.year == current_semester[0])
+    #         & (ActiveSemesters.season == current_semester[1])
+    #         | TURN_OFF_SEMESTER_FILTER
+    #     )
+    #     .order_by(Opportunities.opp_id)
+    # )
 
-    majors = list()
-    promoters = list()
-    credits = list()
-    salaries = list()
-    upfront_pay = list()
+    # majors = list()
+    # promoters = list()
+    # credits = list()
+    # salaries = list()
+    # upfront_pay = list()
 
-    for opp_id in active_opp_ids.all():
-        # Access via opp_id[0]
-        majors.append(get_opportunity_recommended_majors(opp_id[0]))
-        promoters.append(get_opportunity_promoters(opp_id[0]))
-        credits.append(get_opportunity_course_credits(opp_id[0]))
-        salaries.append(get_opportunity_hourly_rates(opp_id[0]))
-        upfront_pay.append(get_opportunity_upfront_pay(opp_id[0]))
+    # for opp_id in active_opp_ids.all():
+    #     # Access via opp_id[0]
+    #     majors.append(get_opportunity_recommended_majors(opp_id[0]))
+    #     promoters.append(get_opportunity_promoters(opp_id[0]))
+    #     credits.append(get_opportunity_course_credits(opp_id[0]))
+    #     salaries.append(get_opportunity_hourly_rates(opp_id[0]))
+    #     upfront_pay.append(get_opportunity_upfront_pay(opp_id[0]))
 
-    print(active_opp_ids.all())
-    print(names.all())
-    print(descriptions.all())
-    for eachlist in [majors, promoters, credits, salaries, upfront_pay]:
-        print("-" * 32)
-        for each in eachlist:
-            print(each.all())
+    # print(active_opp_ids.all())
+    # print(names.all())
+    # print(descriptions.all())
+    # for eachlist in [majors, promoters, credits, salaries, upfront_pay]:
+    #     print("-" * 32)
+    #     for each in eachlist:
+    #         print(each.all())
 
-    """
-    result = joined_query1.all()
-    joined_query1_rows = [", ".join(str(row).split(",")) for row in result]
-    """
+    # """
+    # result = joined_query1.all()
+    # joined_query1_rows = [", ".join(str(row).split(",")) for row in result]
+    # """
 
-    return render_template(
-        "opportunitys.html",
-        names=names,
-        descriptions=descriptions,
-        majors=majors,
-        promoters=promoters,
-        credits=credits,
-        salaries=salaries,
-        upfront_pay=upfront_pay,
-    )
+    # return render_template(
+    #     "opportunitys.html",
+    #     names=names,
+    #     descriptions=descriptions,
+    #     majors=majors,
+    #     promoters=promoters,
+    #     credits=credits,
+    #     salaries=salaries,
+    #     upfront_pay=upfront_pay,
+    # )
 
 
 @main_blueprint.route("/opportunity/<int:id>")
 def opportunity(id: int):
-    promoters_attr_names = ["rcs_id", "name"]
+    return "General Kenobi"
+    # promoters_attr_names = ["rcs_id", "name"]
 
-    promoters = get_opportunity_promoters(id).all()
+    # promoters = get_opportunity_promoters(id).all()
 
-    # Columns "course_code", "course_name"
-    recommended_courses = get_opportunity_recommended_courses(id).all()
+    # # Columns "course_code", "course_name"
+    # recommended_courses = get_opportunity_recommended_courses(id).all()
 
-    # Columns "major_code", "major_name"
-    recommended_majors = get_opportunity_recommended_majors(id).all()
+    # # Columns "major_code", "major_name"
+    # recommended_majors = get_opportunity_recommended_majors(id).all()
 
-    # Columns "class_year", "class_name"
-    recommended_class_years = get_opportunity_recommended_class_years(id).all()
+    # # Columns "class_year", "class_name"
+    # recommended_class_years = get_opportunity_recommended_class_years(id).all()
 
-    # Columns "usd_per_hour"
-    salaries = get_opportunity_hourly_rates(id).all()
+    # # Columns "usd_per_hour"
+    # salaries = get_opportunity_hourly_rates(id).all()
 
-    # Columns "usd"
-    upfront_pay = get_opportunity_upfront_pay(id).all()
+    # # Columns "usd"
+    # upfront_pay = get_opportunity_upfront_pay(id).all()
 
-    # Columns "course_code", "number_of_credits"
-    course_credits = get_opportunity_course_credits(id).all()
+    # # Columns "course_code", "number_of_credits"
+    # course_credits = get_opportunity_course_credits(id).all()
 
-    # Columns "date"
-    application_due_dates = get_opportunity_application_due_dates(id).all()
+    # # Columns "date"
+    # application_due_dates = get_opportunity_application_due_dates(id).all()
 
-    # Columns "year", "season"
-    active_semesters = get_opportunity_active_semesters(id).all()
+    # # Columns "year", "season"
+    # active_semesters = get_opportunity_active_semesters(id).all()
 
-    return render_template(
-        "opportunity_details.html",
-        promoters_attr_names=promoters_attr_names,
-        promoters=promoters,
-        recommended_courses=recommended_courses,
-        recommended_majors=recommended_majors,
-        recommended_class_years=recommended_class_years,
-        salaries=salaries,
-        upfront_pay=upfront_pay,
-        course_credits=course_credits,
-        application_due_dates=application_due_dates,
-        active_semesters=active_semesters,
-    )
+    # return render_template(
+    #     "opportunity_details.html",
+    #     promoters_attr_names=promoters_attr_names,
+    #     promoters=promoters,
+    #     recommended_courses=recommended_courses,
+    #     recommended_majors=recommended_majors,
+    #     recommended_class_years=recommended_class_years,
+    #     salaries=salaries,
+    #     upfront_pay=upfront_pay,
+    #     course_credits=course_credits,
+    #     application_due_dates=application_due_dates,
+    #     active_semesters=active_semesters,
+    # )
 
 
 @main_blueprint.route("/profile/<string:rcs_id>")
@@ -172,15 +175,14 @@ def department(department: str):
 @main_blueprint.route("/discover")
 def discover():
     return {
-        "data":
-        [
+        "data": [
             {
                 "name": "Nelson",
                 "major": "CS",
                 "experience": "x",
                 "description": "d",
                 "credits": 4,
-                "pay": 9000.0
+                "pay": 9000.0,
             },
             {
                 "name": "Name",
@@ -188,8 +190,8 @@ def discover():
                 "experience": "XP",
                 "description": "Hi",
                 "credits": 3,
-                "pay": 123
-            }
+                "pay": 123,
+            },
         ]
     }
 
