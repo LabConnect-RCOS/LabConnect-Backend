@@ -11,7 +11,7 @@ const Input = ({ type, errorMessage, errors, name, formHook, label, options, pla
       type={type || "text"}
       list={options && name}
       placeholder={placeHolder || "Type Here"}
-      className="input input-bordered w-full max-w-xs"
+      className="input input-bordered w-full"
     />
   );
   
@@ -36,7 +36,7 @@ const Input = ({ type, errorMessage, errors, name, formHook, label, options, pla
         </div>
         {((type != "textarea" || !type) && inputElement)}
         {(type == "textarea" && textAreaElement)}
-        { errors && (errors[name] && <p className="text-red-500">This is an error</p>)}
+        { errors && (errors[name] && <p className="text-red-500">{errorMessage}</p>)}
         
       </label>
     </div>

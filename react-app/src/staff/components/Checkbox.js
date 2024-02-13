@@ -1,16 +1,19 @@
 import React from "react";
 
-const CheckBox = ({ formHook, label, options }) => {
+const CheckBox = ({ formHook, errors, errorMessage, name, label, options }) => {
   // if (!formHook) {
   //   return <h1>FormHook Not Given</h1>;
   // }
 
   return (
     <div>
-      <label className=" w-full max-w-xs">
+      <div className=" w-full max-w-xs">
         <div className="label">
           <span className="label-text font-medium">{label}</span>
         </div>
+        {errors && errors[name] && (
+          <p className="text-red-500">{errorMessage}</p>
+        )}
 
         <div className="flex flex-col gap-2">
           {options &&
@@ -31,7 +34,7 @@ const CheckBox = ({ formHook, label, options }) => {
               );
             })}
         </div>
-      </label>
+      </div>
     </div>
   );
 };

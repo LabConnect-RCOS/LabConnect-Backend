@@ -1,11 +1,11 @@
 import React from "react";
 import CreationForms from "../components/CreationForms";
 
-const CreatePost = () => {
+const CreatePost = ({edit}) => {
   return (
     <div className="flex justify-center mt-3">
       <div>
-        <h1>Create Research Opportunity</h1>
+        <h1>{edit==true ? "Edit Research Opportunity" : "Create Research Opportunity"}</h1>
         <CreationForms />
       </div>
     </div>
