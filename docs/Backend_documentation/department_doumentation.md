@@ -49,5 +49,7 @@ List of current profs
 List of currrent projects 
 
 Data being returned 
-{"professors":list,
-"projects":list}
+{
+  "professors": [],
+  "projects": []
+}
