@@ -4,11 +4,11 @@ init:
 clean:
 	pystarter clean
 
-run: clean
+run: 
 	gunicorn run:app -w 6 --preload --max-requests-jitter 300
 
 develop: 
 	python3 run.py
 
-test: clean
-	python -m pytest --cov --cov-report=html:coverage_report
+test: 
+	python3 -m pytest --cov --cov-report=html:coverage_report

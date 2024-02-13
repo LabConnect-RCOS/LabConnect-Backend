@@ -2,7 +2,8 @@
 Test mains
 """
 
-from flask.testing import FlaskClient
+from flask.testing import FlaskClient 
+import json
 
 
 def test_home_page(test_client: FlaskClient) -> None:
@@ -43,16 +44,23 @@ def test_opportunity_detail_page(test_client: FlaskClient) -> None:
     assert b"Deadline" in response.data
 
 
-def test_discover_page(test_client: FlaskClient) -> None:
+def test_discover_route(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/discover' page is requested (GET)
     THEN check that the response is valid
     """
     response = test_client.get("/discover")
+    data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 200
-    assert b"Departments" in response.data
-    assert b"Research Centers" in response.data
+    assert data["data"][0] == {
+                "name": "Nelson",
+                "major": "CS",
+                "experience": "x",
+                "description": "d",
+                "credits": 4,
+                "pay": 9000.0
+            }
 
 
 def test_create_post_page(test_client: FlaskClient) -> None:
