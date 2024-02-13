@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-
+/* Base CSS */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -30,4 +30,128 @@ code {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5); /* Adjust opacity as needed */
   z-index: 1000; /* Ensure it appears above other content */
+}
+
+/* . {
+  @apply ;
+}*/
+
+/* General CSS */
+
+.flex2 {
+  @apply flex flex-col;
+}
+
+.flexjust {
+  @apply flex justify-center;
+}
+
+
+
+/* Opportunities CSS */
+
+.btn-job {
+  @apply flex align-items-center p-2 rounded-3xl border;
+}
+
+.about-role {
+  @apply font-extrabold text-3xl;
+}
+
+.about-map {
+  @apply grid grid-cols-3;
+}
+
+.about-head {
+  @apply flex flex-col gap-1;
+}
+
+.about-title {
+  @apply text-gray-500 text-base;
+}
+
+.about-description {
+  @apply font-extrabold;
+}
+
+.filters-template { 
+  @apply px-3 overflow-x-scroll max-h-20 flex gap-3;
+} 
+
+.filters-search {
+  @apply flex gap-2 w-full;
+}
+
+.all-filters-btn {
+  @apply justify-end w-full;
+}
+
+.horizontal-btn {
+  @apply flex gap-1 align-items-center p-2 px-2.5 rounded-3xl border;
+}
+
+.job-desc-header {
+  @apply flex flex-col gap-2;
+}
+
+.job-desc-title {
+  @apply font-extrabold text-xl;
+}
+
+.job-desc-description {
+  @apply text-gray-700;
+}
+
+.job-details-header {
+  @apply w-full col-span-7 border-l border-r p-24 flex flex-col gap-5 shadow-sm;
+}
+
+.job-header-header {
+  @apply flex flex-col gap-3;
+}
+
+.job-header-title {
+  @apply font-bold text-5xl;
+}
+
+.job-inter-btn {
+  @apply flex align-items-center p-2 px-4 rounded-3xl border;
+}
+
+.job-post-header {
+  @apply p-2 min-h-36 flex gap-3 py-2;
+}
+
+.job-post-btn {
+  @apply shadow-sm border-b border-b-gray-300;
+}
+
+.job-post-title {
+  @apply font-black;
+}
+
+.job-post-description {
+  @apply text-sm;
+}
+
+
+/* Shared CSS */
+
+.btn-disclosure {
+  @apply relative inline-flex items-center justify-center rounded-md p-2 text-gray-400;
+}
+
+.blck {
+  @apply block h-6 w-6;
+}
+
+.prof-ring {
+  @apply w-min h-min rounded-full ring ring-primary ring-offset-base-100 ring-offset-2;
+}
+
+
+/* Staff CSS */
+
+.centered {
+  @apply flex justify-center mt-3;
 }

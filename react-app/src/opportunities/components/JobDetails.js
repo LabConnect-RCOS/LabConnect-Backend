@@ -15,7 +15,7 @@ const JobDetails = ({
   aboutSection,
 }) => {
   return (
-    <article className='w-full col-span-7 border-l border-r p-24 flex flex-col gap-5 shadow-sm'>
+    <article className="job-details-header">
       <JobHeader
         title={title}
         author={author}
