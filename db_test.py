@@ -107,7 +107,7 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         courses_rows = (
-            ("CSCI4430","Programming Languages"),
+            ("CSCI4430", "Programming Languages"),
             ("CSCI2961", "Rensselaer Center for Open Source"),
             ("CSCI4390", "Data Mining"),
         )
