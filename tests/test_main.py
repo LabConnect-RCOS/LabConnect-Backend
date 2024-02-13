@@ -1,4 +1,5 @@
 import json
+
 """
 Test mains
 """
@@ -87,7 +88,6 @@ def test_login_page(test_client: FlaskClient) -> None:
 
 
 def test_department_route(test_client: FlaskClient) -> None:
-    
     """
     GIVEN a Flask application configured for testing
     WHEN the '/department/<department>' page is requested (GET)
@@ -96,7 +96,7 @@ def test_department_route(test_client: FlaskClient) -> None:
     response = test_client.get("/department")
     data = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 200
-    assert data["professors"] == ["Turner","Kuzmin"]
+    assert data["professors"] == ["Turner", "Kuzmin"]
     assert data["projects"] == ["project1", "project2"]
 
 
