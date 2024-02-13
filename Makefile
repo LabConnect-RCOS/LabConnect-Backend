@@ -10,5 +10,5 @@ run: clean
 develop:
 	python3 run.py
 
-test: clean
-	python -m pytest --cov --cov-report=html:coverage_report
+test:
+	python3 -m pytest --cov --cov-report=html:coverage_report
