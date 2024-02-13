@@ -182,7 +182,7 @@ class RecommendsCourses(db.Model):
         db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
     )
     course_code = db.Column(
-        db.String(8), db.ForeignKey("courses.course_code"), primary_key=True
+        db.String(8), db.ForeignKey("courses.code"), primary_key=True
     )
 
     def __str__(self) -> str:

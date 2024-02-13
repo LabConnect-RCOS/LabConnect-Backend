@@ -113,7 +113,7 @@ elif sys.argv[1] == "create":
         )
 
         for row_tuple in courses_rows:
-            row = Courses(code=row_tuple[0], name=row_tuple[2])
+            row = Courses(code=row_tuple[0], name=row_tuple[1])
             db.session.add(row)
             db.session.commit()
 
