@@ -192,6 +192,7 @@ elif sys.argv[1] == "create":
         tables = [
             ClassYears,
             Courses,
+            DepartmentOf,
             IsPartOf,
             LabManager,
             Majors,
