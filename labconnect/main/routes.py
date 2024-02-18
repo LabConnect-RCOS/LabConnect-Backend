@@ -18,6 +18,8 @@ from labconnect.models import Opportunities
 from . import main_blueprint
 
 
+
+
 @main_blueprint.route("/")
 def index():
     return render_template("index.html")
@@ -178,41 +180,38 @@ def discover():
 
 
 @main_blueprint.route("/getOpportunity/<string:opp_id>", methods=["GET"])
-def getOpportunity(opp_id:str):
+def getOpportunity(opp_id: str):
     if request.method == "GET":
         # query database for opportunity
-        
+
         # return data in the below format if opportunity is found
         return {
             "id": "u1",
-            "title": 'Software Engineer',
+            "title": "Software Engineer",
             "department": "Computer Science",
             "location": "Sage Hall",
             "date": "2024-02-23",
             "author": "John Doe",
             "credits": 2,
-            "description" : "This is a description",
-            "id" : "",
+            "description": "This is a description",
             "salary": 15,
             "upfrontPay": 200,
-            "years" : ['Freshman', 'Junior', 'Sophomore']
+            "years": ["Freshman", "Junior", "Sophomore"],
         }
-    
+
     abort(500)
 
-# getting information about professors in staff profile pages
-    
+
 @main_blueprint.route("/getProfessorProfile/<string:rcs_id>", methods=["GET"])
 def getProfessorProfile(rcs_id: str):
     # test code until database code is added
     if request.method == "GET":
         return {
-            rcs_id: {
-                "name": "Peter Johnson",
-                "image": "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
-                "researchCenter": "Computational Fake Center",
-                "department": "Computer Science",
-                "description": """Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            "name": "Peter Johnson",
+            "image": "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
+            "researchCenter": "Computational Fake Center",
+            "department": "Computer Science",
+            "description": """Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
         eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
         pharetra sit amet aliquam id diam maecenas ultricies mi. Montes
         nascetur ridiculus mus mauris vitae ultricies leo. Porttitor massa
@@ -234,10 +233,10 @@ def getProfessorProfile(rcs_id: str):
         turpis massa sed elementum tempus. Feugiat in ante metus dictum at
         tempor. Malesuada nunc vel risus commodo viverra maecenas accumsan.
         Integer vitae justo.""",
-            },
         }
 
     abort(500)
+
 
 @main_blueprint.route("/getProfessorOpportunityCards/<string:rcs_id>", methods=["GET"])
 def getProfessorOpportunityCards(rcs_id: str):
@@ -277,6 +276,7 @@ def getProfessorOpportunityCards(rcs_id: str):
         }
     abort(500)
 
+
 @main_blueprint.route("/getProfessorMeta", methods=["GET"])
 def getProfessorMeta():
     if request.method == "GET":
@@ -286,10 +286,10 @@ def getProfessorMeta():
         auth_token = data["authToken"]
 
         # query database to match user id and password from data received
-        
+
         # if match, return user data
         # more fields to be added here later
-        
+
         return {
             "name": "Dr. Peter Johnson",
             "department": "Computer Science",
@@ -302,10 +302,12 @@ def getProfessorMeta():
 
     abort(500)
 
-#_______________________________________________________________________________________________#
+
+# _______________________________________________________________________________________________#
 
 # Editing Opportunities in Profile Page
-    
+
+
 @main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
 def deleteOpportunity():
     if request.method in ["DELETE", "POST"]:
@@ -313,15 +315,15 @@ def deleteOpportunity():
         postID = data["postID"]
         authToken = data["authToken"]
         authorID = data["authToken"]
-        
+
         # query database to see if the credentials above match
-        
-        
+
         # if match is found, delete the opportunity, return status 200
-        
+
         abort(200)
-        
+
     abort(500)
+
 
 @main_blueprint.route("/changeActiveStatus", methods=["DELETE", "POST"])
 def changeActiveStatus():
@@ -331,23 +333,19 @@ def changeActiveStatus():
         authToken = data["authToken"]
         authorID = data["authToken"]
         setStatus = data["setStatus"]
-        
+
         # query database to see if the credentials above match
-        
-        
+
         # if match is found, change the opportunities active status to true or false based on setStatus
-        
+
         abort(200)
-        
+
     abort(500)
 
 
 @main_blueprint.route("/create_post", methods=["POST"])
 def create_post():
-    if request.method=="POST":
-        return "Creating POST"
-    
-    abort(500)
+    return "Creating POST"
 
 
 @main_blueprint.route("/login")
