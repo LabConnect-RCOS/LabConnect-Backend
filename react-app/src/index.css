@@ -46,6 +46,14 @@ code {
   @apply flex justify-center;
 }
 
+.active-link {
+  @apply text-black py-3 border-b-2 border-black text-lg;
+}
+
+.normal-link {
+  @apply text-gray-600 py-3 text-lg hover:border-b-2 border-black hover:text-black;
+}
+
 
 
 /* Opportunities CSS */
@@ -132,6 +140,22 @@ code {
 
 .job-post-description {
   @apply text-sm;
+}
+
+.jobs-header {
+  @apply text-2xl font-bold;
+}
+
+.jobs-categories {
+  @apply text-base flex gap-4 justify-items-center font-semibold;
+}
+
+.postsfield-header {
+  @apply border-t border-b grid grid-cols-9;
+}
+
+.searchbar {
+  @apply flex p-2 px-3 border rounded-3xl align-items-center;
 }
 
 
