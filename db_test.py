@@ -57,8 +57,8 @@ elif sys.argv[1] == "create":
             ("Materials Engineering", "also pretty cool"),
         )
 
-        for row_tuple in rpi_departments_rows:
-            row = RPIDepartments(name=row_tuple[0], description=row_tuple[1])
+        for i, row_tuple in enumerate(rpi_departments_rows):
+            row = RPIDepartments(name=row_tuple[0], description=row_tuple[1], school_id=rpi_schools_rows[i][0])
             db.session.add(row)
             db.session.commit()
 
@@ -140,15 +140,15 @@ elif sys.argv[1] == "create":
         # https://www.geeksforgeeks.org/datetime-timezone-in-sqlalchemy/
         # https://www.tutorialspoint.com/handling-timezone-in-python
 
-        is_department_of_rows_schools = (
-            ("School of Science", "Computer Science"),
-            ("School of Engineering", "Materials Engineering"),
-        )
+        # is_department_of_rows_schools = (
+        #     ("School of Science", "Computer Science"),
+        #     ("School of Engineering", "Materials Engineering"),
+        # )
 
-        for r in is_department_of_rows_schools:
-            row = DepartmentOf(department_name=r[0], school_name=r[1])
-            db.session.add(row)
-            db.session.commit()
+        # for r in is_department_of_rows_schools:
+        #     row = DepartmentOf(department_name=r[0], school_name=r[1])
+        #     db.session.add(row)
+        #     db.session.commit()
 
         is_part_of_rows_lab_managers = (
             ("led", "Computer Science"),
