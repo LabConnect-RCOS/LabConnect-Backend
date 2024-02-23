@@ -13,9 +13,14 @@ class RPISchools(db.Model):
     name = db.Column(db.String(64), primary_key=True)
     description = db.Column(db.String(2000), nullable=True, unique=False)
 
-    departments = relationship(
-        "RPIDepartments", secondary="departmentOf", backref="rpi_schools"
-    )
+    departments = relationship("RPIDepartments", back_populates="school")
+
+    # department_name = db.Column(
+    #     db.String(64), db.ForeignKey("rpi_departments.name"), primary_key=True
+    # )
+    # departments = relationship(
+    #     "RPIDepartments", secondary="departmentOf", backref="rpi_schools"
+    # )
 
     def __str__(self) -> str:
         return str(vars(self))
@@ -26,11 +31,15 @@ class RPIDepartments(db.Model):
     __tablename__ = "rpi_departments"
     name = db.Column(db.String(64), primary_key=True)
     description = db.Column(db.String(2000), nullable=True, unique=False)
+    school_id = db.Column(
+        db.String(64), db.ForeignKey("rpi_schools.name")
+    )
 
     lab_manager = relationship(
         "LabManager", secondary="isPartOf", back_populates="rpi_departments"
     )
-    school = relationship("RPISchools", secondary="departmentOf")
+    school = relationship("RPISchools", back_populates="departments")
+    # school = relationship("RPISchools", secondary="departmentOf")
 
     def __str__(self) -> str:
         return str(vars(self))
