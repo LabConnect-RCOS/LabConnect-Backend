@@ -16,7 +16,6 @@ from labconnect.helpers import SemesterEnum
 from labconnect.models import (
     ClassYears,
     Courses,
-    DepartmentOf,
     IsPartOf,
     LabManager,
     Majors,
@@ -54,22 +53,27 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         rpi_departments_rows = (
-            ("Computer Science", "the coolest of them all"),
-            ("Materials Engineering", "also pretty cool"),
+            ("Computer Science", "DS", "School of Science"),
+            ("Biology", "life", "School of Science"),
+            ("Materials Engineering", "also pretty cool", "School of Engineering"),
         )
 
-        for i, row_tuple in enumerate(rpi_departments_rows):
+        for row_tuple in rpi_departments_rows:
             row = RPIDepartments(
-                name=row_tuple[0],
-                description=row_tuple[1],
-                school_id=rpi_schools_rows[i][0],
+                name=row_tuple[0], description=row_tuple[1], school_id=row_tuple[2]
             )
             db.session.add(row)
             db.session.commit()
 
-        lab_manager_rows = (("led", "Duy Le"), ("cenzar", "Rafael"))
+        lab_manager_rows = (
+            ("led", "Duy Le", "Computer Science"),
+            ("cenzar", "Rafael", "Computer Science"),
+        )
+
         for row_tuple in lab_manager_rows:
-            row = LabManager(rcs_id=row_tuple[0], name=row_tuple[1])
+            row = LabManager(
+                rcs_id=row_tuple[0], name=row_tuple[1], department_id=row_tuple[2]
+            )
             db.session.add(row)
             db.session.commit()
 

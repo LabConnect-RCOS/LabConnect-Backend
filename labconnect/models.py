@@ -15,13 +15,6 @@ class RPISchools(db.Model):
 
     departments = relationship("RPIDepartments", back_populates="school")
 
-    # department_name = db.Column(
-    #     db.String(64), db.ForeignKey("rpi_departments.name"), primary_key=True
-    # )
-    # departments = relationship(
-    #     "RPIDepartments", secondary="departmentOf", backref="rpi_schools"
-    # )
-
     def __str__(self) -> str:
         return str(vars(self))
 
@@ -35,11 +28,8 @@ class RPIDepartments(db.Model):
         db.String(64), db.ForeignKey("rpi_schools.name")
     )
 
-    lab_manager = relationship(
-        "LabManager", secondary="isPartOf", back_populates="rpi_departments"
-    )
     school = relationship("RPISchools", back_populates="departments")
-    # school = relationship("RPISchools", secondary="departmentOf")
+    lab_managers = relationship("LabManager", back_populates="department")
 
     def __str__(self) -> str:
         return str(vars(self))
@@ -54,8 +44,11 @@ class LabManager(db.Model):
     alt_email = db.Column(db.String(64), nullable=True, unique=False)
     phone_number = db.Column(db.String(15), nullable=True, unique=False)
     website = db.Column(db.String(128), nullable=True, unique=False)
+    department_id = db.Column(
+        db.String(64), db.ForeignKey("rpi_departments.name")
+    )
 
-    rpi_departments = relationship("RPIDepartments", secondary="isPartOf")
+    department = relationship("RPIDepartments", back_populates="lab_managers")
     promoted_opportunities = relationship("Opportunities", secondary="promotes")
 
     def __str__(self) -> str:
@@ -136,21 +129,6 @@ class ClassYears(db.Model):
 
 
 # DD - Relationships
-
-
-# departmentOf( rpi_departments_id, id ), key: (rpi_schools_id, id)
-class DepartmentOf(db.Model):
-    __tablename__ = "departmentOf"
-
-    department_name = db.Column(
-        db.String(64), db.ForeignKey("rpi_departments.name"), primary_key=True
-    )
-    school_name = db.Column(
-        db.String(64), db.ForeignKey("rpi_schools.name"), primary_key=True
-    )
-
-    def __str__(self) -> str:
-        return str(vars(self))
 
 
 # isPartOf( lab_manager_rcs_id, department_name ), key: (lab_manager_rcs_id, department_name)
