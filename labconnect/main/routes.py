@@ -267,4 +267,4 @@ def login():
 
 @main_blueprint.route("/500")
 def force_error() -> str:
-    return str(10/0)
+    return str(10 / 0)

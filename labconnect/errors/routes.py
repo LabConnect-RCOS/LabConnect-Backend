@@ -12,4 +12,9 @@ def handle_404(e) -> Response:
 @error_blueprint.app_errorhandler(500)
 def handle_500(e) -> Response:
     # 500 error page
-    return make_response({"error": "500 server error. You can report issues here: https://github.com/RafaelCenzano/LabConnect/issues"}, 500)
+    return make_response(
+        {
+            "error": "500 server error. You can report issues here: https://github.com/RafaelCenzano/LabConnect/issues"
+        },
+        500,
+    )
