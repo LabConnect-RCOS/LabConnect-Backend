@@ -2,22 +2,9 @@ from flask import abort, render_template, request
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
-from labconnect.main.queries import (
-    get_opportunity_active_semesters,
-    get_opportunity_application_due_dates,
-    get_opportunity_course_credits,
-    get_opportunity_hourly_rates,
-    get_opportunity_promoters,
-    get_opportunity_recommended_class_years,
-    get_opportunity_recommended_courses,
-    get_opportunity_recommended_majors,
-    get_opportunity_upfront_pay,
-)
 from labconnect.models import Opportunities
 
 from . import main_blueprint
-
-
 
 
 @main_blueprint.route("/")
