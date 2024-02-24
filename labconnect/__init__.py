@@ -35,7 +35,7 @@ def initialize_extensions(app) -> None:
     csrf_protection.init_app(app)
 
     # Flask-Login configuration
-    from labconnect.models import RPIDepartments
+    # from labconnect.models import RPIDepartments
 
     # @login.user_loader
     # def load_user(user_id):
