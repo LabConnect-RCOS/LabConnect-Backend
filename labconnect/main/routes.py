@@ -338,3 +338,8 @@ def create_post():
 @main_blueprint.route("/login")
 def login():
     return render_template("sign_in.html")
+
+
+@main_blueprint.route("/500")
+def force_error() -> str:
+    return str(10/0)
