@@ -25,4 +25,6 @@ def test_500_page(test_client) -> None:
     """
     response = test_client.get("/500")
     assert response.status_code == 500
-    assert {"error": "500 server error. You can report issues here: https://github.com/RafaelCenzano/LabConnect/issues"}  == json.loads(response.data)
+    assert {
+        "error": "500 server error. You can report issues here: https://github.com/RafaelCenzano/LabConnect/issues"
+    } == json.loads(response.data)
