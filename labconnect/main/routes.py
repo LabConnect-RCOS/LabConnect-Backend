@@ -2,17 +2,9 @@ from flask import abort, render_template, request
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
-from labconnect.models import (
-    Opportunities,
-    RPIDepartments,
-    RPISchools,
-    LabManager,
-    Leads,
-)
+from labconnect.models import Opportunities
 
 from . import main_blueprint
-
-
 
 
 @main_blueprint.route("/")
