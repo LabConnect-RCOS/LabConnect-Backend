@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useState } from "react";
 import ProfileAvatar from "../components/UIElements/ProfileAvatar";
 import ProfileDescription from "../../staff/components/ProfileDescription";
 import ProfileOpportunities from "../components/Profile/ProfileOpportunities";
+import EditProfile from "./EditProfile";
+import useGlobalContext from "../../context/global/useGlobalContext";
 
 const PROFILES = {
   d1: {
@@ -9,6 +12,8 @@ const PROFILES = {
     image: "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
     researchCenter: "Computational Fake Center",
     department: "Computer Science",
+    email: "johnp@rpi.edu",
+    role: "admin",
     description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
           pharetra sit amet aliquam id diam maecenas ultricies mi. Montes
@@ -35,24 +40,67 @@ const PROFILES = {
 };
 
 const ProfilePage = () => {
-  if (!PROFILES.d1) {
-    return "Profile Doesn't Exist";
-  }
+  const [editMode, setEditMode] = useState(false);
+  const [profileFound, setProfileFound] = useState(false);
+  const [profile, setProfile] = useState(null);
 
-  const { name, image, researchCenter, department, description } = PROFILES.d1;
+  const state = useGlobalContext();
+  const { loggedIn } = state;
 
-  return (
-    <section className="mt-5">
+  const changeEditMode = () => {
+    setEditMode(!editMode);
+  };
+
+  const { id } = state;
+
+  useEffect(() => {
+    if (id) {
+      const tempProfile = PROFILES[id];
+
+      if (tempProfile) {
+        setProfile(tempProfile);
+        setProfileFound(true);
+      }
+    }
+  }, []);
+
+  var editButton = (
+    <button className="btn btn-primary my-3" onClick={changeEditMode}>
+      {editMode ? "Cancel Changes" : "Edit Profile"}
+    </button>
+  );
+
+  const profilePage = (
+    <section>
       <div className="flex gap-5">
-        <ProfileAvatar name={name} image={image} />
+        <ProfileAvatar
+          name={profile ? profile.name : ""}
+          image={profile ? profile.image : ""}
+        />
         <ProfileDescription
-          name={name}
-          researchCenter={researchCenter}
-          department={department}
-          description={description}
+          name={profile ? profile.name : ""}
+          researchCenter={profile ? profile.researchCenter : ""}
+          department={profile ? profile.department : ""}
+          description={profile ? profile.description : ""}
         />
       </div>
-      <ProfileOpportunities id="d1" />
+      <ProfileOpportunities id={id} />
+    </section>
+  );
+
+  return (
+    <section>
+      {!loggedIn ? (
+        "Please log in to view your profile"
+      ) : profileFound ? (
+        <>
+          {loggedIn && editButton}
+          {loggedIn && editMode && <EditProfile />}
+          {loggedIn && !editMode && profilePage}
+        </>
+      ) : (
+        "Profile not found"
+      )}
     </section>
   );
 };

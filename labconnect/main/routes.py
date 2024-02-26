@@ -1,18 +1,7 @@
-from flask import abort, render_template
+from flask import abort, render_template, request
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
-from labconnect.main.queries import (
-    get_opportunity_active_semesters,
-    get_opportunity_application_due_dates,
-    get_opportunity_course_credits,
-    get_opportunity_hourly_rates,
-    get_opportunity_promoters,
-    get_opportunity_recommended_class_years,
-    get_opportunity_recommended_courses,
-    get_opportunity_recommended_majors,
-    get_opportunity_upfront_pay,
-)
 from labconnect.models import Opportunities
 
 from . import main_blueprint
@@ -177,17 +166,173 @@ def discover():
     return render_template("discover.html")
 
 
-@main_blueprint.route("/professor/<string:rcs_id>")
-def professor(rcs_id: str):
-    # test code until database code is added
-    if "bob" == rcs_id:
-        return render_template("professor.html")
+@main_blueprint.route("/getOpportunity/<string:opp_id>", methods=["GET"])
+def getOpportunity(opp_id: str):
+    if request.method == "GET":
+        # query database for opportunity
+
+        # return data in the below format if opportunity is found
+        return {
+            "id": "u1",
+            "title": "Software Engineer",
+            "department": "Computer Science",
+            "location": "Sage Hall",
+            "date": "2024-02-23",
+            "author": "John Doe",
+            "credits": 2,
+            "description": "This is a description",
+            "salary": 15,
+            "upfrontPay": 200,
+            "years": ["Freshman", "Junior", "Sophomore"],
+        }
+
     abort(500)
 
 
-@main_blueprint.route("/create_post")
+@main_blueprint.route("/getProfessorProfile/<string:rcs_id>", methods=["GET"])
+def getProfessorProfile(rcs_id: str):
+    # test code until database code is added
+    if request.method == "GET":
+        return {
+            "name": "Peter Johnson",
+            "image": "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
+            "researchCenter": "Computational Fake Center",
+            "department": "Computer Science",
+            "description": """Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+        pharetra sit amet aliquam id diam maecenas ultricies mi. Montes
+        nascetur ridiculus mus mauris vitae ultricies leo. Porttitor massa
+        id neque aliquam. Malesuada bibendum arcu vitae elementum. Nulla
+        aliquet porrsus mattis molestie aiaculis at erat pellentesque. 
+        At risus viverra adipiscing at.
+        Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu
+        feugiat. Eget fUt eu sem integer vitae justo
+        eget magna fermentum. Lobortis feugiat vivamus at augue eget arcu
+        dictum. Et tortor at risus viverra adipiscing at in tellus.
+        Suspendisse sed nisi lacus sed viverra tellus. Potenti nullam ac
+        tortor vitae. Massa id neque aliquam vestibulum. Ornare arcu odio ut
+        sem nulla pharetra. Quam id leo in vitae turpis massa. Interdum
+        velit euismod in pellentesque massa placerat duis ultricies lacus.
+        Maecenas sed enim ut sem viverra aliquet eget sit amet. Amet
+        venenatis urna cursus eget nunc scelerisque viverra mauris. Interdum
+        varius sit amet mattis. Aliquet nec ullamcorper sit amet risus
+        nullam. Aliquam faucibus purus in massa tempor nec feugiat. Vitae
+        turpis massa sed elementum tempus. Feugiat in ante metus dictum at
+        tempor. Malesuada nunc vel risus commodo viverra maecenas accumsan.
+        Integer vitae justo.""",
+        }
+
+    abort(500)
+
+
+@main_blueprint.route("/getProfessorOpportunityCards/<string:rcs_id>", methods=["GET"])
+def getProfessorOpportunityCards(rcs_id: str):
+    # test code until database code is added
+    if request.method == "GET":
+
+        # query database for opportunities
+
+        # return opportunities
+        return {
+            rcs_id: [
+                {
+                    "title": "Chemistry Intern",
+                    "body": "Due February 15, 2023",
+                    "attributes": ["Remote", "Paid", "Credits"],
+                    "id": "o1",
+                },
+                {
+                    "title": "Chemistry Intern",
+                    "body": "Due February 15, 2023",
+                    "attributes": ["Remote", "Paid", "Credits"],
+                    "id": "o2",
+                },
+                {
+                    "title": "Chemistry Intern",
+                    "body": "Due February 15, 2023",
+                    "attributes": ["Remote", "Paid", "Credits"],
+                    "id": "o3",
+                },
+                {
+                    "title": "Chemistry Intern",
+                    "body": "Due February 15, 2023",
+                    "attributes": ["Remote", "Paid", "Credits"],
+                    "id": "o4",
+                },
+            ]
+        }
+    abort(500)
+
+
+@main_blueprint.route("/getProfessorMeta", methods=["GET"])
+def getProfessorMeta():
+    if request.method == "GET":
+        data = request.json
+
+        user_id = data["user_id"]
+        auth_token = data["authToken"]
+
+        # query database to match user id and password from data received
+
+        # if match, return user data
+        # more fields to be added here later
+
+        return {
+            "name": "Dr. Peter Johnson",
+            "department": "Computer Science",
+            "researchCenter": "Computational Fake Center",
+            "email": "johnj@rpi.edu",
+            "phone": "518-123-4567",
+            "description": """Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do""",
+            "image": "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
+        }
+
+    abort(500)
+
+
+# _______________________________________________________________________________________________#
+
+# Editing Opportunities in Profile Page
+
+
+@main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
+def deleteOpportunity():
+    if request.method in ["DELETE", "POST"]:
+        data = request.json
+        postID = data["postID"]
+        authToken = data["authToken"]
+        authorID = data["authToken"]
+
+        # query database to see if the credentials above match
+
+        # if match is found, delete the opportunity, return status 200
+
+        abort(200)
+
+    abort(500)
+
+
+@main_blueprint.route("/changeActiveStatus", methods=["DELETE", "POST"])
+def changeActiveStatus():
+    if request.method in ["DELETE", "POST"]:
+        data = request.json
+        postID = data["postID"]
+        authToken = data["authToken"]
+        authorID = data["authToken"]
+        setStatus = data["setStatus"]
+
+        # query database to see if the credentials above match
+
+        # if match is found, change the opportunities active status to true or false based on setStatus
+
+        abort(200)
+
+    abort(500)
+
+
+@main_blueprint.route("/create_post", methods=["POST"])
 def create_post():
-    return render_template("posting.html")
+    return "Creating POST"
 
 
 @main_blueprint.route("/login")
@@ -195,12 +340,6 @@ def login():
     return render_template("sign_in.html")
 
 
-@main_blueprint.route("/information")
-@main_blueprint.route("/info")
-def information():
-    return render_template("URP_Basic_Information_Page.html")
-
-
-@main_blueprint.route("/tips")
-def tips():
-    return render_template("tips_and_tricks.html")
+@main_blueprint.route("/500")
+def force_error() -> str:
+    return str(10 / 0)

@@ -61,10 +61,6 @@ const ProfileOpportunities = ({ id }) => {
     response || setOpportunities("no response");
   }
 
-  useEffect(() => {
-    setData("d1");
-  }, []);
-
   async function changeOpportunityActiveStatus(opportunityId) {
     // send a request to the backend to deactivate the opportunity
     // if the request is successful, then deactivate the opportunity from the list
@@ -97,6 +93,10 @@ const ProfileOpportunities = ({ id }) => {
     setOpportunities(opportunities);
     console.log(opportunities);
   }
+  
+  useEffect(() => {
+    setData("d1");
+  }, []);
 
   var opportuntityList = (
     <div>

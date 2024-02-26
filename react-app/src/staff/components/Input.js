@@ -1,6 +1,15 @@
 import React from "react";
 
-const Input = ({ type, errorMessage, errors, name, formHook, label, options, placeHolder }) => {
+const Input = ({
+  type,
+  errorMessage,
+  errors,
+  name,
+  formHook,
+  label,
+  options,
+  placeHolder,
+}) => {
   // if (!formHook) {
   //   return <h1>FormHook Not Given</h1>;
   // }
@@ -14,12 +23,9 @@ const Input = ({ type, errorMessage, errors, name, formHook, label, options, pla
       className="input input-bordered w-full"
     />
   );
-  
-  
 
   const textAreaElement = (
     <textarea
-    
       {...formHook}
       placeholder={placeHolder || "Type Here"}
       cols="50"
@@ -28,16 +34,44 @@ const Input = ({ type, errorMessage, errors, name, formHook, label, options, pla
     ></textarea>
   );
 
+  const selectElement = (
+    <select
+      {...formHook}
+      defaultValue="Select a department"
+      className="select select-bordered w-full max-w-xs"
+    >
+      <option value="Select a department">
+        Select a department
+      </option>
+      {options ? (
+        options.map((option) => {
+          return (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          );
+        })
+      ) : (
+        <option value="default">Any</option>
+      )}
+    </select>
+  );
+
   return (
     <div>
       <label className=" w-full max-w-xs">
         <div className="label">
           <span className="label-text font-medium">{label}</span>
         </div>
-        {((type != "textarea" || !type) && inputElement)}
-        {(type == "textarea" && textAreaElement)}
-        { errors && (errors[name] && <p className="text-red-500">{errorMessage}</p>)}
-        
+        {type == "select"
+          ? selectElement
+          : type == "textarea"
+          ? textAreaElement
+          : inputElement}
+
+        {errors && errors[name] && (
+          <p className="text-red-500">{errorMessage}</p>
+        )}
       </label>
     </div>
   );

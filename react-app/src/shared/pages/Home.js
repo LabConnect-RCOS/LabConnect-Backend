@@ -1,7 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
+import useAuthActions from "../../context/global/authActions";
 import { Link } from "react-router-dom";
 
-const Home = () => {
+const Home = ({signOut, signIn}) => {
+  
+  const {login, logout} = useAuthActions();
+  
+  useEffect(() => {
+    if (signOut) {
+      logout();
+    }
+    
+    if (signIn) {
+      login();
+    }
+  }, []);
+  
   return (
     <section>
       Welcome to Labconnect!
