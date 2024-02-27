@@ -2,7 +2,13 @@ from flask import abort, render_template
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
-from labconnect.models import Opportunities, RPIDepartments, RPISchools
+from labconnect.models import (
+    Opportunities,
+    RPIDepartments,
+    RPISchools,
+    LabManager,
+    Leads,
+)
 
 from . import main_blueprint
 
@@ -30,7 +36,9 @@ def profile(rcs_id: str):
 @main_blueprint.route("/department")
 def department():
     data_query = (
-        db.session.query(RPIDepartments.name, RPIDepartments.description, RPISchools.name)
+        db.session.query(
+            RPIDepartments.name, RPIDepartments.description, RPISchools.name
+        )
         .filter(RPIDepartments.name == "Computer Science")
         .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
     )
