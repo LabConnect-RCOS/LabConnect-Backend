@@ -2,7 +2,13 @@ from flask import abort, render_template, request
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
-from labconnect.models import Opportunities, RPIDepartments, RPISchools
+from labconnect.models import (
+    Opportunities,
+    RPIDepartments,
+    RPISchools,
+    LabManager,
+    Leads,
+)
 
 from . import main_blueprint
 
@@ -61,19 +67,11 @@ def profile():
 
 @main_blueprint.route("/department")
 def department():
-    # return {"professors": ["Turner", "Kuzmin"], "projects": ["project1", "project2"]}
-    # department = request.args.get(department)
-    # @app.route('/json-example', methods=['POST'])
-    request_data = request.get_json()
-    # language = request_data["department"]
-    department = request_data.get("department", None)
-
-    # departmentOf department_name
-    data = (
+    data_query = (
         db.session.query(
             RPIDepartments.name, RPIDepartments.description, RPISchools.name
         )
-        .filter(RPIDepartments.name == department)
+        .filter(RPIDepartments.name == "Computer Science")
         .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
     ).first()
     # data = data_query.all()
