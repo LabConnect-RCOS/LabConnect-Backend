@@ -1,3 +1,5 @@
+import json
+
 """
 Test mains
 """
@@ -143,16 +145,17 @@ def test_login_page(test_client: FlaskClient) -> None:
     assert b"Please sign in" in response.data
 
 
-def test_department_page(test_client: FlaskClient) -> None:
+def test_department_route(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/department/<department>' page is requested (GET)
     THEN check that the response is valid
     """
-    response = test_client.get("/department/bob")
+    response = test_client.get("/department")
+    data = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 200
-    assert b"Research Centers" in response.data
-    assert b"Professors" in response.data
+    assert data["professors"] == ["Turner", "Kuzmin"]
+    assert data["projects"] == ["project1", "project2"]
 
 
 def test_profile_page(test_client: FlaskClient) -> None:
