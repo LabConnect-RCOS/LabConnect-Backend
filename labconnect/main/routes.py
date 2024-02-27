@@ -1,4 +1,4 @@
-from flask import abort, render_template
+from flask import abort, render_template, request
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
@@ -164,15 +164,27 @@ def opportunity(id: int):
 
 @main_blueprint.route("/profile")
 def profile():
+    request_data = request.get_json()
+
+    rcs_id = request_data.get("Profile", {}).get("rcs_id", None)
+    name = request_data.get("Profile", {}).get("name", None)
+    email = request_data.get("Profile", {}).get("email", None)
+    phone_number = request_data.get("Profile", {}).get("phone_number", None)
+    website = request_data.get("Profile", {}).get("website", None)
+    title = request_data.get("Profile", {}).get("title", None)
+    department = request_data.get("Profile", {}).get("department", None)
+    # past_opportunities = request_data.get('Profile', {})['past_opportunities']
+    # currrent_opportunities = request_data.get('Profile', {})['currrent_opportunities']
+
     return {
         "Profile": {
-            "rcs_id": "turnerw",
-            "name": "Turner",
-            "email": "turnerw@rpi.edu",
-            "phone_number": "123-456-7890",
-            "website": "turnerw.com",
-            "title": "Professor",
-            "departments": "CSCI",
+            "rcs_id": rcs_id,
+            "name": name,
+            "email": email,
+            "phone_number": phone_number,
+            "website": website,
+            "title": title,
+            "departments": department,
             "past_opportunities": [
                 {
                     "professor": "Kuzman",
@@ -186,12 +198,16 @@ def profile():
         }
     }
 
+
+"""
     db.session.query(LabRunner.rcs_id, LabRunner.name)
     .join(Promotes, Promotes.lab_runner_rcs_id == LabRunner.rcs_id)
+"""
 
 
 @main_blueprint.route("/department/<string:department>")
 def department(department: str):
+
     return render_template("department.html")
 
 
