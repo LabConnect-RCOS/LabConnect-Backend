@@ -32,9 +32,6 @@ code {
   z-index: 1000; /* Ensure it appears above other content */
 }
 
-/* . {
-  @apply ;
-}*/
 
 /* General CSS */
 
@@ -51,8 +48,11 @@ code {
 }
 
 .normal-link {
-  @apply text-gray-600 py-3 text-lg hover:border-b-2 border-black hover:text-black;
+  @apply text-gray-600 py-3 text-lg border-black;
 }
+
+
+
 
 
 
@@ -159,13 +159,17 @@ code {
 }
 
 
+
+
+
+
 /* Shared CSS */
 
 .btn-disclosure {
   @apply relative inline-flex items-center justify-center rounded-md p-2 text-gray-400;
 }
 
-.blck {
+.blck66 {
   @apply block h-6 w-6;
 }
 
@@ -173,9 +177,117 @@ code {
   @apply w-min h-min rounded-full ring ring-primary ring-offset-base-100 ring-offset-2;
 }
 
+.mainnav {
+  @apply mx-auto max-w-7xl px-2;
+}
+
+.mainnav-header {
+  @apply relative flex h-16 items-center justify-between;
+}
+
+.mainnav-desc {
+  @apply absolute inset-y-0 left-0 flex items-center;
+}
+
+.mainnav-desc2 {
+  @apply flex flex-1 items-center justify-center;
+}
+
+.mainnav-title-link {
+  @apply flex flex-shrink-0 items-center;
+}
+
+.mainnav-link {
+  @apply rounded-md px-3 py-2 text-sm font-medium no-underline;
+}
+
+.btn-disclosure2 {
+  @apply block rounded-md px-3 py-2 text-base font-medium text-black no-underline;
+}
+
+.pagenav {
+  @apply text-base flex gap-4 justify-items-center font-semibold;
+}
+
+.btn2 {
+  @apply btn btn-primary;
+}
+
+.opportunitycard {
+  @apply min-h-48 max-h-48 hover:shadow-md duration-300 card card-compact w-64 p-1 bg-base-100;
+}
+
+.card2-body {
+  @apply text-sm font-light p-0 m-0;
+}
+
+.avatar1 {
+  @apply flex align-items-center gap-3;
+}
+
+.avatar-img {
+  @apply rounded-full w-12 h-12;
+}
+
+.avatar-name {
+  @apply text-blue-800 text-base;
+}
+
+.avatar-card {
+  @apply p-2 border rounded min-w-fit max-w-fit;
+}
+
+.profileavatar {
+  @apply w-min h-min rounded-full ring ring-primary ring-offset-base-100 ring-offset-2;
+}
+
+
+
+
+
 
 /* Staff CSS */
 
-.centered {
+.creatpost {
+  @apply flex justify-center mt-3;
+}
+
+.check-input {
+  @apply w-full max-w-xs;
+}
+
+.creationforms-loading {
+  @apply loading loading-spinner loading-lg;
+}
+
+.featimage {
+  @apply min-w-32 w-96 h-72 bg-base-100 shadow-xl rounded-md overflow-clip;
+}
+
+.lg-img-card {
+  @apply card card-compact w-96 bg-base-100 hover:shadow-lg transition duration-175;
+}
+
+.lg-txt-card {
+  @apply min-h-48 max-h-48 hover:shadow-md duration-300 card card-compact w-56 p-1 bg-base-100;
+}
+
+.lg-txt-card-attributes {
+  @apply overflow-visible w-fit badge badge-primary;
+}
+
+.staff {
+  @apply font-bold py-3;
+}
+
+.staff-body {
+  @apply px-2 grid grid-cols-4;
+}
+
+.center {
+  @apply container-xl pb-10 flex flex-col gap-4;
+}
+
+.createpost {
   @apply flex justify-center mt-3;
 }

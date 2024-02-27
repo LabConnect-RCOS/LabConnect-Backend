@@ -23,7 +23,7 @@ const Home = ({signOut, signIn}) => {
       This is the hub to find and apply to research on campus!
       <br />
       <Link to="/jobs">
-        <button className="btn btn-primary">Find Jobs</button>
+        <button className="btn2">Find Jobs</button>
       </Link>
     </section>
   );

@@ -5,7 +5,7 @@ const JobsNavigation = ({ jobPage, switchPage }) => {
   const path = useLocation().pathname;
 
   const activeLink = "active-link";
-  const normalLink = "normal-link";
+  const normalLink = "normal-link hover:border-b-2 hover:text-black";
 
   
 
