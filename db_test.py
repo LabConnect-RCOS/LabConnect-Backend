@@ -16,11 +16,10 @@ from labconnect.helpers import SemesterEnum
 from labconnect.models import (
     ClassYears,
     Courses,
-    IsPartOf,
     LabManager,
     Majors,
     Opportunities,
-    Promotes,
+    Leads,
     RecommendsClassYears,
     RecommendsCourses,
     RecommendsMajors,
@@ -148,31 +147,10 @@ elif sys.argv[1] == "create":
         # https://www.geeksforgeeks.org/datetime-timezone-in-sqlalchemy/
         # https://www.tutorialspoint.com/handling-timezone-in-python
 
-        # is_department_of_rows_schools = (
-        #     ("School of Science", "Computer Science"),
-        #     ("School of Engineering", "Materials Engineering"),
-        # )
+        leads_rows = (("led", 1), ("cenzar", 1), ("cenzar", 2))
 
-        # for r in is_department_of_rows_schools:
-        #     row = DepartmentOf(department_name=r[0], school_name=r[1])
-        #     db.session.add(row)
-        #     db.session.commit()
-
-        is_part_of_rows_lab_managers = (
-            ("led", "Computer Science"),
-            ("led", "Humanities, Arts and Social Sciences"),
-            ("cenzar", "Computer Science"),
-        )
-
-        for r in is_part_of_rows_lab_managers:
-            row = IsPartOf(lab_manager_rcs_id=r[0], department_name=r[1])
-            db.session.add(row)
-            db.session.commit()
-
-        promotes_rows = (("led", 1), ("led", 2), ("cenzar", 1), ("cenzar", 2))
-
-        for r in promotes_rows:
-            row = Promotes(lab_manager_rcs_id=r[0], opportunity_id=r[1])
+        for r in leads_rows:
+            row = Leads(lab_manager_rcs_id=r[0], opportunity_id=r[1])
             db.session.add(row)
             db.session.commit()
 
@@ -200,11 +178,10 @@ elif sys.argv[1] == "create":
         tables = [
             ClassYears,
             Courses,
-            IsPartOf,
             LabManager,
             Majors,
             Opportunities,
-            Promotes,
+            Leads,
             RecommendsClassYears,
             RecommendsCourses,
             RecommendsMajors,
