@@ -24,9 +24,7 @@ class RPIDepartments(db.Model):
     __tablename__ = "rpi_departments"
     name = db.Column(db.String(64), primary_key=True)
     description = db.Column(db.String(2000), nullable=True, unique=False)
-    school_id = db.Column(
-        db.String(64), db.ForeignKey("rpi_schools.name")
-    )
+    school_id = db.Column(db.String(64), db.ForeignKey("rpi_schools.name"))
 
     school = relationship("RPISchools", back_populates="departments")
     lab_managers = relationship("LabManager", back_populates="department")
@@ -44,12 +42,10 @@ class LabManager(db.Model):
     alt_email = db.Column(db.String(64), nullable=True, unique=False)
     phone_number = db.Column(db.String(15), nullable=True, unique=False)
     website = db.Column(db.String(128), nullable=True, unique=False)
-    department_id = db.Column(
-        db.String(64), db.ForeignKey("rpi_departments.name")
-    )
+    department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
 
     department = relationship("RPIDepartments", back_populates="lab_managers")
-    promoted_opportunities = relationship("Opportunities", secondary="promotes")
+    opportunities = relationship("Leads", back_populates="lab_manager")
 
     def __str__(self) -> str:
         return str(vars(self))
@@ -68,9 +64,7 @@ class Opportunities(db.Model):
     year = db.Column(db.Integer, nullable=True, unique=False)
     application_due = db.Column(db.Date, nullable=True, unique=False)
 
-    lab_manager = relationship(
-        "LabManager", secondary="promotes", back_populates="promoted_opportunities"
-    )
+    lab_managers = relationship("Leads", back_populates="opportunity")
     recommends_courses = relationship("Courses", secondary="recommends_courses")
     recommends_majors = relationship("Majors", secondary="recommends_majors")
     recommends_class_years = relationship(
@@ -131,24 +125,9 @@ class ClassYears(db.Model):
 # DD - Relationships
 
 
-# isPartOf( lab_manager_rcs_id, department_name ), key: (lab_manager_rcs_id, department_name)
-class IsPartOf(db.Model):
-    __tablename__ = "isPartOf"
-
-    lab_manager_rcs_id = db.Column(
-        db.String(9), db.ForeignKey("lab_manager.rcs_id"), primary_key=True
-    )
-    department_name = db.Column(
-        db.String(64), db.ForeignKey("rpi_departments.name"), primary_key=True
-    )
-
-    def __str__(self) -> str:
-        return str(vars(self))
-
-
-# promotes( lab_manager_rcs_id, opportunity_id ), key: (lab_manager_rcs_id, opportunity_id)
-class Promotes(db.Model):
-    __tablename__ = "promotes"
+# leads( lab_manager_rcs_id, opportunity_id ), key: (lab_manager_rcs_id, opportunity_id)
+class Leads(db.Model):
+    __tablename__ = "leads"
 
     lab_manager_rcs_id = db.Column(
         db.String(9), db.ForeignKey("lab_manager.rcs_id"), primary_key=True
@@ -156,6 +135,9 @@ class Promotes(db.Model):
     opportunity_id = db.Column(
         db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
     )
+
+    lab_manager = relationship("LabManager", back_populates="opportunities")
+    opportunity = relationship("Opportunities", back_populates="lab_managers")
 
     def __str__(self) -> str:
         return str(vars(self))
