@@ -2,25 +2,65 @@ import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { useLocation } from 'react-router-dom';
-
+import { Link, NavLink, redirect } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import useGlobalContext from "../../../context/global/useGlobalContext";
+import useAuthActions from "../../../context/global/authActions";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function MainNavigation() {
+  const state = useGlobalContext();
+
+  const { loggedIn } = state;
+  console.log(loggedIn);
+
+  const { login, logout } = useAuthActions();
+
+  useEffect(() => {
+    // login(state);
+  }, []);
+
+  useEffect(() => {
+    console.log(loggedIn);
+  }, [loggedIn]);
+
   const location = useLocation().pathname;
-  
+
   var [navigation, setNavigation] = useState([
     { name: "Jobs", href: "/jobs", current: true },
     { name: "Create", href: "/createPost", current: false },
     { name: "Staff", href: "/staff", current: false },
-    { name: "Resources", href: "/resources", current: false },
     { name: "Profile", href: "/profile", current: false },
     { name: "Authenticate", href: "/auth", current: false },
   ]);
+
+  useEffect(() => {
+    if (loggedIn) {
+      setNavigation([
+        { name: "Jobs", href: "/jobs", current: true },
+        { name: "Create", href: "/createPost", current: false },
+        { name: "Staff", href: "/staff", current: false },
+        { name: "Profile", href: "/profile", current: false },
+        { name: "Sign Out", href: "/signOut", current: false, action: ()=>{
+          logout();
+          redirect("/");
+        } },
+      ]);
+    } else {
+      setNavigation([
+        { name: "Jobs", href: "/jobs", current: true },
+        { name: "Staff", href: "/staff", current: false },
+        { name: "Sign In", href: "/signIn", current: false, action: ()=>{
+          login();
+          redirect("/");
+        } },
+      ]);
+    }
+  }, [loggedIn]);
 
   return (
     <Disclosure as="nav" className="bg-slate-50">
@@ -48,26 +88,35 @@ export default function MainNavigation() {
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4 ">
-                    {navigation.map((item) => (
-                      <NavLink
-                        key={item.name}
-                        to={item.href}
-                        
-                        className= {`${location==item.href ? "text-black" : "text-gray-600"} hover:text-gray-800  hover:bg-gray-200  rounded-md px-3 py-2 text-sm font-medium no-underline`}
-                        aria-current={item.current}
-                      >
-                        {item.name}
-                      </NavLink>
-
-                      // <NavLink
-                      //   key={item.name}
-                      //   to={item.href}
-                      //   className="text-black hover:bg-gray-200 hover:text-white rounded-md px-3 py-2 text-sm font-medium no-underline"
-                      //   // aria-current={item.current ? "page" : undefined}
-                      // >
-                      //   {item.name}
-                      // </Navlink>
-                    ))}
+                    {navigation.map((item) =>
+                      !item.action ? (
+                        <NavLink
+                          key={item.name}
+                          to={item.href}
+                          className={`${
+                            location == item.href
+                              ? "text-black"
+                              : "text-gray-600"
+                          } hover:text-gray-800  hover:bg-gray-200  rounded-md px-3 py-2 text-sm font-medium no-underline`}
+                          aria-current={item.current}
+                        >
+                          {item.name}
+                        </NavLink>
+                      ) : (
+                        <button
+                          key={item.name}
+                          onClick={item.action}
+                          className={`${
+                            location == item.href
+                              ? "text-black"
+                              : "text-gray-600"
+                          } hover:text-gray-800  hover:bg-gray-200  rounded-md px-3 py-2 text-sm font-medium no-underline`}
+                          aria-current={item.current}
+                        >
+                          {item.name}
+                        </button>
+                      )
+                    )}
                   </div>
                 </div>
               </div>
