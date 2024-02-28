@@ -16,7 +16,6 @@ from labconnect.helpers import SemesterEnum
 from labconnect.models import (
     ClassYears,
     Courses,
-    DepartmentOf,
     IsPartOf,
     LabManager,
     Majors,
