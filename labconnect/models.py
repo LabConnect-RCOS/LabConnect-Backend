@@ -65,7 +65,7 @@ class Opportunities(db.Model):
     application_due = db.Column(db.Date, nullable=True, unique=False)
 
     lab_managers = relationship("Leads", back_populates="opportunity")
-    recommends_courses = relationship("Courses", secondary="recommends_courses")
+    courses = relationship("RecommendsCourses", back_populates="opportunity")
     recommends_majors = relationship("Majors", secondary="recommends_majors")
     recommends_class_years = relationship(
         "ClassYears", secondary="recommends_class_years"
@@ -81,11 +81,7 @@ class Courses(db.Model):
     code = db.Column(db.String(8), primary_key=True)
     name = db.Column(db.String(64), nullable=True, unique=False)
 
-    recommended_by_opportunities = relationship(
-        "Opportunities",
-        secondary="recommends_courses",
-        back_populates="recommends_courses",
-    )
+    opportunities = relationship("RecommendsCourses", back_populates="course")
 
     def __str__(self) -> str:
         return str(vars(self))
@@ -153,6 +149,9 @@ class RecommendsCourses(db.Model):
     course_code = db.Column(
         db.String(8), db.ForeignKey("courses.code"), primary_key=True
     )
+
+    opportunity = relationship("Opportunities", back_populates="courses")
+    course = relationship("LabManager", back_populates="opportunities")
 
     def __str__(self) -> str:
         return str(vars(self))
