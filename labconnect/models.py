@@ -66,9 +66,9 @@ class Opportunities(db.Model):
 
     lab_managers = relationship("Leads", back_populates="opportunity")
     courses = relationship("RecommendsCourses", back_populates="opportunity")
-    recommends_majors = relationship("Majors", secondary="recommends_majors")
+    recommends_majors = relationship("RecommendsMajors", back_populates="opportunity")
     recommends_class_years = relationship(
-        "ClassYears", secondary="recommends_class_years"
+        "RecommendsClassYears", back_populates="opportunity"
     )
 
     def __str__(self) -> str:
@@ -93,11 +93,7 @@ class Majors(db.Model):
     major_code = db.Column(db.String(4), primary_key=True)
     major_name = db.Column(db.String(64), nullable=True, unique=False)
 
-    recommended_by_opportunities = relationship(
-        "Opportunities",
-        secondary="recommends_majors",
-        back_populates="recommends_majors",
-    )
+    opportunities = relationship("RecommendsMajors", back_populates="major")
 
     def __str__(self) -> str:
         return str(vars(self))
@@ -108,11 +104,7 @@ class ClassYears(db.Model):
     __tablename__ = "class_years"
     class_year = db.Column(db.Integer, primary_key=True)
 
-    recommends_class_years = relationship(
-        "Opportunities",
-        secondary="recommends_class_years",
-        back_populates="recommends_class_years",
-    )
+    opportunities = relationship("RecommendsClassYears", back_populates="year")
 
     def __str__(self) -> str:
         return str(vars(self))
@@ -151,7 +143,7 @@ class RecommendsCourses(db.Model):
     )
 
     opportunity = relationship("Opportunities", back_populates="courses")
-    course = relationship("LabManager", back_populates="opportunities")
+    course = relationship("Courses", back_populates="opportunities")
 
     def __str__(self) -> str:
         return str(vars(self))
@@ -168,6 +160,9 @@ class RecommendsMajors(db.Model):
         db.String(8), db.ForeignKey("majors.major_code"), primary_key=True
     )
 
+    opportunity = relationship("Opportunities", back_populates="recommends_majors")
+    major = relationship("Majors", back_populates="opportunities")
+
     def __str__(self) -> str:
         return str(vars(self))
 
@@ -182,6 +177,9 @@ class RecommendsClassYears(db.Model):
     class_year = db.Column(
         db.Integer, db.ForeignKey("class_years.class_year"), primary_key=True
     )
+
+    opportunity = relationship("Opportunities", back_populates="recommends_class_years")
+    year = relationship("ClassYears", back_populates="opportunities")
 
     def __str__(self) -> str:
         return str(vars(self))
