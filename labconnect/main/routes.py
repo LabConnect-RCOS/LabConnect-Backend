@@ -2,14 +2,46 @@ from flask import abort, render_template, request
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
-from labconnect.models import Opportunities
+from labconnect.models import (
+    ClassYears,
+    Courses,
+    LabManager,
+    Leads,
+    Majors,
+    Opportunities,
+    RecommendsClassYears,
+    RecommendsCourses,
+    RecommendsMajors,
+    RPIDepartments,
+    RPISchools,
+)
 
 from . import main_blueprint
+
+# Example queries
+# @main_blueprint.route("/test")
+# def test():
+#     query = (
+#         db.session.query(Opportunities, Majors)
+#         .filter(Majors.major_code == "CSCI")
+#         .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
+#         .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+#     )
+#     query = (
+#         db.session.query(Opportunities, Majors)
+#         .filter(Opportunities.id == 2)
+#         .join(RecommendsMajors, Opportunities.id == RecommendsMajors.opportunity_id)
+#         .join(Majors, RecommendsMajors.major_code == Majors.major_code)
+#     )
+#     print(query)
+#     data = query.all()
+#     print(data)
+#     return {"Hello": "There"}
 
 
 @main_blueprint.route("/")
 def index():
-    return render_template("index.html")
+    return "Home"
 
 
 @main_blueprint.route("/opportunities")
