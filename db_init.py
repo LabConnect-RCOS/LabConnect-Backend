@@ -17,9 +17,9 @@ from labconnect.models import (
     ClassYears,
     Courses,
     LabManager,
+    Leads,
     Majors,
     Opportunities,
-    Leads,
     RecommendsClassYears,
     RecommendsCourses,
     RecommendsMajors,
@@ -167,7 +167,7 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        recommends_class_years_rows = ((2, 4), (2, 3), (2, 1), (1, 3))
+        recommends_class_years_rows = ((2, 2024), (2, 2025), (2, 2026), (1, 2027))
 
         for r in recommends_class_years_rows:
             row = RecommendsClassYears(opportunity_id=r[0], class_year=r[1])

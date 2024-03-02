@@ -13,7 +13,6 @@ def test_404_page(test_client) -> None:
     """
     response = test_client.get("/abcsd")
     assert response.status_code == 404
-    print(json.loads(response.data))
     assert {"error": "404 not found"} == json.loads(response.data)
 
 
