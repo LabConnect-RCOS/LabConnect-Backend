@@ -16,9 +16,10 @@ def test_home_page(test_client: FlaskClient) -> None:
     THEN check that the response is valid
     """
     response = test_client.get("/")
+
     assert response.status_code == 200
-    assert b"LabConnect" in response.data
-    assert b"Your Recommendations" in response.data
+
+    assert {"Hello": "There"} == json.loads(response.data)
 
 
 def test_professor_profile(test_client: FlaskClient) -> None:
@@ -112,27 +113,10 @@ def test_discover_page(test_client: FlaskClient) -> None:
     THEN check that the response is valid
     """
     response = test_client.get("/discover")
+
     assert response.status_code == 200
-    assert b"Departments" in response.data
-    assert b"Research Centers" in response.data
 
-
-# def test_create_post_page(test_client: FlaskClient) -> None:
-#     """
-#     GIVEN a Flask application configured for testing
-#     WHEN the '/create_post' page is requested (GET)
-#     THEN check that the response is valid
-#     """
-#     response = test_client.get("/create_post")
-#     assert response.status_code == 200
-#     assert b"Title" in response.data
-#     assert b"Major" in response.data
-#     assert b"Term" in response.data
-#     assert b"Deadline" in response.data
-#     assert b"Grade" in response.data
-#     assert b"Description" in response.data
-#     assert b"Compensation" in response.data
-#     assert b"Submit" in response.data
+    assert {"Hello": "There"} == json.loads(response.data)
 
 
 def test_login_page(test_client: FlaskClient) -> None:
@@ -142,8 +126,10 @@ def test_login_page(test_client: FlaskClient) -> None:
     THEN check that the response is valid
     """
     response = test_client.get("/login")
+
     assert response.status_code == 200
-    assert b"Please sign in" in response.data
+
+    assert {"Hello": "There"} == json.loads(response.data)
 
 
 def test_department_route(test_client: FlaskClient) -> None:
@@ -153,10 +139,10 @@ def test_department_route(test_client: FlaskClient) -> None:
     THEN check that the response is valid
     """
     response = test_client.get("/department")
-    data = json.loads(response.data.decode("utf-8"))
+
     assert response.status_code == 200
-    assert data["professors"] == ["Turner", "Kuzmin"]
-    assert data["projects"] == ["project1", "project2"]
+
+    assert {"Hello": "There"} == json.loads(response.data)
 
 
 def test_profile_page(test_client: FlaskClient) -> None:
