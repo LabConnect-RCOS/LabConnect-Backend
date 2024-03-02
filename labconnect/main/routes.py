@@ -61,16 +61,24 @@ def profile():
 
 @main_blueprint.route("/department")
 def department():
-    data_query = (
+    # return {"professors": ["Turner", "Kuzmin"], "projects": ["project1", "project2"]}
+    # department = request.args.get(department)
+    # @app.route('/json-example', methods=['POST'])
+    request_data = request.get_json()
+    # language = request_data["department"]
+    department = request_data.get("department", None)
+
+    # departmentOf department_name
+    data = (
         db.session.query(
             RPIDepartments.name, RPIDepartments.description, RPISchools.name
         )
-        .filter(RPIDepartments.name == "Computer Science")
+        .filter(RPIDepartments.name == department)
         .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
-    )
-    data = data_query.all()
+    ).first()
+    # data = data_query.all()
     print(data)
-    return {"Hello": "There"}
+    return {"department": data[0], "description": data[1], "school": data[2]}
 
 
 @main_blueprint.route("/discover")
