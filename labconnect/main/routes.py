@@ -35,24 +35,18 @@ def department():
     request_data = request.get_json()
     # language = request_data["department"]
     department = request_data.get("department", None)
-    data = (
-        db.session.query(RPIDepartments.name, RPIDepartments.description)
-        .filter(RPIDepartments.name == department)
-        .join(DepartmentOf, DepartmentOf.department_name == RPIDepartments.name)
-        .all()
-    )
-    print(data)
+
     # departmentOf department_name
-    data_query = (
+    data = (
         db.session.query(
             RPIDepartments.name, RPIDepartments.description, RPISchools.name
         )
-        .filter(RPIDepartments.name == "Computer Science")
+        .filter(RPIDepartments.name == department)
         .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
-    )
-    data = data_query.all()
+    ).first()
+    # data = data_query.all()
     print(data)
-    return {"Hello": "There"}
+    return {"department": data[0], "description": data[1], "school": data[2]}
 
 
 @main_blueprint.route("/discover")
