@@ -41,22 +41,22 @@ from . import main_blueprint
 
 @main_blueprint.route("/")
 def index():
-    return "Home"
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/opportunities")
 def positions():
-    return "Hello There"
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/opportunity/<int:id>")
 def opportunity(id: int):
-    return "General Kenobi"
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/profile/<string:rcs_id>")
 def profile(rcs_id: str):
-    return render_template("profile.html")
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/department")
@@ -75,7 +75,7 @@ def department():
 
 @main_blueprint.route("/discover")
 def discover():
-    return render_template("discover.html")
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/getOpportunity/<string:opp_id>", methods=["GET"])
@@ -244,12 +244,12 @@ def changeActiveStatus():
 
 @main_blueprint.route("/create_post", methods=["POST"])
 def create_post():
-    return "Creating POST"
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/login")
 def login():
-    return render_template("sign_in.html")
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/500")
