@@ -63,6 +63,7 @@ class Opportunities(db.Model):
     semester = db.Column(Enum(SemesterEnum), nullable=True, unique=False)
     year = db.Column(db.Integer, nullable=True, unique=False)
     application_due = db.Column(db.Date, nullable=True, unique=False)
+    active = db.Column(db.Boolean, nullable=False, unique=False)
 
     lab_managers = relationship("Leads", back_populates="opportunity")
     courses = relationship("RecommendsCourses", back_populates="opportunity")
