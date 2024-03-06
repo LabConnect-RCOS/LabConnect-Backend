@@ -86,6 +86,7 @@ elif sys.argv[1] == "create":
                 SemesterEnum.SPRING,
                 2024,
                 date.today(),
+                True,
             ),
             (
                 "Iphone 15 durability test",
@@ -96,6 +97,7 @@ elif sys.argv[1] == "create":
                 SemesterEnum.SPRING,
                 2024,
                 date.today(),
+                True,
             ),
         )
 
@@ -109,6 +111,7 @@ elif sys.argv[1] == "create":
                 semester=row_tuple[5],
                 year=row_tuple[6],
                 application_due=row_tuple[7],
+                active=row_tuple[8],
             )
             db.session.add(row)
             db.session.commit()
