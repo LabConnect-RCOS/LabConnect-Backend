@@ -1,4 +1,4 @@
-from flask import abort, render_template, request
+from flask import abort, request
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
