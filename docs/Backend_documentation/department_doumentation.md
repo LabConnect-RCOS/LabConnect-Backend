@@ -49,5 +49,10 @@ List of current profs
 List of currrent projects 
 
 Data being returned 
-{"professors":list,
-"projects":list}
+{
+  "professors": [],
+  "projects": []
+}
+
+What is being done currently:
+Department(school), description, and major are returned.  

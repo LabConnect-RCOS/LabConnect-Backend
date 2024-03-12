@@ -27,6 +27,7 @@ from labconnect.models import (
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
+    # Professors
 )
 
 app = create_app()
@@ -58,12 +59,15 @@ elif sys.argv[1] == "create":
         )
 
         for i, row_tuple in enumerate(rpi_departments_rows):
-            row = RPIDepartments(name=row_tuple[0], description=row_tuple[1], school_id=rpi_schools_rows[i][0])
+            row = RPIDepartments(
+                name=row_tuple[0],
+                description=row_tuple[1],
+                school_id=rpi_schools_rows[i][0],
+            )
             db.session.add(row)
             db.session.commit()
 
         lab_manager_rows = (("led", "Duy Le"), ("cenzar", "Rafael"))
-
         for row_tuple in lab_manager_rows:
             row = LabManager(rcs_id=row_tuple[0], name=row_tuple[1])
             db.session.add(row)

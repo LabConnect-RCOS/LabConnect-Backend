@@ -78,6 +78,19 @@ def department():
     ).first()
     # data = data_query.all()
     print(data)
+
+    professors = (
+        db.session.query(
+            # Need all professors
+            RPIDepartments.name
+        )
+        # Professors department needs to match department (data[0])
+        .filter(RPIDepartments.name == data[0])
+        # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+    ).first()
+
+    # rpidepartment.name
+
     return {"department": data[0], "description": data[1], "school": data[2]}
 
 
