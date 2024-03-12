@@ -1,4 +1,4 @@
-from flask import abort, render_template, request
+from flask import abort, request
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
@@ -93,13 +93,21 @@ def profile():
 
 @main_blueprint.route("/department")
 def department():
-    data_query = (
-        db.session.query(
-            RPIDepartments.name, RPIDepartments.description, RPISchools.name
-        )
-        .filter(RPIDepartments.name == "Computer Science")
+    # return {"professors": ["Turner", "Kuzmin"], "projects": ["project1", "project2"]}
+    # department = request.args.get(department)
+    # @app.route('/json-example', methods=['POST'])
+
+    ## TODO: Check if request has json
+    request_data = request.get_json()
+    # language = request_data["department"]
+    department = request_data.get("department", None)
+
+    # departmentOf department_name
+    data = db.first_or_404(
+        db.select(RPIDepartments.name, RPIDepartments.description, RPISchools.name)
+        .filter(RPIDepartments.name == department)
         .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
-    ).first()
+    )
     # data = data_query.all()
     print(data)
 
