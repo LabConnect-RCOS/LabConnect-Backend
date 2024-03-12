@@ -7,7 +7,7 @@ import CenterStaff from "../components/CenterStaff";
 const Center = ({ linkTree }) => {
   const { centerName } = useParams();
   return (
-    <section className="center">
+    <section className="center container-xl">
       <Breadcrumb
         tree={[
           {

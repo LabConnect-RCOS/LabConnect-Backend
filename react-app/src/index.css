@@ -248,7 +248,7 @@ code {
 
 /* Staff CSS */
 
-.creatpost {
+.createpost {
   @apply flex justify-center mt-3;
 }
 
@@ -265,7 +265,7 @@ code {
 }
 
 .lg-img-card {
-  @apply card card-compact w-96 bg-base-100 hover:shadow-lg transition duration-175;
+  @apply card card-compact w-96 bg-base-100 transition;
 }
 
 .lg-txt-card {
@@ -285,7 +285,7 @@ code {
 }
 
 .center {
-  @apply container-xl pb-10 flex flex-col gap-4;
+  @apply pb-10 flex flex-col gap-4;
 }
 
 .createpost {
