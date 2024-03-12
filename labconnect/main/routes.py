@@ -57,26 +57,29 @@ def opportunity(id: int):
 @main_blueprint.route("/profile")
 def profile():
     request_data = request.get_json()
-
     rcs_id = request_data.get("Profile", {}).get("rcs_id", None)
-    name = request_data.get("Profile", {}).get("name", None)
-    email = request_data.get("Profile", {}).get("email", None)
-    phone_number = request_data.get("Profile", {}).get("phone_number", None)
-    website = request_data.get("Profile", {}).get("website", None)
-    title = request_data.get("Profile", {}).get("title", None)
-    department = request_data.get("Profile", {}).get("department", None)
+
+    data_query = (
+        db.session.query(LabManager, Opportunities)
+        .filter(LabManager.rcs_id == rcs_id)
+        .join(Leads, LabManager.rcs_id == Leads.lab_manager_rcs_id)
+        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+    )
+    data = data_query.first()
+    lab_manager = data[0]
+
     # past_opportunities = request_data.get('Profile', {})['past_opportunities']
     # currrent_opportunities = request_data.get('Profile', {})['currrent_opportunities']
 
     return {
         "Profile": {
             "rcs_id": rcs_id,
-            "name": name,
-            "email": email,
-            "phone_number": phone_number,
-            "website": website,
-            "title": title,
-            "departments": department,
+            "name": lab_manager.name,
+            "email": lab_manager.email,
+            "alt email": lab_manager.alt_email,
+            "phone_number": lab_manager.phone_number,
+            "website": lab_manager.website,
+            "departments": lab_manager.department_id,
             "past_opportunities": [
                 {
                     "professor": "Kuzman",
