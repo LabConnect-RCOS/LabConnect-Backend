@@ -4,12 +4,17 @@ from . import error_blueprint
 
 
 @error_blueprint.app_errorhandler(404)
-def page_not_found(e) -> Response:
+def handle_404(e) -> Response:
     # 404 error page
-    return make_response(render_template("404.html"), 404)
+    return make_response({"error": "404 not found"}, 404)
 
 
 @error_blueprint.app_errorhandler(500)
-def error_for_server(e) -> Response:
+def handle_500(e) -> Response:
     # 500 error page
-    return make_response(render_template("500.html"), 500)
+    return make_response(
+        {
+            "error": "500 server error. You can report issues here: https://github.com/RafaelCenzano/LabConnect/issues"
+        },
+        500,
+    )

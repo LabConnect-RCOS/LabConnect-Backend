@@ -2,6 +2,8 @@
 Test errors
 """
 
+import json
+
 
 def test_404_page(test_client) -> None:
     """
@@ -11,14 +13,7 @@ def test_404_page(test_client) -> None:
     """
     response = test_client.get("/abcsd")
     assert response.status_code == 404
-    assert b"404 Not Found" in response.data
-    assert b"This page was not found" in response.data
-    assert b"Return Home" in response.data
-    assert b"If you believe this is a bug or error please create an" in response.data
-    assert (
-        b'href="https://github.com/RafaelCenzano/LabConnect/issues">Issue'
-        in response.data
-    )
+    assert {"error": "404 not found"} == json.loads(response.data)
 
 
 def test_500_page(test_client) -> None:
@@ -27,13 +22,8 @@ def test_500_page(test_client) -> None:
     WHEN the '/professor/<professor>' page is requested (GET)
     THEN check that the response is valid
     """
-    response = test_client.get("/professor/duncan")
+    response = test_client.get("/500")
     assert response.status_code == 500
-    assert b"500 Server Error" in response.data
-    assert b"The server had an error" in response.data
-    assert b"Return Home" in response.data
-    assert b"If you believe this is a bug or error please create an" in response.data
-    assert (
-        b'href="https://github.com/RafaelCenzano/LabConnect/issues">Issue'
-        in response.data
-    )
+    assert {
+        "error": "500 server error. You can report issues here: https://github.com/RafaelCenzano/LabConnect/issues"
+    } == json.loads(response.data)
