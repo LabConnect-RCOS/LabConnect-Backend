@@ -75,6 +75,20 @@ def department():
 
 @main_blueprint.route("/discover")
 def discover():
+    query = (
+         db.session.query(Opportunities, Majors)
+         .filter(Majors.major_code == "CSCI")
+         .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
+         .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+        # db.session.query(Opportunities.id, Opportunities.name, Opportunities.description, Opportunities.pay, Opportunities.credits)
+        # .filter(Majors.major_code == "CSCI")
+        # .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+        # .join(Majors, RecommendsMajors.major_code == Majors.major_code)
+        #commented out code above needs fixing
+         
+    ).all()
+    
+    print(query)
     return {
         "data": [
             {
