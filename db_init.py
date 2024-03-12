@@ -17,9 +17,9 @@ from labconnect.models import (
     ClassYears,
     Courses,
     LabManager,
+    Leads,
     Majors,
     Opportunities,
-    Leads,
     RecommendsClassYears,
     RecommendsCourses,
     RecommendsMajors,
@@ -85,6 +85,7 @@ elif sys.argv[1] == "create":
                 SemesterEnum.SPRING,
                 2024,
                 date.today(),
+                True,
             ),
             (
                 "Iphone 15 durability test",
@@ -95,6 +96,7 @@ elif sys.argv[1] == "create":
                 SemesterEnum.SPRING,
                 2024,
                 date.today(),
+                True,
             ),
         )
 
@@ -108,6 +110,7 @@ elif sys.argv[1] == "create":
                 semester=row_tuple[5],
                 year=row_tuple[6],
                 application_due=row_tuple[7],
+                active=row_tuple[8],
             )
             db.session.add(row)
             db.session.commit()
@@ -167,7 +170,7 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        recommends_class_years_rows = ((2, 4), (2, 3), (2, 1), (1, 3))
+        recommends_class_years_rows = ((2, 2024), (2, 2025), (2, 2026), (1, 2027))
 
         for r in recommends_class_years_rows:
             row = RecommendsClassYears(opportunity_id=r[0], class_year=r[1])
