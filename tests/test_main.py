@@ -154,6 +154,14 @@ def test_profile_route(test_client: FlaskClient) -> None:
     response = test_client.get("/profile")
     data = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 200
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    assert b"Name:" in response.data
+    assert b"Department:" in response.data
+    assert b"Contact:" in response.data
+=======
+>>>>>>> f022e2c (Updated queries)
     assert data["Profile"]["rcs_id"] == "turnerw"
     assert data["Profile"]["name"] == "Turner"
     assert data["Profile"]["email"] == "turnerw@rpi.edu"
@@ -169,3 +177,35 @@ def test_profile_route(test_client: FlaskClient) -> None:
     assert (
         data["Profile"]["current_opportunities"][0]["description"] == "DataStructures"
     )
+<<<<<<< HEAD
+=======
+
+
+def test_tips_and_tricks_page(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/profile/<user>' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/tips")
+    assert response.status_code == 200
+    assert b"Tips and Tricks for LabConnect" in response.data
+
+
+def test_info_page(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/profile/<user>' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/info")
+    assert response.status_code == 200
+    assert b"URP for Credit" in response.data
+    assert b"URP for Funding" in response.data
+
+    response = test_client.get("/information")
+    assert response.status_code == 200
+    assert b"URP for Credit" in response.data
+    assert b"URP for Funding" in response.data
+>>>>>>> 01b2433 (Updated queries)
+>>>>>>> f022e2c (Updated queries)
