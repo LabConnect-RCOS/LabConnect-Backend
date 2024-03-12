@@ -44,3 +44,12 @@ Therorticly what needs to be done to actually implement this
 - Query for schools/departments
 - to get past projects for each profesors
 - Return to json    
+
+List of current profs
+List of currrent projects 
+
+Data being returned 
+{
+  "professors": [],
+  "projects": []
+}

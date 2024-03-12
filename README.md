@@ -35,10 +35,10 @@
 <!-- ABOUT THE PROJECT -->
 ## About
 <div align="center">
-    <a href="https://github.com/dinobenj/LabConnect">
+    <a href="https://github.com/LabConnect-RCOS/LabConnect-Backend">
 <!-- <img src="https://github.com/RafaelCenzano/LabConnect/blob/main/bargeLogo.png" alt="Barge Logo" width="360" height="216"> -->
 </a>
-<img src="LabConnect_Logo.png" alt="LabConnect Logo" width="360">
+<img src="misc/LabConnect_Logo.png" alt="LabConnect Logo" width="360">
 <h3 align="center">LabConnect</h3>
 
 <p>Connecting students to research opportunities.</p>
@@ -61,9 +61,9 @@
     * GitHub Desktop: download [here](https://desktop.github.com/)
     * Clone repo through Git Bash
     ```sh
-    $ git clone https://github.com/RafaelCenzano/LabConnect
+    $ git clone https://github.com/LabConnect-RCOS/LabConnect-Backend
     ```
-    * To fork, press the fork button on the top right of the repo, or [here](https://github.com/RafaelCenzano/LabConnect/fork)
+    * To fork, press the fork button on the top right of the repo, or [here](https://github.com/LabConnect-RCOS/LabConnect-Backend/fork)
  * Install Python 3.11.4 [here](https://www.python.org/downloads/release/python-3114/)
  * Install Libraries 
     * Download through the command line
@@ -73,7 +73,7 @@
 
 ## Testing
  * Run pytest
-   * Run all the test files and generate a coverage report. Coverage reports are setup to output to the terminal and provide an html file that can be viewed that can show what branches or statments are not covered. It is in the projects best interest to have high coverage to ensure all statements and branches work as expected.
+   * Run all the test files and generate a coverage report. Coverage reports are setup to output to the terminal and provide an HTML file that can be viewed to show what branches or statements are not covered. It is in the project's best interest to have high coverage to ensure all statements and branches work as expected.
 
    ```sh
    $ make test
@@ -140,21 +140,21 @@ Distributed under the Apache License. See [LICENSE](https://github.com/RafaelCen
 <!-- https://home.aveek.io/GitHub-Profile-Badges/ -->
 
 <!-- LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/RafaelCenzano/LabConnect.svg?style=for-the-badge
-[contributors-url]: https://github.com/RafaelCenzano/LabConnect/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/RafaelCenzano/LabConnect.svg?style=for-the-badge
-[forks-url]: https://github.com/RafaelCenzano/LabConnect/network/members
-[stars-shield]: https://img.shields.io/github/stars/RafaelCenzano/LabConnect.svg?style=for-the-badge
-[stars-url]: https://github.com/RafaelCenzano/LabConnect/stargazers
-[issues-shield]: https://img.shields.io/github/issues/RafaelCenzano/LabConnect.svg?style=for-the-badge
-[issues-url]: https://github.com/RafaelCenzano/LabConnect/issues
-[pr-shield]: https://img.shields.io/github/issues-pr/RafaelCenzano/LabConnect.svg?style=for-the-badge
-[pr-url]: https://github.com/RafaelCenzano/LabConnect/pulls
-[license-shield]: https://img.shields.io/github/license/RafaelCenzano/LabConnect.svg?style=for-the-badge
-[license-url]: https://github.com/RafaelCenzano/LabConnect/blob/master/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/LabConnect-RCOS/LabConnect-Backend.svg?style=for-the-badge
+[contributors-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/LabConnect-RCOS/LabConnect-Backend.svg?style=for-the-badge
+[forks-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/network/members
+[stars-shield]: https://img.shields.io/github/stars/LabConnect-RCOS/LabConnect-Backend.svg?style=for-the-badge
+[stars-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/stargazers
+[issues-shield]: https://img.shields.io/github/issues/LabConnect-RCOS/LabConnect-Backend.svg?style=for-the-badge
+[issues-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/issues
+[pr-shield]: https://img.shields.io/github/issues-pr/LabConnect-RCOS/LabConnect-Backend.svg?style=for-the-badge
+[pr-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/pulls
+[license-shield]: https://img.shields.io/github/license/LabConnect-RCOS/LabConnect-Backendt.svg?style=for-the-badge
+[license-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/blob/master/LICENSE
 
-[activity-shield]: https://img.shields.io/github/last-commit/RafaelCenzano/LabConnect?style=for-the-badge
-[activity-url]: https://github.com/RafaelCenzano/LabConnect/activity
+[activity-shield]: https://img.shields.io/github/last-commit/LabConnect-RCOS/LabConnect-Backend?style=for-the-badge
+[activity-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/activity
 
 [Python]: https://img.shields.io/badge/Python-3776AB.svg?style=for-the-badge&logo=Python&logoColor=white
 [Python-url]: https://www.python.org/
