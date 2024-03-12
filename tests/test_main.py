@@ -155,6 +155,7 @@ def test_profile_route(test_client: FlaskClient) -> None:
     data = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 200
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
     assert b"Name:" in response.data
@@ -209,3 +210,8 @@ def test_info_page(test_client: FlaskClient) -> None:
     assert b"URP for Funding" in response.data
 >>>>>>> 01b2433 (Updated queries)
 >>>>>>> f022e2c (Updated queries)
+=======
+    assert b"Name:" in response.data
+    assert b"Department:" in response.data
+    assert b"Contact:" in response.data
+>>>>>>> e389a38 (Rebase)
