@@ -1,4 +1,4 @@
-from flask import abort, render_template, request
+from flask import abort, request
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
@@ -64,16 +64,18 @@ def department():
     # return {"professors": ["Turner", "Kuzmin"], "projects": ["project1", "project2"]}
     # department = request.args.get(department)
     # @app.route('/json-example', methods=['POST'])
+
+    ## TODO: Check if request has json
     request_data = request.get_json()
     # language = request_data["department"]
     department = request_data.get("department", None)
 
     # departmentOf department_name
-    data = (
-        db.session.query(
-            RPIDepartments.name, RPIDepartments.description, RPISchools.name
-        ).filter(RPIDepartments.name == department)
-    ).first_or_404()
+    data = db.first_or_404(
+        db.select(RPIDepartments.name, RPIDepartments.description, RPISchools.name)
+        .filter(RPIDepartments.name == department)
+        .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+    )
     # data = data_query.all()
     print(data)
 
@@ -85,7 +87,7 @@ def department():
         # Professors department needs to match department (data[0])
         .filter(RPIDepartments.name == data[0])
         # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
-    ).first_or_404()
+    ).first()
 
     # rpidepartment.name
 
