@@ -17,6 +17,7 @@ pytest==7.4.2
 pytest-cov==4.1.0
 pytz==2023.3.post1
 SQLAlchemy==2.0.21
+SQLAlchemy-serializer==1.4.1
 typing_extensions==4.8.0
 Werkzeug==3.0.0
 WTForms==3.0.1
