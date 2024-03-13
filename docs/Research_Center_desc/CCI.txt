@@ -1,0 +1,5 @@
+The Center for Computational Innovations (CCI) is solving problems for next-generation research through the use of 
+massively parallel computation and data analytics. The center supports researchers, faculty, and students a diverse 
+spectrum of disciplines. Industry collaborators include IBM, Boeing, GlobalFoundries, Intel, and Xerox.
+A central feature of the CCI is the Artificial Intelligence Multiprocessing Optimized System (AiMOS), an eight 
+petaflop IBM POWER9-equipped supercomputer configured to enable users to explore new AI applications.

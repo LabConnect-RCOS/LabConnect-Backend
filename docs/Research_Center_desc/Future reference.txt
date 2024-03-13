@@ -1,0 +1,3 @@
+ABOUT: paragraph explaining what the department does, or take from the about page of the department.
+FACULTY: names of faculty seperated by comma(department faculty should agree first?)
+GRAD: names of TA's seperated by comma(department TAs should agree first?)
