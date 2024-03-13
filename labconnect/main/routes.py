@@ -308,7 +308,9 @@ def majors():
 def years():
 
     data = db.session.execute(
-        db.select(ClassYears).order_by(ClassYears.class_year).filter(ClassYears.active == True)
+        db.select(ClassYears)
+        .order_by(ClassYears.class_year)
+        .filter(ClassYears.active == True)
     ).scalars()
     result = [year.class_year for year in data]
 

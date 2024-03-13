@@ -196,7 +196,6 @@ def test_departments_route(test_client: FlaskClient) -> None:
         ("DS", "life", "also pretty cool"),
     )
 
-
     for department in json_data:
         assert department["name"] in rpi_departments_data[0]
         assert department["description"] in rpi_departments_data[1]
@@ -216,9 +215,14 @@ def test_majors_route(test_client: FlaskClient) -> None:
 
     majors_data = (
         ("CSCI", "ECSE", "BIOL", "MATH", "COGS"),
-        ("Computer Science", "Electrical, Computer, and Systems Engineering", "Biological Science", "Mathematics", "Cognitive Science"),
+        (
+            "Computer Science",
+            "Electrical, Computer, and Systems Engineering",
+            "Biological Science",
+            "Mathematics",
+            "Cognitive Science",
+        ),
     )
-
 
     for major in json_data:
         assert major["major_code"] in majors_data[0]
@@ -235,4 +239,4 @@ def test_years_route(test_client: FlaskClient) -> None:
 
     assert response.status_code == 200
 
-    assert [2024,2025,2026,2027,2028,2029] == json.loads(response.data)
+    assert [2024, 2025, 2026, 2027, 2028, 2029] == json.loads(response.data)
