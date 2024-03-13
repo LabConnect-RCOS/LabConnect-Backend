@@ -155,3 +155,84 @@ def test_profile_page(test_client: FlaskClient) -> None:
     assert response.status_code == 200
 
     assert {"Hello": "There"} == json.loads(response.data)
+
+
+def test_schools_route(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/schools' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/schools")
+
+    assert response.status_code == 200
+
+    json_data = json.loads(response.data)
+
+    rpi_schools_data = (
+        ("School of Science", "School of Engineering"),
+        ("the coolest of them all", "also pretty cool"),
+    )
+
+    for school in json_data:
+        assert school["name"] in rpi_schools_data[0]
+        assert school["description"] in rpi_schools_data[1]
+
+
+def test_departments_route(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/departments' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/departments")
+
+    assert response.status_code == 200
+
+    json_data = json.loads(response.data)
+
+    rpi_departments_data = (
+        ("Computer Science", "Biology", "Materials Engineering"),
+        ("DS", "life", "also pretty cool"),
+    )
+
+
+    for department in json_data:
+        assert department["name"] in rpi_departments_data[0]
+        assert department["description"] in rpi_departments_data[1]
+
+
+def test_majors_route(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/majors' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/majors")
+
+    assert response.status_code == 200
+
+    json_data = json.loads(response.data)
+
+    majors_data = (
+        ("CSCI", "ECSE", "BIOL", "MATH", "COGS"),
+        ("Computer Science", "Electrical, Computer, and Systems Engineering", "Biological Science", "Mathematics", "Cognitive Science"),
+    )
+
+
+    for major in json_data:
+        assert major["major_code"] in majors_data[0]
+        assert major["major_name"] in majors_data[1]
+
+
+def test_years_route(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/years' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/years")
+
+    assert response.status_code == 200
+
+    assert [2024,2025,2026,2027,2028,2029] == json.loads(response.data)
