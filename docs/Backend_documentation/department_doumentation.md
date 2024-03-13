@@ -53,3 +53,6 @@ Data being returned
   "professors": [],
   "projects": []
 }
+
+What is being done currently:
+Department(school), description, and major are returned.  

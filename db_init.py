@@ -25,6 +25,7 @@ from labconnect.models import (
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
+    # Professors
 )
 
 app = create_app()
