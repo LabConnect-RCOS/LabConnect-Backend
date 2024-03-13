@@ -61,9 +61,6 @@ def profile(rcs_id: str):
 
 @main_blueprint.route("/department")
 def department():
-    # return {"professors": ["Turner", "Kuzmin"], "projects": ["project1", "project2"]}
-    # department = request.args.get(department)
-    # @app.route('/json-example', methods=['POST'])
 
     ## TODO: Check if request has json
     request_data = request.get_json()
@@ -276,3 +273,53 @@ def login():
 @main_blueprint.route("/500")
 def force_error():
     abort(500)
+
+
+@main_blueprint.get("/schools")
+def schools():
+
+    data = db.session.execute(db.select(RPISchools).order_by(RPISchools.name)).scalars()
+    result = [school.to_dict() for school in data]
+
+    return result
+
+
+@main_blueprint.get("/departments")
+def departments():
+
+    data = db.session.execute(
+        db.select(RPIDepartments).order_by(RPIDepartments.name)
+    ).scalars()
+    result = [department.to_dict() for department in data]
+
+    return result
+
+
+@main_blueprint.get("/majors")
+def majors():
+
+    data = db.session.execute(db.select(Majors).order_by(Majors.major_code)).scalars()
+    result = [major.to_dict() for major in data]
+
+    return result
+
+
+@main_blueprint.get("/years")
+def years():
+
+    data = db.session.execute(
+        db.select(ClassYears).order_by(ClassYears.class_year).filter(ClassYears.active == True)
+    ).scalars()
+    result = [year.class_year for year in data]
+
+    return result
+
+
+# TODO: matching course code, number, and/or name
+# @main_blueprint.get("/courses")
+# def courses():
+
+#     data = db.session.execute(db.select(ClassYears).order_by(ClassYears.class_year)).scalars()
+#     result = [year.to_dict() for year in data]
+
+#     return result
