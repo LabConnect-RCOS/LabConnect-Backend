@@ -225,8 +225,59 @@ def test_majors_route(test_client: FlaskClient) -> None:
     )
 
     for major in json_data:
-        assert major["major_code"] in majors_data[0]
-        assert major["major_name"] in majors_data[1]
+        assert major["code"] in majors_data[0]
+        assert major["name"] in majors_data[1]
+
+
+def test_majors_route_with_input_name(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/majors' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/majors", json={"input": "computer"})
+
+    assert response.status_code == 200
+
+    json_data = json.loads(response.data)
+
+    majors_data = (
+        ("CSCI", "ECSE"),
+        (
+            "Computer Science",
+            "Electrical, Computer, and Systems Engineering",
+        ),
+    )
+
+    for i, major in enumerate(json_data):
+        assert major["code"] == majors_data[0][i]
+        assert major["name"] == majors_data[1][i]
+
+
+def test_majors_route_with_input_code(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/majors' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/majors", json={"input": "cs"})
+
+    assert response.status_code == 200
+
+    json_data = json.loads(response.data)
+
+    majors_data = (
+        ("CSCI", "ECSE", "MATH"),
+        (
+            "Computer Science",
+            "Electrical, Computer, and Systems Engineering",
+            "Mathematics",
+        ),
+    )
+
+    for i, major in enumerate(json_data):
+        assert major["code"] == majors_data[0][i]
+        assert major["name"] == majors_data[1][i]
 
 
 def test_years_route(test_client: FlaskClient) -> None:
@@ -240,3 +291,45 @@ def test_years_route(test_client: FlaskClient) -> None:
     assert response.status_code == 200
 
     assert [2024, 2025, 2026, 2027, 2028, 2029] == json.loads(response.data)
+
+
+def test_courses_route_with_input_name(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/courses' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/courses", json={"input": "data"})
+
+    assert response.status_code == 200
+
+    json_data = json.loads(response.data)
+
+    print(json_data)
+
+    assert json_data[0]["code"] == "CSCI4390"
+    assert json_data[0]["name"] == "Data Mining"
+
+
+def test_courses_route_with_input_code(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/courses' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/courses", json={"input": "cs"})
+
+    assert response.status_code == 200
+
+    json_data = json.loads(response.data)
+
+    course_data = (
+        ("CSCI2961", "CSCI4390", "CSCI4430"),
+        ("Rensselaer Center for Open Source", "Data Mining", "Programming Languages"),
+    )
+
+    print(json_data)
+
+    for i, major in enumerate(json_data):
+        assert major["code"] == course_data[0][i]
+        assert major["name"] == course_data[1][i]

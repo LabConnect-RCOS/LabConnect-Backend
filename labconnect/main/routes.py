@@ -1,3 +1,4 @@
+from typing import Any
 from flask import abort, request
 
 from labconnect import db
@@ -276,7 +277,7 @@ def force_error():
 
 
 @main_blueprint.get("/schools")
-def schools():
+def schools() -> list[Any]:
 
     data = db.session.execute(db.select(RPISchools).order_by(RPISchools.name)).scalars()
     result = [school.to_dict() for school in data]
@@ -285,7 +286,7 @@ def schools():
 
 
 @main_blueprint.get("/departments")
-def departments():
+def departments() -> list[Any]:
 
     data = db.session.execute(
         db.select(RPIDepartments).order_by(RPIDepartments.name)
@@ -296,16 +297,31 @@ def departments():
 
 
 @main_blueprint.get("/majors")
-def majors():
+def majors() -> list[Any]:
 
-    data = db.session.execute(db.select(Majors).order_by(Majors.major_code)).scalars()
+    if request.data:
+        partial_key = request.get_json().get("input", None)
+
+        data = db.session.execute(
+            db.select(Majors)
+            .order_by(Majors.code)
+            .filter(
+                (Majors.code.ilike(f"%{partial_key}%"))
+                | (Majors.name.ilike(f"%{partial_key}%"))
+            )
+        ).scalars()
+        result = [major.to_dict() for major in data]
+
+        return result
+
+    data = db.session.execute(db.select(Majors).order_by(Majors.code)).scalars()
     result = [major.to_dict() for major in data]
 
     return result
 
 
 @main_blueprint.get("/years")
-def years():
+def years() -> list[Any]:
 
     data = db.session.execute(
         db.select(ClassYears)
@@ -317,11 +333,25 @@ def years():
     return result
 
 
-# TODO: matching course code, number, and/or name
-# @main_blueprint.get("/courses")
-# def courses():
+@main_blueprint.get("/courses")
+def courses() -> list[Any]:
+    if not request.data:
+        abort(400)
 
-#     data = db.session.execute(db.select(ClassYears).order_by(ClassYears.class_year)).scalars()
-#     result = [year.to_dict() for year in data]
+    partial_key = request.get_json().get("input", None)
 
-#     return result
+    if not partial_key:
+        abort(400)
+
+    data = db.session.execute(
+        db.select(Courses)
+        .order_by(Courses.code)
+        .filter(
+            (Courses.code.ilike(f"%{partial_key}%"))
+            | (Courses.name.ilike(f"%{partial_key}%"))
+        )
+    ).scalars()
+
+    result = [course.to_dict() for course in data]
+
+    return result
