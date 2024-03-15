@@ -135,7 +135,7 @@ elif sys.argv[1] == "create":
         )
 
         for row_tuple in majors_rows:
-            row = Majors(major_code=row_tuple[0], major_name=row_tuple[1])
+            row = Majors(code=row_tuple[0], name=row_tuple[1])
             db.session.add(row)
             db.session.commit()
 
