@@ -113,7 +113,7 @@ class Courses(db.Model, CustomSerializerMixin):
     serialize_rules = ()
 
     code = db.Column(db.String(8), primary_key=True)
-    name = db.Column(db.String(64), nullable=True, unique=False)
+    name = db.Column(db.String(128), nullable=True, unique=False)
 
     opportunities = relationship("RecommendsCourses", back_populates="course")
 
@@ -121,15 +121,15 @@ class Courses(db.Model, CustomSerializerMixin):
         return str(vars(self))
 
 
-# majors( major_code, major_name ), key: major_code
+# majors( code, name ), key: code
 class Majors(db.Model, CustomSerializerMixin):
     __tablename__ = "majors"
 
-    serialize_only = ("major_code", "major_name")
+    serialize_only = ("code", "name")
     serialize_rules = ()
 
-    major_code = db.Column(db.String(4), primary_key=True)
-    major_name = db.Column(db.String(64), nullable=True, unique=False)
+    code = db.Column(db.String(4), primary_key=True)
+    name = db.Column(db.String(64), nullable=True, unique=False)
 
     opportunities = relationship("RecommendsMajors", back_populates="major")
 
@@ -192,16 +192,14 @@ class RecommendsCourses(db.Model):
         return str(vars(self))
 
 
-# recommends_majors( opportunity_id, major_code ), key: (opportunity_id, major_code)
+# recommends_majors( opportunity_id, code ), key: (opportunity_id, code)
 class RecommendsMajors(db.Model):
     __tablename__ = "recommends_majors"
 
     opportunity_id = db.Column(
         db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
     )
-    major_code = db.Column(
-        db.String(8), db.ForeignKey("majors.major_code"), primary_key=True
-    )
+    major_code = db.Column(db.String(8), db.ForeignKey("majors.code"), primary_key=True)
 
     opportunity = relationship("Opportunities", back_populates="recommends_majors")
     major = relationship("Majors", back_populates="opportunities")
