@@ -134,14 +134,38 @@ def test_login_page(test_client: FlaskClient) -> None:
 def test_department_route(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
-    WHEN the '/department/<department>' page is requested (GET)
+    WHEN the '/department' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/department", json={"department": "Computer Science"})
+
+    assert response.status_code == 200
+
+    assert {"name": "Computer Science", "description": "DS"} == json.loads(
+        response.data
+    )
+
+
+def test_department_route_no_json(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/department' page is requested (GET)
     THEN check that the response is valid
     """
     response = test_client.get("/department")
 
-    assert response.status_code == 200
+    assert response.status_code == 400
 
-    assert {"Hello": "There"} == json.loads(response.data)
+
+def test_department_route_incorrect_json(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/department' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/department", json={"wrong": "wrong"})
+
+    assert response.status_code == 400
 
 
 def test_profile_page(test_client: FlaskClient) -> None:
@@ -333,3 +357,25 @@ def test_courses_route_with_input_code(test_client: FlaskClient) -> None:
     for i, major in enumerate(json_data):
         assert major["code"] == course_data[0][i]
         assert major["name"] == course_data[1][i]
+
+
+def test_courses_route_no_json(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/courses' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/courses")
+
+    assert response.status_code == 400
+
+
+def test_courses_route_incorrect_json(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/courses' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/courses", json={"wrong": "wrong"})
+
+    assert response.status_code == 400
