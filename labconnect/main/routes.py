@@ -1,169 +1,100 @@
-from flask import abort, render_template, request
+from typing import Any
+from flask import abort, request
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
-from labconnect.models import Opportunities
+from labconnect.models import (
+    ClassYears,
+    Courses,
+    LabManager,
+    Leads,
+    Majors,
+    Opportunities,
+    RecommendsClassYears,
+    RecommendsCourses,
+    RecommendsMajors,
+    RPIDepartments,
+    RPISchools,
+)
 
 from . import main_blueprint
+
+# Example queries
+# @main_blueprint.route("/test")
+# def test():
+#     query = (
+#         db.session.query(Opportunities, Majors)
+#         .filter(Majors.major_code == "CSCI")
+#         .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
+#         .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+#     )
+#     query = (
+#         db.session.query(Opportunities, Majors)
+#         .filter(Opportunities.id == 2)
+#         .join(RecommendsMajors, Opportunities.id == RecommendsMajors.opportunity_id)
+#         .join(Majors, RecommendsMajors.major_code == Majors.major_code)
+#     )
+#     print(query)
+#     data = query.all()
+#     print(data)
+#     return {"Hello": "There"}
 
 
 @main_blueprint.route("/")
 def index():
-    return render_template("index.html")
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/opportunities")
 def positions():
-    return "Hello There"
-    # # pass objects into render_template. For example:
-    # # lines = ...
-    # # return render_template("opportunitys.html", lines=lines)
-
-    # """
-    # For each opportunity summary:
-    #     name of opportunity,
-    #     description,
-    #     recommended majors,
-    #     lab runners promoting,
-    #     all forms of compensation,
-    # Return only opportunities active in any given semester
-    # """
-
-    # # Requires application logic to update current semester
-    # current_semester = (2023, "Fall")
-
-    # TURN_OFF_SEMESTER_FILTER = False
-    # active_opp_ids = (
-    #     db.session.query(Opportunities.opp_id)
-    #     .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
-    #     .filter(
-    #         (ActiveSemesters.year == current_semester[0])
-    #         & (ActiveSemesters.season == current_semester[1])
-    #         | TURN_OFF_SEMESTER_FILTER
-    #     )
-    #     .order_by(Opportunities.opp_id)
-    # )
-
-    # names = (
-    #     db.session.query(Opportunities.name)
-    #     .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
-    #     .filter(
-    #         (ActiveSemesters.year == current_semester[0])
-    #         & (ActiveSemesters.season == current_semester[1])
-    #         | TURN_OFF_SEMESTER_FILTER
-    #     )
-    #     .order_by(Opportunities.opp_id)
-    # )
-
-    # descriptions = (
-    #     db.session.query(Opportunities.description)
-    #     .join(ActiveSemesters, ActiveSemesters.opportunity_id == Opportunities.opp_id)
-    #     .filter(
-    #         (ActiveSemesters.year == current_semester[0])
-    #         & (ActiveSemesters.season == current_semester[1])
-    #         | TURN_OFF_SEMESTER_FILTER
-    #     )
-    #     .order_by(Opportunities.opp_id)
-    # )
-
-    # majors = list()
-    # promoters = list()
-    # credits = list()
-    # salaries = list()
-    # upfront_pay = list()
-
-    # for opp_id in active_opp_ids.all():
-    #     # Access via opp_id[0]
-    #     majors.append(get_opportunity_recommended_majors(opp_id[0]))
-    #     promoters.append(get_opportunity_promoters(opp_id[0]))
-    #     credits.append(get_opportunity_course_credits(opp_id[0]))
-    #     salaries.append(get_opportunity_hourly_rates(opp_id[0]))
-    #     upfront_pay.append(get_opportunity_upfront_pay(opp_id[0]))
-
-    # print(active_opp_ids.all())
-    # print(names.all())
-    # print(descriptions.all())
-    # for eachlist in [majors, promoters, credits, salaries, upfront_pay]:
-    #     print("-" * 32)
-    #     for each in eachlist:
-    #         print(each.all())
-
-    # """
-    # result = joined_query1.all()
-    # joined_query1_rows = [", ".join(str(row).split(",")) for row in result]
-    # """
-
-    # return render_template(
-    #     "opportunitys.html",
-    #     names=names,
-    #     descriptions=descriptions,
-    #     majors=majors,
-    #     promoters=promoters,
-    #     credits=credits,
-    #     salaries=salaries,
-    #     upfront_pay=upfront_pay,
-    # )
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/opportunity/<int:id>")
 def opportunity(id: int):
-    return "General Kenobi"
-    # promoters_attr_names = ["rcs_id", "name"]
-
-    # promoters = get_opportunity_promoters(id).all()
-
-    # # Columns "course_code", "course_name"
-    # recommended_courses = get_opportunity_recommended_courses(id).all()
-
-    # # Columns "major_code", "major_name"
-    # recommended_majors = get_opportunity_recommended_majors(id).all()
-
-    # # Columns "class_year", "class_name"
-    # recommended_class_years = get_opportunity_recommended_class_years(id).all()
-
-    # # Columns "usd_per_hour"
-    # salaries = get_opportunity_hourly_rates(id).all()
-
-    # # Columns "usd"
-    # upfront_pay = get_opportunity_upfront_pay(id).all()
-
-    # # Columns "course_code", "number_of_credits"
-    # course_credits = get_opportunity_course_credits(id).all()
-
-    # # Columns "date"
-    # application_due_dates = get_opportunity_application_due_dates(id).all()
-
-    # # Columns "year", "season"
-    # active_semesters = get_opportunity_active_semesters(id).all()
-
-    # return render_template(
-    #     "opportunity_details.html",
-    #     promoters_attr_names=promoters_attr_names,
-    #     promoters=promoters,
-    #     recommended_courses=recommended_courses,
-    #     recommended_majors=recommended_majors,
-    #     recommended_class_years=recommended_class_years,
-    #     salaries=salaries,
-    #     upfront_pay=upfront_pay,
-    #     course_credits=course_credits,
-    #     application_due_dates=application_due_dates,
-    #     active_semesters=active_semesters,
-    # )
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/profile/<string:rcs_id>")
 def profile(rcs_id: str):
-    return render_template("profile.html")
+    return {"Hello": "There"}
 
 
-@main_blueprint.route("/department/<string:department>")
-def department(department: str):
-    return render_template("department.html")
+@main_blueprint.route("/department")
+def department():
+
+    ## TODO: Check if request has json
+    request_data = request.get_json()
+    # language = request_data["department"]
+    department = request_data.get("department", None)
+
+    # departmentOf department_name
+    data = db.first_or_404(
+        db.select(RPIDepartments.name, RPIDepartments.description, RPISchools.name)
+        .filter(RPIDepartments.name == department)
+        .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+    )
+    # data = data_query.all()
+    print(data)
+
+    professors = (
+        db.session.query(
+            # Need all professors
+            RPIDepartments.name
+        )
+        # Professors department needs to match department (data[0])
+        .filter(RPIDepartments.name == data[0])
+        # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+    ).first()
+
+    # rpidepartment.name
+
+    return {"department": data[0], "description": data[1], "school": data[2]}
 
 
 @main_blueprint.route("/discover")
 def discover():
-    return render_template("discover.html")
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/getOpportunity/<string:opp_id>", methods=["GET"])
@@ -332,14 +263,95 @@ def changeActiveStatus():
 
 @main_blueprint.route("/create_post", methods=["POST"])
 def create_post():
-    return "Creating POST"
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/login")
 def login():
-    return render_template("sign_in.html")
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/500")
-def force_error() -> str:
-    return str(10 / 0)
+def force_error():
+    abort(500)
+
+
+@main_blueprint.get("/schools")
+def schools() -> list[Any]:
+
+    data = db.session.execute(db.select(RPISchools).order_by(RPISchools.name)).scalars()
+    result = [school.to_dict() for school in data]
+
+    return result
+
+
+@main_blueprint.get("/departments")
+def departments() -> list[Any]:
+
+    data = db.session.execute(
+        db.select(RPIDepartments).order_by(RPIDepartments.name)
+    ).scalars()
+    result = [department.to_dict() for department in data]
+
+    return result
+
+
+@main_blueprint.get("/majors")
+def majors() -> list[Any]:
+
+    if request.data:
+        partial_key = request.get_json().get("input", None)
+
+        data = db.session.execute(
+            db.select(Majors)
+            .order_by(Majors.code)
+            .filter(
+                (Majors.code.ilike(f"%{partial_key}%"))
+                | (Majors.name.ilike(f"%{partial_key}%"))
+            )
+        ).scalars()
+        result = [major.to_dict() for major in data]
+
+        return result
+
+    data = db.session.execute(db.select(Majors).order_by(Majors.code)).scalars()
+    result = [major.to_dict() for major in data]
+
+    return result
+
+
+@main_blueprint.get("/years")
+def years() -> list[Any]:
+
+    data = db.session.execute(
+        db.select(ClassYears)
+        .order_by(ClassYears.class_year)
+        .filter(ClassYears.active == True)
+    ).scalars()
+    result = [year.class_year for year in data]
+
+    return result
+
+
+@main_blueprint.get("/courses")
+def courses() -> list[Any]:
+    if not request.data:
+        abort(400)
+
+    partial_key = request.get_json().get("input", None)
+
+    if not partial_key:
+        abort(400)
+
+    data = db.session.execute(
+        db.select(Courses)
+        .order_by(Courses.code)
+        .filter(
+            (Courses.code.ilike(f"%{partial_key}%"))
+            | (Courses.name.ilike(f"%{partial_key}%"))
+        )
+    ).scalars()
+
+    result = [course.to_dict() for course in data]
+
+    return result
