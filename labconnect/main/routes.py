@@ -63,33 +63,39 @@ def profile(rcs_id: str):
 @main_blueprint.route("/department")
 def department():
 
-    ## TODO: Check if request has json
-    request_data = request.get_json()
-    # language = request_data["department"]
-    department = request_data.get("department", None)
+    if not request.data:
+        abort(400)
+
+    department = request.get_json().get("department", None)
+
+    if not department:
+        abort(400)
 
     # departmentOf department_name
-    data = db.first_or_404(
-        db.select(RPIDepartments.name, RPIDepartments.description, RPISchools.name)
+    department_data = db.first_or_404(
+        db.select(RPIDepartments, RPISchools.name)
         .filter(RPIDepartments.name == department)
         .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
     )
-    # data = data_query.all()
-    print(data)
 
-    professors = (
-        db.session.query(
-            # Need all professors
-            RPIDepartments.name
-        )
-        # Professors department needs to match department (data[0])
-        .filter(RPIDepartments.name == data[0])
-        # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
-    ).first()
+    # print(data)
+
+    # professors = (
+    #     db.session.query(
+    #         # Need all professors
+    #         RPIDepartments.name
+    #     )
+    #     # Professors department needs to match department (data[0])
+    #     .filter(RPIDepartments.name == data[0])
+    #     # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+    # ).first()
 
     # rpidepartment.name
 
-    return {"department": data[0], "description": data[1], "school": data[2]}
+    # combine with professor dictionary
+    result = department_data.to_dict()
+    print(result)
+    return result
 
 
 @main_blueprint.route("/discover")
