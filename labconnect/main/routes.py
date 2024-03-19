@@ -1,3 +1,4 @@
+from typing import Any
 from flask import abort, request
 
 from labconnect import db
@@ -54,44 +55,20 @@ def opportunity(id: int):
     return {"Hello": "There"}
 
 
-@main_blueprint.route("/profile")
+@main_blueprint.get("/profile")
 def profile():
     request_data = request.get_json()
     rcs_id = request_data.get("Profile", {}).get("rcs_id", None)
 
-    data_query = (
-        db.session.query(LabManager, Opportunities)
+    data = db.seesion.execute(
+        db.select(LabManager, Opportunities)
         .filter(LabManager.rcs_id == rcs_id)
         .join(Leads, LabManager.rcs_id == Leads.lab_manager_rcs_id)
         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-    )
-    data = data_query.first()
-    lab_manager = data[0]
+    ).scalars()
+    result = [opportunity.to_dict() for opportunity in data]
 
-    # past_opportunities = request_data.get('Profile', {})['past_opportunities']
-    # currrent_opportunities = request_data.get('Profile', {})['currrent_opportunities']
-
-    return {
-        "Profile": {
-            "rcs_id": rcs_id,
-            "name": lab_manager.name,
-            "email": lab_manager.email,
-            "alt email": lab_manager.alt_email,
-            "phone_number": lab_manager.phone_number,
-            "website": lab_manager.website,
-            "departments": lab_manager.department_id,
-            "past_opportunities": [
-                {
-                    "professor": "Kuzman",
-                    "credits": 4,
-                    "description": "RCOS",
-                }
-            ],
-            "current_opportunities": [
-                {"professor": "Xiao", "credits": 4, "description": "DataStructures"}
-            ],
-        }
-    }
+    return result
 
 
 @main_blueprint.route("/department")
