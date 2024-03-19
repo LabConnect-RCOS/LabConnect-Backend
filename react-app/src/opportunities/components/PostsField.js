@@ -93,7 +93,7 @@ const PostsField = ({ activeId, setActive }) => {
   };
 
   return (
-    <div className="border-t border-b grid grid-cols-9">
+    <div className="postsfield-header">
       <div className="col-span-2">
         {DUMMY_JOBS.map((job) => {
           return (

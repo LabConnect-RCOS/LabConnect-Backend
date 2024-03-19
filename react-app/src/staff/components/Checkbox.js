@@ -7,7 +7,7 @@ const CheckBox = ({ formHook, errors, errorMessage, name, label, options }) => {
 
   return (
     <div>
-      <div className=" w-full max-w-xs">
+      <div className="check-input">
         <div className="label">
           <span className="label-text font-medium">{label}</span>
         </div>
@@ -15,7 +15,7 @@ const CheckBox = ({ formHook, errors, errorMessage, name, label, options }) => {
           <p className="text-red-500">{errorMessage}</p>
         )}
 
-        <div className="flex flex-col gap-2">
+        <div className="flex2 gap-2">
           {options &&
             options.map((item) => {
               return (

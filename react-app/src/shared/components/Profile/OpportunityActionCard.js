@@ -19,7 +19,7 @@ const OpportunityActionCard = ({
   const buttonClass = `btn-sm btn ${color}`;
 
   return (
-    <div className="min-h-48 max-h-48 hover:shadow-md duration-300 card card-compact w-64 p-1 bg-base-100">
+    <div className="opportunitycard">
       <div className="card-body">
         <h2
           className={`${
@@ -28,13 +28,13 @@ const OpportunityActionCard = ({
         >
           {title}
         </h2>
-        <p className="text-sm font-light p-0 m-0">{body}</p>
+        <p className="card2-body">{body}</p>
         <div className="card-actions justify-start">
           
           
           {/* Edit button */}
           <Link to={editPath}>
-            <button className="btn-sm btn btn-primary">Edit</button>
+            <button className="btn-sm btn2">Edit</button>
           </Link>
 
 
@@ -50,7 +50,7 @@ const OpportunityActionCard = ({
 
           {/* Delete Button */}
           <button
-            className={"btn-sm btn btn-primary"}
+            className={"btn-sm btn2"}
             onClick={() => {
               deleteOpp(id);
             }}
