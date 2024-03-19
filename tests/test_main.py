@@ -352,8 +352,6 @@ def test_courses_route_with_input_code(test_client: FlaskClient) -> None:
         ("Rensselaer Center for Open Source", "Data Mining", "Programming Languages"),
     )
 
-    print(json_data)
-
     for i, major in enumerate(json_data):
         assert major["code"] == course_data[0][i]
         assert major["name"] == course_data[1][i]
@@ -377,5 +375,49 @@ def test_courses_route_incorrect_json(test_client: FlaskClient) -> None:
     THEN check that the response is valid
     """
     response = test_client.get("/courses", json={"wrong": "wrong"})
+
+    assert response.status_code == 400
+
+
+def test_lab_manager_route_with_input_id(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/lab_manager' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/lab_manager", json={"input": "cs"})
+
+    assert response.status_code == 200
+
+    json_data = json.loads(response.data)
+
+    assert json_data == {
+        "website": None,
+        "rcs_id": "cenzar",
+        "name": "Rafael",
+        "alt_email": None,
+        "phone_number": None,
+        "email": None,
+    }
+
+
+def test_lab_manager_route_no_json(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/lab_manager' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/lab_manager")
+
+    assert response.status_code == 400
+
+
+def test_lab_manager_route_incorrect_json(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/lab_manager' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/lab_manager", json={"wrong": "wrong"})
 
     assert response.status_code == 400
