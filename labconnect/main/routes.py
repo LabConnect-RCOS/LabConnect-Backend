@@ -1,3 +1,4 @@
+from typing import Any
 from flask import abort, request
 
 from labconnect import db
@@ -61,37 +62,40 @@ def profile(rcs_id: str):
 
 @main_blueprint.route("/department")
 def department():
-    # return {"professors": ["Turner", "Kuzmin"], "projects": ["project1", "project2"]}
-    # department = request.args.get(department)
-    # @app.route('/json-example', methods=['POST'])
 
-    ## TODO: Check if request has json
-    request_data = request.get_json()
-    # language = request_data["department"]
-    department = request_data.get("department", None)
+    if not request.data:
+        abort(400)
+
+    department = request.get_json().get("department", None)
+
+    if not department:
+        abort(400)
 
     # departmentOf department_name
-    data = db.first_or_404(
-        db.select(RPIDepartments.name, RPIDepartments.description, RPISchools.name)
+    department_data = db.first_or_404(
+        db.select(RPIDepartments, RPISchools.name)
         .filter(RPIDepartments.name == department)
         .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
     )
-    # data = data_query.all()
-    print(data)
 
-    professors = (
-        db.session.query(
-            # Need all professors
-            RPIDepartments.name
-        )
-        # Professors department needs to match department (data[0])
-        .filter(RPIDepartments.name == data[0])
-        # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
-    ).first()
+    # print(data)
+
+    # professors = (
+    #     db.session.query(
+    #         # Need all professors
+    #         RPIDepartments.name
+    #     )
+    #     # Professors department needs to match department (data[0])
+    #     .filter(RPIDepartments.name == data[0])
+    #     # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+    # ).first()
 
     # rpidepartment.name
 
-    return {"department": data[0], "description": data[1], "school": data[2]}
+    # combine with professor dictionary
+    result = department_data.to_dict()
+    print(result)
+    return result
 
 
 @main_blueprint.route("/discover")
@@ -311,3 +315,84 @@ def login():
 @main_blueprint.route("/500")
 def force_error():
     abort(500)
+
+
+@main_blueprint.get("/schools")
+def schools() -> list[Any]:
+
+    data = db.session.execute(db.select(RPISchools).order_by(RPISchools.name)).scalars()
+    result = [school.to_dict() for school in data]
+
+    return result
+
+
+@main_blueprint.get("/departments")
+def departments() -> list[Any]:
+
+    data = db.session.execute(
+        db.select(RPIDepartments).order_by(RPIDepartments.name)
+    ).scalars()
+    result = [department.to_dict() for department in data]
+
+    return result
+
+
+@main_blueprint.get("/majors")
+def majors() -> list[Any]:
+
+    if request.data:
+        partial_key = request.get_json().get("input", None)
+
+        data = db.session.execute(
+            db.select(Majors)
+            .order_by(Majors.code)
+            .filter(
+                (Majors.code.ilike(f"%{partial_key}%"))
+                | (Majors.name.ilike(f"%{partial_key}%"))
+            )
+        ).scalars()
+        result = [major.to_dict() for major in data]
+
+        return result
+
+    data = db.session.execute(db.select(Majors).order_by(Majors.code)).scalars()
+    result = [major.to_dict() for major in data]
+
+    return result
+
+
+@main_blueprint.get("/years")
+def years() -> list[Any]:
+
+    data = db.session.execute(
+        db.select(ClassYears)
+        .order_by(ClassYears.class_year)
+        .filter(ClassYears.active == True)
+    ).scalars()
+    result = [year.class_year for year in data]
+
+    return result
+
+
+@main_blueprint.get("/courses")
+def courses() -> list[Any]:
+    if not request.data:
+        abort(400)
+
+    partial_key = request.get_json().get("input", None)
+
+    if not partial_key:
+        abort(400)
+
+    data = db.session.execute(
+        db.select(Courses)
+        .order_by(Courses.code)
+        .filter(
+            (Courses.code.ilike(f"%{partial_key}%"))
+            | (Courses.name.ilike(f"%{partial_key}%"))
+        )
+    ).scalars()
+
+    result = [course.to_dict() for course in data]
+
+    return result
