@@ -56,6 +56,21 @@ def department():
         .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
     )
 
+    # print(data)
+
+    # professors = (
+    #     db.session.query(
+    #         # Need all professors
+    #         RPIDepartments.name
+    #     )
+    #     # Professors department needs to match department (data[0])
+    #     .filter(RPIDepartments.name == data[0])
+    #     # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+    # ).first()
+
+    # rpidepartment.name
+
+    # combine with professor dictionary
     result = department_data.to_dict()
 
     if not request.data:
@@ -99,6 +114,31 @@ def department():
             print("^")
 
     result["opportunitys"] = opportunitys
+
+    # Might not need
+    if not request.data:
+        abort(400)
+
+    professors = request.get_json().get("department", None)
+
+    if not professors:
+        abort(400)
+
+    # departmentOf department_name
+    prof_data = db.first_or_404(
+        db.select(RPIDepartments, LabManager.name).filter(
+            LabManager.department_id == result[0]
+        )
+        # RPIDepartments.name == result[0]
+        # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+        .join(
+            RPIDepartments, LabManager.rcs_id, LabManager.name, LabManager.department_id
+        )
+        # rcs_id=row_tuple[0], name=row_tuple[1], department_id=row_tuple[2]
+        # , RPIDepartments.school_id == RPISchools.name)
+    )
+    result2 = prof_data.to_dict()
+    # return result2?
 
     return result
 
