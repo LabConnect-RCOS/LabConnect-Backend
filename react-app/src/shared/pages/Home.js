@@ -18,13 +18,22 @@ const Home = ({signOut, signIn}) => {
   
   return (
     <section>
-      Welcome to Labconnect!
       <br />
-        This is the hub to find and apply to research on campus!
+      <img src="../../../LabConnect_Logo.png" alt="Logo" className="flex justify-center"></img>
       <br />
-      <Link to="/jobs">
-        <button className="btn2">Find Jobs</button>
-      </Link>
+      <section className="text-center justify-center font-sans">
+        <p>
+          Welcome to LabConnect!
+        </p>
+        <p>
+          If you are a student looking to search for research opportunities, go to the <Link to="/jobs">Jobs</Link> tab to start.<br/>
+          If you are a teacher, go to <Link to="/createPost">Create Post</Link> to start posting opportunities or <Link to="/profile">Profile</Link> to view and edit your current posts.
+        </p>
+      </section>
+      
+      
+      
+
     </section>
   );
 };
