@@ -98,7 +98,7 @@ def department():
     # combine with professor dictionary
     result = department_data.to_dict()
 
-    print(result)
+    # print(result)
 
     # Might not need
     if not request.data:
@@ -110,22 +110,38 @@ def department():
         abort(400)
 
     # departmentOf department_name
-    prof_data = db.first_or_404(
-        db.select(RPIDepartments, LabManager.name).filter(
-            LabManager.department_id == result[0]
-        )
+    prof_data = db.session.execute(
+        db.select(LabManager.name).filter(LabManager.department_id == department)
         # RPIDepartments.name == result[0]
         # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
         .join(
-            RPIDepartments, LabManager.rcs_id, LabManager.name, LabManager.department_id
+            # Need =
+            RPIDepartments,
+            LabManager.department_id == RPIDepartments.name,
         )
+        # LabManager.rcs_id,
+        # LabManager.name,
+        # LabManager.department_id,
+        # )
         # rcs_id=row_tuple[0], name=row_tuple[1], department_id=row_tuple[2]
         # , RPIDepartments.school_id == RPISchools.name)
-    )
-    result2 = prof_data.to_dict()
+    ).scalars()
+    # print(department)
+    # for prof in prof_data:
+    # print(prof)
+    # prof.to_dict()
+
+    # print(prof_data)
+    # result2 = prof_data
+    # result2 = prof_data.todict()
+    # result2 = [prof_data.to_dict() for prof_data in data]
+    print(type(prof_data))
+    result2 = prof_data
+    # result2 = [prof.to_dict() for prof in prof_data]
+    # rcs_id=row_tuple[0], name=row_tuple[1], department_id=row_tuple[2]
     # return result2?
 
-    return result
+    return result2
 
 
 @main_blueprint.route("/discover")

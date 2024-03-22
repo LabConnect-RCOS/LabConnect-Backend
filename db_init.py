@@ -66,6 +66,7 @@ elif sys.argv[1] == "create":
         lab_manager_rows = (
             ("led", "Duy Le", "Computer Science"),
             ("cenzar", "Rafael", "Computer Science"),
+            
         )
 
         for row_tuple in lab_manager_rows:
