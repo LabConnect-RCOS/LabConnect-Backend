@@ -30,7 +30,7 @@ const EditInformation = ({className, id, name, department, researchCenter, descr
       onSubmit={handleSubmit((data) => {
         submitHandler(data);
       })}
-      className="flex flex-col gap-2"
+      className="flex2 gap-2"
     >
       <Input
         label="Description"
@@ -45,12 +45,12 @@ const EditInformation = ({className, id, name, department, researchCenter, descr
           }),
         }}
       />
-      <input type="submit" className="btn btn-primary" value="Save Changes" />
+      <input type="submit" className="btn2" value="Save Changes" />
     </form>
   );
 
   return (
-    <div className={`${className} font-light flex flex-col gap-2`}>
+    <div className={`${className} font-light flex2 gap-2`}>
       <h2 className="font-extrabold text-5xl">My Profile</h2>
       <div>
         <h3 className="text-lg">ID: {id}</h3>

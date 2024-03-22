@@ -13,16 +13,15 @@ usePageNavigation([Saved, Search, Bookmarks], active)
 */
 
 const PageNavigation = ({ title, pages, switchPage }) => {
-  const activeLink = "text-black py-3 border-b-2 border-black text-lg";
-  const normalLink =
-    "text-gray-600 py-3 text-lg hover:border-b-2 border-black hover:text-black";
+  const activeLink = "active-link";
+  const normalLink = "normal-link hover:border-b-2 hover:text-black";
 
   return (
     <div className="flex gap-5" style={{ alignItems: "center" }}>
       <h1 className="text-2xl font-bold">{title}</h1>
 
       <nav
-        className="text-base flex gap-4 justify-items-center font-semibold"
+        className="pagenav"
         style={{ alignItems: "center" }}
       >
         {pages.pages.map((page) => {
