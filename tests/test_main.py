@@ -118,15 +118,10 @@ def test_discover_route(test_client: FlaskClient) -> None:
     assert data["data"][0] == {
         "title": "Nelson",
         "major": "CS",
-        "attributes": [
-            "Competitive Pay",
-            "Four Credits",
-            "Three Credits"
-        ],
+        "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
         "credits": 4,
         "pay": 9000.0,
     }
-
 
 
 def test_login_page(test_client: FlaskClient) -> None:
