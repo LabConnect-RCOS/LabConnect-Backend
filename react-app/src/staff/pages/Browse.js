@@ -41,7 +41,7 @@ const Browse = () => {
   
   
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex2 gap-3">
       <PageNavigation
         title="Browse Staff"
         pages={pages}

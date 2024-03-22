@@ -5,7 +5,7 @@ import ProfileDescription from "./ProfileDescription";
 const CenterHero = () => {
   return (
     <div className="flex justify-center">
-      <div className="flex-col lg:flex-row flex gap-5">
+      <div className="flex2 lg:flex-row gap-5">
         <FeaturedImage />
         <ProfileDescription
           name={"CBIS"}
