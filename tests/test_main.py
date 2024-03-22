@@ -6,8 +6,8 @@ Test mains
 
 from flask import json
 from flask.testing import FlaskClient
-import json
-
+from labconnect.helpers import SemesterEnum
+from datetime import date
 
 def test_home_page(test_client: FlaskClient) -> None:
     """
@@ -151,35 +151,59 @@ def test_profile_route(test_client: FlaskClient) -> None:
     WHEN the '/profile/<user>' page is requested (GET)
     THEN check that the response is valid
     """
-    response = test_client.get("/profile")
+    response = test_client.get("/profile", json={"input": "rcs_id"})
     data = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 200
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-    assert b"Name:" in response.data
-    assert b"Department:" in response.data
-    assert b"Contact:" in response.data
-=======
->>>>>>> f022e2c (Updated queries)
-    assert data["Profile"]["rcs_id"] == "turnerw"
-    assert data["Profile"]["name"] == "Turner"
-    assert data["Profile"]["email"] == "turnerw@rpi.edu"
-    assert data["Profile"]["phone_number"] == "123-456-7890"
-    assert data["Profile"]["website"] == "turnerw.com"
-    assert data["Profile"]["title"] == "Professor"
-    assert data["Profile"]["departments"] == "CSCI"
-    assert data["Profile"]["past_opportunities"][0]["professor"] == "Kuzman"
-    assert data["Profile"]["past_opportunities"][0]["credits"] == 4
-    assert data["Profile"]["past_opportunities"][0]["description"] == "RCOS"
-    assert data["Profile"]["current_opportunities"][0]["professor"] == "Xiao"
-    assert data["Profile"]["current_opportunities"][0]["credits"] == 4
-    assert (
-        data["Profile"]["current_opportunities"][0]["description"] == "DataStructures"
+
+    json_data = json.loads(response.data)
+
+    profile_data = (
+        ("led", "cenzar"),
+        ("Duy Lee", "Rafael"),
+        ("Computer Science", "Computer Science"),
     )
-<<<<<<< HEAD
-=======
+
+    opportunity_data = (            
+        (
+            "Automated Cooling System",
+            "Energy efficient AC system",
+            "Thermodynamics",
+            15.0,
+            "4",
+            SemesterEnum.SPRING,
+            2024,
+            date.today(),
+            True,
+        ),
+        (
+            "Iphone 15 durability test",
+            "Scratching the Iphone, drop testing etc.",
+            "Experienced in getting angry and throwing temper tantrum",
+            None,
+            "1,2,3,4",
+            SemesterEnum.SPRING,
+            2024,
+            date.today(),
+            True,
+        ),
+    )
+
+    print(json_data)
+    for i, lab_manager in enumerate(json_data):
+        assert lab_manager["rcs_id"] == profile_data[0][i]
+        assert lab_manager["name"] == profile_data[1][i]
+        assert lab_manager["department_id"] == profile_data[2][i]
+
+    for i, opportunity in enumerate(json_data):
+        assert opportunity["name"] == opportunity_data[i][0]
+        assert opportunity["description"] == opportunity_data[i][1]
+        assert opportunity["recommended_experience"] == opportunity_data[i][2]
+        assert opportunity["pay"] == opportunity_data[i][3]
+        assert opportunity["credits"] == opportunity_data[i][4]
+        assert opportunity["semester"] == opportunity_data[i][5]
+        assert opportunity["year"] == opportunity_data[i][6]
+        assert opportunity["application_due"] == opportunity_data[i][7]
+        assert opportunity["active"] == opportunity_data[i][8]
 
 
 def test_tips_and_tricks_page(test_client: FlaskClient) -> None:
@@ -208,10 +232,6 @@ def test_info_page(test_client: FlaskClient) -> None:
     assert response.status_code == 200
     assert b"URP for Credit" in response.data
     assert b"URP for Funding" in response.data
->>>>>>> 01b2433 (Updated queries)
->>>>>>> f022e2c (Updated queries)
-=======
     assert b"Name:" in response.data
     assert b"Department:" in response.data
     assert b"Contact:" in response.data
->>>>>>> e389a38 (Rebase)
