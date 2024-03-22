@@ -106,9 +106,9 @@ def discover():
         # .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
         # .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
          db.select(Opportunities.id, Opportunities.name, Opportunities.description, Opportunities.pay, Opportunities.credits, Majors, RecommendsMajors)
-         .filter(Majors.major_code == "CSCI")
+         .filter(Majors.code == "CSCI")
          .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
-         .join(Majors, RecommendsMajors.major_code == Majors.major_code)
+         .join(Majors, RecommendsMajors.major_code == Majors.code)
         #commented out code above needs fixing
          
     )

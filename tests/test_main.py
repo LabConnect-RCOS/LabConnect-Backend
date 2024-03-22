@@ -116,17 +116,17 @@ def test_discover_route(test_client: FlaskClient) -> None:
     data = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 200
     assert data["data"][0] == {
-        "name": "Nelson",
+        "title": "Nelson",
         "major": "CS",
-        "experience": "x",
-        "description": "d",
+        "attributes": [
+            "Competitive Pay",
+            "Four Credits",
+            "Three Credits"
+        ],
         "credits": 4,
         "pay": 9000.0,
     }
 
-    assert response.status_code == 200
-
-    assert {"Hello": "There"} == json.loads(response.data)
 
 
 def test_login_page(test_client: FlaskClient) -> None:
