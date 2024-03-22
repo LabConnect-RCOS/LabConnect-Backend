@@ -12,9 +12,8 @@ from datetime import date
 from sqlalchemy import inspect, select
 
 from labconnect import create_app, db
-from labconnect.helpers import SemesterEnum
-from labconnect.models import LabManager  # Professors and Grad students
-from labconnect.models import (
+from labconnect.db_models import LabManager  # Professors and Grad students
+from labconnect.db_models import (
     ClassYears,
     Courses,
     Leads,
@@ -26,6 +25,7 @@ from labconnect.models import (
     RPIDepartments,
     RPISchools,
 )
+from labconnect.helpers import SemesterEnum
 
 app = create_app()
 
