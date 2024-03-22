@@ -4,6 +4,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+from spectree import SpecTree
 
 from labconnect.helpers import OrJSONProvider
 
@@ -11,6 +12,9 @@ csrf_protection = CSRFProtect()
 
 # Create Database object
 db = SQLAlchemy()
+
+# Create SpecTree object
+spec = SpecTree("flask", title="Labconnect backend API", path="doc", version="v1.0")
 
 
 def create_app() -> Flask:
@@ -35,6 +39,7 @@ def initialize_extensions(app) -> None:
     db.init_app(app)
     csrf_protection.init_app(app)
     app.json = OrJSONProvider(app)
+    spec.register(app)
 
     # Flask-Login configuration
     # from labconnect.models import RPIDepartments

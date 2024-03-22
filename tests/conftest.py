@@ -1,7 +1,7 @@
 import pytest
 
-from labconnect import create_app  # , db
-from labconnect.models import *
+from labconnect import create_app
+from labconnect.db_models import *
 
 # --------
 # Fixtures

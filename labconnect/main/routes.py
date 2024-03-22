@@ -1,9 +1,10 @@
 from typing import Any
-from flask import abort, request
 
-from labconnect import db
-from labconnect.helpers import SemesterEnum
-from labconnect.models import (
+from flask import abort, request
+from spectree import Response
+
+from labconnect import db, spec
+from labconnect.db_models import (
     ClassYears,
     Courses,
     LabManager,
@@ -16,6 +17,8 @@ from labconnect.models import (
     RPIDepartments,
     RPISchools,
 )
+from labconnect.helpers import SemesterEnum
+from labconnect.main.spec_models import CoursesSpecIn, CoursesSpecOut
 
 from . import main_blueprint
 
@@ -340,14 +343,19 @@ def years() -> list[Any]:
 
 
 @main_blueprint.get("/courses")
-def courses() -> list[Any]:
-    if not request.data:
-        abort(400)
+@spec.validate(
+    json=CoursesSpecOut,
+    resp=Response(HTTP_200=CoursesSpecIn, HTTP_403=None),
+    tags=["api"],
+)
+def courses() -> dict[str, list]:
+    # if not request.data:
+    #     abort(400)
 
     partial_key = request.get_json().get("input", None)
 
-    if not partial_key:
-        abort(400)
+    # if not partial_key:
+    #     abort(400)
 
     data = db.session.execute(
         db.select(Courses)
@@ -358,6 +366,6 @@ def courses() -> list[Any]:
         )
     ).scalars()
 
-    result = [course.to_dict() for course in data]
+    result = {"data": [course.to_dict() for course in data]}
 
     return result
