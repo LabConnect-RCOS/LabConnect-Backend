@@ -6,6 +6,7 @@ Test mains
 
 from flask import json
 from flask.testing import FlaskClient
+import json
 
 from labconnect.helpers import SemesterEnum
 
@@ -170,17 +171,22 @@ def test_opportunity_incorrect_json(test_client: FlaskClient) -> None:
     assert response.status_code == 400
 
 
-def test_discover_page(test_client: FlaskClient) -> None:
+def test_discover_route(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/discover' page is requested (GET)
     THEN check that the response is valid
     """
     response = test_client.get("/discover")
-
+    data = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 200
-
-    assert {"Hello": "There"} == json.loads(response.data)
+    assert data["data"][0] == {
+        "title": "Nelson",
+        "major": "CS",
+        "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
+        "credits": 4,
+        "pay": 9000.0,
+    }
 
 
 def test_login_page(test_client: FlaskClient) -> None:
