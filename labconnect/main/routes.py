@@ -19,26 +19,6 @@ from labconnect.models import (
 
 from . import main_blueprint
 
-# Example queries
-# @main_blueprint.route("/test")
-# def test():
-#     query = (
-#         db.session.query(Opportunities, Majors)
-#         .filter(Majors.major_code == "CSCI")
-#         .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
-#         .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
-#     )
-#     query = (
-#         db.session.query(Opportunities, Majors)
-#         .filter(Opportunities.id == 2)
-#         .join(RecommendsMajors, Opportunities.id == RecommendsMajors.opportunity_id)
-#         .join(Majors, RecommendsMajors.major_code == Majors.major_code)
-#     )
-#     print(query)
-#     data = query.all()
-#     print(data)
-#     return {"Hello": "There"}
-
 
 @main_blueprint.route("/")
 def index():
@@ -138,7 +118,7 @@ def getOpportunity():
 
 
 @main_blueprint.get("/lab_manager/opportunities")
-def getProfessorOpportunityCards() -> dict[Any, list[Any]]:
+def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     if not request.data:
         abort(400)
 
@@ -147,15 +127,18 @@ def getProfessorOpportunityCards() -> dict[Any, list[Any]]:
     if not rcs_id:
         abort(400)
 
-    data = db.execute(
-        db.select(LabManager.rcs_id, Opportunities)
+    data = db.session.execute(
+        db.select(Opportunities, LabManager)
         .filter(LabManager.rcs_id == rcs_id)
-        .join(LabManager.rcs_id == Leads.lab_manager_rcs_id)
-        .join(Leads.opportunity_id == Opportunities.id)
+        .join(Leads, LabManager.rcs_id == Leads.lab_manager_rcs_id)
+        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         .order_by(Opportunities.id)
     ).scalars()
 
-    result = {data[0]: [opportunity.to_dict() for opportunity in data]}
+    if not data:
+        abort(404)
+
+    result = {rcs_id: [opportunity.to_dict() for opportunity in data]}
 
     return result
 
@@ -219,6 +202,10 @@ def force_error():
 def schools() -> list[Any]:
 
     data = db.session.execute(db.select(RPISchools).order_by(RPISchools.name)).scalars()
+
+    if not data:
+        abort(404)
+
     result = [school.to_dict() for school in data]
 
     return result
@@ -230,6 +217,10 @@ def departments() -> list[Any]:
     data = db.session.execute(
         db.select(RPIDepartments).order_by(RPIDepartments.name)
     ).scalars()
+
+    if not data:
+        abort(404)
+
     result = [department.to_dict() for department in data]
 
     return result
@@ -249,11 +240,19 @@ def majors() -> list[Any]:
                 | (Majors.name.ilike(f"%{partial_key}%"))
             )
         ).scalars()
+
+        if not data:
+            abort(404)
+
         result = [major.to_dict() for major in data]
 
         return result
 
     data = db.session.execute(db.select(Majors).order_by(Majors.code)).scalars()
+
+    if not data:
+        abort(404)
+
     result = [major.to_dict() for major in data]
 
     return result
@@ -267,6 +266,10 @@ def years() -> list[Any]:
         .order_by(ClassYears.class_year)
         .filter(ClassYears.active == True)
     ).scalars()
+
+    if not data:
+        abort(404)
+
     result = [year.class_year for year in data]
 
     return result
@@ -290,6 +293,9 @@ def courses() -> list[Any]:
             | (Courses.name.ilike(f"%{partial_key}%"))
         )
     ).scalars()
+
+    if not data:
+        abort(404)
 
     result = [course.to_dict() for course in data]
 
