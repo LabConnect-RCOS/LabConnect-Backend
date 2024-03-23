@@ -7,6 +7,8 @@ Test mains
 from flask import json
 from flask.testing import FlaskClient
 
+from labconnect.helpers import SemesterEnum
+
 
 def test_home_page(test_client: FlaskClient) -> None:
     """
@@ -21,88 +23,151 @@ def test_home_page(test_client: FlaskClient) -> None:
     assert {"Hello": "There"} == json.loads(response.data)
 
 
-def test_professor_profile(test_client: FlaskClient) -> None:
-
-    response = test_client.get("/getProfessorProfile/d1")
-    assert response.status_code == 200
-
-    # Load the response data as JSON
-    data = json.loads(response.data)
-
-    # Test that the "name" key exists
-    assert "name" in data
-    assert "image" in data
-    assert "researchCenter" in data
-    assert "department" in data
-    assert "description" in data
-
-
-def test_get_professor_meta(test_client: FlaskClient) -> None:
+def test_professor_opportunity_cards(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
-    WHEN the '/getProfessorMeta' endpoint is requested (GET) with valid data
-    THEN check that the response is valid and contains expected professor data
+    WHEN the '/lab_manager/opportunities' page is requested (GET)
+    THEN check that the response is valid
     """
+    response = test_client.get("/lab_manager/opportunities", json={"rcs_id": "cenzar"})
 
-    test_data = {
-        "user_id": "some_user_id",  # Replace with a valid user ID
-        "authToken": "some_auth_token",  # Replace with a valid token
-    }
+    assert response.status_code == 200
 
-    response = test_client.get(
-        "/getProfessorMeta", data=json.dumps(test_data), content_type="application/json"
+    json_data = json.loads(response.data)
+
+    lab_manager_opportunities_data = (
+        (
+            "Automated Cooling System",
+            "Energy efficient AC system",
+            "Thermodynamics",
+            15.0,
+            "4",
+            "Spring",
+            2024,
+            True,
+        ),
+        (
+            "Iphone 15 durability test",
+            "Scratching the Iphone, drop testing etc.",
+            "Experienced in getting angry and throwing temper tantrum",
+            None,
+            "1,2,3,4",
+            "Spring",
+            2024,
+            True,
+        ),
     )
 
-    assert response.status_code == 200
-
-    data = json.loads(response.data)
-
-    # Assertions on the expected data
-    assert "name" in data
-    assert "image" in data
-    assert "researchCenter" in data
-    assert "department" in data
-    assert "description" in data
-    assert "phone" in data
+    for i, item in enumerate(json_data["cenzar"]):
+        assert item["name"] == lab_manager_opportunities_data[i][0]
+        assert item["description"] == lab_manager_opportunities_data[i][1]
+        assert item["recommended_experience"] == lab_manager_opportunities_data[i][2]
+        assert item["pay"] == lab_manager_opportunities_data[i][3]
+        assert item["credits"] == lab_manager_opportunities_data[i][4]
+        assert item["semester"] == lab_manager_opportunities_data[i][5]
+        assert item["year"] == lab_manager_opportunities_data[i][6]
+        assert item["active"] == lab_manager_opportunities_data[i][7]
 
 
-def test_professor_opportunity_cards(test_client: FlaskClient) -> None:
+def test_professor_opportunity_cards_no_json(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/lab_manager/opportunities' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/lab_manager/opportunities")
 
-    response = test_client.get("/getProfessorOpportunityCards/d1")
-    assert response.status_code == 200
+    assert response.status_code == 400
 
-    # Load the response data as JSON
-    data = json.loads(response.data.decode("utf-8"))
 
-    # Test that the "name" key exists
-    assert len(data.keys()) > 0
-    assert "d1" in data.keys()
-    print(data)
-    for eachCard in data["d1"]:
-        assert "title" in eachCard
-        assert "body" in eachCard
-        assert "attributes" in eachCard
-        assert "id" in eachCard
+def test_professor_opportunity_cards_incorrect_json(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/lab_manager/opportunities' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/lab_manager/opportunities", json={"wrong": "wrong"})
+
+    assert response.status_code == 400
 
 
 def test_get_opportunity(test_client: FlaskClient) -> None:
-    response = test_client.get("/getOpportunity/o1")
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/opportunity' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response1 = test_client.get("/opportunity", json={"id": 1})
+    response2 = test_client.get("/opportunity", json={"id": 2})
 
-    assert response.status_code == 200
+    assert response1.status_code == 200
+    assert response2.status_code == 200
 
-    # Load the response data as JSON
-    data = json.loads(response.data.decode("utf-8"))
+    json_data1 = json.loads(response1.data)
+    json_data2 = json.loads(response2.data)
 
-    # Test that the "name" key exists
-    assert "title" in data
-    assert "location" in data
-    assert "date" in data
-    assert "author" in data
-    assert "credits" in data  # and data["credits"] is int
-    assert "description" in data  # and data["description"] is str
-    assert "salary" in data  # and data["salary"] is int
-    assert "upfrontPay" in data  # and data["upfrontPay"] is int
-    assert "years" in data  # and data["years"] is list
+    lab_manager_opportunities_data = (
+        (
+            "Automated Cooling System",
+            "Energy efficient AC system",
+            "Thermodynamics",
+            15.0,
+            "4",
+            "Spring",
+            2024,
+            True,
+        ),
+        (
+            "Iphone 15 durability test",
+            "Scratching the Iphone, drop testing etc.",
+            "Experienced in getting angry and throwing temper tantrum",
+            None,
+            "1,2,3,4",
+            "Spring",
+            2024,
+            True,
+        ),
+    )
+
+    assert json_data1["name"] == lab_manager_opportunities_data[0][0]
+    assert json_data1["description"] == lab_manager_opportunities_data[0][1]
+    assert json_data1["recommended_experience"] == lab_manager_opportunities_data[0][2]
+    assert json_data1["pay"] == lab_manager_opportunities_data[0][3]
+    assert json_data1["credits"] == lab_manager_opportunities_data[0][4]
+    assert json_data1["semester"] == lab_manager_opportunities_data[0][5]
+    assert json_data1["year"] == lab_manager_opportunities_data[0][6]
+    assert json_data1["active"] == lab_manager_opportunities_data[0][7]
+
+    assert json_data2["name"] == lab_manager_opportunities_data[1][0]
+    assert json_data2["description"] == lab_manager_opportunities_data[1][1]
+    assert json_data2["recommended_experience"] == lab_manager_opportunities_data[1][2]
+    assert json_data2["pay"] == lab_manager_opportunities_data[1][3]
+    assert json_data2["credits"] == lab_manager_opportunities_data[1][4]
+    assert json_data2["semester"] == lab_manager_opportunities_data[1][5]
+    assert json_data2["year"] == lab_manager_opportunities_data[1][6]
+    assert json_data2["active"] == lab_manager_opportunities_data[1][7]
+
+
+def test_get_opportunity_no_json(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/opportunity' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/opportunity")
+
+    assert response.status_code == 400
+
+
+def test_opportunity_incorrect_json(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/opportunity' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/opportunity", json={"wrong": "wrong"})
+
+    assert response.status_code == 400
 
 
 def test_discover_page(test_client: FlaskClient) -> None:
@@ -385,13 +450,13 @@ def test_lab_manager_route_with_input_id(test_client: FlaskClient) -> None:
     WHEN the '/lab_manager' page is requested (GET)
     THEN check that the response is valid
     """
-    response = test_client.get("/lab_manager", json={"input": "cs"})
+    response = test_client.get("/lab_manager", json={"rcs_id": "cenzar"})
 
     assert response.status_code == 200
 
     json_data = json.loads(response.data)
 
-    assert json_data == {
+    cenzar_data = {
         "website": None,
         "rcs_id": "cenzar",
         "name": "Rafael",
@@ -399,6 +464,8 @@ def test_lab_manager_route_with_input_id(test_client: FlaskClient) -> None:
         "phone_number": None,
         "email": None,
     }
+
+    assert json_data == cenzar_data
 
 
 def test_lab_manager_route_no_json(test_client: FlaskClient) -> None:
