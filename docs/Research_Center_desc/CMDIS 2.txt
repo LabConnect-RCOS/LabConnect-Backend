@@ -1,0 +1,4 @@
+ABOUT:The broad research vision of the cMDIS is to integrate research capabilities and expertise across the broad spectrum of engineering, physical, chemical sciences at Rensselaer. We are always striving to build a cohesive community equipped to tackle research challenges that are at the forefront of the national agenda and that underpin technological advances that address global economic, security, and sustainability challenges.
+AFFILIATES: CASE,CATS,CFES,LESA,RNC,SCOREC
+MAJORS:ALL
+FACULTY:

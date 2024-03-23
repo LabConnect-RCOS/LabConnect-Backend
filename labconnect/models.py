@@ -2,7 +2,7 @@ from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 
 from labconnect import db
-from labconnect.helpers import CustomSerializerMixin, SemesterEnum
+from labconnect.helpers import CustomSerializerMixin, SemesterEnum, LeadsCustomSerializerMixin
 
 # DD - Entities
 
@@ -80,6 +80,7 @@ class Opportunities(db.Model, CustomSerializerMixin):
         "year",
         "application_due",
         "active",
+        # "lab_managers",
     )
     serialize_rules = ()
 
@@ -157,8 +158,11 @@ class ClassYears(db.Model, CustomSerializerMixin):
 
 
 # leads( lab_manager_rcs_id, opportunity_id ), key: (lab_manager_rcs_id, opportunity_id)
-class Leads(db.Model):
+class Leads(db.Model, LeadsCustomSerializerMixin):
     __tablename__ = "leads"
+    
+    serialize_only = ("lab_manager_rcs_id", "opportunity_id")
+    serialize_rules = ()
 
     lab_manager_rcs_id = db.Column(
         db.String(9), db.ForeignKey("lab_manager.rcs_id"), primary_key=True

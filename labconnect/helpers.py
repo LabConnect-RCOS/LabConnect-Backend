@@ -21,9 +21,28 @@ class OrJSONProvider(JSONProvider):
     def loads(self, s, **kwargs):
         return orjson.loads(s)
 
+class LeadsCustomSerializerMixin(SerializerMixin):
+    # date_format = "%s"  # Unixtimestamp (seconds)
+    # datetime_format = "%Y %b %d %H:%M:%S.%f"
+    # time_format = "%H:%M.%f"
+    professor = "lab_manager.name"
+    pass
 
 class CustomSerializerMixin(SerializerMixin):
     # date_format = "%s"  # Unixtimestamp (seconds)
     # datetime_format = "%Y %b %d %H:%M:%S.%f"
     # time_format = "%H:%M.%f"
     decimal_format = "{:0>10.3}"
+
+# pass in a tuple of opportunity, lead, labmanager
+def serializeOpportunity(data):
+    oppData = data[0].to_dict()
+    oppData["professor"] = data[2].name
+    oppData["department"] = data[2].department_id
+    
+    return oppData
+    
+    
+    
+    
+    

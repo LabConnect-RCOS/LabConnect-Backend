@@ -103,126 +103,116 @@ def discover():
     return {"Hello": "There"}
 
 
-@main_blueprint.route("/getOpportunity/<string:opp_id>", methods=["GET"])
-def getOpportunity(opp_id: str):
-    if request.method == "GET":
-        # query database for opportunity
-
-        # return data in the below format if opportunity is found
-        return {
-            "id": "u1",
-            "title": "Software Engineer",
-            "department": "Computer Science",
-            "location": "Sage Hall",
-            "date": "2024-02-23",
-            "author": "John Doe",
-            "credits": 2,
-            "description": "This is a description",
-            "salary": 15,
-            "upfrontPay": 200,
-            "years": ["Freshman", "Junior", "Sophomore"],
-        }
-
-    abort(500)
-
-
 @main_blueprint.route("/getProfessorProfile/<string:rcs_id>", methods=["GET"])
 def getProfessorProfile(rcs_id: str):
     # test code until database code is added
     if request.method == "GET":
+        
+        query = db.session.execute(
+            db.select(LabManager)
+            .filter(LabManager.rcs_id == rcs_id)
+        )
+        
+        data = query.all()[0][0]
+        
+        return data.to_dict()
+        
+        # return {
+        #     "name": "Peter Johnson",
+        #     "image": "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
+        #     "researchCenter": "Computational Fake Center",
+        #     "department": "Computer Science",
+        #     "description": """Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        # eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+        # pharetra sit amet aliquam id diam maecenas ultricies mi. Montes
+        # nascetur ridiculus mus mauris vitae ultricies leo. Porttitor massa
+        # id neque aliquam. Malesuada bibendum arcu vitae elementum. Nulla
+        # aliquet porrsus mattis molestie aiaculis at erat pellentesque. 
+        # At risus viverra adipiscing at.
+        # Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu
+        # feugiat. Eget fUt eu sem integer vitae justo
+        # eget magna fermentum. Lobortis feugiat vivamus at augue eget arcu
+        # dictum. Et tortor at risus viverra adipiscing at in tellus.
+        # Suspendisse sed nisi lacus sed viverra tellus. Potenti nullam ac
+        # tortor vitae. Massa id neque aliquam vestibulum. Ornare arcu odio ut
+        # sem nulla pharetra. Quam id leo in vitae turpis massa. Interdum
+        # velit euismod in pellentesque massa placerat duis ultricies lacus.
+        # Maecenas sed enim ut sem viverra aliquet eget sit amet. Amet
+        # venenatis urna cursus eget nunc scelerisque viverra mauris. Interdum
+        # varius sit amet mattis. Aliquet nec ullamcorper sit amet risus
+        # nullam. Aliquam faucibus purus in massa tempor nec feugiat. Vitae
+        # turpis massa sed elementum tempus. Feugiat in ante metus dictum at
+        # tempor. Malesuada nunc vel risus commodo viverra maecenas accumsan.
+        # Integer vitae justo.""",
+        # }
+
+    abort(500)
+
+
+@main_blueprint.route("/getOpportunity/<string:opp_id>", methods=["GET"])
+def getOpportunity(opp_id: str):
+    if request.method == "GET":
+        # query database for opportunity
+        query = db.session.execute(
+            db.select(Opportunities, Leads, LabManager)
+            .filter(Opportunities.id == 2)
+            .join(Leads, Leads.opportunity_id == Opportunities.id)
+            .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+        )
+        data = query.all()[0]
+        print("printing query")
+        print(data)
+        
+        oppData = data[0].to_dict()
+        oppData["professor"] = data[2].name
+        oppData["department"] = data[2].department_id
+        
+        # return data in the below format if opportunity is found
         return {
-            "name": "Peter Johnson",
-            "image": "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
-            "researchCenter": "Computational Fake Center",
-            "department": "Computer Science",
-            "description": """Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-        pharetra sit amet aliquam id diam maecenas ultricies mi. Montes
-        nascetur ridiculus mus mauris vitae ultricies leo. Porttitor massa
-        id neque aliquam. Malesuada bibendum arcu vitae elementum. Nulla
-        aliquet porrsus mattis molestie aiaculis at erat pellentesque. 
-        At risus viverra adipiscing at.
-        Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu
-        feugiat. Eget fUt eu sem integer vitae justo
-        eget magna fermentum. Lobortis feugiat vivamus at augue eget arcu
-        dictum. Et tortor at risus viverra adipiscing at in tellus.
-        Suspendisse sed nisi lacus sed viverra tellus. Potenti nullam ac
-        tortor vitae. Massa id neque aliquam vestibulum. Ornare arcu odio ut
-        sem nulla pharetra. Quam id leo in vitae turpis massa. Interdum
-        velit euismod in pellentesque massa placerat duis ultricies lacus.
-        Maecenas sed enim ut sem viverra aliquet eget sit amet. Amet
-        venenatis urna cursus eget nunc scelerisque viverra mauris. Interdum
-        varius sit amet mattis. Aliquet nec ullamcorper sit amet risus
-        nullam. Aliquam faucibus purus in massa tempor nec feugiat. Vitae
-        turpis massa sed elementum tempus. Feugiat in ante metus dictum at
-        tempor. Malesuada nunc vel risus commodo viverra maecenas accumsan.
-        Integer vitae justo.""",
+            "data" : oppData
         }
 
     abort(500)
 
 
-@main_blueprint.route("/getProfessorOpportunityCards/<string:rcs_id>", methods=["GET"])
-def getProfessorOpportunityCards(rcs_id: str):
-    # test code until database code is added
+@main_blueprint.route("/getOpportunities", methods=["GET"])
+def getOpportunities():
     if request.method == "GET":
-
-        # query database for opportunities
-
-        # return opportunities
+        # query database for opportunity
+        query = db.session.execute(
+            db.select(Opportunities, Leads, LabManager)
+            .join(Leads, Leads.opportunity_id == Opportunities.id)
+            .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+        )
+        data = query.all()
+        
+        # return data in the below format if opportunity is found
         return {
-            rcs_id: [
-                {
-                    "title": "Chemistry Intern",
-                    "body": "Due February 15, 2023",
-                    "attributes": ["Remote", "Paid", "Credits"],
-                    "id": "o1",
-                },
-                {
-                    "title": "Chemistry Intern",
-                    "body": "Due February 15, 2023",
-                    "attributes": ["Remote", "Paid", "Credits"],
-                    "id": "o2",
-                },
-                {
-                    "title": "Chemistry Intern",
-                    "body": "Due February 15, 2023",
-                    "attributes": ["Remote", "Paid", "Credits"],
-                    "id": "o3",
-                },
-                {
-                    "title": "Chemistry Intern",
-                    "body": "Due February 15, 2023",
-                    "attributes": ["Remote", "Paid", "Credits"],
-                    "id": "o4",
-                },
-            ]
+            "data" : [opportunity[0].to_dict() for opportunity in data]
         }
+
     abort(500)
 
-
-@main_blueprint.route("/getProfessorMeta", methods=["GET"])
-def getProfessorMeta():
+@main_blueprint.route("/getProfessorMeta/<string:rcs_id>", methods=["GET"])
+def getProfessorMeta(rcs_id: str):
     if request.method == "GET":
-        data = request.json
+        # data = request.json
 
-        user_id = data["user_id"]
-        auth_token = data["authToken"]
+        # user_id = data["user_id"]
+        # auth_token = data["authToken"]
 
         # query database to match user id and password from data received
+        query = db.session.execute(
+            db.select(LabManager)
+            .filter(LabManager.rcs_id == rcs_id)
+        )
 
         # if match, return user data
         # more fields to be added here later
+        
+        data = (query.all()[0][0])
 
-        return {
-            "name": "Dr. Peter Johnson",
-            "department": "Computer Science",
-            "researchCenter": "Computational Fake Center",
-            "email": "johnj@rpi.edu",
-            "phone": "518-123-4567",
-            "description": """Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do""",
-            "image": "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
-        }
+        return data.to_dict()
 
     abort(500)
 
@@ -238,20 +228,32 @@ def deleteOpportunity():
         data = request.json
         postID = data["postID"]
         authToken = data["authToken"]
-        authorID = data["authToken"]
+        authorID = data["authorID"]
+        
+        query = db.session.execute(
+            db.select(Leads, Opportunities)
+            .filter(Leads.opportunity_id == postID)
+            .filter(Leads.lab_manager_rcs_id == authorID)
+            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+        )
+        
+        data = query.all()
 
         # query database to see if the credentials above match
-
+        print("pritning data")
+        data = data[0][0]
+        
+        # data.delete()
         # if match is found, delete the opportunity, return status 200
 
-        abort(200)
+        return {"name":"Done"}
 
     abort(500)
 
 
 @main_blueprint.route("/changeActiveStatus", methods=["DELETE", "POST"])
 def changeActiveStatus():
-    if request.method in ["DELETE", "POST"]:
+    if request.method in ["POST"]:
         data = request.json
         postID = data["postID"]
         authToken = data["authToken"]
@@ -259,8 +261,94 @@ def changeActiveStatus():
         setStatus = data["setStatus"]
 
         # query database to see if the credentials above match
+        query = db.session.execute(
+            db.select(Leads, Opportunities)
+            .filter(Leads.opportunity_id == postID)
+            .filter(Leads.lab_manager_rcs_id == authorID)
+            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+        )
+        
+        data = query.all()[0][0]
+        data.active = setStatus
 
         # if match is found, change the opportunities active status to true or false based on setStatus
+
+        abort(200)
+
+    abort(500)
+
+@main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
+def editOpportunity():
+    if request.method in ["POST"]:
+        data = request.json
+        postID = data["postID"]
+        authToken = data["authToken"]
+        authorID = data["authorID"]
+        newPostData = data["newPostData"]
+
+        # query database to see if the credentials above match
+        query = db.session.execute(
+            db.select(Leads, Opportunities)
+            .filter(Leads.opportunity_id == postID)
+            .filter(Leads.lab_manager_rcs_id == authorID)
+            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+        )
+        
+        data = query.all()[0][0]
+        
+        # if match is found, edit the opportunity with the new data provided
+        data.name = newPostData["name"]
+        data.description = newPostData["description"]
+        data.recommended_experience = newPostData["recommended_experience"]
+        data.pay = newPostData["pay"]
+        data.credits = newPostData["credits"]
+        data.semester = newPostData["semester"]
+        data.year = newPostData["year"]
+        data.application_due = newPostData["application_due"]
+        data.active = newPostData["active"]
+
+        abort(200)
+
+    abort(500)
+
+
+@main_blueprint.route("/createOpportunity", methods=["POST"])
+def createOpportunity():
+    if request.method == "POST":
+        data = request.json
+        authorID = data["authorID"]
+        newPostData = data["newPostData"]
+
+        # query database to see if the credentials above match
+        query = db.session.execute(
+            db.select(LabManager)
+            .filter(LabManager.rcs_id == authorID)
+        )
+        
+        data = query.all()[0][0]
+        
+        # TODO: how do we get the opportunity id?
+        # if match is found, create a new opportunity with the new data provided
+        newOpportunity = Opportunities(
+            name = newPostData["name"],
+            description = newPostData["description"],
+            recommended_experience = newPostData["recommended_experience"],
+            pay = newPostData["pay"],
+            credits = newPostData["credits"],
+            semester = newPostData["semester"],
+            year = newPostData["year"],
+            application_due = newPostData["application_due"],
+            active = newPostData["active"]
+        )
+        
+        newLead = Leads(
+            lab_manager_rcs_id = authorID,
+            opportunity_id = newOpportunity.id
+        )
+
+        db.session.add(newOpportunity)
+        db.session.add(newLead)
+        db.session.commit()
 
         abort(200)
 
