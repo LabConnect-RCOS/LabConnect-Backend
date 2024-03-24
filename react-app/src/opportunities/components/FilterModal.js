@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Backdrop, Fade } from "@mui/material"; // Import modal components from Material-UI
+import { Modal, Backdrop, Fade, Typography, Checkbox, FormControlLabel, Select, MenuItem } from "@mui/material";
 
 const FilterModal = ({ open, handleClose }) => {
   return (
@@ -8,73 +8,98 @@ const FilterModal = ({ open, handleClose }) => {
       onClose={handleClose}
       aria-labelledby="transition-modal-title"
       aria-describedby="transition-modal-description"
+      closeAfterTransition
       BackdropComponent={Backdrop}
       BackdropProps={{
         timeout: 500,
       }}
     >
-      <div className="modal">
-        <div className="modal-content">
-          {/* Modal content (filter options) */}
-          <h2 id="transition-modal-title">Filter Options</h2>
-          <div id="transition-modal-description">
-          <h3>Major</h3>
-            <label>
-              <input type="checkbox" /> Computer Science
-            </label>
-            <label>
-              <input type="checkbox" /> ITWS
-            </label>
-            <label>
-              <input type="checkbox" /> Mechanical Engineering
-            </label>
-
-            <h3>Pay</h3>
-            <label>
-              <input type="checkbox" /> Paid
-            </label>
-            <label>
-              <input type="checkbox" /> Credit
-            </label>
-            <label>
-              <input type="checkbox" /> Pay + Credit
-            </label>
-
-            <h3>Onsite/remote</h3>
-            <label>
-              <input type="checkbox" /> In person
-            </label>
-            <label>
-              <input type="checkbox" /> Virtual
-            </label>
-
-            <h3>Qualifications</h3>
-            <label>
-              <input type="checkbox" /> Major
-            </label>
-            <label>
-              <input type="checkbox" /> GPA
-            </label>
-            <label>
-              <input type="checkbox" /> School Year
-            </label>
-            <label>
-              <input type="checkbox" /> Graduation Date
-            </label>
-
-            <h3>Work Authorization</h3>
-            <label>
-              <input type="checkbox" /> Jobs that do not require US work authorization
-            </label>
-            <label>
-              <input type="checkbox" /> Jobs that are eligible for US visa sponsorship
-            </label>
-            <label>
-              <input type="checkbox" /> Jobs that are open to candidates with Curricular Practical Training (CPT) and/or Optional Practical Training (OPT)
-            </label>
+      <Fade in={open}>
+        <div style={{
+          backgroundColor: 'white',
+          padding: 20,
+          width: 400,
+          maxWidth: '90%',
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          outline: 'none',
+          borderRadius: 8,
+        }}>
+          <Typography variant="h5" gutterBottom>
+            Filter Options
+          </Typography>
+          <div>
+            <Typography variant="h6" gutterBottom>
+              Major
+            </Typography>
+            <FormControlLabel
+              control={<Checkbox />}
+              label="Computer Science"
+            />
+            <FormControlLabel
+              control={<Checkbox />}
+              label="ITWS"
+            />
+            <FormControlLabel
+              control={<Checkbox />}
+              label="Mechanical Engineering"
+            />
+          </div>
+          <div>
+            <Typography variant="h6" gutterBottom>
+              Pay
+            </Typography>
+            <FormControlLabel
+              control={<Checkbox />}
+              label="Paid"
+            />
+            <FormControlLabel
+              control={<Checkbox />}
+              label="Credit"
+            />
+            <FormControlLabel
+              control={<Checkbox />}
+              label="Pay + Credit"
+            />
+          </div>
+          <div>
+            <Typography variant="h6" gutterBottom>
+              Onsite/Remote
+            </Typography>
+            <FormControlLabel
+              control={<Checkbox />}
+              label="In person"
+            />
+            <FormControlLabel
+              control={<Checkbox />}
+              label="Virtual"
+            />
+          </div>
+          <div>
+            <Typography variant="h6" gutterBottom>
+              Department
+            </Typography>
+            <Select>
+              <MenuItem value="engineering">School of Engineering</MenuItem>
+              <MenuItem value="science">School of Science</MenuItem>
+              <MenuItem value="business">Lally School of Management</MenuItem>
+              {/* Add more department options as needed */}
+            </Select>
+          </div>
+          <div>
+            <Typography variant="h6" gutterBottom>
+              Salary Range
+            </Typography>
+            <Select>
+              <MenuItem value="<15">&lt; $15</MenuItem>
+              <MenuItem value="15-18">$15 - $18</MenuItem>
+              <MenuItem value="18">$18</MenuItem>
+            </Select>
           </div>
         </div>
-      </div>
+      </Fade>
     </Modal>
   );
 };

@@ -5,7 +5,7 @@ import GroupedComponents from "../../shared/components/UIElements/GroupedCompone
 import HorizontalIconButton from "./HorizontalIconButton";
 import { PiSlidersHorizontal } from "react-icons/pi";
 import { MdCancel } from "react-icons/md";
-import FilterModal from "./FilterModal"; // Import the FilterModal component
+import FilterModal from "./FilterModal";
 
 const FiltersField = ({ deleteFilter, filters }) => {
   const [showModal, setShowModal] = useState(false);
