@@ -209,10 +209,6 @@ code {
   @apply text-base flex gap-4 justify-items-center font-semibold;
 }
 
-.btn2 {
-  @apply btn btn-primary;
-}
-
 .opportunitycard {
   @apply min-h-48 max-h-48 hover:shadow-md duration-300 card card-compact w-64 p-1 bg-base-100;
 }
@@ -265,7 +261,7 @@ code {
 }
 
 .lg-img-card {
-  @apply card card-compact w-96 bg-base-100 transition;
+  @apply card-compact w-96 bg-base-100 transition;
 }
 
 .lg-txt-card {
