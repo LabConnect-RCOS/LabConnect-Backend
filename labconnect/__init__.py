@@ -6,6 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from labconnect.helpers import OrJSONProvider
 
+from labconnect.helpers import OrJSONProvider
+
 csrf_protection = CSRFProtect()
 
 # Create Database object

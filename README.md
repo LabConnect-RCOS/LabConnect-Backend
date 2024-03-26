@@ -59,16 +59,16 @@
 ## Prerequisites
  * Clone or fork the repo
     * GitHub Desktop: download [here](https://desktop.github.com/)
-    * Clone repo through Git Bash
+    * Clone repo through with git
     ```sh
-    $ git clone https://github.com/LabConnect-RCOS/LabConnect-Backend
+    $ git clone https://github.com/LabConnect-RCOS/LabConnect-Backend.git
     ```
     * To fork, press the fork button on the top right of the repo, or [here](https://github.com/LabConnect-RCOS/LabConnect-Backend/fork)
- * Install Python 3.11.4 [here](https://www.python.org/downloads/release/python-3114/)
+ * Install Python 3.12.2 [here](https://www.python.org/downloads/release/python-3122/)
  * Install Libraries 
     * Download through the command line
     ```sh
-    $ python -m pip install -r requirements.txt
+    $ python3 -m pip install -r requirements.txt
     ```
 
 ## Testing
@@ -80,11 +80,11 @@
    ```
    or manually
    ```sh
-   $ python -m pytest
+   $ python3 -m pytest
    ```
    or manually with a coverage report generated
    ```sh
-   $ python -m pytest --cov
+   $ python3 -m pytest --cov
    ```
 
 ## Development
@@ -100,7 +100,7 @@
    ```
 
 ## Deployment
-* TBD, planning to RPI VM
+* TBD, planning to use an RPI VM
 
 ## Production
  * Run gunicorn
@@ -122,11 +122,18 @@ Running list of contributors to the LabConnect project:
 
 ### Rensselaer Center for Open Source Development Team
 
-- **Duy L** [Database Systems]
 - **Siddhi W** [UI / UX]
 - **Mrunal A** [Frontend / Backend]
+- **Abid T** [Frontend / Backend]
+- **Sarah** [Backend]
+- **Ramzey** [Backend]
+- **Will** [Frontend]
+- **Nelson** [Backend]
+
+### Past Rensselaer Center for Open Source Development Team
+
+- **Duy L** [Database Systems]
 - **Yash K** [Frontend]
-- **Abid T** [Backend]
 - **Sam B** [Scraping / Integration]
 
 ### Special Thanks

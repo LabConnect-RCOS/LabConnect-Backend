@@ -13,6 +13,7 @@ from sqlalchemy import inspect, select
 
 from labconnect import create_app, db
 from labconnect.helpers import SemesterEnum
+from labconnect.models import LabManager  # Professors and Grad students
 from labconnect.models import (
     ClassYears,
     Courses,
@@ -136,14 +137,14 @@ elif sys.argv[1] == "create":
         )
 
         for row_tuple in majors_rows:
-            row = Majors(major_code=row_tuple[0], major_name=row_tuple[1])
+            row = Majors(code=row_tuple[0], name=row_tuple[1])
             db.session.add(row)
             db.session.commit()
 
         class_years_rows = (2024, 2025, 2026, 2027, 2028, 2029)
 
         for row_item in class_years_rows:
-            row = ClassYears(class_year=row_item)
+            row = ClassYears(class_year=row_item, active=True)
             db.session.add(row)
             db.session.commit()
 

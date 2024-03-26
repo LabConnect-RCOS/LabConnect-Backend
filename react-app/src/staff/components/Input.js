@@ -38,7 +38,7 @@ const Input = ({
     <select
       {...formHook}
       defaultValue="Select a department"
-      className="select select-bordered w-full max-w-xs"
+      className="select select-bordered check-input"
     >
       <option value="Select a department">
         Select a department
@@ -59,7 +59,7 @@ const Input = ({
 
   return (
     <div>
-      <label className=" w-full max-w-xs">
+      <label className="check-input">
         <div className="label">
           <span className="label-text font-medium">{label}</span>
         </div>

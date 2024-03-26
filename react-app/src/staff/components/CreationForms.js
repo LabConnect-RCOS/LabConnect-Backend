@@ -83,7 +83,7 @@ const CreationForms = () => {
       onSubmit={handleSubmit((data) => {
         submitHandler(data);
       })}
-      className="flex flex-col gap-2"
+      className="flex2 gap-2"
     >
       {/* <select {...register("department")} name="myList" id="" className="border">
         <option className="text-black" value="Computer Science">CS</option>
@@ -230,7 +230,7 @@ const CreationForms = () => {
   ) : loading === "no response" ? (
     <h1>There was no response</h1>
   ) : (
-    <span className="loading loading-spinner loading-lg" />
+    <span className="creationforms-loading" />
   );
 };
 

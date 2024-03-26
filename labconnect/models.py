@@ -2,14 +2,18 @@ from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 
 from labconnect import db
-from labconnect.helpers import SemesterEnum
+from labconnect.helpers import CustomSerializerMixin, SemesterEnum
 
 # DD - Entities
 
 
 # rpi_schools( name, description ), key: name
-class RPISchools(db.Model):
+class RPISchools(db.Model, CustomSerializerMixin):
     __tablename__ = "rpi_schools"
+
+    serialize_only = ("name", "description")
+    serialize_rules = ()
+
     name = db.Column(db.String(64), primary_key=True)
     description = db.Column(db.String(2000), nullable=True, unique=False)
 
@@ -20,10 +24,16 @@ class RPISchools(db.Model):
 
 
 # rpi_departments( name, description ), key: name
-class RPIDepartments(db.Model):
+class RPIDepartments(db.Model, CustomSerializerMixin):
     __tablename__ = "rpi_departments"
+
+    serialize_only = ("name", "description")
+    serialize_rules = ()
+
     name = db.Column(db.String(64), primary_key=True)
     description = db.Column(db.String(2000), nullable=True, unique=False)
+    school_id = db.Column(db.String(64), db.ForeignKey("rpi_schools.name"))
+
     school_id = db.Column(db.String(64), db.ForeignKey("rpi_schools.name"))
 
     school = relationship("RPISchools", back_populates="departments")
@@ -34,14 +44,20 @@ class RPIDepartments(db.Model):
 
 
 # lab_manager( rcs_id, name ), key: rcs_id
-class LabManager(db.Model):
+class LabManager(db.Model, CustomSerializerMixin):
     __tablename__ = "lab_manager"
+
+    serialize_only = ("rcs_id", "name", "email", "alt_email", "phone_number", "website")
+    serialize_rules = ()
+
     rcs_id = db.Column(db.String(9), primary_key=True)
     name = db.Column(db.String(64), nullable=True, unique=False)
     email = db.Column(db.String(64), nullable=True, unique=False)
     alt_email = db.Column(db.String(64), nullable=True, unique=False)
     phone_number = db.Column(db.String(15), nullable=True, unique=False)
     website = db.Column(db.String(128), nullable=True, unique=False)
+    department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
+
     department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
 
     department = relationship("RPIDepartments", back_populates="lab_managers")
@@ -52,8 +68,23 @@ class LabManager(db.Model):
 
 
 # opportunities( id, name, description, active_status, recommended_experience ), key: id
-class Opportunities(db.Model):
+class Opportunities(db.Model, CustomSerializerMixin):
     __tablename__ = "opportunities"
+
+    serialize_only = (
+        "id",
+        "name",
+        "description",
+        "recommended_experience",
+        "pay",
+        "credits",
+        "semester",
+        "year",
+        "application_due",
+        "active",
+    )
+    serialize_rules = ()
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), nullable=True, unique=False)
     description = db.Column(db.String(2000), nullable=True, unique=False)
@@ -77,10 +108,14 @@ class Opportunities(db.Model):
 
 
 # courses( course_code, course_name ), key: course_code
-class Courses(db.Model):
+class Courses(db.Model, CustomSerializerMixin):
     __tablename__ = "courses"
+
+    serialize_only = ("code", "name")
+    serialize_rules = ()
+
     code = db.Column(db.String(8), primary_key=True)
-    name = db.Column(db.String(64), nullable=True, unique=False)
+    name = db.Column(db.String(128), nullable=True, unique=False)
 
     opportunities = relationship("RecommendsCourses", back_populates="course")
 
@@ -88,11 +123,15 @@ class Courses(db.Model):
         return str(vars(self))
 
 
-# majors( major_code, major_name ), key: major_code
-class Majors(db.Model):
+# majors( code, name ), key: code
+class Majors(db.Model, CustomSerializerMixin):
     __tablename__ = "majors"
-    major_code = db.Column(db.String(4), primary_key=True)
-    major_name = db.Column(db.String(64), nullable=True, unique=False)
+
+    serialize_only = ("code", "name")
+    serialize_rules = ()
+
+    code = db.Column(db.String(4), primary_key=True)
+    name = db.Column(db.String(64), nullable=True, unique=False)
 
     opportunities = relationship("RecommendsMajors", back_populates="major")
 
@@ -101,9 +140,14 @@ class Majors(db.Model):
 
 
 # class_years( class_year ), key: class_year
-class ClassYears(db.Model):
+class ClassYears(db.Model, CustomSerializerMixin):
     __tablename__ = "class_years"
+
+    serialize_only = ("class_year",)
+    serialize_rules = ()
+
     class_year = db.Column(db.Integer, primary_key=True)
+    active = db.Column(db.Boolean)
 
     opportunities = relationship("RecommendsClassYears", back_populates="year")
 
@@ -150,16 +194,17 @@ class RecommendsCourses(db.Model):
         return str(vars(self))
 
 
-# recommends_majors( opportunity_id, major_code ), key: (opportunity_id, major_code)
+# recommends_majors( opportunity_id, code ), key: (opportunity_id, code)
 class RecommendsMajors(db.Model):
     __tablename__ = "recommends_majors"
 
     opportunity_id = db.Column(
         db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
     )
-    major_code = db.Column(
-        db.String(8), db.ForeignKey("majors.major_code"), primary_key=True
-    )
+    major_code = db.Column(db.String(8), db.ForeignKey("majors.code"), primary_key=True)
+
+    opportunity = relationship("Opportunities", back_populates="recommends_majors")
+    major = relationship("Majors", back_populates="opportunities")
 
     opportunity = relationship("Opportunities", back_populates="recommends_majors")
     major = relationship("Majors", back_populates="opportunities")

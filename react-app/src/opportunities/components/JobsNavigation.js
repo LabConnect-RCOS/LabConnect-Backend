@@ -4,16 +4,17 @@ import { useLocation } from "react-router";
 const JobsNavigation = ({ jobPage, switchPage }) => {
   const path = useLocation().pathname;
 
-  const activeLink = "text-black py-3 border-b-2 border-black text-lg";
-  const normalLink =
-    "text-gray-600 py-3 text-lg hover:border-b-2 border-black hover:text-black";
+  const activeLink = "active-link";
+  const normalLink = "normal-link hover:border-b-2 hover:text-black";
+
+  
 
   return (
     <div className="flex gap-5" style={{ alignItems: "center" }}>
-      <h1 className="text-2xl font-bold">Jobs</h1>
+      <h1 className="jobs-header">Jobs</h1>
 
       <nav
-        className="text-base flex gap-4 justify-items-center font-semibold"
+        className="jobs-categories"
         style={{ alignItems: "center" }}
       >
         <button
