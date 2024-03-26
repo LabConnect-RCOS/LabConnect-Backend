@@ -185,6 +185,32 @@ def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     return result
 
 
+# Endpoint to add a new opportunity
+@main_blueprint.route("/opportunity", methods=["POST"])
+def create_opportunity():
+    data = request.get_json()
+
+    name = data.get("name")
+    description = data.get("description")
+    pay = data.get("pay")
+    credits = data.get("credits")
+
+    if not all([name, description, pay, credits]):
+        return jsonify({"error": "Incomplete data provided"}), 400
+
+    opportunity = Opportunities(
+        name=name,
+        description=description,
+        pay=pay,
+        credits=credits
+    )
+
+    db.session.add(opportunity)
+    db.session.commit()
+
+    return jsonify({"message": "Opportunity created successfully"}), 201
+
+
 # _______________________________________________________________________________________________#
 
 # Editing Opportunities in Profile Page
