@@ -9,10 +9,6 @@ const FilterModal = ({ open, handleClose }) => {
       aria-labelledby="transition-modal-title"
       aria-describedby="transition-modal-description"
       closeAfterTransition
-      BackdropComponent={Backdrop}
-      BackdropProps={{
-        timeout: 500,
-      }}
     >
       <Fade in={open}>
         <div style={{
@@ -85,7 +81,6 @@ const FilterModal = ({ open, handleClose }) => {
               <MenuItem value="engineering">School of Engineering</MenuItem>
               <MenuItem value="science">School of Science</MenuItem>
               <MenuItem value="business">Lally School of Management</MenuItem>
-              {/* Add more department options as needed */}
             </Select>
           </div>
           <div>
