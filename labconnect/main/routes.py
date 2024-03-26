@@ -56,64 +56,26 @@ def department():
         .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
     )
 
-    # print(data)
+    # professors = request.get_json().get("labmanagers", None)
 
     # professors = (
-    #     db.session.query(
-    #         # Need all professors
-    #         RPIDepartments.name
-    #     )
-    #     # Professors department needs to match department (data[0])
-    #     .filter(RPIDepartments.name == data[0])
-    #     # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+    # db.session.query(
+    # Need all professors first
+    # RPIDepartments.lab_managers
+    # )
+    # now old format look bellow for new way to do
+    # Professors department needs to match department (data[0])
+    # .filter(RPIDepartments.name == data[0])
+    # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
     # ).first()
+
+    # print(data)
 
     # rpidepartment.name
 
     # combine with professor dictionary
     result = department_data.to_dict()
 
-    if not request.data:
-        abort(400)
-
-    # professors = request.get_json().get("department", None)
-
-    # if not professors:
-    #     abort(400)
-
-    prof_data = db.session.execute(
-        db.select(LabManager)
-        .filter(LabManager.department_id == department)
-        .join(
-            RPIDepartments,
-            LabManager.department_id == RPIDepartments.name,
-        )
-    ).scalars()
-
-    result2 = []
-    Ids = []
-    for prof in prof_data:
-        result2.append(prof.name)
-        Ids.append(prof.rcs_id)
-
-    result["professors"] = result2
-
-    opportunitys = {}
-    for prof in Ids:
-        data = db.session.execute(
-            db.select(Opportunities, Leads)
-            .filter(Leads.lab_manager_rcs_id == prof)
-            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-        ).scalars()
-        print(Leads.lab_manager_rcs_id == prof)
-
-        for opp in data:
-            hold = [opp.id, opp.year, opp.semester, opp.active]
-            opportunitys[opp.name] = hold
-            print(hold)
-            print("^")
-
-    result["opportunitys"] = opportunitys
     # print(result)
 
     # Might not need
@@ -125,39 +87,42 @@ def department():
     # if not professors:
     #     abort(400)
 
-    # departmentOf department_name
     prof_data = db.session.execute(
-        db.select(LabManager.name).filter(LabManager.department_id == department)
-        # RPIDepartments.name == result[0]
-        # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+        db.select(LabManager.name)
+        .filter(LabManager.department_id == department)
         .join(
-            # Need =
             RPIDepartments,
             LabManager.department_id == RPIDepartments.name,
         )
-        # LabManager.rcs_id,
-        # LabManager.name,
-        # LabManager.department_id,
-        # )
-        # rcs_id=row_tuple[0], name=row_tuple[1], department_id=row_tuple[2]
-        # , RPIDepartments.school_id == RPISchools.name)
     ).scalars()
-    # print(department)
-    # for prof in prof_data:
-    # print(prof)
-    # prof.to_dict()
 
-    # print(prof_data)
-    # result2 = prof_data
-    # result2 = prof_data.todict()
-    # result2 = [prof_data.to_dict() for prof_data in data]
-    print(type(prof_data))
-    result2 = prof_data
-    # result2 = [prof.to_dict() for prof in prof_data]
-    # rcs_id=row_tuple[0], name=row_tuple[1], department_id=row_tuple[2]
-    # return result2?
+    result2 = [prof for prof in prof_data]
 
-    return result2
+    result["Professors"] = result2
+    # print(result)
+
+    query = (
+        # db.session.query(Opportunities, Majors)
+        # .filter(Majors.major_code == "CSCI")
+        # .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
+        # .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+        db.select(
+            Opportunities.id,
+            Opportunities.name,
+            Opportunities.description,
+            Opportunities.pay,
+            Opportunities.credits,
+            Majors,
+            RecommendsMajors,
+        )
+        .filter(Majors.code == "CSCI")
+        .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+        .join(Majors, RecommendsMajors.major_code == Majors.code)
+        # commented out code above needs fixing
+    )
+    print(query)
+
+    return result
 
 
 @main_blueprint.route("/discover")
