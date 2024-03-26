@@ -58,9 +58,9 @@ def opportunity(id: int):
 @main_blueprint.get("/profile")
 def profile():
     request_data = request.get_json()
-    rcs_id = request_data.get("Profile", {}).get("rcs_id", None)
+    rcs_id = request_data.get("rcs_id", None)
 
-    data = db.seesion.execute(
+    data = db.session.execute(
         db.select(LabManager, Opportunities)
         .filter(LabManager.rcs_id == rcs_id)
         .join(Leads, LabManager.rcs_id == Leads.lab_manager_rcs_id)
