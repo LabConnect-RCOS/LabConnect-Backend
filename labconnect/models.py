@@ -7,6 +7,13 @@ from labconnect.helpers import CustomSerializerMixin, SemesterEnum
 # DD - Entities
 
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(150), unique=True)
+    password = db.Column(db.String(100))
+    name = db.Column(db.String(1000))
+
+
 # rpi_schools( name, description ), key: name
 class RPISchools(db.Model, CustomSerializerMixin):
     __tablename__ = "rpi_schools"
