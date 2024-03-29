@@ -50,7 +50,6 @@ def department():
     if not department:
         abort(400)
 
-    # departmentOf department_name
     department_data = db.first_or_404(
         db.select(RPIDepartments, RPISchools.name)
         .filter(RPIDepartments.name == department)
@@ -80,29 +79,65 @@ def department():
     result2 = [prof for prof in prof_data]
 
     result["Professors"] = result2
-    # print(result)
+    ##query1 = (
+    ##db.session.query(Opportunities, Majors)
+    ##.filter(Majors.major_code == "CSCI")
+    ##.join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
+    ##.join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+    ##)
 
+    # try1 at Opportunities
     query = (
-        # db.session.query(Opportunities, Majors)
-        # .filter(Majors.major_code == "CSCI")
-        # .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
-        # .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
         db.select(
             Opportunities.id,
             Opportunities.name,
             Opportunities.description,
             Opportunities.pay,
             Opportunities.credits,
-            Majors,
-            RecommendsMajors,
         )
-        .filter(Majors.code == "CSCI")
+        .filter(LabManager.departmentID.code == "CSCI")
         .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
         .join(Majors, RecommendsMajors.major_code == Majors.code)
-        # commented out code above needs fixing
+        ## commented out code above needs fixing
     )
     print(query)
 
+    # plan for second try at Opportunities
+    # Currently have: school -> departmet -> lab managers (professors)
+    # Need to add: lab managers -> leads -> opportunities
+
+    ##lead_data = db.session.execute(
+    ##db.select(Leads.lab_manager_rcs_id)
+    # .filter(LabManager.departmentID.code == "CSCI")
+    ##.join(LabManager.rcs_id == Leads.lab_manager_rcs_id)
+    # .filter(LabManager.department_id == department)
+    # .join(
+    # RPIDepartments,
+    # LabManager.department_id == RPIDepartments.name,
+    ##)
+    ##).scalars()
+    request_data = request.get_json()
+    rcs_id = request_data.get("rcs.id", None)
+
+    lab_manager = db.first_or_404(
+        db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
+    )
+
+    result3 = lab_manager.to_dict()
+    data = db.sesion.execute(
+        db.select(Opportunities, Leads)
+        .filter(Leads.lab_manager_rcs_id == rcs_id)
+        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+    ).scalars()
+
+    # leads_id =
+
+    result3["opportunities"] = [opportunity.to_dict() for opportunity in data]
+
+    ##print(lead_data)
+
+    # return query
+    return result3
     return result
 
 
