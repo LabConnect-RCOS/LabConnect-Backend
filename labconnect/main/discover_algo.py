@@ -15,6 +15,7 @@ from labconnect.models import (
     RPISchools,
 )
 
+
 def return_query():
     # return the query
     query = (
@@ -24,6 +25,7 @@ def return_query():
             Opportunities.description,
             Opportunities.pay,
             Opportunities.credits,
+            Opportunities.active,
             Majors,
             RecommendsMajors,
             RecommendsClassYears,
@@ -31,13 +33,16 @@ def return_query():
         )
         .filter(Majors.code == "CSCI") # in future: major_code: intake someone's department/major
 
-        .filter(ClassYears.class_year == "2024")
+        .filter(ClassYears.class_year == "2024") # match school year of student to oppoortunity
+
+        .filter(Opportunities.active == True) # ensure opportunity is active & not past the deadline
 
         .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
         .join(Majors, RecommendsMajors.major_code == Majors.code)
         .join(Opportunities, Opportunities.id == RecommendsClassYears.opportunity_id)
-
+        
         .join(ClassYears, ClassYears.class_year == RecommendsClassYears.class_year)
+        .limit(4) # limit how many things are returned from the query (4 items)
     )
 
     print(query)
@@ -46,7 +51,6 @@ def return_query():
     return query
 
 
-# limit how many things are returned from the query (4 items)
-# match school year of student to oppoortunity
-# ensure opportunity is active & not past the deadline
+
+
 
