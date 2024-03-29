@@ -1,8 +1,15 @@
 from typing import Any
 
-from flask import abort, request
+from flask import abort, request, jsonify
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+    unset_jwt_cookies,
+)
 
-from labconnect import db
+from labconnect import bcrypt, db
 from labconnect.helpers import SemesterEnum
 from labconnect.models import (
     ClassYears,
@@ -16,6 +23,7 @@ from labconnect.models import (
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
+    User,
 )
 
 from . import main_blueprint
@@ -231,9 +239,34 @@ def create_post():
     return {"Hello": "There"}
 
 
-@main_blueprint.route("/login")
+@main_blueprint.post("/login")
 def login():
-    return {"Hello": "There"}
+    if not request.data:
+        abort(400)
+
+    json_data = request.get_json()
+    email = json_data.get("email", None)
+    password = json_data.get("password", None)
+
+    data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
+
+    if not data:
+        abort(403)
+
+    if not bcrypt.check_password_hash(data.password, password + email):
+        return {"msg": "Wrong email or password"}, 401
+
+    access_token = create_access_token(identity=email)
+    response = {"access_token": access_token}
+
+    return response
+
+
+@main_blueprint.post("/logout")
+def logout():
+    response = jsonify({"msg": "logout successful"})
+    unset_jwt_cookies(response)
+    return response
 
 
 @main_blueprint.route("/500")
