@@ -67,6 +67,7 @@ def profile():
         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
     ).scalars()
     result = [opportunity.to_dict() for opportunity in data]
+    print(data)
 
     return result
 
