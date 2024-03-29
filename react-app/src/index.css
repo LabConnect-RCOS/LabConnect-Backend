@@ -210,7 +210,7 @@ code {
 }
 
 .opportunitycard {
-  @apply min-h-48 max-h-48 hover:shadow-md duration-300 card card-compact w-64 p-1 bg-base-100;
+  @apply card-compact min-h-48 max-h-48 duration-300 w-64 p-1 bg-base-100;
 }
 
 .card2-body {
@@ -265,7 +265,7 @@ code {
 }
 
 .lg-txt-card {
-  @apply min-h-48 max-h-48 hover:shadow-md duration-300 card card-compact w-56 p-1 bg-base-100;
+  @apply min-h-48 max-h-48 duration-300 card-compact w-56 p-1 bg-base-100;
 }
 
 .lg-txt-card-attributes {
