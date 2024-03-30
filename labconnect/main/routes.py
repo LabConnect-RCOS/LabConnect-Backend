@@ -214,6 +214,46 @@ def getOpportunity(opp_id: int):
     return {"data": oppData}
 
 
+@main_blueprint.route("/getProfessorOpportunityCards/<string:rcs_id>", methods=["GET"])
+def getProfessorOpportunityCards(rcs_id: str):
+    if request.method == "GET":
+        # query database for opportunity
+        query = db.session.execute(
+            db.select(Opportunities, Leads)
+            .filter(Leads.lab_manager_rcs_id == rcs_id)
+            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+        )
+
+        data = query.all()
+
+        cards = {"data": []}
+
+        for row in data:
+            opportunity = row[0]
+
+            if not opportunity.active:
+                continue
+
+            oppData = {
+                "id": opportunity.id,
+                "name": opportunity.name,
+                "application_due": opportunity.application_due,
+                "attributes": [],
+            }
+
+            if opportunity.pay > 0:
+                oppData["attributes"].append("Paid")
+            if opportunity.credits:
+                oppData["attributes"].append("Credits")
+
+            cards["data"].append(oppData)
+
+        # return data in the below format if opportunity is found
+        return cards
+
+    abort(500)
+
+
 @main_blueprint.route("/getOpportunityByProfessor/<string:rcs_id>", methods=["GET"])
 def getOpportunityByProfessor(rcs_id: str):
     if request.method == "GET":
