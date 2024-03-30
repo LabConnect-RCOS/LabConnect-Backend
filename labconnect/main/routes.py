@@ -118,13 +118,25 @@ def discover():
 def getOpportunitiesRaw(id: int):
     if request.method == "GET":
         query = db.session.execute(
-            db.select(Opportunities, Leads, LabManager, RecommendsMajors, RecommendsCourses, RecommendsClassYears)
+            db.select(
+                Opportunities,
+                Leads,
+                LabManager,
+                RecommendsMajors,
+                RecommendsCourses,
+                RecommendsClassYears,
+            )
             .filter(Opportunities.id == id)
             .join(Leads, Leads.opportunity_id == Opportunities.id)
             .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
             .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-            .join(RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id)
-            .join(RecommendsClassYears, RecommendsClassYears.opportunity_id == Opportunities.id)
+            .join(
+                RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
+            )
+            .join(
+                RecommendsClassYears,
+                RecommendsClassYears.opportunity_id == Opportunities.id,
+            )
         )
         data = query.all()
         print(data)
@@ -132,6 +144,7 @@ def getOpportunitiesRaw(id: int):
         return {"data": "check terminal"}
 
     abort(500)
+
 
 @main_blueprint.route("/getProfessorProfile/<string:rcs_id>", methods=["GET"])
 def getProfessorProfile(rcs_id: str):
@@ -180,24 +193,26 @@ def getProfessorProfile(rcs_id: str):
 
 @main_blueprint.route("/getOpportunity/<int:opp_id>", methods=["GET"])
 def getOpportunity(opp_id: int):
-    if request.method == "GET":
-        # query database for opportunity
-        query = db.session.execute(
-            db.select(Opportunities, Leads, LabManager)
-            .filter(Opportunities.id == opp_id)
-            .join(Leads, Leads.opportunity_id == Opportunities.id)
-            .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
-        )
-        data = query.all()[0]
-        print("printing query")
-        print(data)
+    # query database for opportunity
+    query = db.session.execute(
+        db.select(Opportunities, Leads, LabManager)
+        .filter(Opportunities.id == opp_id)
+        .join(Leads, Leads.opportunity_id == Opportunities.id)
+        .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+    )
+    data = query.all()
 
-        oppData = packageOpportunity(data[0], data[2])
+    # check if opportunity exists
+    if not data or len(data) == 0:
+        abort(404)
 
-        # return data in the below format if opportunity is found
-        return {"data": oppData}
+    data = data[0]
 
-    abort(500)
+    oppData = packageOpportunity(data[0], data[2])
+
+    # return data in the below format if opportunity is found
+    return {"data": oppData}
+
 
 @main_blueprint.route("/getOpportunityByProfessor/<string:rcs_id>", methods=["GET"])
 def getOpportunityByProfessor(rcs_id: str):
@@ -208,7 +223,7 @@ def getOpportunityByProfessor(rcs_id: str):
             .filter(Leads.lab_manager_rcs_id == rcs_id)
             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         )
-        
+
         data = query.all()
         print(data)
 
@@ -216,6 +231,7 @@ def getOpportunityByProfessor(rcs_id: str):
         return {"data": [opportunity[0].to_dict() for opportunity in data]}
 
     abort(500)
+
 
 @main_blueprint.route("/getOpportunities", methods=["GET"])
 def getOpportunities():
@@ -230,7 +246,12 @@ def getOpportunities():
         print(data[0])
 
         # return data in the below format if opportunity is found
-        return {"data": [packageOpportunity(opportunity[0], opportunity[2]) for opportunity in data]}
+        return {
+            "data": [
+                packageOpportunity(opportunity[0], opportunity[2])
+                for opportunity in data
+            ]
+        }
 
     abort(500)
 
@@ -261,6 +282,42 @@ def getProfessorMeta(rcs_id: str):
 # _______________________________________________________________________________________________#
 
 # Editing Opportunities in Profile Page
+
+
+@main_blueprint.route("/getOpportunityMeta/<int:id>", methods=["GET"])
+def getOpportunityMeta(id: int):
+    if request.method == "GET":
+        query = db.session.execute(
+            db.select(
+                Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
+            )
+            .filter(Opportunities.id == id)
+            .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
+            .join(
+                RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
+            )
+            .join(
+                RecommendsClassYears,
+                RecommendsClassYears.opportunity_id == Opportunities.id,
+            )
+        )
+        data = query.all()
+
+        if not data or len(data) == 0:
+            abort(404)
+
+        data = data[0]
+
+        print(data)
+
+        dictionary = data[0].to_dict()
+        dictionary["courses"] = [data[2].course_code]
+        dictionary["majors"] = [data[1].major_code]
+        dictionary["years"] = [data[3].class_year]
+
+        return {"data": dictionary}
+
+    abort(500)
 
 
 @main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])

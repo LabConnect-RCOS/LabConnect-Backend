@@ -86,24 +86,116 @@ def test_professor_opportunity_cards(test_client: FlaskClient) -> None:
 
 
 def test_get_opportunity(test_client: FlaskClient) -> None:
-    response = test_client.get("/getOpportunity/o1")
+    response = test_client.get("/getOpportunity/2")
 
     assert response.status_code == 200
 
     # Load the response data as JSON
     data = json.loads(response.data.decode("utf-8"))
+    data = data["data"]
 
     # Test that the "name" key exists
-    assert "title" in data
-    assert "location" in data
-    assert "date" in data
-    assert "author" in data
-    assert "credits" in data  # and data["credits"] is int
-    assert "description" in data  # and data["description"] is str
-    assert "salary" in data  # and data["salary"] is int
-    assert "upfrontPay" in data  # and data["upfrontPay"] is int
-    assert "years" in data  # and data["years"] is list
+    assert "id" in data
+    assert "name" in data
+    assert "description" in data
+    assert "recommended_experience" in data
+    assert "pay" in data
+    assert "credits" in data
+    assert "semester" in data
+    assert "year" in data
+    assert "application_due" in data
+    assert "active" in data
+    assert "professor" in data
+    assert "department" in data
 
+
+def test_get_opportunity_professor(test_client: FlaskClient) -> None:
+    response = test_client.get("/getOpportunityByProfessor/led")
+
+    assert response.status_code == 200
+
+    # Load the response data as JSON
+    data = json.loads(response.data.decode("utf-8"))
+    data = data["data"]
+
+    # Test that the "name" key exists
+    for opportunity in data:
+        assert "id" in opportunity
+        assert "name" in opportunity
+        assert "description" in opportunity
+        assert "recommended_experience" in opportunity
+        assert "pay" in opportunity
+        assert "credits" in opportunity
+        assert "semester" in opportunity
+        assert "year" in opportunity
+        assert "application_due" in opportunity
+        assert "active" in opportunity
+        assert "professor" in opportunity
+        assert "department" in opportunity
+
+
+def test_create_opportunity(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/createOpportunity' endpoint is requested (POST) with valid data
+    THEN check that the response is valid and contains expected data
+    """
+
+    test_data = {
+        "authorID": "led",
+        "newPostData": {
+            "name": "Some test opportunity",
+            "description": "Some test description",
+            "recommended_experience": "Some test experience",
+            "pay": 25.0,
+            "credits": "4",
+            "semester": "FALL",
+            "year": 2024,
+            "application_due": "2024-03-30",
+            "active": True,
+            "courses": ["CSCI4430"],
+            "majors": ["BIOL"],
+            "years": [2023, 2024],
+        },
+    }
+
+    response = test_client.post(
+        "/createOpportunity",
+        data=json.dumps(test_data),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+
+def test_get_opportunity_meta(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/getOpportunityMeta' endpoint is requested (GET) with valid data
+    THEN check that the response is valid and contains expected opportunity data
+    """
+
+    response = test_client.get(
+        "/getOpportunityMeta/5", content_type="application/json"
+    )
+
+    assert response.status_code == 200
+
+    data = json.loads(response.data)
+    data = data["data"]
+
+    # Assertions on the expected data
+    assert "name" in data
+    assert "description" in data
+    assert "recommended_experience" in data
+    assert "pay" in data
+    assert "credits" in data
+    assert "semester" in data
+    assert "year" in data
+    assert "application_due" in data
+    assert "active" in data
+    assert "courses" in data
+    assert "majors" in data
+    assert "years" in data
 
 def test_discover_page(test_client: FlaskClient) -> None:
     """
