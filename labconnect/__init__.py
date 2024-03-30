@@ -2,6 +2,7 @@ import os
 
 # Import Flask modules
 from flask import Flask
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
@@ -16,6 +17,7 @@ db = SQLAlchemy()
 def create_app() -> Flask:
     # Create flask app object
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(os.environ.get("CONFIG", "config.TestingConfig"))
 
     initialize_extensions(app)

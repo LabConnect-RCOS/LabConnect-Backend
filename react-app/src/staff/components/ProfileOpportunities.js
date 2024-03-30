@@ -1,6 +1,8 @@
 import React from "react";
 import LargeTextCard from "./LargeTextCard";
 
+import { useState, useEffect } from "react";
+
 const DUMMY_DATA = {
   d1: [
     {
@@ -29,7 +31,8 @@ const DUMMY_DATA = {
       id: "o4",
     },
     {
-      title: "Mathematics Intern For the Sciences and Engineering Mathematics Intern For the Sciences and Engineering",
+      title:
+        "Mathematics Intern For the Sciences and Engineering Mathematics Intern For the Sciences and Engineering",
       body: "Due February 1, 2024",
       attributes: ["Remote", "Paid", "Credits"],
       id: "o5",
@@ -37,7 +40,31 @@ const DUMMY_DATA = {
   ],
 };
 
+// create fetch request to get the opportunities
+const fetchOpportunities = async (id) => {
+  // Consider moving the base URL to a configuration
+  const baseURL = "http://localhost:8000"; 
+  const url = `${baseURL}/getProfessorOpportunityCards/led`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Network response was not ok - Status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  console.log(data);
+  return data;
+};
+
+
 const ProfileOpportunities = ({ id }) => {
+  
+  useEffect(() => {
+    fetchOpportunities(id);
+  }, [id]);
+  
+  
   return (
     <div>
       <h1>Posted Opportunties</h1>

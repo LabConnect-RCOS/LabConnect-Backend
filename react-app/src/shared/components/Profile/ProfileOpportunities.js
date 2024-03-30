@@ -48,11 +48,21 @@ const ProfileOpportunities = ({ id }) => {
   var [opportunities, setOpportunities] = useState(false);
 
   const fetchOpportunities = async (key) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(DUMMY_DATA[key]);
-      }, 5000);
-    });
+    // Consider moving the base URL to a configuration
+    const baseURL = "http://localhost:8000";
+    const url = `${baseURL}/getProfileOpportunities/led`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(
+        `Network response was not ok - Status: ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+    console.log(data);
+    return data["data"];
   };
 
   async function setData(key) {
@@ -61,17 +71,35 @@ const ProfileOpportunities = ({ id }) => {
     response || setOpportunities("no response");
   }
 
-  async function changeOpportunityActiveStatus(opportunityId) {
+  async function changeOpportunityActiveStatus(opportunityId, activeStatus) {
     // send a request to the backend to deactivate the opportunity
     // if the request is successful, then deactivate the opportunity from the list
-    const response = true;
+    const url = `http://localhost:8000/changeActiveStatus`;
+    console.log(opportunities)
+    
+    const jsonData = {
+      oppID: opportunityId,
+      setStatus: !activeStatus,
+      authToken: "authTokenHere"
+    }
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(jsonData),
+    });
 
-    if (response) {
+    if (response.ok) {
+      const data = await response.json();
+      
+      
       const newOpportunities = opportunities.map((opportunity) =>
-      opportunity.id === opportunityId
-        ? { ...opportunity, activeStatus: !opportunity.activeStatus } // Spread operator for update
-        : opportunity
-    );
+        opportunity.id === opportunityId
+          ? { ...opportunity, activeStatus: data.activeStatus } // Spread operator for update
+          : opportunity
+      );
 
       setOpportunities(newOpportunities);
     }
@@ -93,7 +121,7 @@ const ProfileOpportunities = ({ id }) => {
     setOpportunities(opportunities);
     console.log(opportunities);
   }
-  
+
   useEffect(() => {
     setData("d1");
   }, []);

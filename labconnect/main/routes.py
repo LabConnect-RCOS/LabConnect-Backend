@@ -218,6 +218,7 @@ def getOpportunity(opp_id: int):
 def getProfessorOpportunityCards(rcs_id: str):
     if request.method == "GET":
         # query database for opportunity
+
         query = db.session.execute(
             db.select(Opportunities, Leads)
             .filter(Leads.lab_manager_rcs_id == rcs_id)
@@ -236,14 +237,56 @@ def getProfessorOpportunityCards(rcs_id: str):
 
             oppData = {
                 "id": opportunity.id,
-                "name": opportunity.name,
-                "application_due": opportunity.application_due,
+                "title": opportunity.name,
+                "body": "Due " + str(opportunity.application_due),
                 "attributes": [],
             }
 
             if opportunity.pay > 0:
                 oppData["attributes"].append("Paid")
-            if opportunity.credits:
+            if int(opportunity.credits) > 0:
+                oppData["attributes"].append("Credits")
+
+            cards["data"].append(oppData)
+
+        # return data in the below format if opportunity is found
+        return cards
+
+    abort(500)
+
+
+@main_blueprint.route("/getProfileOpportunities/<string:rcs_id>", methods=["GET"])
+def getProfileOpportunities(rcs_id: str):
+    if request.method == "GET":
+        # query database for opportunity
+
+        query = db.session.execute(
+            db.select(Opportunities, Leads)
+            .filter(Leads.lab_manager_rcs_id == rcs_id)
+            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+        )
+
+        data = query.all()
+
+        cards = {"data": []}
+
+        for row in data:
+            opportunity = row[0]
+
+            if not opportunity.active:
+                continue
+
+            oppData = {
+                "id": opportunity.id,
+                "title": opportunity.name,
+                "body": "Due " + str(opportunity.application_due),
+                "attributes": [],
+                "activeStatus": opportunity.active,
+            }
+
+            if opportunity.pay > 0:
+                oppData["attributes"].append("Paid")
+            if int(opportunity.credits) > 0:
                 oppData["attributes"].append("Credits")
 
             cards["data"].append(oppData)
@@ -393,25 +436,34 @@ def deleteOpportunity():
 def changeActiveStatus():
     if request.method in ["POST"]:
         data = request.json
-        postID = data["postID"]
+        postID = data["oppID"]
         authToken = data["authToken"]
-        authorID = data["authToken"]
         setStatus = data["setStatus"]
 
         # query database to see if the credentials above match
         query = db.session.execute(
-            db.select(Leads, Opportunities)
-            .filter(Leads.opportunity_id == postID)
-            .filter(Leads.lab_manager_rcs_id == authorID)
-            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+            db.select(Opportunities)
+            .filter(Opportunities.id == postID)
         )
 
-        data = query.all()[0][0]
+        data = query.all()
+        print(data)
+
+        if not data or len(data) == 0:
+            abort(404)
+
+        data = data[0][0]
+
         data.active = setStatus
+        
+        db.session.commit()
+        
+        if data.active != setStatus:
+            abort(500)
 
         # if match is found, change the opportunities active status to true or false based on setStatus
 
-        abort(200)
+        return {"activeStatus": data.active}
 
     abort(500)
 
