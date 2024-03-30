@@ -60,14 +60,19 @@ def profile():
     request_data = request.get_json()
     rcs_id = request_data.get("rcs_id", None)
 
+    lab_manager = db.first_or_404(
+        db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
+    )
+
+    result = lab_manager.to_dict()
+
     data = db.session.execute(
-        db.select(LabManager, Opportunities)
-        .filter(LabManager.rcs_id == rcs_id)
-        .join(Leads, LabManager.rcs_id == Leads.lab_manager_rcs_id)
+        db.select(Opportunities, Leads)
+        .filter(Leads.lab_manager_rcs_id == rcs_id)
         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
     ).scalars()
-    result = [opportunity.to_dict() for opportunity in data]
-    print(data)
+
+    result["opportunities"] = [opportunity.to_dict() for opportunity in data]
 
     return result
 
