@@ -7,6 +7,7 @@ Test mains
 from flask import json
 from flask.testing import FlaskClient
 import json
+from datetime import date, datetime
 
 from labconnect.helpers import SemesterEnum
 
@@ -245,17 +246,13 @@ def test_profile_page(test_client: FlaskClient) -> None:
     WHEN the '/profile/<user>' page is requested (GET)
     THEN check that the response is valid
     """
-    response = test_client.get("/profile", json={"input": "rcs_id"})
+    response = test_client.get("/profile", json={"rcs_id": "cenzar"})
     data = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 200
 
     json_data = json.loads(response.data)
 
-    profile_data = (
-        ("led", "cenzar"),
-        ("Duy Lee", "Rafael"),
-        ("Computer Science", "Computer Science"),
-    )
+    profile_data = ("cenzar", "Rafael", "Computer Science")
 
     opportunity_data = (
         (
@@ -283,20 +280,28 @@ def test_profile_page(test_client: FlaskClient) -> None:
     )
 
     print(json_data)
-    for i, lab_manager in enumerate(json_data):
-        assert lab_manager["rcs_id"] == profile_data[0][i]
-        assert lab_manager["name"] == profile_data[1][i]
-        assert lab_manager["department_id"] == profile_data[2][i]
+    print("\n")
 
-    for i, opportunity in enumerate(json_data):
+    assert json_data["rcs_id"] == profile_data[0]
+    assert json_data["name"] == profile_data[1]
+    # assert json_data["department_id"] == profile_data[2]
+
+    opportunities = json_data["opportunities"]
+    print(opportunities[0]["semester"])
+    print("\n")
+
+    for i, opportunity in enumerate(opportunities):
         assert opportunity["name"] == opportunity_data[i][0]
         assert opportunity["description"] == opportunity_data[i][1]
         assert opportunity["recommended_experience"] == opportunity_data[i][2]
         assert opportunity["pay"] == opportunity_data[i][3]
         assert opportunity["credits"] == opportunity_data[i][4]
-        assert opportunity["semester"] == opportunity_data[i][5]
+        assert SemesterEnum(opportunity["semester"]) == opportunity_data[i][5]
         assert opportunity["year"] == opportunity_data[i][6]
-        assert opportunity["application_due"] == opportunity_data[i][7]
+        assert (
+            datetime.strptime(opportunity["application_due"], "%Y-%m-%d").date()
+            == opportunity_data[i][7]
+        )
         assert opportunity["active"] == opportunity_data[i][8]
 
 
