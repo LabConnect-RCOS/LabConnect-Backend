@@ -1,5 +1,8 @@
+import datetime
+
 from typing import Any
 from flask import abort, request
+
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum
@@ -38,6 +41,14 @@ from . import main_blueprint
 #     data = query.all()
 #     print(data)
 #     return {"Hello": "There"}
+
+
+def packageOpportunity(opportunityInfo, professorInfo):
+    data = opportunityInfo.to_dict()
+    data["professor"] = professorInfo.name
+    data["department"] = professorInfo.department_id
+
+    return data
 
 
 @main_blueprint.route("/")
@@ -103,20 +114,38 @@ def discover():
     return {"Hello": "There"}
 
 
+@main_blueprint.route("/getOpportunitiesRaw/<int:id>", methods=["GET"])
+def getOpportunitiesRaw(id: int):
+    if request.method == "GET":
+        query = db.session.execute(
+            db.select(Opportunities, Leads, LabManager, RecommendsMajors, RecommendsCourses, RecommendsClassYears)
+            .filter(Opportunities.id == id)
+            .join(Leads, Leads.opportunity_id == Opportunities.id)
+            .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+            .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
+            .join(RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id)
+            .join(RecommendsClassYears, RecommendsClassYears.opportunity_id == Opportunities.id)
+        )
+        data = query.all()
+        print(data)
+
+        return {"data": "check terminal"}
+
+    abort(500)
+
 @main_blueprint.route("/getProfessorProfile/<string:rcs_id>", methods=["GET"])
 def getProfessorProfile(rcs_id: str):
     # test code until database code is added
     if request.method == "GET":
-        
+
         query = db.session.execute(
-            db.select(LabManager)
-            .filter(LabManager.rcs_id == rcs_id)
+            db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
         )
-        
+
         data = query.all()[0][0]
-        
+
         return data.to_dict()
-        
+
         # return {
         #     "name": "Peter Johnson",
         #     "image": "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
@@ -127,7 +156,7 @@ def getProfessorProfile(rcs_id: str):
         # pharetra sit amet aliquam id diam maecenas ultricies mi. Montes
         # nascetur ridiculus mus mauris vitae ultricies leo. Porttitor massa
         # id neque aliquam. Malesuada bibendum arcu vitae elementum. Nulla
-        # aliquet porrsus mattis molestie aiaculis at erat pellentesque. 
+        # aliquet porrsus mattis molestie aiaculis at erat pellentesque.
         # At risus viverra adipiscing at.
         # Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu
         # feugiat. Eget fUt eu sem integer vitae justo
@@ -149,31 +178,44 @@ def getProfessorProfile(rcs_id: str):
     abort(500)
 
 
-@main_blueprint.route("/getOpportunity/<string:opp_id>", methods=["GET"])
-def getOpportunity(opp_id: str):
+@main_blueprint.route("/getOpportunity/<int:opp_id>", methods=["GET"])
+def getOpportunity(opp_id: int):
     if request.method == "GET":
         # query database for opportunity
         query = db.session.execute(
             db.select(Opportunities, Leads, LabManager)
-            .filter(Opportunities.id == 2)
+            .filter(Opportunities.id == opp_id)
             .join(Leads, Leads.opportunity_id == Opportunities.id)
             .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
         )
         data = query.all()[0]
         print("printing query")
         print(data)
-        
-        oppData = data[0].to_dict()
-        oppData["professor"] = data[2].name
-        oppData["department"] = data[2].department_id
-        
+
+        oppData = packageOpportunity(data[0], data[2])
+
         # return data in the below format if opportunity is found
-        return {
-            "data" : oppData
-        }
+        return {"data": oppData}
 
     abort(500)
 
+@main_blueprint.route("/getOpportunityByProfessor/<string:rcs_id>", methods=["GET"])
+def getOpportunityByProfessor(rcs_id: str):
+    if request.method == "GET":
+        # query database for opportunity
+        query = db.session.execute(
+            db.select(Opportunities, Leads)
+            .filter(Leads.lab_manager_rcs_id == rcs_id)
+            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+        )
+        
+        data = query.all()
+        print(data)
+
+        # return data in the below format if opportunity is found
+        return {"data": [opportunity[0].to_dict() for opportunity in data]}
+
+    abort(500)
 
 @main_blueprint.route("/getOpportunities", methods=["GET"])
 def getOpportunities():
@@ -185,13 +227,13 @@ def getOpportunities():
             .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
         )
         data = query.all()
-        
+        print(data[0])
+
         # return data in the below format if opportunity is found
-        return {
-            "data" : [opportunity[0].to_dict() for opportunity in data]
-        }
+        return {"data": [packageOpportunity(opportunity[0], opportunity[2]) for opportunity in data]}
 
     abort(500)
+
 
 @main_blueprint.route("/getProfessorMeta/<string:rcs_id>", methods=["GET"])
 def getProfessorMeta(rcs_id: str):
@@ -203,14 +245,13 @@ def getProfessorMeta(rcs_id: str):
 
         # query database to match user id and password from data received
         query = db.session.execute(
-            db.select(LabManager)
-            .filter(LabManager.rcs_id == rcs_id)
+            db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
         )
 
         # if match, return user data
         # more fields to be added here later
-        
-        data = (query.all()[0][0])
+
+        data = query.all()[0][0]
 
         return data.to_dict()
 
@@ -229,24 +270,24 @@ def deleteOpportunity():
         postID = data["postID"]
         authToken = data["authToken"]
         authorID = data["authorID"]
-        
+
         query = db.session.execute(
             db.select(Leads, Opportunities)
             .filter(Leads.opportunity_id == postID)
             .filter(Leads.lab_manager_rcs_id == authorID)
             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         )
-        
+
         data = query.all()
 
         # query database to see if the credentials above match
         print("pritning data")
         data = data[0][0]
-        
+
         # data.delete()
         # if match is found, delete the opportunity, return status 200
 
-        return {"name":"Done"}
+        return {"name": "Done"}
 
     abort(500)
 
@@ -267,7 +308,7 @@ def changeActiveStatus():
             .filter(Leads.lab_manager_rcs_id == authorID)
             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         )
-        
+
         data = query.all()[0][0]
         data.active = setStatus
 
@@ -276,6 +317,7 @@ def changeActiveStatus():
         abort(200)
 
     abort(500)
+
 
 @main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
 def editOpportunity():
@@ -293,9 +335,9 @@ def editOpportunity():
             .filter(Leads.lab_manager_rcs_id == authorID)
             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         )
-        
+
         data = query.all()[0][0]
-        
+
         # if match is found, edit the opportunity with the new data provided
         data.name = newPostData["name"]
         data.description = newPostData["description"]
@@ -312,6 +354,29 @@ def editOpportunity():
     abort(500)
 
 
+# create fake opportunity
+"""
+{
+    "authorID": "led",
+    "newPostData": {
+        "name": "Abid's AC System",
+        "description": "Time to cool your room with a new AC system!",
+        "recommended_experience": "Computer Science, ITWS, or any other major with a focus on technology.",
+        "pay": 25.0,
+        "credits": "4",
+        "semester": "Fall",
+        "year": 2024,
+        "application_due": "2024-03-30",
+        "active": True,
+        "courses": ["CSCI4430"],
+        "majors": ["PHYS"],
+        "years": [2023, 2024]
+    }
+}
+
+"""
+
+
 @main_blueprint.route("/createOpportunity", methods=["POST"])
 def createOpportunity():
     if request.method == "POST":
@@ -321,34 +386,56 @@ def createOpportunity():
 
         # query database to see if the credentials above match
         query = db.session.execute(
-            db.select(LabManager)
-            .filter(LabManager.rcs_id == authorID)
+            db.select(LabManager).filter(LabManager.rcs_id == authorID)
         )
-        
+
         data = query.all()[0][0]
-        
+
         # TODO: how do we get the opportunity id?
         # if match is found, create a new opportunity with the new data provided
         newOpportunity = Opportunities(
-            name = newPostData["name"],
-            description = newPostData["description"],
-            recommended_experience = newPostData["recommended_experience"],
-            pay = newPostData["pay"],
-            credits = newPostData["credits"],
-            semester = newPostData["semester"],
-            year = newPostData["year"],
-            application_due = newPostData["application_due"],
-            active = newPostData["active"]
+            name=newPostData["name"],
+            description=newPostData["description"],
+            recommended_experience=newPostData["recommended_experience"],
+            pay=newPostData["pay"],
+            credits=newPostData["credits"],
+            semester=newPostData["semester"],
+            year=newPostData["year"],
+            application_due=datetime.datetime.strptime(
+                newPostData["application_due"], "%Y-%m-%d"
+            ),
+            active=newPostData["active"],
         )
-        
-        newLead = Leads(
-            lab_manager_rcs_id = authorID,
-            opportunity_id = newOpportunity.id
-        )
-
         db.session.add(newOpportunity)
+        db.session.commit()
+
+        newLead = Leads(lab_manager_rcs_id=authorID, opportunity_id=newOpportunity.id)
+
         db.session.add(newLead)
         db.session.commit()
+
+        for course in newPostData["courses"]:
+            newCourse = RecommendsCourses(
+                opportunity_id=newOpportunity.id, course_code=course
+            )
+            db.session.add(newCourse)
+            db.session.commit()
+
+        for major in newPostData["majors"]:
+            newMajor = RecommendsMajors(
+                opportunity_id=newOpportunity.id, major_code=major
+            )
+            db.session.add(newMajor)
+            db.session.commit()
+
+        for year in newPostData["years"]:
+            newYear = RecommendsClassYears(
+                opportunity_id=newOpportunity.id, class_year=year
+            )
+            db.session.add(newYear)
+            db.session.commit()
+
+        # db.session.add(newOpportunity)
 
         abort(200)
 
