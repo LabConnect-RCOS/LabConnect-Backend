@@ -51,6 +51,37 @@ def packageOpportunity(opportunityInfo, professorInfo):
     return data
 
 
+def packageIndividualOpportunity(opportunityInfo, professorInfo):
+    data = {}
+    data["id"] = opportunityInfo.id
+    data["name"] = opportunityInfo.name
+    data["description"] = opportunityInfo.description
+    data["recommended_experience"] = opportunityInfo.recommended_experience
+    data["author"] = professorInfo.name
+    data["department"] = professorInfo.department_id
+
+    data["aboutSection"] = [
+        {
+            "title": "Pay",
+            "description": f"${opportunityInfo.pay} per hour",
+        },
+        {
+            "title": "Credits",
+            "description": f"{opportunityInfo.credits} credits",
+        },
+        {
+            "title": "Semester",
+            "description": f"{opportunityInfo.semester} {opportunityInfo.year}",
+        },
+        {
+            "title": "Application Due",
+            "description": opportunityInfo.application_due,
+        },
+    ]
+
+    return data
+
+
 @main_blueprint.route("/")
 def index():
     return {"Hello": "There"}
@@ -200,6 +231,7 @@ def getOpportunity(opp_id: int):
         .join(Leads, Leads.opportunity_id == Opportunities.id)
         .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
     )
+
     data = query.all()
 
     # check if opportunity exists
@@ -208,7 +240,7 @@ def getOpportunity(opp_id: int):
 
     data = data[0]
 
-    oppData = packageOpportunity(data[0], data[2])
+    oppData = packageIndividualOpportunity(data[0], data[2])
 
     # return data in the below format if opportunity is found
     return {"data": oppData}
@@ -272,9 +304,6 @@ def getProfileOpportunities(rcs_id: str):
 
         for row in data:
             opportunity = row[0]
-
-            if not opportunity.active:
-                continue
 
             oppData = {
                 "id": opportunity.id,
@@ -409,25 +438,37 @@ def deleteOpportunity():
         data = request.json
         postID = data["postID"]
         authToken = data["authToken"]
-        authorID = data["authorID"]
 
         query = db.session.execute(
-            db.select(Leads, Opportunities)
-            .filter(Leads.opportunity_id == postID)
-            .filter(Leads.lab_manager_rcs_id == authorID)
-            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+            db.select(Opportunities).filter(Opportunities.id == postID)
         )
 
         data = query.all()
 
+        if not data or len(data) == 0:
+            abort(404)
+
         # query database to see if the credentials above match
         print("pritning data")
         data = data[0][0]
+        print(data)
 
-        # data.delete()
-        # if match is found, delete the opportunity, return status 200
+        # This results in an error because you can't delete the recommends courses table
+        db.session.delete(data)
 
-        return {"name": "Done"}
+        db.session.commit()
+
+        abort(200)
+
+        # query = db.session.execute(
+        #     db.select(Opportunities).filter(Opportunities.id == postID)
+        # )
+
+        # data = query.all()
+
+        # # you have successfully deleted the opportunity
+        # if not data or len(data) < 0:
+        #     abort(200)
 
     abort(500)
 
@@ -442,8 +483,7 @@ def changeActiveStatus():
 
         # query database to see if the credentials above match
         query = db.session.execute(
-            db.select(Opportunities)
-            .filter(Opportunities.id == postID)
+            db.select(Opportunities).filter(Opportunities.id == postID)
         )
 
         data = query.all()
@@ -455,9 +495,9 @@ def changeActiveStatus():
         data = data[0][0]
 
         data.active = setStatus
-        
+
         db.session.commit()
-        
+
         if data.active != setStatus:
             abort(500)
 
@@ -531,7 +571,7 @@ def createOpportunity():
     if request.method == "POST":
         data = request.json
         authorID = data["authorID"]
-        newPostData = data["newPostData"]
+        newPostData = data
 
         # query database to see if the credentials above match
         query = db.session.execute(
@@ -542,6 +582,7 @@ def createOpportunity():
 
         # TODO: how do we get the opportunity id?
         # if match is found, create a new opportunity with the new data provided
+        
         newOpportunity = Opportunities(
             name=newPostData["name"],
             description=newPostData["description"],
@@ -551,12 +592,15 @@ def createOpportunity():
             semester=newPostData["semester"],
             year=newPostData["year"],
             application_due=datetime.datetime.strptime(
-                newPostData["application_due"], "%Y-%m-%d"
+                newPostData["date"], "%Y-%m-%d"
             ),
             active=newPostData["active"],
         )
+        print("before comitting")
         db.session.add(newOpportunity)
         db.session.commit()
+        
+        print ("got here atleast")
 
         newLead = Leads(lab_manager_rcs_id=authorID, opportunity_id=newOpportunity.id)
 
@@ -586,7 +630,7 @@ def createOpportunity():
 
         # db.session.add(newOpportunity)
 
-        abort(200)
+        return {"data": "Opportunity Created"}
 
     abort(500)
 

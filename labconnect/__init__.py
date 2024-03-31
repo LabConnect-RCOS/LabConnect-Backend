@@ -18,6 +18,7 @@ def create_app() -> Flask:
     # Create flask app object
     app = Flask(__name__)
     CORS(app)
+    
     app.config.from_object(os.environ.get("CONFIG", "config.TestingConfig"))
 
     initialize_extensions(app)

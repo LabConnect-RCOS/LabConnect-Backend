@@ -2,6 +2,7 @@ import React from "react";
 import LargeTextCard from "./LargeTextCard";
 
 import { useState, useEffect } from "react";
+import { type } from "@testing-library/user-event/dist/type";
 
 const DUMMY_DATA = {
   d1: [
@@ -43,7 +44,7 @@ const DUMMY_DATA = {
 // create fetch request to get the opportunities
 const fetchOpportunities = async (id) => {
   // Consider moving the base URL to a configuration
-  const baseURL = "http://localhost:8000"; 
+  const baseURL = "http://localhost:8000";
   const url = `${baseURL}/getProfessorOpportunityCards/led`;
 
   const response = await fetch(url);
@@ -57,29 +58,57 @@ const fetchOpportunities = async (id) => {
   return data;
 };
 
-
 const ProfileOpportunities = ({ id }) => {
-  
+  var [opportunities, setOpportunities] = useState(false);
+
+  const fetchOpportunities = async (key) => {
+    // Consider moving the base URL to a configuration
+    const baseURL = "http://localhost:8000";
+    const url = `${baseURL}/getProfessorOpportunityCards/led`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(
+        `Network response was not ok - Status: ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+    console.log(data);
+    return data["data"];
+  };
+
+  async function setData(key) {
+    const response = await fetchOpportunities(key);
+    response && setOpportunities(response);
+    response || setOpportunities("no response");
+  }
+
   useEffect(() => {
-    fetchOpportunities(id);
+    setData(id);
   }, [id]);
-  
-  
+
+  var opportunityList = (
+    <div className="flex gap-2 flex-wrap">
+      {id && opportunities && typeof opportunities === "object" &&
+        opportunities.map((opportunity) => (
+          <LargeTextCard
+            to={`/post/${opportunity.id}`}
+            title={opportunity.title}
+            body={opportunity.body}
+            attributes={opportunity.attributes}
+            key={opportunity.id}
+          />
+        ))}
+    </div>
+  );
+
   return (
     <div>
       <h1>Posted Opportunties</h1>
-      <div className="flex gap-2 flex-wrap">
-        {id &&
-          DUMMY_DATA[id].map((opportunity) => (
-            <LargeTextCard
-              to={`/post/${opportunity.id}`}
-              title={opportunity.title}
-              body={opportunity.body}
-              attributes={opportunity.attributes}
-              key={opportunity.id}
-            />
-          ))}
-      </div>
+      {opportunities ? opportunityList : "Loading..."}
+      {opportunities === "no response" && "No Opportunities Found"}
     </div>
   );
 };

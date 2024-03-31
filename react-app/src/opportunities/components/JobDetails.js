@@ -7,7 +7,7 @@ import SmallTextButton from "./SmallTextButton";
 import JobInteractionButton from "./JobInteractionButton";
 
 const JobDetails = ({
-  title,
+  name,
   author,
   department,
   description,
@@ -17,7 +17,7 @@ const JobDetails = ({
   return (
     <article className="job-details-header">
       <JobHeader
-        title={title}
+        title={name}
         author={author}
         img={authorProfile}
         department={department}
