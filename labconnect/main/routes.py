@@ -81,6 +81,30 @@ def packageIndividualOpportunity(opportunityInfo, professorInfo):
 
     return data
 
+def packageOpportunityCard(opportunity):
+    
+    # get professor and department by getting Leads and LabManager
+    query = db.session.execute(
+        db.select(Leads, LabManager)
+        .filter(Leads.opportunity_id == opportunity.id)
+        .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+    )
+    
+    data = query.all()
+    
+    professor = data[0][1]
+    
+    card = {
+        "id": opportunity.id,
+        "title": opportunity.name,
+        "professor": professor.name,
+        "season": opportunity.semester,
+        "location": "TBA",
+        "year": opportunity.year,
+    }
+    
+    return card
+    
 
 @main_blueprint.route("/")
 def index():
@@ -363,6 +387,27 @@ def getOpportunities():
                 packageOpportunity(opportunity[0], opportunity[2])
                 for opportunity in data
             ]
+        }
+
+    abort(500)
+
+# Jobs page
+    
+@main_blueprint.route("/getOpportunityCards", methods=["GET"])
+def getOpportunityCards():
+    if request.method == "GET":
+        # query database for opportunity
+        query = db.session.execute(
+            db.select(Opportunities, Leads)
+            .filter(Opportunities.active == True)
+            .join(Leads, Leads.opportunity_id == Opportunities.id)
+        )
+        
+        data = query.fetchall()
+
+        # return data in the below format if opportunity is found
+        return {
+            "data": [packageOpportunityCard(opportunity[0]) for opportunity in data]
         }
 
     abort(500)

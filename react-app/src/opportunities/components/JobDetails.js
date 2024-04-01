@@ -13,6 +13,7 @@ const JobDetails = ({
   description,
   authorProfile,
   aboutSection,
+  recommended_experience,
 }) => {
   return (
     <article className="job-details-header">
@@ -26,6 +27,15 @@ const JobDetails = ({
       <JobDescription
         description={`${
           description ? description : "No description available."
+        }`}
+      />
+
+      <JobDescription
+        title="Recommended Experience"
+        description={`${
+          recommended_experience
+            ? recommended_experience
+            : "No recommended experience available."
         }`}
       />
     </article>
