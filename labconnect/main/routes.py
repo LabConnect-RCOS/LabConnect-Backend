@@ -89,15 +89,22 @@ def department():
         abort(400)
 
     prof_data = db.session.execute(
-        db.select(LabManager.name)
+        db.select(LabManager)
         .filter(LabManager.department_id == department)
         .join(
             RPIDepartments,
             LabManager.department_id == RPIDepartments.name,
         )
     ).scalars()
+    # print(prof_data)
 
-    result2 = [prof for prof in prof_data]
+    result4 = [prof for prof in prof_data]
+    # print(result4)
+
+    result2 = [prof.name for prof in result4]
+    # print(result2)
+    Ids = [prof.rcs_id for prof in result4]
+    # print(Ids)
 
     result["Professors"] = result2
     ##query1 = (
@@ -108,20 +115,20 @@ def department():
     ##)
 
     # try1 at Opportunities
-    query = (
-        db.select(
-            Opportunities.id,
-            Opportunities.name,
-            Opportunities.description,
-            Opportunities.pay,
-            Opportunities.credits,
-        )
-        .filter(LabManager.departmentID.code == "CSCI")
-        .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
-        .join(Majors, RecommendsMajors.major_code == Majors.code)
-        ## commented out code above needs fixing
-    )
-    print(query)
+    # query = (
+    # db.select(
+    # Opportunities.id,
+    # Opportunities.name,
+    # Opportunities.description,
+    # Opportunities.pay,
+    # Opportunities.credits,
+    # )
+    # .filter(LabManager.departmentID.code == "CSCI")
+    # .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+    # .join(Majors, RecommendsMajors.major_code == Majors.code)
+    ## commented out code above needs fixing
+    # )
+    # print(query)
 
     # plan for second try at Opportunities
     # Currently have: school -> departmet -> lab managers (professors)
@@ -137,29 +144,46 @@ def department():
     # LabManager.department_id == RPIDepartments.name,
     ##)
     ##).scalars()
-    request_data = request.get_json()
-    rcs_id = request_data.get("rcs.id", None)
+    # return result
+    # request_data = request.get_json()
+    # rcs_id = request_data.get("rcs.id", None)
 
-    lab_manager = db.first_or_404(
-        db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
-    )
+    # lab_manager = db.first_or_404(
+    # db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
+    # )
 
-    result3 = lab_manager.to_dict()
-    data = db.sesion.execute(
-        db.select(Opportunities, Leads)
-        .filter(Leads.lab_manager_rcs_id == rcs_id)
-        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-    ).scalars()
+    # result3 = lab_manager.to_dict()
+    for id in Ids:
+        print(id)
+
+    opportunitys = []
+    for prof in Ids:
+        data = db.session.execute(
+            db.select(Opportunities, Leads)
+            .filter(Leads.lab_manager_rcs_id == prof)
+            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+        ).scalars()
+        print(data)
+        # print("hi")
+        for opp in data:
+            opportunitys.append(opp[1].to_dict())
+
+    # data = db.sesion.execute(
+    # db.select(Opportunities, Leads)
+    # .filter(Leads.lab_manager_rcs_id == rcs_id)
+    # .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+    # ).scalars()
 
     # leads_id =
-
-    result3["opportunities"] = [opportunity.to_dict() for opportunity in data]
+    print(opportunitys)
+    # result["opportunities"] = [opportunity.to_dict() for opportunity in data]
 
     ##print(lead_data)
 
     # return query
-    return result3
+    # return opportunitys
     return result
+    return result3
 
 
 @main_blueprint.route("/discover")
