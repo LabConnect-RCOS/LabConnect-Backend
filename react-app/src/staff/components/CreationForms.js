@@ -13,7 +13,7 @@ const DUMMY_DATA = {
     title: "Software Intern",
     department: "Computer Science",
     location: "Remote",
-    date: "2024-02-08",
+    application_due: "2024-02-08",
     upfrontPay: 0,
     salary: 0,
     credits: 0,
@@ -30,19 +30,19 @@ const CreationForms = () => {
   const { id: authorId } = state;
 
   async function fetchDetails(key) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(DUMMY_DATA[key]);
-      }, 5000);
-    });
-  }
-
-  async function fetchData(key) {
-    // create fake loading time
-
-    const response = await fetchDetails(key);
-    response && reset(response);
-    response ? setLoading(false) : setLoading("no response");
+    // return new Promise((resolve, reject) => {
+    //   setTimeout(() => {
+    //     resolve(DUMMY_DATA[key]);
+    //   }, 5000);
+    // });
+    const url = "http://localhost:8000/getOpportunityMeta/" + key;
+    const response = await fetch(url);
+    if (!response.ok) {
+      return false;
+    } else {
+      const data = await response.json();
+      return data.data;
+    }
   }
 
   const {
@@ -56,7 +56,7 @@ const CreationForms = () => {
       name: "",
       //department: "",
       //location: "",
-      date: "",
+      application_due: "",
       active: true,
       //upfrontPay: 0,
       //salary: 0,
@@ -65,10 +65,18 @@ const CreationForms = () => {
       recommended_experience: "",
       semester: [],
       pay: 0,
-      years: [""],
+      years: [2024],
       year: 2023,
     },
   });
+
+  async function fetchData(key) {
+    // create fake loading time
+
+    const response = await fetchDetails(key);
+    response && reset(response);
+    response ? setLoading(false) : setLoading("no response");
+  }
 
   useEffect(() => {
     postID && setLoading(true);
@@ -84,16 +92,15 @@ const CreationForms = () => {
       },
       body: JSON.stringify(data),
     });
-    
+
     if (!response.ok) {
       console.log("Failed to create opportunity");
     } else {
       console.log("Opportunity created");
-      
+
       // redirect to the profile page
       window.location.href = "/profile";
     }
-    
   };
 
   const submitHandler = (data) => {
@@ -169,9 +176,9 @@ const CreationForms = () => {
       <Input
         errors={errors}
         label="Due Date"
-        name={"date"}
+        name={"application_due"}
         errorMessage={"Due Date is required"}
-        formHook={{ ...register("date", { required: true }) }}
+        formHook={{ ...register("application_due", { required: true }) }}
         type="date"
       />
 
@@ -264,7 +271,7 @@ const CreationForms = () => {
 
       <CheckBox
         label="Eligible Years"
-        options={["2022", "2023", "2024"]}
+        options={[2022, 2023, 2024]}
         errors={errors}
         errorMessage={"At least one year must be selected"}
         name={"years"}

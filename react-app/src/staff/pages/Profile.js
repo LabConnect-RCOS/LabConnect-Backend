@@ -15,7 +15,7 @@ const DUMMY_STAFF_PROFILES = {
         pharetra sit amet aliquam id diam maecenas ultricies mi. Montes
         nascetur ridiculus mus mauris vitae ultricies leo. Porttitor massa
         id neque aliquam. Malesuada bibendum arcu vitae elementum. Nulla
-        aliquet porrsus mattis molestie aiaculis at erat pellentesque. 
+        aliquet porrsus mattis molestie aiaculis at erat pellentesque.
         At risus viverra adipiscing at.
         Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu
         feugiat. Eget fUt eu sem integer vitae justo

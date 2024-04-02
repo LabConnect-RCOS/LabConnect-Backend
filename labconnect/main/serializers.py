@@ -35,5 +35,5 @@ def serialize_opportunity(opportunity):
         # "class_years": [class_year.year for class_year in opportunity.class_years],
         # "departments": [department.department_code for department in opportunity.departments],
         # "schools": [school.school_code for school in opportunity.schools],
-        
+
     }

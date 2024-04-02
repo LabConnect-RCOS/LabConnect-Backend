@@ -21,6 +21,8 @@ class RPISchools(db.Model, CustomSerializerMixin):
 
     def __str__(self) -> str:
         return str(vars(self))
+    
+
 
 
 # rpi_departments( name, description ), key: name

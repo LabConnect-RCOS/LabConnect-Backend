@@ -1,11 +1,12 @@
 import datetime
 
+
 from typing import Any
 from flask import abort, request
 
 
 from labconnect import db
-from labconnect.helpers import SemesterEnum
+from labconnect.helpers import SemesterEnum, OrJSONProvider
 from labconnect.models import (
     ClassYears,
     Courses,
@@ -51,6 +52,7 @@ def packageOpportunity(opportunityInfo, professorInfo):
     return data
 
 
+
 def packageIndividualOpportunity(opportunityInfo, professorInfo):
     data = {}
     data["id"] = opportunityInfo.id
@@ -82,18 +84,18 @@ def packageIndividualOpportunity(opportunityInfo, professorInfo):
     return data
 
 def packageOpportunityCard(opportunity):
-    
+
     # get professor and department by getting Leads and LabManager
     query = db.session.execute(
         db.select(Leads, LabManager)
         .filter(Leads.opportunity_id == opportunity.id)
         .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
     )
-    
+
     data = query.all()
-    
+
     professor = data[0][1]
-    
+
     card = {
         "id": opportunity.id,
         "title": opportunity.name,
@@ -102,13 +104,13 @@ def packageOpportunityCard(opportunity):
         "location": "TBA",
         "year": opportunity.year,
     }
-    
+
     return card
-    
 
 @main_blueprint.route("/")
 def index():
     return {"Hello": "There"}
+
 
 
 @main_blueprint.route("/opportunities")
@@ -392,7 +394,7 @@ def getOpportunities():
     abort(500)
 
 # Jobs page
-    
+
 @main_blueprint.route("/getOpportunityCards", methods=["GET"])
 def getOpportunityCards():
     if request.method == "GET":
@@ -402,7 +404,7 @@ def getOpportunityCards():
             .filter(Opportunities.active == True)
             .join(Leads, Leads.opportunity_id == Opportunities.id)
         )
-        
+
         data = query.fetchall()
 
         # return data in the below format if opportunity is found
@@ -459,18 +461,25 @@ def getOpportunityMeta(id: int):
             )
         )
         data = query.all()
+        print(data)
 
         if not data or len(data) == 0:
             abort(404)
 
-        data = data[0]
+        dictionary = data[0][0].to_dict()
+        dictionary["semester"] = dictionary["semester"].upper()
+        dictionary["courses"] = set()
+        dictionary["majors"] = set()
+        dictionary["years"] = set()
 
-        print(data)
+        for row in data:
+                dictionary["courses"].add(row[2].course_code)
+                dictionary["majors"].add(row[1].major_code)
+                dictionary["years"].add(row[3].class_year)
 
-        dictionary = data[0].to_dict()
-        dictionary["courses"] = [data[2].course_code]
-        dictionary["majors"] = [data[1].major_code]
-        dictionary["years"] = [data[3].class_year]
+        dictionary["courses"] = list(dictionary["courses"])
+        dictionary["majors"] = list(dictionary["majors"])
+        dictionary["years"] = list(dictionary["years"])
 
         return {"data": dictionary}
 
@@ -627,7 +636,7 @@ def createOpportunity():
 
         # TODO: how do we get the opportunity id?
         # if match is found, create a new opportunity with the new data provided
-        
+
         newOpportunity = Opportunities(
             name=newPostData["name"],
             description=newPostData["description"],
@@ -637,14 +646,14 @@ def createOpportunity():
             semester=newPostData["semester"],
             year=newPostData["year"],
             application_due=datetime.datetime.strptime(
-                newPostData["date"], "%Y-%m-%d"
+                newPostData["application_due"], "%Y-%m-%d"
             ),
             active=newPostData["active"],
         )
         print("before comitting")
         db.session.add(newOpportunity)
         db.session.commit()
-        
+
         print ("got here atleast")
 
         newLead = Leads(lab_manager_rcs_id=authorID, opportunity_id=newOpportunity.id)

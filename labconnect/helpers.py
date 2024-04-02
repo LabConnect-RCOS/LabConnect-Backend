@@ -1,6 +1,7 @@
 from enum import Enum as EnumPython
 
 import orjson
+import json
 from flask.json.provider import JSONProvider
 from sqlalchemy_serializer import SerializerMixin
 
@@ -15,7 +16,8 @@ class OrJSONProvider(JSONProvider):
     def dumps(self, obj, *, option=None, **kwargs):
         if option is None:
             option = orjson.OPT_APPEND_NEWLINE | orjson.OPT_NAIVE_UTC
-
+        if isinstance(obj, set):
+            return orjson.dumps(list(obj), option=option).decode()
         return orjson.dumps(obj, option=option).decode()
 
     def loads(self, s, **kwargs):
@@ -39,10 +41,5 @@ def serializeOpportunity(data):
     oppData = data[0].to_dict()
     oppData["professor"] = data[2].name
     oppData["department"] = data[2].department_id
-    
+
     return oppData
-    
-    
-    
-    
-    
