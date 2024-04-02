@@ -205,7 +205,7 @@ const CreationForms = () => {
         formHook={{ ...register("years", { required: true }) }}
       />
 
-      <input type="submit" className="btn2 bg-blue-700" />
+      <input type="submit" className="btn btn-primary bg-blue-700" />
     </form>
   );
 

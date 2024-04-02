@@ -34,7 +34,7 @@ const OpportunityActionCard = ({
           
           {/* Edit button */}
           <Link to={editPath}>
-            <button className="btn-sm btn2">Edit</button>
+            <button className="btn-sm btn btn-primary">Edit</button>
           </Link>
 
 
@@ -50,7 +50,7 @@ const OpportunityActionCard = ({
 
           {/* Delete Button */}
           <button
-            className={"btn-sm btn2"}
+            className={"btn-sm btn btn-primary"}
             onClick={() => {
               deleteOpp(id);
             }}

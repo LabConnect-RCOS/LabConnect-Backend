@@ -2,10 +2,11 @@
 Test errors
 """
 
-import json
+from flask import json
+from flask.testing import FlaskClient
 
 
-def test_404_page(test_client) -> None:
+def test_404_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/abcsd' page is requested (GET)
@@ -16,7 +17,7 @@ def test_404_page(test_client) -> None:
     assert {"error": "404 not found"} == json.loads(response.data)
 
 
-def test_500_page(test_client) -> None:
+def test_500_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/professor/<professor>' page is requested (GET)

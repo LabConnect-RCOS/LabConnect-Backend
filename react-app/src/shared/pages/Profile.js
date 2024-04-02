@@ -65,7 +65,7 @@ const ProfilePage = () => {
   }, []);
 
   var editButton = (
-    <button className="btn2 my-3" onClick={changeEditMode}>
+    <button className="btn btn-primary my-3" onClick={changeEditMode}>
       {editMode ? "Cancel Changes" : "Edit Profile"}
     </button>
   );

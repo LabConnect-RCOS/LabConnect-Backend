@@ -1,4 +1,5 @@
 from typing import Any
+
 from flask import abort, request
 
 from labconnect import db
@@ -340,6 +341,9 @@ def years() -> list[Any]:
 
     result = [year.class_year for year in data]
 
+    if result == []:
+        abort(404)
+
     return result
 
 
@@ -366,5 +370,8 @@ def courses() -> list[Any]:
         abort(404)
 
     result = [course.to_dict() for course in data]
+
+    if result == []:
+        abort(404)
 
     return result
