@@ -11,6 +11,7 @@ import Center from "./staff/pages/Center";
 import CreatePost from "./staff/pages/CreatePost";
 import IndividualPost from "./opportunities/pages/IndividualPost";
 import ProfilePage from "./shared/pages/Profile.js";
+import SignIn from "./shared/pages/SignIn"
 import { GlobalContextProvider } from "./context/global/GlobalContextProvider.js";
 import useAuthActions from "./context/global/authActions.js";
 
@@ -33,6 +34,7 @@ function App() {
             element={<CreatePost edit={true} />}
           />
           <Route path="/post/:postID" element={<IndividualPost />} />
+          <Route path="/signInTemporary" element={<SignIn />} />
           <Route path="/signOut" element={<Home signOut={true} />} />
           <Route path="/signIn" element={<Home signIn={true} />} />
 
