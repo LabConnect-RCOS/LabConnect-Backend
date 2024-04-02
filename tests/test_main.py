@@ -280,16 +280,11 @@ def test_profile_page(test_client: FlaskClient) -> None:
     )
 
     print(json_data)
-    print("\n")
-
     assert json_data["rcs_id"] == profile_data[0]
     assert json_data["name"] == profile_data[1]
     # assert json_data["department_id"] == profile_data[2]
 
     opportunities = json_data["opportunities"]
-    print(opportunities[0]["semester"])
-    print("\n")
-
     for i, opportunity in enumerate(opportunities):
         assert opportunity["name"] == opportunity_data[i][0]
         assert opportunity["description"] == opportunity_data[i][1]
