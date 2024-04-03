@@ -2,7 +2,7 @@ from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 
 from labconnect import db
-from labconnect.helpers import CustomSerializerMixin, SemesterEnum
+from labconnect.helpers import CustomSerializerMixin, SemesterEnum, LocationEnum
 
 # DD - Entities
 
@@ -95,6 +95,8 @@ class Opportunities(db.Model, CustomSerializerMixin):
     year = db.Column(db.Integer, nullable=True, unique=False)
     application_due = db.Column(db.Date, nullable=True, unique=False)
     active = db.Column(db.Boolean, nullable=False, unique=False)
+    last_updated = db.Column(db.DateTime, nullable=True, unique=False)
+    location = db.Column(Enum(LocationEnum), nullable=True, unique=False)
 
     lab_managers = relationship(
         "Leads", back_populates="opportunity", passive_deletes=True
