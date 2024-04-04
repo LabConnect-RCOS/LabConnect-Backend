@@ -1,6 +1,6 @@
 from typing import Any
 
-from flask import abort, request, jsonify
+from flask import abort, request, jsonify, redirect, url_for
 from flask_jwt_extended import (
     create_access_token,
     get_jwt,
@@ -382,3 +382,37 @@ def courses() -> list[Any]:
         abort(404)
 
     return result
+
+
+@main_blueprint.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        email = request.form.get("email")
+        data = db.session.query(db.select(User).filter(User.email == email)).scalar()
+        # check to see if account already exists
+        if data:
+            return {
+                redirect(
+                    url_for(
+                        "login",
+                        message="Account with this Email already exists. Please login.",
+                    )
+                )
+            }
+        else:
+            # create new user object and add to db
+            user = User(
+                email=email,
+                name=request.form.get("name"),
+                id=request.form.get("id"),
+                password=request.form.get("password"),
+                department=request.form.get("department_id"),
+                class_year=request.form.get("class_year"),
+            )
+            db.session.add(user)
+            db.session.commit()
+            return {"Successfully registered"}
+
+    else:
+        # return the registration page so they can fill it in
+        return {"Registration form"}
