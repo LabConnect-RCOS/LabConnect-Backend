@@ -1,6 +1,6 @@
 import pytest
 
-from labconnect import create_app  # , db
+from labconnect import create_app
 from labconnect.models import *
 
 # --------
