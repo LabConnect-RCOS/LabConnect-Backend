@@ -163,10 +163,10 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         courses_rows = (
+            ("CSCI2300", "Introduction to Algorithms"),
             ("CSCI4430", "Programming Languages"),
             ("CSCI2961", "Rensselaer Center for Open Source"),
             ("CSCI4390", "Data Mining"),
-            ("CSCI2300", "Introduction to Algorithms"),
         )
 
         for row_tuple in courses_rows:
