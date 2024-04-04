@@ -12,6 +12,10 @@ class User(db.Model):
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
+    department_id = db.Column(db.String(100))
+    class_year = db.Column(db.Integer)
+    # past_opportunities - so they and professors can see what they previously worked on,
+    # could maybe insert it as db.text and covert back to dictionary/json
 
 
 # rpi_schools( name, description ), key: name
