@@ -19,8 +19,24 @@ def test_departments_route(test_client: FlaskClient) -> None:
     json_data = json.loads(response.data)
 
     rpi_departments_data = (
-        ("Computer Science", "Biology", "Materials Engineering"),
-        ("DS", "life", "also pretty cool"),
+        (
+            "Computer Science",
+            "Biology",
+            "Materials Engineering",
+            "Math",
+            "Environmental Engineering",
+            "Aerospace Engineering",
+            "Areonautical Engineering",
+        ),
+        (
+            "DS",
+            "life",
+            "also pretty cool",
+            "quick maths",
+            "water",
+            "space, the final frontier",
+            "flying, need for speed",
+        ),
     )
 
     for department in json_data:

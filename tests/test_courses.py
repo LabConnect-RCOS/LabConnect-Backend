@@ -37,8 +37,13 @@ def test_courses_route_with_input_code(test_client: FlaskClient) -> None:
     json_data = json.loads(response.data)
 
     course_data = (
-        ("CSCI2961", "CSCI4390", "CSCI4430"),
-        ("Rensselaer Center for Open Source", "Data Mining", "Programming Languages"),
+        ("CSCI2300", "CSCI2961", "CSCI4390", "CSCI4430"),
+        (
+            "Introduction to Algorithms",
+            "Rensselaer Center for Open Source",
+            "Data Mining",
+            "Programming Languages",
+        ),
     )
 
     for i, major in enumerate(json_data):
