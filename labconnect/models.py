@@ -13,9 +13,14 @@ class User(db.Model):
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
     department_id = db.Column(db.String(100))
-    class_year = db.Column(db.Integer)
-    # past_opportunities - so they and professors can see what they previously worked on,
-    # could maybe insert it as db.text and covert back to dictionary/json
+    class_year = db.Column(
+        db.Integer, db.ForeignKey("ClassYears.class_year"), primary_key=True
+    )
+    opportunities = relationship("Participates", back_populates="user")
+
+    year = relationship("ClassYears", back_populates="users")
+    departments = relationship("UserDepartments", back_populates="user")
+    majors = relationship("UserMajors", back_populates="user")
 
 
 # rpi_schools( name, description ), key: name
@@ -29,9 +34,6 @@ class RPISchools(db.Model, CustomSerializerMixin):
     description = db.Column(db.String(2000), nullable=True, unique=False)
 
     departments = relationship("RPIDepartments", back_populates="school")
-
-    def __str__(self) -> str:
-        return str(vars(self))
 
 
 # rpi_departments( name, description ), key: name
@@ -48,9 +50,7 @@ class RPIDepartments(db.Model, CustomSerializerMixin):
 
     school = relationship("RPISchools", back_populates="departments")
     lab_managers = relationship("LabManager", back_populates="department")
-
-    def __str__(self) -> str:
-        return str(vars(self))
+    users = relationship("UserDepartments", back_populates="department")
 
 
 # lab_manager( rcs_id, name ), key: rcs_id
@@ -71,9 +71,6 @@ class LabManager(db.Model, CustomSerializerMixin):
 
     department = relationship("RPIDepartments", back_populates="lab_managers")
     opportunities = relationship("Leads", back_populates="lab_manager")
-
-    def __str__(self) -> str:
-        return str(vars(self))
 
 
 # opportunities( id, name, description, active_status, recommended_experience ), key: id
@@ -112,9 +109,6 @@ class Opportunities(db.Model, CustomSerializerMixin):
         "RecommendsClassYears", back_populates="opportunity"
     )
 
-    def __str__(self) -> str:
-        return str(vars(self))
-
 
 # courses( course_code, course_name ), key: course_code
 class Courses(db.Model, CustomSerializerMixin):
@@ -128,9 +122,6 @@ class Courses(db.Model, CustomSerializerMixin):
 
     opportunities = relationship("RecommendsCourses", back_populates="course")
 
-    def __str__(self) -> str:
-        return str(vars(self))
-
 
 # majors( code, name ), key: code
 class Majors(db.Model, CustomSerializerMixin):
@@ -143,9 +134,7 @@ class Majors(db.Model, CustomSerializerMixin):
     name = db.Column(db.String(64), nullable=True, unique=False)
 
     opportunities = relationship("RecommendsMajors", back_populates="major")
-
-    def __str__(self) -> str:
-        return str(vars(self))
+    users = relationship("UserMajors", back_populates="major")
 
 
 # class_years( class_year ), key: class_year
@@ -159,12 +148,34 @@ class ClassYears(db.Model, CustomSerializerMixin):
     active = db.Column(db.Boolean)
 
     opportunities = relationship("RecommendsClassYears", back_populates="year")
-
-    def __str__(self) -> str:
-        return str(vars(self))
+    users = relationship("User", back_populates="year")
 
 
 # DD - Relationships
+
+
+# leads( lab_manager_rcs_id, opportunity_id ), key: (lab_manager_rcs_id, opportunity_id)
+class UserDepartments(db.Model):
+    __tablename__ = "user_departments"
+
+    user_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
+    department = db.Column(
+        db.Integer, db.ForeignKey("RPIDepartments.name"), primary_key=True
+    )
+
+    user = relationship("User", back_populates="departments")
+    department = relationship("RPIDepartments", back_populates="users")
+
+
+# leads( lab_manager_rcs_id, opportunity_id ), key: (lab_manager_rcs_id, opportunity_id)
+class UserMajors(db.Model):
+    __tablename__ = "user_majors"
+
+    user_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
+    major_code = db.Column(db.Integer, db.ForeignKey("Majors.code"), primary_key=True)
+
+    user = relationship("User", back_populates="departments")
+    major = relationship("Majors", back_populates="users")
 
 
 # leads( lab_manager_rcs_id, opportunity_id ), key: (lab_manager_rcs_id, opportunity_id)
@@ -181,8 +192,18 @@ class Leads(db.Model):
     lab_manager = relationship("LabManager", back_populates="opportunities")
     opportunity = relationship("Opportunities", back_populates="lab_managers")
 
-    def __str__(self) -> str:
-        return str(vars(self))
+
+# participates( user_id, opportunity_id ), key: (user_id, opportunity_id)
+class Participates(db.Model):
+    __tablename__ = "participates"
+
+    user_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
+    opportunity_id = db.Column(
+        db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
+    )
+
+    user = relationship("User", back_populates="opportunities")
+    opportunity = relationship("Opportunities", back_populates="lab_managers")
 
 
 # recommends_courses( opportunity_id, course_code ), key: (opportunity_id, course_code)
@@ -199,9 +220,6 @@ class RecommendsCourses(db.Model):
     opportunity = relationship("Opportunities", back_populates="courses")
     course = relationship("Courses", back_populates="opportunities")
 
-    def __str__(self) -> str:
-        return str(vars(self))
-
 
 # recommends_majors( opportunity_id, code ), key: (opportunity_id, code)
 class RecommendsMajors(db.Model):
@@ -214,9 +232,6 @@ class RecommendsMajors(db.Model):
 
     opportunity = relationship("Opportunities", back_populates="recommends_majors")
     major = relationship("Majors", back_populates="opportunities")
-
-    def __str__(self) -> str:
-        return str(vars(self))
 
 
 # recommends_c_years( opportunity_id, class_year ), key: (opportunity_id, class_year)
@@ -232,9 +247,6 @@ class RecommendsClassYears(db.Model):
 
     opportunity = relationship("Opportunities", back_populates="recommends_class_years")
     year = relationship("ClassYears", back_populates="opportunities")
-
-    def __str__(self) -> str:
-        return str(vars(self))
 
 
 """
