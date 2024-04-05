@@ -248,10 +248,13 @@ def login():
     email = json_data.get("email", None)
     password = json_data.get("password", None)
 
+    if email is None or password is None:
+        abort(400)
+
     data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
 
-    if not data:
-        abort(403)
+    if data is None:
+        abort(401)
 
     if not bcrypt.check_password_hash(data.password, password + email):
         return {"msg": "Wrong email or password"}, 401
