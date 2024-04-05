@@ -21,11 +21,10 @@ const Home = ({signOut, signIn}) => {
   
   return (
     <section className="flex flex-col h-screen justify-between">
-      <section className="text-center justify-center font-sans">
+      <section className="text-center font-sans">
         <div className="flex justify-center items-center">
           <img src={logo} alt="Logo" />
         </div>
-        <br/>
 
         <p className="text-xl">
           Welcome to LabConnect!
