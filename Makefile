@@ -16,5 +16,5 @@ test:
 drop:
 	python3 db_init.py clear
 
-db_create:
+create:
 	python3 db_init.py create
