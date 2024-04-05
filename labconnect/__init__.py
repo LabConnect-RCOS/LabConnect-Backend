@@ -6,7 +6,6 @@ import json
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from flask_wtf.csrf import CSRFProtect
 from flask_jwt_extended import (
     create_access_token,
     get_jwt,
@@ -15,8 +14,6 @@ from flask_jwt_extended import (
 )
 
 from labconnect.helpers import OrJSONProvider
-
-csrf_protection = CSRFProtect()
 
 # Create Database object
 db = SQLAlchemy()
@@ -46,7 +43,6 @@ def initialize_extensions(app) -> None:
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    csrf_protection.init_app(app)
     app.json = OrJSONProvider(app)
 
     @app.after_request

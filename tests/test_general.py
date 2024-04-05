@@ -95,4 +95,4 @@ def test_years_route(test_client: FlaskClient) -> None:
 
     assert response.status_code == 200
 
-    assert [2024, 2025, 2026, 2027, 2028, 2029] == json.loads(response.data)
+    assert [2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031] == json.loads(response.data)

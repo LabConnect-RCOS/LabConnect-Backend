@@ -2,7 +2,7 @@ from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 
 from labconnect import db
-from labconnect.helpers import CustomSerializerMixin, SemesterEnum
+from labconnect.helpers import CustomSerializerMixin, SemesterEnum, LocationEnum
 
 # DD - Entities
 
@@ -70,7 +70,9 @@ class LabManager(db.Model, CustomSerializerMixin):
     department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
 
     department = relationship("RPIDepartments", back_populates="lab_managers")
-    opportunities = relationship("Leads", back_populates="lab_manager")
+    opportunities = relationship(
+        "Leads", back_populates="lab_manager", passive_deletes=True
+    )
 
 
 # opportunities( id, name, description, active_status, recommended_experience ), key: id
@@ -101,12 +103,20 @@ class Opportunities(db.Model, CustomSerializerMixin):
     year = db.Column(db.Integer, nullable=True, unique=False)
     application_due = db.Column(db.Date, nullable=True, unique=False)
     active = db.Column(db.Boolean, nullable=False, unique=False)
+    last_updated = db.Column(db.DateTime, nullable=True, unique=False)
+    location = db.Column(Enum(LocationEnum), nullable=True, unique=False)
 
-    lab_managers = relationship("Leads", back_populates="opportunity")
-    courses = relationship("RecommendsCourses", back_populates="opportunity")
-    recommends_majors = relationship("RecommendsMajors", back_populates="opportunity")
+    lab_managers = relationship(
+        "Leads", back_populates="opportunity", passive_deletes=True
+    )
+    courses = relationship(
+        "RecommendsCourses", back_populates="opportunity", passive_deletes=True
+    )
+    recommends_majors = relationship(
+        "RecommendsMajors", back_populates="opportunity", passive_deletes=True
+    )
     recommends_class_years = relationship(
-        "RecommendsClassYears", back_populates="opportunity"
+        "RecommendsClassYears", back_populates="opportunity", passive_deletes=True
     )
 
 
@@ -120,7 +130,9 @@ class Courses(db.Model, CustomSerializerMixin):
     code = db.Column(db.String(8), primary_key=True)
     name = db.Column(db.String(128), nullable=True, unique=False)
 
-    opportunities = relationship("RecommendsCourses", back_populates="course")
+    opportunities = relationship(
+        "RecommendsCourses", back_populates="course", passive_deletes=True
+    )
 
 
 # majors( code, name ), key: code
@@ -133,7 +145,9 @@ class Majors(db.Model, CustomSerializerMixin):
     code = db.Column(db.String(4), primary_key=True)
     name = db.Column(db.String(64), nullable=True, unique=False)
 
-    opportunities = relationship("RecommendsMajors", back_populates="major")
+    opportunities = relationship(
+        "RecommendsMajors", back_populates="major", passive_deletes=True
+    )
     users = relationship("UserMajors", back_populates="major")
 
 
@@ -147,7 +161,9 @@ class ClassYears(db.Model, CustomSerializerMixin):
     class_year = db.Column(db.Integer, primary_key=True)
     active = db.Column(db.Boolean)
 
-    opportunities = relationship("RecommendsClassYears", back_populates="year")
+    opportunities = relationship(
+        "RecommendsClassYears", back_populates="year", passive_deletes=True
+    )
     users = relationship("User", back_populates="year")
 
 
@@ -183,10 +199,17 @@ class Leads(db.Model):
     __tablename__ = "leads"
 
     lab_manager_rcs_id = db.Column(
-        db.String(9), db.ForeignKey("lab_manager.rcs_id"), primary_key=True
+        db.String(9),
+        db.ForeignKey("lab_manager.rcs_id", ondelete="CASCADE"),
+        primary_key=True,
     )
     opportunity_id = db.Column(
-        db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
+        db.Integer,
+        db.ForeignKey(
+            "opportunities.id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
     )
 
     lab_manager = relationship("LabManager", back_populates="opportunities")
@@ -211,10 +234,14 @@ class RecommendsCourses(db.Model):
     __tablename__ = "recommends_courses"
 
     opportunity_id = db.Column(
-        db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
+        db.Integer,
+        db.ForeignKey("opportunities.id", ondelete="CASCADE"),
+        primary_key=True,
     )
     course_code = db.Column(
-        db.String(8), db.ForeignKey("courses.code"), primary_key=True
+        db.String(8),
+        db.ForeignKey("courses.code", ondelete="CASCADE"),
+        primary_key=True,
     )
 
     opportunity = relationship("Opportunities", back_populates="courses")
@@ -226,9 +253,15 @@ class RecommendsMajors(db.Model):
     __tablename__ = "recommends_majors"
 
     opportunity_id = db.Column(
-        db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
+        db.Integer,
+        db.ForeignKey("opportunities.id", ondelete="CASCADE"),
+        primary_key=True,
     )
-    major_code = db.Column(db.String(8), db.ForeignKey("majors.code"), primary_key=True)
+    major_code = db.Column(
+        db.String(8),
+        db.ForeignKey("majors.code", ondelete="CASCADE"),
+        primary_key=True,
+    )
 
     opportunity = relationship("Opportunities", back_populates="recommends_majors")
     major = relationship("Majors", back_populates="opportunities")
@@ -239,10 +272,14 @@ class RecommendsClassYears(db.Model):
     __tablename__ = "recommends_class_years"
 
     opportunity_id = db.Column(
-        db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
+        db.Integer,
+        db.ForeignKey("opportunities.id", ondelete="CASCADE"),
+        primary_key=True,
     )
     class_year = db.Column(
-        db.Integer, db.ForeignKey("class_years.class_year"), primary_key=True
+        db.Integer,
+        db.ForeignKey("class_years.class_year", ondelete="CASCADE"),
+        primary_key=True,
     )
 
     opportunity = relationship("Opportunities", back_populates="recommends_class_years")
