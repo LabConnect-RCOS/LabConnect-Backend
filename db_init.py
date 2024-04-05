@@ -11,7 +11,7 @@ from datetime import date, datetime
 
 from sqlalchemy import inspect, select
 
-from labconnect import create_app, db
+from labconnect import create_app, db, bcrypt
 from labconnect.helpers import SemesterEnum, LocationEnum
 from labconnect.models import LabManager  # Professors and Grad students
 from labconnect.models import (
@@ -25,6 +25,7 @@ from labconnect.models import (
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
+    User,
 )
 
 app = create_app()
@@ -225,6 +226,30 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        user_rows = (
+            (
+                "cenzar@rpi.edu",
+                "testpassworD1",
+                "Rafael",
+                2025,
+            ),
+            (
+                "test@rpi.edu",
+                "testpassworD2",
+                "RCOS",
+                2028,
+            ),
+        )
+        for r in user_rows:
+            row = User(
+                email=r[0],
+                password=bcrypt.generate_password_hash(r[1] + r[0]),
+                name=r[2],
+                class_year=r[3],
+            )
+            db.session.add(row)
+            db.session.commit()
+
         tables = [
             ClassYears,
             Courses,
@@ -237,6 +262,7 @@ elif sys.argv[1] == "create":
             RecommendsMajors,
             RPIDepartments,
             RPISchools,
+            User,
         ]
 
         for table in tables:
@@ -253,7 +279,3 @@ elif sys.argv[1] == "create":
             print()
 
         print("Number of tables:", len(tables))
-
-"""
-https://stackoverflow.com/questions/6039342/how-to-print-all-columns-in-sqlalchemy-orm
-"""
