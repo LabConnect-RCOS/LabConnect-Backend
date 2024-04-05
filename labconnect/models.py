@@ -8,12 +8,15 @@ from labconnect.helpers import CustomSerializerMixin, SemesterEnum, LocationEnum
 
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(150), unique=True)
-    password = db.Column(db.String(100))
-    name = db.Column(db.String(1000))
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    email = db.Column(db.String(150), nullable=False, unique=True)
+    password = db.Column(db.String(100), nullable=False, unique=False)
+    name = db.Column(db.String(1000), nullable=False, unique=False)
     class_year = db.Column(
-        db.Integer, db.ForeignKey("class_years.class_year"), primary_key=True
+        db.Integer,
+        db.ForeignKey("class_years.class_year"),
+        nullable=False,
+        unique=False,
     )
 
     opportunities = relationship("Participates", back_populates="user")
