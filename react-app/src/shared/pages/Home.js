@@ -2,6 +2,9 @@ import React, { useEffect } from "react";
 import useAuthActions from "../../context/global/authActions";
 import { Link } from "react-router-dom";
 
+import logo from "../../LabConnect_Logo.png"; 
+console.log(logo);
+
 const Home = ({signOut, signIn}) => {
   
   const {login, logout} = useAuthActions();
@@ -19,8 +22,9 @@ const Home = ({signOut, signIn}) => {
   return (
     <section className="flex flex-col h-screen justify-between">
       <section className="text-center justify-center font-sans">
-        <br/>
-        <img src="LabConnect_Logo.png" alt="Logo" className="flex"></img>
+        <div className="flex justify-center items-center">
+          <img src={logo} alt="Logo" />
+        </div>
         <br/>
 
         <p className="text-xl">
@@ -31,13 +35,18 @@ const Home = ({signOut, signIn}) => {
           If you are a professor or staff member, <Link className="no-underline"><b>Sign In</b></Link> and then go to <Link to="/createPost" className="no-underline"><b>Create</b></Link> to start posting <br/>
           opportunities or <Link to="/profile" className="no-underline"><b>Profile</b></Link> to view and edit your current posts.
         </p>
+        <br></br>
+        <br></br>
       </section>
       <section className="border-2 rounded p-2">
         <p className="text-center text-lg justify-center">
           Made by <Link to="https://new.rcos.io" className="no-underline text-red-400">RCOS</Link>
         </p>
         <div className="flex flex-row justify-between ">
-          <img src="misc/LabConnect_Logo.png" alt="Logo" className="px-5 w-60 h-60"></img>
+          <div>
+            <img src={logo} alt="Logo" className="h-40 w-136"></img>
+          </div>
+
           <div className="h-60 w-40">
             <p className="text-center">
               <b>Contact Us</b>

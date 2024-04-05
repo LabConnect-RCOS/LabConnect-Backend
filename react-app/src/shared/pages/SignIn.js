@@ -1,22 +1,13 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import useGlobalContext from "../../context/global/useGlobalContext";
-
 import Input from "../../staff/components/Input.js"
 
+import logo from "../../LabConnect_Logo2.png";
+console.log(logo);
+
 const SignIn = () => {
-
     const [loading, setLoading] = useState(false);
-
-    const submitHandler = (data) => {
-        if (authorId) {
-          console.log({...data, authorId});
-        }
-      };
-      const state = useGlobalContext();
-      const { loggedIn } = state;
-      const { id: authorId } = state;
 
     const {
         register,
@@ -31,15 +22,20 @@ const SignIn = () => {
       });
 
     var forms = (
+      <section className="flex2 justify-center text-center">
+        <div className="flex justify-center items-center">
+          <img src={logo} alt="Logo" />
+        </div>
+        <br />
         <form
           onSubmit={handleSubmit((data) => {
-            submitHandler(data);
+            console.log(...data);
           })}
-          className="flex2 gap-2"
+          className="gap-2 px-96"
         >
     
         <Input
-            label="RCS ID"
+            label="Username / RCS ID"
             name={"rcsid"}
             errors={errors}
             errorMessage={"RCSID must be between 2 and 9 characters"}
@@ -53,10 +49,10 @@ const SignIn = () => {
         />
 
         <Input
-            label="password"
+            label="Password"
             name={"password"}
             errors={errors}
-            errorMessage={"Passowrd must be between 8 and 30 characters"}
+            errorMessage={"Password must be between 8 and 30 characters"}
             formHook={{
               ...register("password", {
                 required: true,
@@ -66,19 +62,20 @@ const SignIn = () => {
             }}
           />
           
+          <br/>
     
-    
-          <input type="submit" className="btn btn-primary bg-blue-700" />
+          <input type="submit" value="Log In" className="btn btn-primary bg-red-900 w-full"/>
         </form>
-      );
-    
-      return !loading ? (
-        forms
-      ) : loading === "no response" ? (
-        <h1>There was no response</h1>
-      ) : (
-        <span className="creationforms-loading" />
-      );
-    };
+      </section>
+    );
+  
+    return !loading ? (
+      forms
+    ) : loading === "no response" ? (
+      <h1>There was no response</h1>
+    ) : (
+      <span className="creationforms-loading" />
+    );
+};
 
 export default SignIn;
