@@ -147,3 +147,15 @@ def test_logout_route_two(test_client: FlaskClient) -> None:
     assert response_logout.status_code == 200
 
     assert {"msg": "logout successful"} == json.loads(response_logout.data)
+
+
+def test_login_route_no_data(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/login' route is requested (POST)
+    THEN check that the response is valid
+    """
+
+    response = test_client.post("/login")
+
+    assert response.status_code == 400

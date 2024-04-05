@@ -10,7 +10,7 @@ run:
 develop:
 	python3 run.py
 
-test: 
+test: drop create
 	python3 -m pytest --cov --cov-report=html:coverage_report
 
 drop:
