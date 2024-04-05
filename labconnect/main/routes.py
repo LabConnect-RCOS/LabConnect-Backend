@@ -1,15 +1,8 @@
 from typing import Any
+from flask import abort, request
 
-from flask import abort, request, jsonify, redirect, url_for
-from flask_jwt_extended import (
-    create_access_token,
-    get_jwt,
-    get_jwt_identity,
-    jwt_required,
-    unset_jwt_cookies,
-)
-
-from labconnect import bcrypt, db
+from labconnect import db
+from .discover_algo import *
 from labconnect.helpers import SemesterEnum
 from labconnect.models import (
     ClassYears,
@@ -23,10 +16,29 @@ from labconnect.models import (
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
-    User,
 )
 
 from . import main_blueprint
+
+# Example queries
+# @main_blueprint.route("/test")
+# def test():
+#     query = (
+#         db.session.query(Opportunities, Majors)
+#         .filter(Majors.major_code == "CSCI")
+#         .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
+#         .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+#     )
+#     query = (
+#         db.session.query(Opportunities, Majors)
+#         .filter(Opportunities.id == 2)
+#         .join(RecommendsMajors, Opportunities.id == RecommendsMajors.opportunity_id)
+#         .join(Majors, RecommendsMajors.major_code == Majors.major_code)
+#     )
+#     print(query)
+#     data = query.all()
+#     print(data)
+#     return {"Hello": "There"}
 
 
 @main_blueprint.route("/")
@@ -89,109 +101,174 @@ def department():
 
 @main_blueprint.route("/discover")
 def discover():
-    query = (
-        # db.session.query(Opportunities, Majors)
-        # .filter(Majors.major_code == "CSCI")
-        # .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
-        # .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
-        db.select(
-            Opportunities.id,
-            Opportunities.name,
-            Opportunities.description,
-            Opportunities.pay,
-            Opportunities.credits,
-            Majors,
-            RecommendsMajors,
-        )
-        .filter(Majors.code == "CSCI")
-        .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
-        .join(Majors, RecommendsMajors.major_code == Majors.code)
-        # commented out code above needs fixing
-    )
+    return return_query()
+    # query = (
+    #     # db.session.query(Opportunities, Majors)
+    #     # .filter(Majors.major_code == "CSCI")
+    #     # .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
+    #     # .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+    #     db.select(
+    #         Opportunities.id,
+    #         Opportunities.name,
+    #         Opportunities.description,
+    #         Opportunities.pay,
+    #         Opportunities.credits,
+    #         Majors,
+    #         RecommendsMajors,
+    #     )
+    #     .filter(Majors.code == "CSCI")
+    #     .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+    #     .join(Majors, RecommendsMajors.major_code == Majors.code)
+    #     # commented out code above needs fixing
+    # )
 
-    print(query)
-    return {
-        "data": [
-            {
-                "title": "Nelson",
-                "major": "CS",
-                # "experience": "x",
-                # "description": "d",
-                "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
-                "credits": 4,
-                "pay": 9000.0,
-            },
-            {
-                "title": "Name",
-                "major": "Major",
-                # "experience": "XP",
-                # "description": "Hi",
-                "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
-                "credits": 3,
-                "pay": 123,
-            },
-        ]
-    }
-
-
-@main_blueprint.get("/lab_manager")
-def getLabManagers():
-    if not request.data:
-        abort(400)
-
-    rcs_id = request.get_json().get("rcs_id", None)
-
-    if not rcs_id:
-        abort(400)
-
-    data = db.first_or_404(db.select(LabManager).filter(LabManager.rcs_id == rcs_id))
-
-    result = data.to_dict()
-
-    return result
+    # print(query)
+    # return {
+    #     "data": [
+    #         {
+    #             "title": "Nelson",
+    #             "major": "CS",
+    #             # "experience": "x",
+    #             # "description": "d",
+    #             "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
+    #             "credits": 4,
+    #             "pay": 9000.0,
+    #         },
+    #         {
+    #             "title": "Name",
+    #             "major": "Major",
+    #             # "experience": "XP",
+    #             # "description": "Hi",
+    #             "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
+    #             "credits": 3,
+    #             "pay": 123,
+    #         },
+    #     ]
+    # }
 
 
-@main_blueprint.get("/opportunity")
-def getOpportunity():
-    if not request.data:
-        abort(400)
+@main_blueprint.route("/getOpportunity/<string:opp_id>", methods=["GET"])
+def getOpportunity(opp_id: str):
+    if request.method == "GET":
+        # query database for opportunity
 
-    id = request.get_json().get("id", None)
+        # return data in the below format if opportunity is found
+        return {
+            "id": "u1",
+            "title": "Software Engineer",
+            "department": "Computer Science",
+            "location": "Sage Hall",
+            "date": "2024-02-23",
+            "author": "John Doe",
+            "credits": 2,
+            "description": "This is a description",
+            "salary": 15,
+            "upfrontPay": 200,
+            "years": ["Freshman", "Junior", "Sophomore"],
+        }
 
-    if not id:
-        abort(400)
-
-    data = db.first_or_404(db.select(Opportunities).filter(Opportunities.id == id))
-
-    result = data.to_dict()
-
-    return result
+    abort(500)
 
 
-@main_blueprint.get("/lab_manager/opportunities")
-def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
-    if not request.data:
-        abort(400)
+@main_blueprint.route("/getProfessorProfile/<string:rcs_id>", methods=["GET"])
+def getProfessorProfile(rcs_id: str):
+    # test code until database code is added
+    if request.method == "GET":
+        return {
+            "name": "Peter Johnson",
+            "image": "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
+            "researchCenter": "Computational Fake Center",
+            "department": "Computer Science",
+            "description": """Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+        pharetra sit amet aliquam id diam maecenas ultricies mi. Montes
+        nascetur ridiculus mus mauris vitae ultricies leo. Porttitor massa
+        id neque aliquam. Malesuada bibendum arcu vitae elementum. Nulla
+        aliquet porrsus mattis molestie aiaculis at erat pellentesque. 
+        At risus viverra adipiscing at.
+        Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu
+        feugiat. Eget fUt eu sem integer vitae justo
+        eget magna fermentum. Lobortis feugiat vivamus at augue eget arcu
+        dictum. Et tortor at risus viverra adipiscing at in tellus.
+        Suspendisse sed nisi lacus sed viverra tellus. Potenti nullam ac
+        tortor vitae. Massa id neque aliquam vestibulum. Ornare arcu odio ut
+        sem nulla pharetra. Quam id leo in vitae turpis massa. Interdum
+        velit euismod in pellentesque massa placerat duis ultricies lacus.
+        Maecenas sed enim ut sem viverra aliquet eget sit amet. Amet
+        venenatis urna cursus eget nunc scelerisque viverra mauris. Interdum
+        varius sit amet mattis. Aliquet nec ullamcorper sit amet risus
+        nullam. Aliquam faucibus purus in massa tempor nec feugiat. Vitae
+        turpis massa sed elementum tempus. Feugiat in ante metus dictum at
+        tempor. Malesuada nunc vel risus commodo viverra maecenas accumsan.
+        Integer vitae justo.""",
+        }
 
-    rcs_id = request.get_json().get("rcs_id", None)
+    abort(500)
 
-    if not rcs_id:
-        abort(400)
 
-    data = db.session.execute(
-        db.select(Opportunities, LabManager)
-        .filter(LabManager.rcs_id == rcs_id)
-        .join(Leads, LabManager.rcs_id == Leads.lab_manager_rcs_id)
-        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-        .order_by(Opportunities.id)
-    ).scalars()
+@main_blueprint.route("/getProfessorOpportunityCards/<string:rcs_id>", methods=["GET"])
+def getProfessorOpportunityCards(rcs_id: str):
+    # test code until database code is added
+    if request.method == "GET":
 
-    if not data:
-        abort(404)
+        # query database for opportunities
 
-    result = {rcs_id: [opportunity.to_dict() for opportunity in data]}
+        # return opportunities
+        return {
+            rcs_id: [
+                {
+                    "title": "Chemistry Intern",
+                    "body": "Due February 15, 2023",
+                    "attributes": ["Remote", "Paid", "Credits"],
+                    "id": "o1",
+                },
+                {
+                    "title": "Chemistry Intern",
+                    "body": "Due February 15, 2023",
+                    "attributes": ["Remote", "Paid", "Credits"],
+                    "id": "o2",
+                },
+                {
+                    "title": "Chemistry Intern",
+                    "body": "Due February 15, 2023",
+                    "attributes": ["Remote", "Paid", "Credits"],
+                    "id": "o3",
+                },
+                {
+                    "title": "Chemistry Intern",
+                    "body": "Due February 15, 2023",
+                    "attributes": ["Remote", "Paid", "Credits"],
+                    "id": "o4",
+                },
+            ]
+        }
+    abort(500)
 
-    return result
+
+@main_blueprint.route("/getProfessorMeta", methods=["GET"])
+def getProfessorMeta():
+    if request.method == "GET":
+        data = request.json
+
+        user_id = data["user_id"]
+        auth_token = data["authToken"]
+
+        # query database to match user id and password from data received
+
+        # if match, return user data
+        # more fields to be added here later
+
+        return {
+            "name": "Dr. Peter Johnson",
+            "department": "Computer Science",
+            "researchCenter": "Computational Fake Center",
+            "email": "johnj@rpi.edu",
+            "phone": "518-123-4567",
+            "description": """Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do""",
+            "image": "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
+        }
+
+    abort(500)
 
 
 # _______________________________________________________________________________________________#
@@ -239,69 +316,9 @@ def create_post():
     return {"Hello": "There"}
 
 
-@main_blueprint.post("/register")
-def register():
-
-    if not request.data:
-        abort(400)
-
-    json_data = request.get_json()
-    email = json_data.get("email", None)
-    password = json_data.get("password", None)
-    name = json_data.get("name", None)
-    class_year = json_data.get("class_year", None)
-
-    if email is None or password is None or name is None or class_year is None:
-        abort(400)
-
-    data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
-
-    if data is None:
-        user = User(
-            email=email,
-            password=bcrypt.generate_password_hash(password + email),
-            name=name,
-            class_year=class_year,
-        )
-        db.session.add(user)
-        db.session.commit()
-
-        return {"msg": "User created successfully"}
-
-    return {"msg": "User already exists"}, 403
-
-
-@main_blueprint.post("/login")
+@main_blueprint.route("/login")
 def login():
-    if not request.data:
-        abort(400)
-
-    json_data = request.get_json()
-    email = json_data.get("email", None)
-    password = json_data.get("password", None)
-
-    if email is None or password is None:
-        abort(400)
-
-    data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
-
-    if data is None:
-        abort(401)
-
-    if not bcrypt.check_password_hash(data.password, password + email):
-        return {"msg": "Wrong email or password"}, 401
-
-    access_token = create_access_token(identity=email)
-    response = {"access_token": access_token}
-
-    return response
-
-
-@main_blueprint.get("/logout")
-def logout():
-    response = jsonify({"msg": "logout successful"})
-    unset_jwt_cookies(response)
-    return response
+    return {"Hello": "There"}
 
 
 @main_blueprint.route("/500")
@@ -313,10 +330,6 @@ def force_error():
 def schools() -> list[Any]:
 
     data = db.session.execute(db.select(RPISchools).order_by(RPISchools.name)).scalars()
-
-    if not data:
-        abort(404)
-
     result = [school.to_dict() for school in data]
 
     return result
@@ -328,10 +341,6 @@ def departments() -> list[Any]:
     data = db.session.execute(
         db.select(RPIDepartments).order_by(RPIDepartments.name)
     ).scalars()
-
-    if not data:
-        abort(404)
-
     result = [department.to_dict() for department in data]
 
     return result
@@ -351,19 +360,11 @@ def majors() -> list[Any]:
                 | (Majors.name.ilike(f"%{partial_key}%"))
             )
         ).scalars()
-
-        if not data:
-            abort(404)
-
         result = [major.to_dict() for major in data]
 
         return result
 
     data = db.session.execute(db.select(Majors).order_by(Majors.code)).scalars()
-
-    if not data:
-        abort(404)
-
     result = [major.to_dict() for major in data]
 
     return result
@@ -377,14 +378,7 @@ def years() -> list[Any]:
         .order_by(ClassYears.class_year)
         .filter(ClassYears.active == True)
     ).scalars()
-
-    if not data:
-        abort(404)
-
     result = [year.class_year for year in data]
-
-    if result == []:
-        abort(404)
 
     return result
 
@@ -408,12 +402,6 @@ def courses() -> list[Any]:
         )
     ).scalars()
 
-    if not data:
-        abort(404)
-
     result = [course.to_dict() for course in data]
-
-    if result == []:
-        abort(404)
 
     return result
