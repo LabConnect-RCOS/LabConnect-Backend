@@ -107,66 +107,36 @@ def department():
     # print(Ids)
 
     result["Professors"] = result2
-    ##query1 = (
-    ##db.session.query(Opportunities, Majors)
-    ##.filter(Majors.major_code == "CSCI")
-    ##.join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
-    ##.join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
-    ##)
-
-    # try1 at Opportunities
-    # query = (
-    # db.select(
-    # Opportunities.id,
-    # Opportunities.name,
-    # Opportunities.description,
-    # Opportunities.pay,
-    # Opportunities.credits,
-    # )
-    # .filter(LabManager.departmentID.code == "CSCI")
-    # .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
-    # .join(Majors, RecommendsMajors.major_code == Majors.code)
-    ## commented out code above needs fixing
-    # )
-    # print(query)
 
     # plan for second try at Opportunities
     # Currently have: school -> departmet -> lab managers (professors)
     # Need to add: lab managers -> leads -> opportunities
 
-    ##lead_data = db.session.execute(
-    ##db.select(Leads.lab_manager_rcs_id)
-    # .filter(LabManager.departmentID.code == "CSCI")
-    ##.join(LabManager.rcs_id == Leads.lab_manager_rcs_id)
-    # .filter(LabManager.department_id == department)
-    # .join(
-    # RPIDepartments,
-    # LabManager.department_id == RPIDepartments.name,
-    ##)
-    ##).scalars()
-    # return result
-    # request_data = request.get_json()
-    # rcs_id = request_data.get("rcs.id", None)
-
-    # lab_manager = db.first_or_404(
-    # db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
-    # )
-
-    # result3 = lab_manager.to_dict()
     for id in Ids:
         print(id)
 
     opportunitys = []
+    leads = []
     for prof in Ids:
         data = db.session.execute(
             db.select(Opportunities, Leads)
             .filter(Leads.lab_manager_rcs_id == prof)
             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         ).scalars()
-        print(data)
-        # print("hi")
-        for opp in data:
-            opportunitys.append(opp[1].to_dict())
+        print(Leads.lab_manager_rcs_id == prof)
+
+    for opp in data:
+        opportunitys.append(opp.name)
+
+    id_holder = []
+    for opp_id in data:
+        id_holder.append(opp_id.id)
+
+    for thing in opportunitys:
+        print(thing)
+
+    result["Opportunitys"] = opportunitys
+    leads.append(opp.to_dict())
 
     # data = db.sesion.execute(
     # db.select(Opportunities, Leads)
@@ -175,7 +145,7 @@ def department():
     # ).scalars()
 
     # leads_id =
-    print(opportunitys)
+    # *print(opportunitys)
     # result["opportunities"] = [opportunity.to_dict() for opportunity in data]
 
     ##print(lead_data)
