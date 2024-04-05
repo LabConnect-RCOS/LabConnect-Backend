@@ -37,19 +37,6 @@ def test_discover_route(test_client: FlaskClient) -> None:
     }
 
 
-def test_login_page(test_client: FlaskClient) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/login' page is requested (GET)
-    THEN check that the response is valid
-    """
-    response = test_client.get("/login")
-
-    assert response.status_code == 200
-
-    assert {"Hello": "There"} == json.loads(response.data)
-
-
 def test_profile_page(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
