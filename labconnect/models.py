@@ -12,9 +12,8 @@ class User(db.Model):
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
-    department_id = db.Column(db.String(100))
     class_year = db.Column(
-        db.Integer, db.ForeignKey("ClassYears.class_year"), primary_key=True
+        db.Integer, db.ForeignKey("class_years.class_year"), primary_key=True
     )
     opportunities = relationship("Participates", back_populates="user")
 
@@ -109,6 +108,9 @@ class Opportunities(db.Model, CustomSerializerMixin):
     lab_managers = relationship(
         "Leads", back_populates="opportunity", passive_deletes=True
     )
+    users = relationship(
+        "Participates", back_populates="opportunity", passive_deletes=True
+    )
     courses = relationship(
         "RecommendsCourses", back_populates="opportunity", passive_deletes=True
     )
@@ -174,9 +176,9 @@ class ClassYears(db.Model, CustomSerializerMixin):
 class UserDepartments(db.Model):
     __tablename__ = "user_departments"
 
-    user_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
-    department = db.Column(
-        db.Integer, db.ForeignKey("RPIDepartments.name"), primary_key=True
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    department_id = db.Column(
+        db.Integer, db.ForeignKey("rpi_departments.name"), primary_key=True
     )
 
     user = relationship("User", back_populates="departments")
@@ -187,10 +189,10 @@ class UserDepartments(db.Model):
 class UserMajors(db.Model):
     __tablename__ = "user_majors"
 
-    user_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
-    major_code = db.Column(db.Integer, db.ForeignKey("Majors.code"), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    major_code = db.Column(db.Integer, db.ForeignKey("majors.code"), primary_key=True)
 
-    user = relationship("User", back_populates="departments")
+    user = relationship("User", back_populates="majors")
     major = relationship("Majors", back_populates="users")
 
 
@@ -220,13 +222,13 @@ class Leads(db.Model):
 class Participates(db.Model):
     __tablename__ = "participates"
 
-    user_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     opportunity_id = db.Column(
         db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
     )
 
     user = relationship("User", back_populates="opportunities")
-    opportunity = relationship("Opportunities", back_populates="lab_managers")
+    opportunity = relationship("Opportunities", back_populates="users")
 
 
 # recommends_courses( opportunity_id, course_code ), key: (opportunity_id, course_code)
