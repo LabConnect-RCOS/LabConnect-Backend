@@ -265,7 +265,7 @@ def login():
     return response
 
 
-@main_blueprint.post("/logout")
+@main_blueprint.get("/logout")
 def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
