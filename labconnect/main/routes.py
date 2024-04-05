@@ -239,6 +239,38 @@ def create_post():
     return {"Hello": "There"}
 
 
+@main_blueprint.post("/register")
+def register():
+
+    if not request.data:
+        abort(400)
+
+    json_data = request.get_json()
+    email = json_data.get("email", None)
+    password = json_data.get("password", None)
+    name = json_data.get("name", None)
+    class_year = json_data.get("class_year", None)
+
+    if email is None or password is None or name is None or class_year is None:
+        abort(400)
+
+    data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
+
+    if data is None:
+        user = User(
+            email=email,
+            password=bcrypt.generate_password_hash(password + email),
+            name=name,
+            class_year=class_year,
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        return {"msg": "User created successfully"}
+
+    return {"msg": "User already exists"}, 403
+
+
 @main_blueprint.post("/login")
 def login():
     if not request.data:
@@ -385,37 +417,3 @@ def courses() -> list[Any]:
         abort(404)
 
     return result
-
-
-@main_blueprint.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "POST":
-        email = request.form.get("email")
-        data = db.session.query(db.select(User).filter(User.email == email)).scalar()
-        # check to see if account already exists
-        if data:
-            return {
-                redirect(
-                    url_for(
-                        "login",
-                        message="Account with this Email already exists. Please login.",
-                    )
-                )
-            }
-        else:
-            # create new user object and add to db
-            user = User(
-                email=email,
-                name=request.form.get("name"),
-                id=request.form.get("id"),
-                password=request.form.get("password"),
-                department=request.form.get("department_id"),
-                class_year=request.form.get("class_year"),
-            )
-            db.session.add(user)
-            db.session.commit()
-            return {"Successfully registered"}
-
-    else:
-        # return the registration page so they can fill it in
-        return {"Registration form"}
