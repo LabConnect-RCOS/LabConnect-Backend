@@ -10,6 +10,7 @@ from flask_jwt_extended import (
 )
 
 from labconnect import bcrypt, db
+from .discover_algo import *
 from labconnect.helpers import SemesterEnum
 from labconnect.models import (
     ClassYears,
