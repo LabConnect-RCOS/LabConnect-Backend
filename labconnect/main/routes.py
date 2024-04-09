@@ -95,26 +95,15 @@ def department():
             LabManager.department_id == RPIDepartments.name,
         )
     ).scalars()
-    # print(prof_data)
 
     result4 = [prof for prof in prof_data]
-    # print(result4)
 
     result2 = [prof.name for prof in result4]
-    # print(result2)
     Ids = [prof.rcs_id for prof in result4]
-    # print(Ids)
 
     result["Professors"] = result2
 
-    # plan for second try at Opportunities
-    # Currently have: school -> departmet -> lab managers (professors)
-    # Need to add: lab managers -> leads -> opportunities
-
-    for id in Ids:
-        print(id)
-
-    opportunitys = []
+    opportunitys = {}
     leads = []
     for prof in Ids:
         data = db.session.execute(
@@ -125,11 +114,18 @@ def department():
         print(Leads.lab_manager_rcs_id == prof)
 
     for opp in data:
-        opportunitys.append(opp.name)
+        hold = [opp.id, opp.year, opp.semester, opp.active]
+        opportunitys[opp.name] = hold
+        print(hold)
+
+    for opp in data:
+        opportunitys.append(opp.id)
 
     id_holder = []
     for opp_id in data:
         id_holder.append(opp_id.id)
+    for opp_id in data:
+        id_holder.append(opp_id.name)
 
     for thing in opportunitys:
         print(thing)
@@ -137,22 +133,7 @@ def department():
     result["Opportunitys"] = opportunitys
     leads.append(opp.to_dict())
 
-    # data = db.sesion.execute(
-    # db.select(Opportunities, Leads)
-    # .filter(Leads.lab_manager_rcs_id == rcs_id)
-    # .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-    # ).scalars()
-
-    # leads_id =
-    # *print(opportunitys)
-    # result["opportunities"] = [opportunity.to_dict() for opportunity in data]
-
-    ##print(lead_data)
-
-    # return query
-    # return opportunitys
     return result
-    return result3
 
 
 @main_blueprint.route("/discover")
