@@ -2,6 +2,7 @@ import React from "react";
 import usePageNavigation from "../../shared/hooks/page-navigation-hook";
 import PageNavigation from "../../shared/components/Navigation/PageNavigation";
 import BrowseItems from "../components/BrowseItems";
+import StickyFooter from "../../shared/components/Navigation/StickyFooter.js"
 
 const DUMMY_DATA = {
   to: "/staff",
@@ -55,6 +56,8 @@ const Browse = () => {
       {pages.activePage === "Departments" && (
         <BrowseItems to={DUMMY_DATA.to} items={DUMMY_DATA.items} />
       )}
+      <br/><br/>
+      <StickyFooter/>
     </section>
   );
 };
