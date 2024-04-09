@@ -417,3 +417,18 @@ def courses() -> list[Any]:
         abort(404)
 
     return result
+
+
+@main_blueprint.get("/user")
+def user():
+    if not request.data:
+        abort(400)
+
+    id = request.get_json().get("id", None)
+    print(id)
+
+    data = db.first_or_404(db.select(User).filter(User.id == id))
+
+    result = data.to_dict()
+
+    return result
