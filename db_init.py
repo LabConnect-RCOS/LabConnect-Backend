@@ -7,12 +7,12 @@ Then pass an Executable into Session.execute()
 """
 
 import sys
-from datetime import date
+from datetime import date, datetime
 
 from sqlalchemy import inspect, select
 
-from labconnect import create_app, db
-from labconnect.helpers import SemesterEnum
+from labconnect import create_app, db, bcrypt
+from labconnect.helpers import SemesterEnum, LocationEnum
 from labconnect.models import LabManager  # Professors and Grad students
 from labconnect.models import (
     ClassYears,
@@ -25,6 +25,7 @@ from labconnect.models import (
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
+    User,
 )
 
 app = create_app()
@@ -54,6 +55,18 @@ elif sys.argv[1] == "create":
             ("Computer Science", "DS", "School of Science"),
             ("Biology", "life", "School of Science"),
             ("Materials Engineering", "also pretty cool", "School of Engineering"),
+            ("Math", "quick maths", "School of Science"),
+            ("Environmental Engineering", "water", "School of Engineering"),
+            (
+                "Aerospace Engineering",
+                "space, the final frontier",
+                "School of Engineering",
+            ),
+            (
+                "Areonautical Engineering",
+                "flying, need for speed",
+                "School of Engineering",
+            ),
         )
 
         for row_tuple in rpi_departments_rows:
@@ -66,7 +79,11 @@ elif sys.argv[1] == "create":
         lab_manager_rows = (
             ("led", "Duy Le", "Computer Science"),
             ("cenzar", "Rafael", "Computer Science"),
-            
+            ("turner", "Rafael", "Computer Science"),
+            ("kuzmin", "Rafael", "Computer Science"),
+            ("goldd", "Goldschmidt", "Computer Science"),
+            ("rami", "Rami", "Material Science"),
+            ("holm", "Holmes", "Math"),
         )
 
         for row_tuple in lab_manager_rows:
@@ -87,6 +104,8 @@ elif sys.argv[1] == "create":
                 2024,
                 date.today(),
                 True,
+                datetime.now(),
+                LocationEnum.CCI,
             ),
             (
                 "Iphone 15 durability test",
@@ -98,6 +117,34 @@ elif sys.argv[1] == "create":
                 2024,
                 date.today(),
                 True,
+                datetime.now(),
+                LocationEnum.LALLY,
+            ),
+            (
+                "Checking out cubes",
+                "Material Sciences",
+                "Experienced in materials.",
+                None,
+                "1,2,3,4",
+                SemesterEnum.FALL,
+                2024,
+                date.today(),
+                True,
+                datetime.now(),
+                LocationEnum.MRC,
+            ),
+            (
+                "Test the water",
+                "Testing the quality of water in Troy pipes",
+                "Understanding of lead poisioning",
+                None,
+                "3,4",
+                SemesterEnum.SUMMER,
+                2024,
+                date.today(),
+                True,
+                datetime.now(),
+                LocationEnum.JEC,
             ),
         )
 
@@ -117,6 +164,7 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         courses_rows = (
+            ("CSCI2300", "Introduction to Algorithms"),
             ("CSCI4430", "Programming Languages"),
             ("CSCI2961", "Rensselaer Center for Open Source"),
             ("CSCI4390", "Data Mining"),
@@ -140,7 +188,7 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        class_years_rows = (2024, 2025, 2026, 2027, 2028, 2029)
+        class_years_rows = (2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031)
 
         for row_item in class_years_rows:
             row = ClassYears(class_year=row_item, active=True)
@@ -178,6 +226,30 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        user_rows = (
+            (
+                "cenzar@rpi.edu",
+                "testpassworD1",
+                "Rafael",
+                2025,
+            ),
+            (
+                "test@rpi.edu",
+                "testpassworD2",
+                "RCOS",
+                2028,
+            ),
+        )
+        for r in user_rows:
+            row = User(
+                email=r[0],
+                password=bcrypt.generate_password_hash(r[1] + r[0]),
+                name=r[2],
+                class_year=r[3],
+            )
+            db.session.add(row)
+            db.session.commit()
+
         tables = [
             ClassYears,
             Courses,
@@ -190,6 +262,7 @@ elif sys.argv[1] == "create":
             RecommendsMajors,
             RPIDepartments,
             RPISchools,
+            User,
         ]
 
         for table in tables:
@@ -206,7 +279,3 @@ elif sys.argv[1] == "create":
             print()
 
         print("Number of tables:", len(tables))
-
-"""
-https://stackoverflow.com/questions/6039342/how-to-print-all-columns-in-sqlalchemy-orm
-"""

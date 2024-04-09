@@ -10,8 +10,8 @@ const FiltersField = ({ deleteFilter, filters }) => {
   return (
     <div>
       <hr />
-      <div className="px-3 overflow-x-scroll max-h-20 flex gap-3">
-        <div className="flex gap-2 w-full">
+      <div className="filters-template">
+        <div className="filters-search">
           <SearchBar />
 
           <GroupedComponents gap={2}>
@@ -29,7 +29,7 @@ const FiltersField = ({ deleteFilter, filters }) => {
           </GroupedComponents>
         </div>
 
-        <SmallTextButton className="justify-end w-full" special={true}>
+        <SmallTextButton className="all-filters-btn" special={true}>
           <PiSlidersHorizontal />
           All Filters
         </SmallTextButton>

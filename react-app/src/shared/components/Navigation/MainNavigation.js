@@ -66,22 +66,22 @@ export default function MainNavigation() {
     <Disclosure as="nav" className="bg-slate-50">
       {({ open }) => (
         <>
-          <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-            <div className="relative flex h-16 items-center justify-between">
-              <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
+          <div className="mainnav sm:px-6 lg:px-8">
+            <div className="mainnav-header">
+              <div className="mainnav-desc sm:hidden">
                 {/* Mobile menu button*/}
-                <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                <Disclosure.Button className="btn-disclosure hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                   <span className="absolute -inset-0.5" />
                   <span className="sr-only">Open main menu</span>
                   {open ? (
-                    <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                    <XMarkIcon className="blck66" aria-hidden="true" />
                   ) : (
-                    <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                    <Bars3Icon className="blck66" aria-hidden="true" />
                   )}
                 </Disclosure.Button>
               </div>
-              <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                <div className="flex flex-shrink-0 items-center">
+              <div className="mainnav-desc2 sm:items-stretch sm:justify-start">
+                <div className="mainnav-title-link">
                   <Link to="/" className="no-underline">
                     Labconnect
                   </Link>
@@ -97,7 +97,7 @@ export default function MainNavigation() {
                             location == item.href
                               ? "text-black"
                               : "text-gray-600"
-                          } hover:text-gray-800  hover:bg-gray-200  rounded-md px-3 py-2 text-sm font-medium no-underline`}
+                          } hover:text-gray-800  hover:bg-gray-200  mainnav-link`}
                           aria-current={item.current}
                         >
                           {item.name}
@@ -110,7 +110,7 @@ export default function MainNavigation() {
                             location == item.href
                               ? "text-black"
                               : "text-gray-600"
-                          } hover:text-gray-800  hover:bg-gray-200  rounded-md px-3 py-2 text-sm font-medium no-underline`}
+                          } hover:text-gray-800  hover:bg-gray-200  mainnav-link`}
                           aria-current={item.current}
                         >
                           {item.name}
@@ -130,7 +130,7 @@ export default function MainNavigation() {
                   key={item.name}
                   as="a"
                   href={item.href}
-                  className="text-black no-underline hover:bg-gray-200 block rounded-md px-3 py-2 text-base font-medium"
+                  className="btn-disclosure2 hover:bg-gray-200"
                   aria-current={item.current ? "page" : undefined}
                 >
                   {item.name}

@@ -3,12 +3,12 @@ import AboutSectionElement from "./AboutSectionElement";
 
 const AboutSection = ({ aboutSection }) => {
   let i = 0;
-  
-  return (
-    <section className="flex flex-col gap-3">
-      <h3 className="font-extrabold text-3xl">About the role</h3>
 
-      <div className="grid grid-cols-3" style={{ rowGap: "1rem" }}>
+  return (
+    <section className="flex2 gap-3">
+      <h3 className="about-role">About the role</h3>
+
+      <div className="about-map" style={{ rowGap: "1rem" }}>
         {aboutSection.map((item) => {
           return (
             <AboutSectionElement

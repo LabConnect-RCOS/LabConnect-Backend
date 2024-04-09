@@ -7,7 +7,7 @@ import CenterStaff from "../components/CenterStaff";
 const Center = ({ linkTree }) => {
   const { centerName } = useParams();
   return (
-    <section className="container-xl pb-10 flex flex-col gap-4">
+    <section className="center container-xl">
       <Breadcrumb
         tree={[
           {
