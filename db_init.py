@@ -231,12 +231,16 @@ elif sys.argv[1] == "create":
                 "cenzar@rpi.edu",
                 "testpassworD1",
                 "Rafael",
+                "Cenzano",
+                "Raf",
                 2025,
             ),
             (
                 "test@rpi.edu",
                 "testpassworD2",
                 "RCOS",
+                "RCOS",
+                None,
                 2028,
             ),
         )
@@ -244,8 +248,10 @@ elif sys.argv[1] == "create":
             row = User(
                 email=r[0],
                 password=bcrypt.generate_password_hash(r[1] + r[0]),
-                name=r[2],
-                class_year=r[3],
+                first_name=r[2],
+                last_name=r[3],
+                preferred_name=r[4],
+                class_year=r[5],
             )
             db.session.add(row)
             db.session.commit()
