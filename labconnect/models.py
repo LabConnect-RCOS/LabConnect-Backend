@@ -11,7 +11,9 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False, unique=False)
-    name = db.Column(db.String(1000), nullable=False, unique=False)
+    first_name = db.Column(db.String(50), nullable=False, unique=False)
+    last_name = db.Column(db.String(200), nullable=False, unique=False)
+    preferred_name = db.Column(db.String(50), nullable=True, unique=False)
     class_year = db.Column(
         db.Integer,
         db.ForeignKey("class_years.class_year"),
@@ -182,7 +184,7 @@ class UserDepartments(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     department_id = db.Column(
-        db.Integer, db.ForeignKey("rpi_departments.name"), primary_key=True
+        db.String(64), db.ForeignKey("rpi_departments.name"), primary_key=True
     )
 
     user = relationship("User", back_populates="departments")
@@ -193,7 +195,7 @@ class UserMajors(db.Model):
     __tablename__ = "user_majors"
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    major_code = db.Column(db.Integer, db.ForeignKey("majors.code"), primary_key=True)
+    major_code = db.Column(db.String(4), db.ForeignKey("majors.code"), primary_key=True)
 
     user = relationship("User", back_populates="majors")
     major = relationship("Majors", back_populates="users")
@@ -203,7 +205,7 @@ class UserCourses(db.Model):
     __tablename__ = "user_courses"
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    courses = db.Column(db.Integer, db.ForeignKey("courses.code"), primary_key=True)
+    courses = db.Column(db.String(8), db.ForeignKey("courses.code"), primary_key=True)
     in_progress = db.Column(db.Boolean, nullable=False, default=False)
 
     user = relationship("User", back_populates="courses")
@@ -270,7 +272,7 @@ class RecommendsMajors(db.Model):
         primary_key=True,
     )
     major_code = db.Column(
-        db.String(8),
+        db.String(4),
         db.ForeignKey("majors.code", ondelete="CASCADE"),
         primary_key=True,
     )
