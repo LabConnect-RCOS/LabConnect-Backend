@@ -2,7 +2,7 @@ from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 
 from labconnect import db
-from labconnect.helpers import CustomSerializerMixin, SemesterEnum, LocationEnum
+from labconnect.helpers import CustomSerializerMixin, LocationEnum, SemesterEnum
 
 # DD - Entities
 
@@ -205,7 +205,9 @@ class UserCourses(db.Model):
     __tablename__ = "user_courses"
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    courses = db.Column(db.String(8), db.ForeignKey("courses.code"), primary_key=True)
+    course_code = db.Column(
+        db.String(8), db.ForeignKey("courses.code"), primary_key=True
+    )
     in_progress = db.Column(db.Boolean, nullable=False, default=False)
 
     user = relationship("User", back_populates="courses")

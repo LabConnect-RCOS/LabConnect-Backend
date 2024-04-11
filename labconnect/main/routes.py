@@ -1,6 +1,6 @@
 from typing import Any
 
-from flask import abort, request, jsonify, redirect, url_for
+from flask import abort, jsonify, redirect, request, url_for
 from flask_jwt_extended import (
     create_access_token,
     get_jwt,
