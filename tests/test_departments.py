@@ -54,6 +54,10 @@ def test_department_route(test_client: FlaskClient) -> None:
 
     assert response.status_code == 200
 
+    json_data = json.loads(response.data)
+
+    Opps = (("1", "2024", "Spring", "True"), ("1", "2024", "Spring", "True"))
+
     assert {"name": "Computer Science", "description": "DS"} == json.loads(
         response.data
     )
