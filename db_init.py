@@ -11,8 +11,8 @@ from datetime import date, datetime
 
 from sqlalchemy import inspect, select
 
-from labconnect import create_app, db, bcrypt
-from labconnect.helpers import SemesterEnum, LocationEnum
+from labconnect import bcrypt, create_app, db
+from labconnect.helpers import LocationEnum, SemesterEnum
 from labconnect.models import LabManager  # Professors and Grad students
 from labconnect.models import (
     ClassYears,
@@ -26,6 +26,9 @@ from labconnect.models import (
     RPIDepartments,
     RPISchools,
     User,
+    UserCourses,
+    UserDepartments,
+    UserMajors,
 )
 
 app = create_app()
@@ -55,8 +58,8 @@ elif sys.argv[1] == "create":
             ("Computer Science", "DS", "School of Science"),
             ("Biology", "life", "School of Science"),
             ("Materials Engineering", "also pretty cool", "School of Engineering"),
-            ("Math", "quick maths", "School of Science"),
             ("Environmental Engineering", "water", "School of Engineering"),
+            ("Math", "quick maths", "School of Science"),
             (
                 "Aerospace Engineering",
                 "space, the final frontier",
@@ -231,12 +234,16 @@ elif sys.argv[1] == "create":
                 "cenzar@rpi.edu",
                 "testpassworD1",
                 "Rafael",
+                "Cenzano",
+                "Raf",
                 2025,
             ),
             (
                 "test@rpi.edu",
                 "testpassworD2",
                 "RCOS",
+                "RCOS",
+                None,
                 2028,
             ),
         )
@@ -244,9 +251,44 @@ elif sys.argv[1] == "create":
             row = User(
                 email=r[0],
                 password=bcrypt.generate_password_hash(r[1] + r[0]),
-                name=r[2],
-                class_year=r[3],
+                first_name=r[2],
+                last_name=r[3],
+                preferred_name=r[4],
+                class_year=r[5],
             )
+            db.session.add(row)
+            db.session.commit()
+
+        user_majors = (
+            (0, "MATH"),
+            (0, "CSCI"),
+            (1, "CSCI"),
+        )
+
+        for r in user_majors:
+            row = UserMajors(user_id=r[0], major_code=r[1])
+            db.session.add(row)
+            db.session.commit()
+
+        user_departments = (
+            (0, "Computer Science"),
+            (0, "Math"),
+            (1, "Computer Science"),
+        )
+
+        for r in user_departments:
+            row = UserDepartments(user_id=r[0], department_id=r[1])
+            db.session.add(row)
+            db.session.commit()
+
+        user_courses = (
+            (0, "CSCI2300", False),
+            (0, "CSCI4430", True),
+            (1, "CSCI2300", False),
+        )
+
+        for r in user_courses:
+            row = UserCourses(user_id=r[0], course_code=r[1], in_progress=r[2])
             db.session.add(row)
             db.session.commit()
 
@@ -254,15 +296,18 @@ elif sys.argv[1] == "create":
             ClassYears,
             Courses,
             LabManager,
+            Leads,
             Majors,
             Opportunities,
-            Leads,
             RecommendsClassYears,
             RecommendsCourses,
             RecommendsMajors,
             RPIDepartments,
             RPISchools,
             User,
+            UserCourses,
+            UserDepartments,
+            UserMajors,
         ]
 
         for table in tables:
