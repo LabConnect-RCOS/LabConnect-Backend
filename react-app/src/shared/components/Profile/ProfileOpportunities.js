@@ -73,30 +73,29 @@ const ProfileOpportunities = ({ id }) => {
     // send a request to the backend to deactivate the opportunity
     // if the request is successful, then deactivate the opportunity from the list
     const url = `http://localhost:8000/changeActiveStatus`;
-    console.log(opportunities)
-    
+    console.log(opportunities);
+
     const jsonData = {
       oppID: opportunityId,
       setStatus: !activeStatus,
-      authToken: "authTokenHere"
-    }
-    
+      authToken: "authTokenHere",
+    };
+
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(jsonData),
     });
 
     if (response.ok) {
       const data = await response.json();
-      
-      
+
       const newOpportunities = opportunities.map((opportunity) =>
         opportunity.id === opportunityId
           ? { ...opportunity, activeStatus: data.activeStatus } // Spread operator for update
-          : opportunity
+          : opportunity,
       );
 
       setOpportunities(newOpportunities);
@@ -106,11 +105,22 @@ const ProfileOpportunities = ({ id }) => {
   async function deleteOpportunity(opportunityId) {
     // send a request to the backend to delete the opportunity
     // if the request is successful, then delete the opportunity from the list
-    const response = true;
+
+    const url = `http://localhost:8000/deleteOpportunity`;
+
+    const jsonData = { id: opportunityId };
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(jsonData),
+    });
 
     if (response) {
       opportunities = opportunities.filter(
-        (opportunity) => opportunity.id !== opportunityId
+        (opportunity) => opportunity.id !== opportunityId,
       );
     } else {
       alert("Failed to delete opportunity");

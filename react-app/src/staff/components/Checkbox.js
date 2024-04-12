@@ -1,6 +1,14 @@
 import React from "react";
 
-const CheckBox = ({ formHook, errors, errorMessage, name, label, options, type }) => {
+const CheckBox = ({
+  formHook,
+  errors,
+  errorMessage,
+  name,
+  label,
+  options,
+  type,
+}) => {
   // if (!formHook) {
   //   return <h1>FormHook Not Given</h1>;
   // }
@@ -23,11 +31,11 @@ const CheckBox = ({ formHook, errors, errorMessage, name, label, options, type }
                   <label className="cursor-pointer label">
                     <span className="label-text">{item}</span>
                     <input
-                      type={type == "radio" ? "radio" : "checkbox"}
+                      type={type === "radio" ? "radio" : "checkbox"}
                       value={item}
                       {...formHook}
                       id={item}
-                      className={type == "radio" ? "radio" : "checkbox"}
+                      className={type === "radio" ? "radio" : "checkbox"}
                     />
                   </label>
                 </div>

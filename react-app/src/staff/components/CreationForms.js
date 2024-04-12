@@ -50,6 +50,7 @@ const CreationForms = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    getValues,
   } = useForm({
     defaultValues: {
       id: "",
@@ -65,17 +66,18 @@ const CreationForms = () => {
       recommended_experience: "",
       semester: [],
       pay: 0,
-      years: [2024],
+      years: [],
       year: 2023,
     },
   });
 
   async function fetchData(key) {
-    // create fake loading time
-
     const response = await fetchDetails(key);
     response && reset(response);
+    // console.log(response);
     response ? setLoading(false) : setLoading("no response");
+    console.log(getValues());
+    // check what data is currently in the form
   }
 
   useEffect(() => {
@@ -103,6 +105,27 @@ const CreationForms = () => {
     }
   };
 
+  const updateOpportunity = async (data) => {
+    const url = "http://localhost:8000/editOpportunity";
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      console.log("Failed to edit opportunity");
+    } else {
+      console.log("Opportunity edited");
+
+      // redirect to the profile page
+      window.location.href = "/profile";
+    }
+  };
+
   const submitHandler = (data) => {
     // convert pay and credits to numbers
 
@@ -113,7 +136,8 @@ const CreationForms = () => {
     console.log({ ...data, authorID: "led" });
 
     // send data to the backend
-    createOpportunity({ ...data, authorID: "led" });
+    !postID && createOpportunity({ ...data, authorID: "led" });
+    postID && updateOpportunity({ ...data, authorID: "led" });
   };
 
   var forms = (
@@ -271,7 +295,7 @@ const CreationForms = () => {
 
       <CheckBox
         label="Eligible Years"
-        options={[2022, 2023, 2024]}
+        options={["2022", "2023", "2024"]}
         errors={errors}
         errorMessage={"At least one year must be selected"}
         name={"years"}
