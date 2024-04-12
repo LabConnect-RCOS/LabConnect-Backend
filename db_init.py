@@ -79,8 +79,8 @@ elif sys.argv[1] == "create":
         lab_manager_rows = (
             ("led", "Duy Le", "Computer Science"),
             ("cenzar", "Rafael", "Computer Science"),
-            ("turner", "Rafael", "Computer Science"),
-            ("kuzmin", "Rafael", "Computer Science"),
+            ("turner", "Turner", "Computer Science"),
+            ("kuzmin", "Kuzmin", "Computer Science"),
             ("goldd", "Goldschmidt", "Computer Science"),
             ("rami", "Rami", "Material Science"),
             ("holm", "Holmes", "Math"),

@@ -71,10 +71,10 @@ def department():
     if not request.data:
         abort(400)
 
-    professors = request.get_json().get("department", None)
+    # professors = request.get_json().get("department", None)
 
-    if not professors:
-        abort(400)
+    # if not professors:
+    #     abort(400)
 
     prof_data = db.session.execute(
         db.select(LabManager)
@@ -85,15 +85,23 @@ def department():
         )
     ).scalars()
 
-    result4 = [prof for prof in prof_data]
+    # result4 = [prof for prof in prof_data]
+    result2 = []
+    Ids = []
+    for prof in prof_data:
+        result2.append(prof.name)
+        Ids.append(prof.rcs_id)
 
-    result2 = [prof.name for prof in result4]
-    Ids = [prof.rcs_id for prof in result4]
+    # result2 = [prof.name for prof in prof_data]
+    # Ids = [prof.rcs_id for prof in prof_data]
+
+    print(result2)
+    print(Ids)
 
     result["Professors"] = result2
 
     opportunitys = {}
-    leads = []
+    # leads = []
     for prof in Ids:
         data = db.session.execute(
             db.select(Opportunities, Leads)
@@ -102,25 +110,25 @@ def department():
         ).scalars()
         print(Leads.lab_manager_rcs_id == prof)
 
-    for opp in data:
-        hold = [opp.id, opp.year, opp.semester, opp.active]
-        opportunitys[opp.name] = hold
-        print(hold)
+        for opp in data:
+            hold = [opp.id, opp.year, opp.semester, opp.active]
+            opportunitys[opp.name] = hold
+            # print(opp.name)
 
-    for opp in data:
-        opportunitys.append(opp.id)
+    # for opp in data:
+    # opportunitys.append(opp.id)
 
-    id_holder = []
-    for opp_id in data:
-        id_holder.append(opp_id.id)
-    for opp_id in data:
-        id_holder.append(opp_id.name)
+    # id_holder = []
+    # for opp_id in data:
+    #     id_holder.append(opp_id.id)
+    # for opp_id in data:
+    #     id_holder.append(opp_id.name)
 
-    for thing in opportunitys:
-        print(thing)
+    # for thing in opportunitys:
+    # print(thing)
 
     result["Opportunitys"] = opportunitys
-    leads.append(opp.to_dict())
+    # leads.append(opp.to_dict())
 
     return result
 
