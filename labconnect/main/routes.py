@@ -24,6 +24,9 @@ from labconnect.models import (
     RPIDepartments,
     RPISchools,
     User,
+    UserCourses,
+    UserDepartments,
+    UserMajors,
 )
 
 from . import main_blueprint
@@ -434,7 +437,6 @@ def user():
         abort(400)
 
     id = request.get_json().get("id", None)
-    print(id)
 
     data = db.first_or_404(db.select(User).filter(User.id == id))
 
