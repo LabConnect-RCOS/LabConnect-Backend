@@ -21,10 +21,10 @@ const Home = ({signOut, signIn}) => {
   }, []);
   
   return (
-    <section className="flex flex-col h-screen justify-between">
-      <section className="text-center font-sans">
+    <section>
+      <section className="home-general">
         <br/><br/><br/>
-        <div className="flex justify-center items-center">
+        <div className="img-center">
           <img src={logo} alt="Logo" />
 
         </div>
@@ -41,7 +41,6 @@ const Home = ({signOut, signIn}) => {
         </p>
         <br/><br/><br/>
       </section>
-      <StickyFooter />
     </section>
   );
 };

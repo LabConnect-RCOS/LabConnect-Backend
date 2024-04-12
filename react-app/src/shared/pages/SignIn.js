@@ -23,10 +23,10 @@ const SignIn = () => {
       });
 
     var forms = (
-      <section className="flex2 h-screen justify-between">
-        <section className="flex2 justify-center text-center">
+      <section>
+        <section className="signin-general">
           <br />
-          <div className="flex justify-center items-center">
+          <div className="img-center">
             <img src={logo} alt="Logo" />
           </div>
           <br />
@@ -71,7 +71,6 @@ const SignIn = () => {
           </form>
         </section>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/>
-        <StickyFooter/>
       </section>
     );
   
@@ -80,7 +79,7 @@ const SignIn = () => {
     ) : loading === "no response" ? (
       <h1>There was no response</h1>
     ) : (
-      <span className="creationforms-loading" />
+      <span className="lc-loading" />
     );
 };
 

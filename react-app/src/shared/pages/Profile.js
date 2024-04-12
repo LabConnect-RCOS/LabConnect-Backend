@@ -105,7 +105,6 @@ const ProfilePage = () => {
         )}
       </section>
       <br/><br/><br/><br/><br/><br/><br/>
-      <StickyFooter />
     </section>
   );
 };

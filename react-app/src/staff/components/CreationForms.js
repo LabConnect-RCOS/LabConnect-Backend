@@ -215,7 +215,7 @@ const CreationForms = () => {
   ) : loading === "no response" ? (
     <h1>There was no response</h1>
   ) : (
-    <span className="creationforms-loading" />
+    <span className="lc-loading" />
   );
 };
 

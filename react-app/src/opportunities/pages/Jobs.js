@@ -23,7 +23,6 @@ const Jobs = () => {
           {pages.activePage==="Search" && <Posts />}
         </section>
       </section>
-      <StickyFooter/>
     </section>
   );
 };

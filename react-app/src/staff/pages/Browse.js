@@ -57,7 +57,6 @@ const Browse = () => {
         <BrowseItems to={DUMMY_DATA.to} items={DUMMY_DATA.items} />
       )}
       <br/><br/>
-      <StickyFooter/>
     </section>
   );
 };

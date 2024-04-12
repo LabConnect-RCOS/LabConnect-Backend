@@ -237,6 +237,39 @@ code {
   @apply w-min h-min rounded-full ring ring-primary ring-offset-base-100 ring-offset-2;
 }
 
+.stickyfooter {
+  @apply flex2 h-screen justify-between;
+}
+
+.signin-general {
+  @apply flex2 justify-center text-center;
+}
+
+.img-center {
+  @apply flex justify-center items-center;
+}
+
+.home-general {
+  @apply text-center font-sans;
+}
+
+.stickyfooter-general {
+  @apply rounded border-2 p-3;
+}
+
+.stickyfooter-header {
+  @apply text-center text-lg justify-center;
+}
+
+.stickyfooter-info {
+  @apply flex flex-row justify-between px-12;
+}
+
+.stickyfooter-link {
+  @apply no-underline text-neutral-600;
+}
+
+
 
 
 
@@ -252,7 +285,7 @@ code {
   @apply w-full max-w-xs;
 }
 
-.creationforms-loading {
+.lc-loading {
   @apply loading loading-spinner loading-lg;
 }
 
