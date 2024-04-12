@@ -286,10 +286,17 @@ def register():
     json_data = request.get_json()
     email = json_data.get("email", None)
     password = json_data.get("password", None)
-    name = json_data.get("name", None)
+    first_name = json_data.get("first_name", None)
+    last_name = json_data.get("last_name", None)
     class_year = json_data.get("class_year", None)
 
-    if email is None or password is None or name is None or class_year is None:
+    if (
+        email is None
+        or password is None
+        or first_name is None
+        or last_name is None
+        or class_year is None
+    ):
         abort(400)
 
     data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
@@ -298,7 +305,9 @@ def register():
         user = User(
             email=email,
             password=bcrypt.generate_password_hash(password + email),
-            name=name,
+            first_name=first_name,
+            last_name=last_name,
+            preferred_name=json_data.get("preferred_name", None),
             class_year=class_year,
         )
         db.session.add(user)
