@@ -1,7 +1,15 @@
 import React from "react";
-import { Modal, Backdrop, Fade, Typography, Checkbox, FormControlLabel, Select, MenuItem } from "@mui/material";
+import { Modal, Backdrop, Fade, Typography, Checkbox, FormControlLabel, Select, MenuItem, Button } from "@mui/material";
 
 const FilterModal = ({ open, handleClose }) => {
+  const handleClear = () => {
+    // Handle clearing options
+  };
+
+  const handleShowResults = () => {
+    // Handle showing results
+  };
+
   return (
     <Modal
       open={open}
@@ -9,6 +17,10 @@ const FilterModal = ({ open, handleClose }) => {
       aria-labelledby="transition-modal-title"
       aria-describedby="transition-modal-description"
       closeAfterTransition
+      BackdropComponent={Backdrop}
+      BackdropProps={{
+        timeout: 500,
+      }}
     >
       <Fade in={open}>
         <div style={{
@@ -23,9 +35,12 @@ const FilterModal = ({ open, handleClose }) => {
           outline: 'none',
           borderRadius: 8,
         }}>
-          <Typography variant="h5" gutterBottom>
-            Filter Options
-          </Typography>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <Typography variant="h5" gutterBottom>
+              Filter Options
+            </Typography>
+            <Button onClick={handleClose}>X</Button>
+          </div>
           <div>
             <Typography variant="h6" gutterBottom>
               Major
@@ -92,6 +107,10 @@ const FilterModal = ({ open, handleClose }) => {
               <MenuItem value="15-18">$15 - $18</MenuItem>
               <MenuItem value="18">$18</MenuItem>
             </Select>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
+            <Button onClick={handleClear} variant="outlined" color="error">Clear</Button>
+            <Button onClick={handleShowResults} variant="contained" color="primary">Show Results</Button>
           </div>
         </div>
       </Fade>
