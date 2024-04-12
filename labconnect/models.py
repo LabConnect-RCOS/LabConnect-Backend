@@ -8,6 +8,18 @@ from labconnect.helpers import CustomSerializerMixin, LocationEnum, SemesterEnum
 
 
 class User(db.Model):
+    __tablename__ = "user"
+
+    serialize_only = (
+        "id",
+        "email",
+        "first_name",
+        "last_name",
+        "preferred_name",
+        "class_year",
+    )
+    serialize_rules = ()
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False, unique=False)
