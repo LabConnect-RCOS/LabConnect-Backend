@@ -83,6 +83,7 @@ def packageIndividualOpportunity(opportunityInfo, professorInfo):
 
     return data
 
+
 def packageOpportunityCard(opportunity):
 
     # get professor and department by getting Leads and LabManager
@@ -166,10 +167,28 @@ def department():
     return result
 
 
+
+
 @main_blueprint.route("/discover")
 def discover():
     return {"Hello": "There"}
 
+@main_blueprint.route("/getSchoolsAndDepartments/", methods=["GET"])
+def getSchoolsAndDepartments():
+    if request.method == "GET":
+        query = db.session.execute(
+            db.select(RPISchools, RPIDepartments)
+            .join(RPIDepartments, RPISchools.name == RPIDepartments.school_id)
+        )
+        data = query.all()
+        dictionary = {}
+        for tuple in data:
+            if tuple[0].name not in dictionary:
+                dictionary[tuple[0].name] = []
+            dictionary[tuple[0].name].append(tuple[1].name)
+
+        return dictionary
+    abort(400)
 
 @main_blueprint.route("/getOpportunitiesRaw/<int:id>", methods=["GET"])
 def getOpportunitiesRaw(id: int):
@@ -481,6 +500,9 @@ def getOpportunityMeta(id: int):
         dictionary["majors"] = list(dictionary["majors"])
         dictionary["years"] = list(dictionary["years"])
 
+        for i in range(len(dictionary["years"])):
+            dictionary["years"][i] = str(dictionary["years"][i])
+
         return {"data": dictionary}
 
     abort(500)
@@ -490,39 +512,46 @@ def getOpportunityMeta(id: int):
 def deleteOpportunity():
     if request.method in ["DELETE", "POST"]:
         data = request.json
-        postID = data["postID"]
-        authToken = data["authToken"]
+        id = data["id"]
 
         query = db.session.execute(
-            db.select(Opportunities).filter(Opportunities.id == postID)
+            db.select(
+                Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears, Leads
+            )
+            .filter(Opportunities.id == id)
+            .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
+            .join(
+                RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
+            )
+            .join(
+                RecommendsClassYears,
+                RecommendsClassYears.opportunity_id == Opportunities.id,
+            )
+            .join(Leads, Leads.opportunity_id == Opportunities.id)
         )
 
         data = query.all()
+        print(data)
 
         if not data or len(data) == 0:
             abort(404)
 
-        # query database to see if the credentials above match
-        print("pritning data")
-        data = data[0][0]
-        print(data)
+        opportunity = data[0][0]
 
-        # This results in an error because you can't delete the recommends courses table
-        db.session.delete(data)
+        for row in data:
+            db.session.delete(row[1])
+            db.session.delete(row[2])
+            db.session.delete(row[3])
+            db.session.delete(row[4])
+
+        leads = data[0][4]
+
+        db.session.delete(opportunity)
+
 
         db.session.commit()
 
-        abort(200)
-
-        # query = db.session.execute(
-        #     db.select(Opportunities).filter(Opportunities.id == postID)
-        # )
-
-        # data = query.all()
-
-        # # you have successfully deleted the opportunity
-        # if not data or len(data) < 0:
-        #     abort(200)
+        return "Success"
 
     abort(500)
 
@@ -564,35 +593,82 @@ def changeActiveStatus():
 
 @main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
 def editOpportunity():
-    if request.method in ["POST"]:
+    if True:
         data = request.json
-        postID = data["postID"]
-        authToken = data["authToken"]
-        authorID = data["authorID"]
-        newPostData = data["newPostData"]
+        id = data["id"]
+        # authToken = data["authToken"]
+        # authorID = data["authorID"]
+        newPostData = data
 
         # query database to see if the credentials above match
         query = db.session.execute(
-            db.select(Leads, Opportunities)
-            .filter(Leads.opportunity_id == postID)
-            .filter(Leads.lab_manager_rcs_id == authorID)
-            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+            db.select(
+                Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
+            )
+            .filter(Opportunities.id == id)
+            .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
+            .join(
+                RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
+            )
+            .join(
+                RecommendsClassYears,
+                RecommendsClassYears.opportunity_id == Opportunities.id,
+            )
         )
 
-        data = query.all()[0][0]
+        data = query.all()
+
+        if not data or len(data) == 0:
+            abort(404)
+
+        opportunity = data[0][0]
 
         # if match is found, edit the opportunity with the new data provided
-        data.name = newPostData["name"]
-        data.description = newPostData["description"]
-        data.recommended_experience = newPostData["recommended_experience"]
-        data.pay = newPostData["pay"]
-        data.credits = newPostData["credits"]
-        data.semester = newPostData["semester"]
-        data.year = newPostData["year"]
-        data.application_due = newPostData["application_due"]
-        data.active = newPostData["active"]
+        opportunity.name = newPostData["name"]
+        opportunity.description = newPostData["description"]
+        opportunity.recommended_experience = newPostData["recommended_experience"]
+        opportunity.pay = newPostData["pay"]
+        opportunity.credits = newPostData["credits"]
+        opportunity.semester = newPostData["semester"]
+        opportunity.year = newPostData["year"]
+        opportunity.application_due = datetime.datetime.strptime(
+            newPostData["application_due"], "%Y-%m-%d"
+        )
+        opportunity.active = newPostData["active"]
+        db.session.add(opportunity)
+        db.session.commit()
 
-        abort(200)
+        # delete all the old data in the recommends tables
+
+        for row in data:
+            db.session.delete(row[1])
+            db.session.delete(row[2])
+            db.session.delete(row[3])
+
+        # create new data for allow the tables
+
+        for course in newPostData["courses"]:
+            newCourse = RecommendsCourses(
+                opportunity_id=opportunity.id, course_code=course
+            )
+            db.session.add(newCourse)
+            db.session.commit()
+
+        for major in newPostData["majors"]:
+            newMajor = RecommendsMajors(
+                opportunity_id=opportunity.id, major_code=major
+            )
+            db.session.add(newMajor)
+            db.session.commit()
+
+        for year in newPostData["years"]:
+            newYear = RecommendsClassYears(
+                opportunity_id=opportunity.id, class_year=year
+            )
+            db.session.add(newYear)
+            db.session.commit()
+
+        return "Successful"
 
     abort(500)
 
