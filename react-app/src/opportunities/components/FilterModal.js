@@ -1,8 +1,31 @@
 import React, { useState } from "react";
 import { Modal, Fade, Typography, Checkbox, FormControlLabel, Select, MenuItem, Button } from "@mui/material";
 
+const FormHeader = ({ handleClose }) => {
+  return (
+    <div style={{ backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 1 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', width: '100%' }}>
+        <Typography variant="h5" gutterBottom>
+          Filter Options
+        </Typography>
+        <Button onClick={handleClose}>X</Button>
+      </div>
+    </div>
+  );
+};
+
+const FormFooter = ({ handleClear, handleShowResults }) => {
+  return (
+    <div style={{ backgroundColor: 'white', position: 'sticky', bottom: 0, zIndex: 1 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', width: '100%' }}>
+        <Button onClick={handleClear} variant="outlined" color="error">Clear</Button>
+        <Button onClick={handleShowResults} variant="contained" color="primary">Show Results</Button>
+      </div>
+    </div>
+  );
+};
+
 const FilterModal = ({ open, handleClose }) => {
-  // State to track checked checkboxes
   const [checkedItems, setCheckedItems] = useState({
     computerScience: false,
     itws: false,
@@ -15,15 +38,10 @@ const FilterModal = ({ open, handleClose }) => {
     hybrid: false,
   });
 
-  // State to track selected department
   const [selectedDepartment, setSelectedDepartment] = useState('');
-
-  // State to track selected salary range
   const [selectedSalaryRange, setSelectedSalaryRange] = useState('');
 
-  // Function to handle clearing options
   const handleClear = () => {
-    // Clear all checkboxes
     setCheckedItems({
       computerScience: false,
       itws: false,
@@ -36,16 +54,12 @@ const FilterModal = ({ open, handleClose }) => {
       hybrid: false,
     });
 
-    // Clear selected department
     setSelectedDepartment('');
-
-    // Clear selected salary range
     setSelectedSalaryRange('');
   };
 
-  // Function to handle showing results
   const handleShowResults = () => {
-    // Implement logic to show results
+    // need to add code to show results here
   };
 
   return (
@@ -63,7 +77,7 @@ const FilterModal = ({ open, handleClose }) => {
           width: 400,
           maxWidth: '100%',
           maxHeight: '80%',
-          overflowY: 'auto', // Add vertical scrollbar if content exceeds container height
+          overflowY: 'auto',
           position: 'absolute',
           top: '50%',
           left: '50%',
@@ -71,14 +85,7 @@ const FilterModal = ({ open, handleClose }) => {
           outline: 'none',
           borderRadius: 8,
         }}>
-          <div style={{ position: 'sticky', top: 0, zIndex: 1, marginBottom: 20, backgroundColor: 'white' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h5" gutterBottom>
-                Filter Options
-              </Typography>
-              <Button onClick={handleClose}>X</Button>
-            </div>
-          </div>
+          <FormHeader handleClose={handleClose} />
           <div>
             <Typography variant="h6" gutterBottom>
               Major
@@ -150,10 +157,7 @@ const FilterModal = ({ open, handleClose }) => {
               <MenuItem value="18">$18</MenuItem>
             </Select>
           </div>
-          <div style={{ position: 'sticky', bottom: 0, zIndex: 1, marginTop: 20, backgroundColor: 'white' }}>
-            <Button onClick={handleClear} variant="outlined" color="error">Clear</Button>
-            <Button onClick={handleShowResults} variant="contained" color="primary">Show Results</Button>
-          </div>
+          <FormFooter handleClear={handleClear} handleShowResults={handleShowResults} />
         </div>
       </Fade>
     </Modal>
