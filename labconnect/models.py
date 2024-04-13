@@ -7,7 +7,19 @@ from labconnect.helpers import CustomSerializerMixin, LocationEnum, SemesterEnum
 # DD - Entities
 
 
-class User(db.Model):
+class User(db.Model, CustomSerializerMixin):
+    __tablename__ = "user"
+
+    serialize_only = (
+        "id",
+        "email",
+        "first_name",
+        "last_name",
+        "preferred_name",
+        "class_year",
+    )
+    serialize_rules = ()
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False, unique=False)
@@ -179,8 +191,11 @@ class ClassYears(db.Model, CustomSerializerMixin):
 # DD - Relationships
 
 
-class UserDepartments(db.Model):
+class UserDepartments(db.Model, CustomSerializerMixin):
     __tablename__ = "user_departments"
+
+    serialize_only = ("user_id", "department_id")
+    serialize_rules = ()
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     department_id = db.Column(
@@ -191,8 +206,11 @@ class UserDepartments(db.Model):
     department = relationship("RPIDepartments", back_populates="users")
 
 
-class UserMajors(db.Model):
+class UserMajors(db.Model, CustomSerializerMixin):
     __tablename__ = "user_majors"
+
+    serialize_only = ("user_id", "major_code")
+    serialize_rules = ()
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     major_code = db.Column(db.String(4), db.ForeignKey("majors.code"), primary_key=True)
