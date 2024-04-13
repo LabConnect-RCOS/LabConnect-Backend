@@ -1,7 +1,15 @@
 from typing import Any
-from flask import abort, request
 
-from labconnect import db
+from flask import abort, jsonify, redirect, request, url_for
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+    unset_jwt_cookies,
+)
+
+from labconnect import bcrypt, db
 from labconnect.helpers import SemesterEnum
 from labconnect.models import (
     ClassYears,
@@ -15,6 +23,7 @@ from labconnect.models import (
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
+    User,
 )
 
 from . import main_blueprint
@@ -22,16 +31,6 @@ from . import main_blueprint
 
 @main_blueprint.route("/")
 def index():
-    return {"Hello": "There"}
-
-
-@main_blueprint.route("/opportunities")
-def positions():
-    return {"Hello": "There"}
-
-
-@main_blueprint.route("/opportunity/<int:id>")
-def opportunity(id: int):
     return {"Hello": "There"}
 
 
@@ -90,7 +89,6 @@ def discover():
             Opportunities.name,
             Opportunities.description,
             Opportunities.pay,
-            Opportunities.credits,
             Majors,
             RecommendsMajors,
         )
@@ -142,23 +140,6 @@ def getLabManagers():
     return result
 
 
-@main_blueprint.get("/opportunity")
-def getOpportunity():
-    if not request.data:
-        abort(400)
-
-    id = request.get_json().get("id", None)
-
-    if not id:
-        abort(400)
-
-    data = db.first_or_404(db.select(Opportunities).filter(Opportunities.id == id))
-
-    result = data.to_dict()
-
-    return result
-
-
 @main_blueprint.get("/lab_manager/opportunities")
 def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     if not request.data:
@@ -185,54 +166,83 @@ def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     return result
 
 
-# _______________________________________________________________________________________________#
-
-# Editing Opportunities in Profile Page
-
-
-@main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
-def deleteOpportunity():
-    if request.method in ["DELETE", "POST"]:
-        data = request.json
-        postID = data["postID"]
-        authToken = data["authToken"]
-        authorID = data["authToken"]
-
-        # query database to see if the credentials above match
-
-        # if match is found, delete the opportunity, return status 200
-
-        abort(200)
-
-    abort(500)
-
-
-@main_blueprint.route("/changeActiveStatus", methods=["DELETE", "POST"])
-def changeActiveStatus():
-    if request.method in ["DELETE", "POST"]:
-        data = request.json
-        postID = data["postID"]
-        authToken = data["authToken"]
-        authorID = data["authToken"]
-        setStatus = data["setStatus"]
-
-        # query database to see if the credentials above match
-
-        # if match is found, change the opportunities active status to true or false based on setStatus
-
-        abort(200)
-
-    abort(500)
-
-
 @main_blueprint.route("/create_post", methods=["POST"])
 def create_post():
     return {"Hello": "There"}
 
 
-@main_blueprint.route("/login")
+@main_blueprint.post("/register")
+def register():
+
+    if not request.data:
+        abort(400)
+
+    json_data = request.get_json()
+    email = json_data.get("email", None)
+    password = json_data.get("password", None)
+    first_name = json_data.get("first_name", None)
+    last_name = json_data.get("last_name", None)
+    class_year = json_data.get("class_year", None)
+
+    if (
+        email is None
+        or password is None
+        or first_name is None
+        or last_name is None
+        or class_year is None
+    ):
+        abort(400)
+
+    data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
+
+    if data is None:
+        user = User(
+            email=email,
+            password=bcrypt.generate_password_hash(password + email),
+            first_name=first_name,
+            last_name=last_name,
+            preferred_name=json_data.get("preferred_name", None),
+            class_year=class_year,
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        return {"msg": "User created successfully"}
+
+    return {"msg": "User already exists"}, 403
+
+
+@main_blueprint.post("/login")
 def login():
-    return {"Hello": "There"}
+    if not request.data:
+        abort(400)
+
+    json_data = request.get_json()
+    email = json_data.get("email", None)
+    password = json_data.get("password", None)
+
+    if email is None or password is None:
+        abort(400)
+
+    data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
+
+    if data is None:
+        abort(401)
+
+    if not bcrypt.check_password_hash(data.password, password + email):
+        return {"msg": "Wrong email or password"}, 401
+
+    access_token = create_access_token(identity=email)
+    response = {"access_token": access_token}
+
+    return response
+
+
+@main_blueprint.get("/logout")
+def logout():
+    response = jsonify({"msg": "logout successful"})
+    unset_jwt_cookies(response)
+    return response
 
 
 @main_blueprint.route("/500")
@@ -314,6 +324,9 @@ def years() -> list[Any]:
 
     result = [year.class_year for year in data]
 
+    if result == []:
+        abort(404)
+
     return result
 
 
@@ -340,5 +353,8 @@ def courses() -> list[Any]:
         abort(404)
 
     result = [course.to_dict() for course in data]
+
+    if result == []:
+        abort(404)
 
     return result
