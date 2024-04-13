@@ -10,8 +10,9 @@ const FilterModal = ({ open, handleClose }) => {
     paid: false,
     credit: false,
     payCredit: false,
-    inPerson: false,
-    virtual: false,
+    onsite: false,
+    remote: false,
+    hybrid: false,
   });
 
   // State to track selected department
@@ -30,8 +31,9 @@ const FilterModal = ({ open, handleClose }) => {
       paid: false,
       credit: false,
       payCredit: false,
-      inPerson: false,
-      virtual: false,
+      onsite: false,
+      remote: false,
+      hybrid: false,
     });
 
     // Clear selected department
@@ -59,7 +61,9 @@ const FilterModal = ({ open, handleClose }) => {
           backgroundColor: 'white',
           padding: 20,
           width: 400,
-          maxWidth: '90%',
+          maxWidth: '100%',
+          maxHeight: '80%',
+          overflowY: 'auto', // Add vertical scrollbar if content exceeds container height
           position: 'absolute',
           top: '50%',
           left: '50%',
@@ -67,11 +71,13 @@ const FilterModal = ({ open, handleClose }) => {
           outline: 'none',
           borderRadius: 8,
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <Typography variant="h5" gutterBottom>
-              Filter Options
-            </Typography>
-            <Button onClick={handleClose}>X</Button>
+          <div style={{ position: 'sticky', top: 0, zIndex: 1, marginBottom: 20, backgroundColor: 'white' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h5" gutterBottom>
+                Filter Options
+              </Typography>
+              <Button onClick={handleClose}>X</Button>
+            </div>
           </div>
           <div>
             <Typography variant="h6" gutterBottom>
@@ -144,7 +150,7 @@ const FilterModal = ({ open, handleClose }) => {
               <MenuItem value="18">$18</MenuItem>
             </Select>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
+          <div style={{ position: 'sticky', bottom: 0, zIndex: 1, marginTop: 20, backgroundColor: 'white' }}>
             <Button onClick={handleClear} variant="outlined" color="error">Clear</Button>
             <Button onClick={handleShowResults} variant="contained" color="primary">Show Results</Button>
           </div>
