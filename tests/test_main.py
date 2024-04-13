@@ -6,6 +6,21 @@ Test mains
 
 from flask import json
 from flask.testing import FlaskClient
+from labconnect import db
+from labconnect.helpers import SemesterEnum, OrJSONProvider
+from labconnect.models import (
+    ClassYears,
+    Courses,
+    LabManager,
+    Leads,
+    Majors,
+    Opportunities,
+    RecommendsClassYears,
+    RecommendsCourses,
+    RecommendsMajors,
+    RPIDepartments,
+    RPISchools,
+)
 
 
 def test_home_page(test_client: FlaskClient) -> None:
@@ -99,15 +114,44 @@ def test_get_opportunity(test_client: FlaskClient) -> None:
     assert "name" in data
     assert "description" in data
     assert "recommended_experience" in data
+    assert "author" in data
+    assert "department" in data
+    assert "aboutSection" in data
+
+    for eachSection in data["aboutSection"]:
+        assert "title" in eachSection
+        assert "description" in eachSection
+
+def test_get_opportunity_meta(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/getOpportunityMeta' endpoint is requested (GET) with valid data
+    THEN check that the response is valid and contains expected opportunity data
+    """
+
+    response = test_client.get(
+        "/getOpportunityMeta/5", content_type="application/json"
+    )
+
+    assert response.status_code == 200
+
+    data = json.loads(response.data)
+    data = data["data"]
+
+    # Assertions on the expected data
+    assert "name" in data
+    assert "description" in data
+    assert "recommended_experience" in data
     assert "pay" in data
     assert "credits" in data
     assert "semester" in data
     assert "year" in data
     assert "application_due" in data
     assert "active" in data
-    assert "professor" in data
-    assert "department" in data
-
+    assert "courses" in data
+    assert "majors" in data
+    assert "years" in data
+    assert "active" in data
 
 def test_get_opportunity_professor(test_client: FlaskClient) -> None:
     response = test_client.get("/getOpportunityByProfessor/led")
@@ -132,6 +176,37 @@ def test_get_opportunity_professor(test_client: FlaskClient) -> None:
         assert "active" in opportunity
         assert "professor" in opportunity
         assert "department" in opportunity
+
+
+
+def test_get_professor_opportunity_cards(test_client: FlaskClient) -> None:
+    response = test_client.get("/getProfessorOpportunityCards/led", content_type="application/json")
+
+    assert response.status_code == 200
+
+    data = json.loads(response.data.decode("utf-8"))
+    data = data["data"]
+
+    for eachCard in data:
+        assert "title" in eachCard
+        assert "body" in eachCard
+        assert "attributes" in eachCard
+        assert "id" in eachCard
+
+def test_profile_opportunities(test_client: FlaskClient) -> None:
+    response = test_client.get("/getProfileOpportunities/led", content_type="application/json")
+
+    assert response.status_code == 200
+
+    data = json.loads(response.data.decode("utf-8"))
+    data = data["data"]
+
+    for eachCard in data:
+        assert "id" in eachCard
+        assert "title" in eachCard
+        assert "body" in eachCard
+        assert "attributes" in eachCard
+        assert "activeStatus" in eachCard
 
 
 def test_create_opportunity(test_client: FlaskClient) -> None:
@@ -167,35 +242,29 @@ def test_create_opportunity(test_client: FlaskClient) -> None:
 
     assert response.status_code == 200
 
-def test_get_opportunity_meta(test_client: FlaskClient) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/getOpportunityMeta' endpoint is requested (GET) with valid data
-    THEN check that the response is valid and contains expected opportunity data
-    """
 
-    response = test_client.get(
-        "/getOpportunityMeta/5", content_type="application/json"
-    )
+
+def test_schools_and_departments(test_client: FlaskClient) -> None:
+    response = test_client.get("/getSchoolsAndDepartments", content_type="application/json")
 
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    data = data["data"]
 
-    # Assertions on the expected data
-    assert "name" in data
-    assert "description" in data
-    assert "recommended_experience" in data
-    assert "pay" in data
-    assert "credits" in data
-    assert "semester" in data
-    assert "year" in data
-    assert "application_due" in data
-    assert "active" in data
-    assert "courses" in data
-    assert "majors" in data
-    assert "years" in data
+    assert "School of Science" in data
+    assert "School of Engineering" in data
+
+    query = db.session.execute(
+        db.select(RPISchools, RPIDepartments)
+        .join(RPIDepartments, RPISchools.name == RPIDepartments.school_id)
+    )
+
+    results = query.all()
+
+    # check that all the schools and department are in the data and are accurate
+    for tuple in results:
+        assert tuple[1].name in data[tuple[0].name]
+
 
 def test_discover_page(test_client: FlaskClient) -> None:
     """

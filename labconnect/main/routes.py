@@ -181,6 +181,7 @@ def getSchoolsAndDepartments():
             .join(RPIDepartments, RPISchools.name == RPIDepartments.school_id)
         )
         data = query.all()
+
         dictionary = {}
         for tuple in data:
             if tuple[0].name not in dictionary:
@@ -225,46 +226,23 @@ def getOpportunitiesRaw(id: int):
 @main_blueprint.route("/getProfessorProfile/<string:rcs_id>", methods=["GET"])
 def getProfessorProfile(rcs_id: str):
     # test code until database code is added
-    if request.method == "GET":
+    query = db.session.execute(
+        db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
+    )
 
-        query = db.session.execute(
-            db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
-        )
+    data = query.all()
+    data = data[0][0]
+    dictionary = data.to_dict()
+    dictionary.pop("rcs_id")
+    dictionary["image"] = "https://cdn.dribbble.com/users/2033319/screenshots/12591684/media/0557608c87ed8c5a80bd5faa48c3cd71.png"
+    dictionary["department"] = data.department_id
+    dictionary["email"] = data.rcs_id + "@rpi.edu"
+    dictionary["role"] = "admin"
+    dictionary["description"] = "I am the evil professor Doofenshmirtz. I am a professor at RPI and I am looking for students to help me with my evil schemes"
+    dictionary["phone"] = "123-456-7890"
+    return dictionary
 
-        data = query.all()[0][0]
 
-        return data.to_dict()
-
-        # return {
-        #     "name": "Peter Johnson",
-        #     "image": "https://www.bu.edu/com/files/2015/08/Katz-James-3.jpg",
-        #     "researchCenter": "Computational Fake Center",
-        #     "department": "Computer Science",
-        #     "description": """Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        # eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-        # pharetra sit amet aliquam id diam maecenas ultricies mi. Montes
-        # nascetur ridiculus mus mauris vitae ultricies leo. Porttitor massa
-        # id neque aliquam. Malesuada bibendum arcu vitae elementum. Nulla
-        # aliquet porrsus mattis molestie aiaculis at erat pellentesque.
-        # At risus viverra adipiscing at.
-        # Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu
-        # feugiat. Eget fUt eu sem integer vitae justo
-        # eget magna fermentum. Lobortis feugiat vivamus at augue eget arcu
-        # dictum. Et tortor at risus viverra adipiscing at in tellus.
-        # Suspendisse sed nisi lacus sed viverra tellus. Potenti nullam ac
-        # tortor vitae. Massa id neque aliquam vestibulum. Ornare arcu odio ut
-        # sem nulla pharetra. Quam id leo in vitae turpis massa. Interdum
-        # velit euismod in pellentesque massa placerat duis ultricies lacus.
-        # Maecenas sed enim ut sem viverra aliquet eget sit amet. Amet
-        # venenatis urna cursus eget nunc scelerisque viverra mauris. Interdum
-        # varius sit amet mattis. Aliquet nec ullamcorper sit amet risus
-        # nullam. Aliquam faucibus purus in massa tempor nec feugiat. Vitae
-        # turpis massa sed elementum tempus. Feugiat in ante metus dictum at
-        # tempor. Malesuada nunc vel risus commodo viverra maecenas accumsan.
-        # Integer vitae justo.""",
-        # }
-
-    abort(500)
 
 
 @main_blueprint.route("/getOpportunity/<int:opp_id>", methods=["GET"])
@@ -319,9 +297,10 @@ def getProfessorOpportunityCards(rcs_id: str):
                 "attributes": [],
             }
 
-            if opportunity.pay > 0:
+            if opportunity.pay != None and opportunity.pay > 0:
                 oppData["attributes"].append("Paid")
-            if int(opportunity.credits) > 0:
+
+            if opportunity.credits != None:
                 oppData["attributes"].append("Credits")
 
             cards["data"].append(oppData)
@@ -358,9 +337,9 @@ def getProfileOpportunities(rcs_id: str):
                 "activeStatus": opportunity.active,
             }
 
-            if opportunity.pay > 0:
+            if opportunity.pay != None and opportunity.pay > 0:
                 oppData["attributes"].append("Paid")
-            if int(opportunity.credits) > 0:
+            if opportunity.credits != None and ("1" in opportunity.credits or "2" in opportunity.credits or "3" in opportunity.credits or "4" in opportunity.credits):
                 oppData["attributes"].append("Credits")
 
             cards["data"].append(oppData)
@@ -460,7 +439,28 @@ def getProfessorMeta(rcs_id: str):
 # _______________________________________________________________________________________________#
 
 # Editing Opportunities in Profile Page
+@main_blueprint.route("/getProfessorCookies/<string:id>", methods=["GET"])
+def getProfessorCookies(id: str):
+    # this is already restricted to "GET" requests
 
+    query = db.session.execute(
+        db.select(LabManager).filter(LabManager.rcs_id == id)
+    )
+
+    data = query.all()
+    data = data[0][0]
+    # print(data)
+    dictionary = data.to_dict()
+    dictionary["id"] = data.rcs_id
+    dictionary["department"] = data.department_id
+    dictionary["role"] = "admin"
+    dictionary["researchCenter"] = "AI"
+    dictionary["loggedIn"] = True
+
+    # remove rcs_id from dictionary
+    dictionary.pop("rcs_id")
+
+    return dictionary
 
 @main_blueprint.route("/getOpportunityMeta/<int:id>", methods=["GET"])
 def getOpportunityMeta(id: int):
