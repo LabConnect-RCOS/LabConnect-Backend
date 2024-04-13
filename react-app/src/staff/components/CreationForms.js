@@ -128,6 +128,7 @@ const CreationForms = () => {
 
   const submitHandler = (data) => {
     // convert pay and credits to numbers
+    const { id } = state;
 
     data.pay = +data.pay;
     data.credits = +data.credits;
@@ -136,8 +137,8 @@ const CreationForms = () => {
     console.log({ ...data, authorID: "led" });
 
     // send data to the backend
-    !postID && createOpportunity({ ...data, authorID: "led" });
-    postID && updateOpportunity({ ...data, authorID: "led" });
+    !postID && createOpportunity({ ...data, authorID: id });
+    postID && updateOpportunity({ ...data, authorID: id });
   };
 
   var forms = (

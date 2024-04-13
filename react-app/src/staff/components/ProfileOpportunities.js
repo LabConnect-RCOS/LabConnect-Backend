@@ -2,7 +2,6 @@ import React from "react";
 import LargeTextCard from "./LargeTextCard";
 
 import { useState, useEffect } from "react";
-import { type } from "@testing-library/user-event/dist/type";
 
 const DUMMY_DATA = {
   d1: [
@@ -41,57 +40,41 @@ const DUMMY_DATA = {
   ],
 };
 
-// create fetch request to get the opportunities
-const fetchOpportunities = async (id) => {
-  // Consider moving the base URL to a configuration
-  const baseURL = "http://localhost:8000";
-  const url = `${baseURL}/getProfessorOpportunityCards/led`;
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(`Network response was not ok - Status: ${response.status}`);
-  }
-
-  const data = await response.json();
-  console.log(data);
-  return data;
-};
-
 const ProfileOpportunities = ({ id }) => {
   var [opportunities, setOpportunities] = useState(false);
 
-  const fetchOpportunities = async (key) => {
+  const fetchOpportunities = async () => {
     // Consider moving the base URL to a configuration
     const baseURL = "http://localhost:8000";
-    const url = `${baseURL}/getProfessorOpportunityCards/led`;
+    const url = `${baseURL}/getProfessorOpportunityCards/${id}`;
 
     const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error(
-        `Network response was not ok - Status: ${response.status}`
+        `Network response was not ok - Status: ${response.status}`,
       );
     }
 
     const data = await response.json();
-    console.log(data);
     return data["data"];
   };
 
-  async function setData(key) {
-    const response = await fetchOpportunities(key);
+  async function setData() {
+    const response = await fetchOpportunities();
     response && setOpportunities(response);
     response || setOpportunities("no response");
   }
 
   useEffect(() => {
-    setData(id);
-  }, [id]);
+    setData();
+  }, []);
 
   var opportunityList = (
     <div className="flex gap-2 flex-wrap">
-      {id && opportunities && typeof opportunities === "object" &&
+      {id &&
+        opportunities &&
+        typeof opportunities === "object" &&
         opportunities.map((opportunity) => (
           <LargeTextCard
             to={`/post/${opportunity.id}`}

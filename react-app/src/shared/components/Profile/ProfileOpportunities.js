@@ -50,7 +50,7 @@ const ProfileOpportunities = ({ id }) => {
   const fetchOpportunities = async (key) => {
     // Consider moving the base URL to a configuration
     const baseURL = "http://localhost:8000";
-    const url = `${baseURL}/getProfileOpportunities/led`;
+    const url = `${baseURL}/getProfileOpportunities/${key}`;
 
     const response = await fetch(url);
 
@@ -131,7 +131,7 @@ const ProfileOpportunities = ({ id }) => {
   }
 
   useEffect(() => {
-    setData("d1");
+    setData(id);
   }, []);
 
   var opportuntityList = (
