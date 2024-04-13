@@ -438,8 +438,22 @@ def user():
 
     id = request.get_json().get("id", None)
 
-    data = db.first_or_404(db.select(User).filter(User.id == id))
+    # Query for user
+    user = db.first_or_404(db.select(User).filter(User.id == id))
+    result = user.to_dict()
 
-    result = data.to_dict()
+    # Query for users department(s)
+    user_departments = db.session.execute(
+        db.select(UserDepartments).filter(UserDepartments.user_id == id)
+    ).scalars()
+    result["departments"] = [dept.to_dict() for dept in user_departments]
+
+    # Query for users major(s)
+    user_majors = db.session.execute(
+        db.select(UserMajors).filter(UserMajors.user_id == id)
+    ).scalars()
+    result["majors"] = [major.to_dict() for major in user_majors]
+
+    # Query for users courses
 
     return result
