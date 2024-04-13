@@ -1,13 +1,49 @@
-import React from "react";
-import { Modal, Backdrop, Fade, Typography, Checkbox, FormControlLabel, Select, MenuItem, Button } from "@mui/material";
+import React, { useState } from "react";
+import { Modal, Fade, Typography, Checkbox, FormControlLabel, Select, MenuItem, Button } from "@mui/material";
 
 const FilterModal = ({ open, handleClose }) => {
+  // State to track checked checkboxes
+  const [checkedItems, setCheckedItems] = useState({
+    computerScience: false,
+    itws: false,
+    mechanicalEngineering: false,
+    paid: false,
+    credit: false,
+    payCredit: false,
+    inPerson: false,
+    virtual: false,
+  });
+
+  // State to track selected department
+  const [selectedDepartment, setSelectedDepartment] = useState('');
+
+  // State to track selected salary range
+  const [selectedSalaryRange, setSelectedSalaryRange] = useState('');
+
+  // Function to handle clearing options
   const handleClear = () => {
-    // Handle clearing options
+    // Clear all checkboxes
+    setCheckedItems({
+      computerScience: false,
+      itws: false,
+      mechanicalEngineering: false,
+      paid: false,
+      credit: false,
+      payCredit: false,
+      inPerson: false,
+      virtual: false,
+    });
+
+    // Clear selected department
+    setSelectedDepartment('');
+
+    // Clear selected salary range
+    setSelectedSalaryRange('');
   };
 
+  // Function to handle showing results
   const handleShowResults = () => {
-    // Handle showing results
+    // Implement logic to show results
   };
 
   return (
@@ -17,10 +53,6 @@ const FilterModal = ({ open, handleClose }) => {
       aria-labelledby="transition-modal-title"
       aria-describedby="transition-modal-description"
       closeAfterTransition
-      BackdropComponent={Backdrop}
-      BackdropProps={{
-        timeout: 500,
-      }}
     >
       <Fade in={open}>
         <div style={{
@@ -46,15 +78,15 @@ const FilterModal = ({ open, handleClose }) => {
               Major
             </Typography>
             <FormControlLabel
-              control={<Checkbox />}
+              control={<Checkbox checked={checkedItems.computerScience} onChange={() => setCheckedItems({ ...checkedItems, computerScience: !checkedItems.computerScience })} />}
               label="Computer Science"
             />
             <FormControlLabel
-              control={<Checkbox />}
+              control={<Checkbox checked={checkedItems.itws} onChange={() => setCheckedItems({ ...checkedItems, itws: !checkedItems.itws })} />}
               label="ITWS"
             />
             <FormControlLabel
-              control={<Checkbox />}
+              control={<Checkbox checked={checkedItems.mechanicalEngineering} onChange={() => setCheckedItems({ ...checkedItems, mechanicalEngineering: !checkedItems.mechanicalEngineering })} />}
               label="Mechanical Engineering"
             />
           </div>
@@ -63,15 +95,15 @@ const FilterModal = ({ open, handleClose }) => {
               Pay
             </Typography>
             <FormControlLabel
-              control={<Checkbox />}
+              control={<Checkbox checked={checkedItems.paid} onChange={() => setCheckedItems({ ...checkedItems, paid: !checkedItems.paid })} />}
               label="Paid"
             />
             <FormControlLabel
-              control={<Checkbox />}
+              control={<Checkbox checked={checkedItems.credit} onChange={() => setCheckedItems({ ...checkedItems, credit: !checkedItems.credit })} />}
               label="Credit"
             />
             <FormControlLabel
-              control={<Checkbox />}
+              control={<Checkbox checked={checkedItems.payCredit} onChange={() => setCheckedItems({ ...checkedItems, payCredit: !checkedItems.payCredit })} />}
               label="Pay + Credit"
             />
           </div>
@@ -80,19 +112,23 @@ const FilterModal = ({ open, handleClose }) => {
               Onsite/Remote
             </Typography>
             <FormControlLabel
-              control={<Checkbox />}
-              label="In person"
+              control={<Checkbox checked={checkedItems.onsite} onChange={() => setCheckedItems({ ...checkedItems, onsite: !checkedItems.onsite })} />}
+              label="Onsite"
             />
             <FormControlLabel
-              control={<Checkbox />}
-              label="Virtual"
+              control={<Checkbox checked={checkedItems.remote} onChange={() => setCheckedItems({ ...checkedItems, remote: !checkedItems.remote })} />}
+              label="Remote"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={checkedItems.hybrid} onChange={() => setCheckedItems({ ...checkedItems, hybrid: !checkedItems.hybrid })} />}
+              label="Hybrid"
             />
           </div>
           <div>
             <Typography variant="h6" gutterBottom>
               Department
             </Typography>
-            <Select>
+            <Select value={selectedDepartment} onChange={(event) => setSelectedDepartment(event.target.value)}>
               <MenuItem value="engineering">School of Engineering</MenuItem>
               <MenuItem value="science">School of Science</MenuItem>
               <MenuItem value="business">Lally School of Management</MenuItem>
@@ -102,7 +138,7 @@ const FilterModal = ({ open, handleClose }) => {
             <Typography variant="h6" gutterBottom>
               Salary Range
             </Typography>
-            <Select>
+            <Select value={selectedSalaryRange} onChange={(event) => setSelectedSalaryRange(event.target.value)}>
               <MenuItem value="<15">&lt; $15</MenuItem>
               <MenuItem value="15-18">$15 - $18</MenuItem>
               <MenuItem value="18">$18</MenuItem>
