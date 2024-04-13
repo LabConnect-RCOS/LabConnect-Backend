@@ -219,8 +219,11 @@ class UserMajors(db.Model, CustomSerializerMixin):
     major = relationship("Majors", back_populates="users")
 
 
-class UserCourses(db.Model):
+class UserCourses(db.Model, CustomSerializerMixin):
     __tablename__ = "user_courses"
+
+    serialize_only = ("user_id", "course_code", "in_progress")
+    serialize_rules = ()
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     course_code = db.Column(

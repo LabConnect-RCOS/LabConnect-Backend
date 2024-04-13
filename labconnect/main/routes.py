@@ -27,6 +27,7 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
+    Participates,
 )
 
 from . import main_blueprint
@@ -442,18 +443,35 @@ def user():
     user = db.first_or_404(db.select(User).filter(User.id == id))
     result = user.to_dict()
 
-    # Query for users department(s)
+    # Query for user's department(s)
     user_departments = db.session.execute(
         db.select(UserDepartments).filter(UserDepartments.user_id == id)
     ).scalars()
     result["departments"] = [dept.to_dict() for dept in user_departments]
 
-    # Query for users major(s)
+    # Query for user's major(s)
     user_majors = db.session.execute(
         db.select(UserMajors).filter(UserMajors.user_id == id)
     ).scalars()
     result["majors"] = [major.to_dict() for major in user_majors]
 
-    # Query for users courses
+    # Query for user's courses
+    user_courses = db.session.execute(
+        db.select(UserCourses)
+        .order_by(UserCourses.in_progress)
+        .filter(UserCourses.user_id == id)
+    ).scalars()
+    result["courses"] = [course.to_dict() for course in user_courses]
+
+    # Query for user's opportunities
+    user_opportunities = db.session.execute(
+        db.select(Opportunities, Participates)
+        .filter(Participates.user_id == id)
+        .join(Opportunities, Participates.opportunity_id == Opportunities.id)
+        .order_by(Opportunities.active.desc())
+    ).scalars()
+    result["opportunities"] = [
+        opportunity.to_dict() for opportunity in user_opportunities
+    ]
 
     return result
