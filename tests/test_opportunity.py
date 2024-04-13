@@ -27,7 +27,10 @@ def test_get_opportunity(test_client: FlaskClient) -> None:
             "Energy efficient AC system",
             "Thermodynamics",
             15.0,
-            "4",
+            False,
+            False,
+            False,
+            True,
             "Spring",
             2024,
             True,
@@ -37,7 +40,10 @@ def test_get_opportunity(test_client: FlaskClient) -> None:
             "Scratching the Iphone, drop testing etc.",
             "Experienced in getting angry and throwing temper tantrum",
             None,
-            "1,2,3,4",
+            True,
+            True,
+            True,
+            True,
             "Spring",
             2024,
             True,
@@ -48,19 +54,27 @@ def test_get_opportunity(test_client: FlaskClient) -> None:
     assert json_data1["description"] == lab_manager_opportunities_data[0][1]
     assert json_data1["recommended_experience"] == lab_manager_opportunities_data[0][2]
     assert json_data1["pay"] == lab_manager_opportunities_data[0][3]
-    assert json_data1["credits"] == lab_manager_opportunities_data[0][4]
-    assert json_data1["semester"] == lab_manager_opportunities_data[0][5]
-    assert json_data1["year"] == lab_manager_opportunities_data[0][6]
-    assert json_data1["active"] == lab_manager_opportunities_data[0][7]
+    assert json_data1["one_credit"] == lab_manager_opportunities_data[0][4]
+    assert json_data1["two_credits"] == lab_manager_opportunities_data[0][5]
+    assert json_data1["three_credits"] == lab_manager_opportunities_data[0][6]
+    assert json_data1["four_credits"] == lab_manager_opportunities_data[0][7]
+    assert json_data1["semester"] == lab_manager_opportunities_data[0][8]
+    assert json_data1["year"] == lab_manager_opportunities_data[0][9]
+    assert json_data1["active"] == lab_manager_opportunities_data[0][10]
 
     assert json_data2["name"] == lab_manager_opportunities_data[1][0]
     assert json_data2["description"] == lab_manager_opportunities_data[1][1]
     assert json_data2["recommended_experience"] == lab_manager_opportunities_data[1][2]
     assert json_data2["pay"] == lab_manager_opportunities_data[1][3]
-    assert json_data2["credits"] == lab_manager_opportunities_data[1][4]
-    assert json_data2["semester"] == lab_manager_opportunities_data[1][5]
-    assert json_data2["year"] == lab_manager_opportunities_data[1][6]
-    assert json_data2["active"] == lab_manager_opportunities_data[1][7]
+    assert json_data2["one_credit"] == lab_manager_opportunities_data[1][4]
+    assert json_data2["two_credits"] == lab_manager_opportunities_data[1][5]
+    assert json_data2["three_credits"] == lab_manager_opportunities_data[1][6]
+    assert json_data2["four_credits"] == lab_manager_opportunities_data[1][7]
+    assert json_data2["semester"] == lab_manager_opportunities_data[1][8]
+    assert json_data2["year"] == lab_manager_opportunities_data[1][9]
+    assert json_data2["active"] == lab_manager_opportunities_data[1][10]
+
+    print(json_data2)
 
 
 def test_get_opportunity_no_json(test_client: FlaskClient) -> None:
