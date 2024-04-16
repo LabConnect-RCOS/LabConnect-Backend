@@ -19,9 +19,9 @@ import StickyFooter from "./shared/components/Navigation/StickyFooter.js"
 function App() {
   return (
     <GlobalContextProvider>
-      <section>
+      <section className="stickyfooter">
         <MainNavigation />
-        <main className=" container-xl ">
+        <main className="container-xl">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/jobs" element={<Jobs />} />

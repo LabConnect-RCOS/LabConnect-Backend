@@ -3,32 +3,7 @@ import usePageNavigation from "../../shared/hooks/page-navigation-hook";
 import PageNavigation from "../../shared/components/Navigation/PageNavigation";
 import BrowseItems from "../components/BrowseItems";
 
-/**import { useEffect, useState } from 'react';
-
-const FetchGetRequest = () => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchDataForPosts = async () => {
-      const response = await fetch(
-        `https://jsonplaceholder.typicode.com/posts?_limit=8`
-      );
-      if (!response.ok) {
-        setData(null);
-        return <div></div>
-      }
-      let postsData = await response.json();
-      setData(postsData);
-      setLoading(false);
-    };
-
-    fetchDataForPosts();
-  }, []);
-
-  return <div></div>;
-
-};*/
+import { useEffect, useState } from 'react';
 
 const DUMMY_DATA = {
   to: "/staff",
@@ -63,10 +38,38 @@ const DUMMY_DATA = {
 const Browse = () => {
   var [pages, switchPage] = usePageNavigation(
     ["Research Centers", "Departments"],
-    "Research Centers"
+    "Research Centers",
   );
-  
-  return (
+
+  var [departments, setDepartments] = useState(false);
+
+  const checkDepartments = (data) => {
+    return data.to && data.items;
+  };
+
+  const fetchDepartments = async () => {
+    const response = await fetch(
+      `http://localhost:8000/department`,
+    );
+
+    if (!response.ok) {
+      setDepartments("not found");
+    } else {
+      const data = await response.json();
+      if (checkDepartments(data)) {
+        setDepartments(data);
+      } else {
+        setDepartments("not found");
+        console.log(data);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
+
+  var departmentsComponents = (
     <section className="flex2 gap-3">
       <PageNavigation
         title="Browse Staff"
@@ -74,16 +77,22 @@ const Browse = () => {
         switchPage={switchPage}
       />
 
-
       {pages.activePage === "Research Centers" && (
-        <BrowseItems to={DUMMY_DATA.to} items={DUMMY_DATA.items} />
+        <BrowseItems to={departments.to} items={departments.items} />
       )}
 
       {pages.activePage === "Departments" && (
-        <BrowseItems to={DUMMY_DATA.to} items={DUMMY_DATA.items} />
+        <BrowseItems to={departments.to} items={departments.items} />
       )}
-      <br/><br/>
     </section>
+  );
+
+  return (
+    <>
+      {!departments && "Loading..."}
+      {typeof departments == "object" && departmentsComponents}
+      {departments == "not found" && "Departments not found"}
+    </>
   );
 };
 
