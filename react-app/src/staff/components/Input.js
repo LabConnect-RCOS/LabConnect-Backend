@@ -9,6 +9,7 @@ const Input = ({
   label,
   options,
   placeHolder,
+  
 }) => {
   // if (!formHook) {
   //   return <h1>FormHook Not Given</h1>;

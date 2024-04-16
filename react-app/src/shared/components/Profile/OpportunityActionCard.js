@@ -19,7 +19,7 @@ const OpportunityActionCard = ({
   const buttonClass = `btn-sm btn ${color}`;
 
   return (
-    <div className="opportunitycard">
+    <div className="opportunitycard hover:shadow-md card">
       <div className="card-body">
         <h2
           className={`${
