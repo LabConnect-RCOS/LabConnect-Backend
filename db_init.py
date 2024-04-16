@@ -283,9 +283,9 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         user_majors = (
-            (0, "MATH"),
-            (0, "CSCI"),
+            (1, "MATH"),
             (1, "CSCI"),
+            (2, "CSCI"),
         )
 
         for r in user_majors:
@@ -294,9 +294,9 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         user_departments = (
-            (0, "Computer Science"),
-            (0, "Math"),
             (1, "Computer Science"),
+            (1, "Math"),
+            (2, "Computer Science"),
         )
 
         for r in user_departments:
@@ -305,9 +305,9 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         user_courses = (
-            (0, "CSCI2300", False),
-            (0, "CSCI4430", True),
             (1, "CSCI2300", False),
+            (1, "CSCI4430", True),
+            (2, "CSCI2300", False),
         )
 
         for r in user_courses:
