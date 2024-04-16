@@ -56,11 +56,19 @@ def test_department_route(test_client: FlaskClient) -> None:
 
     json_data = json.loads(response.data)
 
-    Opps = (("1", "2024", "Spring", "True"), ("1", "2024", "Spring", "True"))
+    hold_prof = ["Duy Le", "Rafael", "Turner", "Kuzmin", "Goldschmidt"]
 
-    assert {"name": "Computer Science", "description": "DS"} == json.loads(
-        response.data
-    )
+    hold_opp = {
+        "Automated Cooling System": [1, 2024, "Spring", True],
+        "Iphone 15 durability test": [2, 2024, "Spring", True],
+    }
+
+    assert {
+        "name": "Computer Science",
+        "description": "DS",
+        "professors": hold_prof,
+        "opportunitys": hold_opp,
+    } == json.loads(response.data)
 
 
 def test_department_route_no_json(test_client: FlaskClient) -> None:
