@@ -56,5 +56,29 @@ def return_query():
 
 
 
+#example json below
+#     "data": [
+    #         {
+    #             "title": "Nelson",
+    #             "major": "CS",
+    #             # "experience": "x",
+    #             # "description": "d",
+    #             "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
+    #             "credits": 4,
+    #             "pay": 9000.0,
+    #         },
+    #         {
+    #             "title": "Name",
+    #             "major": "Major",
+    #             # "experience": "XP",
+    #             # "description": "Hi",
+    #             "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
+    #             "credits": 3,
+    #             "pay": 123,
+    #         },
+    #     ]
+
+
+
 
 

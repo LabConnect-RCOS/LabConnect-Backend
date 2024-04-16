@@ -90,7 +90,8 @@ def department():
 
 @main_blueprint.route("/discover")
 def discover():
-    return return_query()
+    result = [opportunity.to_dict() for opportunity in return_query()]
+    return result
     # query = (
     #     # db.session.query(Opportunities, Majors)
     #     # .filter(Majors.major_code == "CSCI")
