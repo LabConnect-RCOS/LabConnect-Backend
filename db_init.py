@@ -82,8 +82,8 @@ elif sys.argv[1] == "create":
         lab_manager_rows = (
             ("led", "Duy Le", "Computer Science"),
             ("cenzar", "Rafael", "Computer Science"),
-            ("turner", "Rafael", "Computer Science"),
-            ("kuzmin", "Rafael", "Computer Science"),
+            ("turner", "Turner", "Computer Science"),
+            ("kuzmin", "Kuzmin", "Computer Science"),
             ("goldd", "Goldschmidt", "Computer Science"),
             ("rami", "Rami", "Material Science"),
             ("holm", "Holmes", "Math"),
@@ -102,20 +102,26 @@ elif sys.argv[1] == "create":
                 "Energy efficient AC system",
                 "Thermodynamics",
                 15.0,
-                "4",
+                False,
+                False,
+                False,
+                True,
                 SemesterEnum.SPRING,
                 2024,
                 date.today(),
                 True,
                 datetime.now(),
-                LocationEnum.CCI,
+                LocationEnum.REMOTE,
             ),
             (
                 "Iphone 15 durability test",
                 "Scratching the Iphone, drop testing etc.",
                 "Experienced in getting angry and throwing temper tantrum",
                 None,
-                "1,2,3,4",
+                True,
+                True,
+                True,
+                True,
                 SemesterEnum.SPRING,
                 2024,
                 date.today(),
@@ -128,7 +134,10 @@ elif sys.argv[1] == "create":
                 "Material Sciences",
                 "Experienced in materials.",
                 None,
-                "1,2,3,4",
+                True,
+                True,
+                True,
+                True,
                 SemesterEnum.FALL,
                 2024,
                 date.today(),
@@ -141,7 +150,10 @@ elif sys.argv[1] == "create":
                 "Testing the quality of water in Troy pipes",
                 "Understanding of lead poisioning",
                 None,
-                "3,4",
+                False,
+                False,
+                True,
+                True,
                 SemesterEnum.SUMMER,
                 2024,
                 date.today(),
@@ -157,11 +169,16 @@ elif sys.argv[1] == "create":
                 description=row_tuple[1],
                 recommended_experience=row_tuple[2],
                 pay=row_tuple[3],
-                credits=row_tuple[4],
-                semester=row_tuple[5],
-                year=row_tuple[6],
-                application_due=row_tuple[7],
-                active=row_tuple[8],
+                one_credit=row_tuple[4],
+                two_credits=row_tuple[5],
+                three_credits=row_tuple[6],
+                four_credits=row_tuple[7],
+                semester=row_tuple[8],
+                year=row_tuple[9],
+                application_due=row_tuple[10],
+                active=row_tuple[11],
+                last_updated=row_tuple[12],
+                location=row_tuple[13],
             )
             db.session.add(row)
             db.session.commit()
@@ -201,7 +218,13 @@ elif sys.argv[1] == "create":
         # https://www.geeksforgeeks.org/datetime-timezone-in-sqlalchemy/
         # https://www.tutorialspoint.com/handling-timezone-in-python
 
-        leads_rows = (("led", 1), ("cenzar", 1), ("cenzar", 2))
+        leads_rows = (
+            ("led", 1),
+            ("cenzar", 1),
+            ("cenzar", 2),
+            ("rami", 3),
+            ("holm", 4),
+        )
 
         for r in leads_rows:
             row = Leads(lab_manager_rcs_id=r[0], opportunity_id=r[1])

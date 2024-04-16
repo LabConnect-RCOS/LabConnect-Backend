@@ -70,7 +70,6 @@ def test_lab_manager_opportunity_cards(test_client: FlaskClient) -> None:
             "Energy efficient AC system",
             "Thermodynamics",
             15.0,
-            "4",
             "Spring",
             2024,
             True,
@@ -80,7 +79,6 @@ def test_lab_manager_opportunity_cards(test_client: FlaskClient) -> None:
             "Scratching the Iphone, drop testing etc.",
             "Experienced in getting angry and throwing temper tantrum",
             None,
-            "1,2,3,4",
             "Spring",
             2024,
             True,
@@ -92,10 +90,9 @@ def test_lab_manager_opportunity_cards(test_client: FlaskClient) -> None:
         assert item["description"] == lab_manager_opportunities_data[i][1]
         assert item["recommended_experience"] == lab_manager_opportunities_data[i][2]
         assert item["pay"] == lab_manager_opportunities_data[i][3]
-        assert item["credits"] == lab_manager_opportunities_data[i][4]
-        assert item["semester"] == lab_manager_opportunities_data[i][5]
-        assert item["year"] == lab_manager_opportunities_data[i][6]
-        assert item["active"] == lab_manager_opportunities_data[i][7]
+        assert item["semester"] == lab_manager_opportunities_data[i][4]
+        assert item["year"] == lab_manager_opportunities_data[i][5]
+        assert item["active"] == lab_manager_opportunities_data[i][6]
 
 
 def test_lab_manager_opportunity_cards_no_json(test_client: FlaskClient) -> None:

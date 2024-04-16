@@ -102,11 +102,16 @@ class Opportunities(db.Model, CustomSerializerMixin):
         "description",
         "recommended_experience",
         "pay",
-        "credits",
+        "one_credit",
+        "two_credits",
+        "three_credits",
+        "four_credits",
         "semester",
         "year",
         "application_due",
         "active",
+        "last_updated",
+        "location",
     )
     serialize_rules = ()
 
@@ -115,7 +120,10 @@ class Opportunities(db.Model, CustomSerializerMixin):
     description = db.Column(db.String(2000), nullable=True, unique=False)
     recommended_experience = db.Column(db.String(500), nullable=True, unique=False)
     pay = db.Column(db.Float, nullable=True, unique=False)
-    credits = db.Column(db.String(8), nullable=True, unique=False)
+    one_credit = db.Column(db.Boolean, nullable=True, unique=False)
+    two_credits = db.Column(db.Boolean, nullable=True, unique=False)
+    three_credits = db.Column(db.Boolean, nullable=True, unique=False)
+    four_credits = db.Column(db.Boolean, nullable=True, unique=False)
     semester = db.Column(Enum(SemesterEnum), nullable=True, unique=False)
     year = db.Column(db.Integer, nullable=True, unique=False)
     application_due = db.Column(db.Date, nullable=True, unique=False)
