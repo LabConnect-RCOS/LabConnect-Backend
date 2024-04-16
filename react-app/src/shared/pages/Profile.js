@@ -5,6 +5,7 @@ import ProfileDescription from "../../staff/components/ProfileDescription";
 import ProfileOpportunities from "../components/Profile/ProfileOpportunities";
 import EditProfile from "./EditProfile";
 import useGlobalContext from "../../context/global/useGlobalContext";
+import StickyFooter from "../components/Navigation/StickyFooter.js"
 
 const PROFILES = {
   d1: {
@@ -74,7 +75,7 @@ const ProfilePage = () => {
   }, []);
 
   var editButton = (
-    <button className="btn2 my-3" onClick={changeEditMode}>
+    <button className="btn btn-primary my-3" onClick={changeEditMode}>
       {editMode ? "Cancel Changes" : "Edit Profile"}
     </button>
   );
@@ -99,17 +100,20 @@ const ProfilePage = () => {
 
   return (
     <section>
-      {!loggedIn ? (
-        "Please log in to view your profile"
-      ) : profileFound ? (
-        <>
-          {loggedIn && editButton}
-          {loggedIn && editMode && <EditProfile />}
-          {loggedIn && !editMode && profilePage}
-        </>
-      ) : (
-        "Profile not found"
-      )}
+      <section>
+        {!loggedIn ? (
+          "Please log in to view your profile"
+        ) : profileFound ? (
+          <>
+            {loggedIn && editButton}
+            {loggedIn && editMode && <EditProfile />}
+            {loggedIn && !editMode && profilePage}
+          </>
+        ) : (
+          "Profile not found"
+        )}
+      </section>
+      <br/><br/><br/><br/><br/><br/><br/>
     </section>
   );
 };

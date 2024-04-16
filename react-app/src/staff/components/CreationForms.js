@@ -302,8 +302,9 @@ const CreationForms = () => {
         name={"years"}
         formHook={{ ...register("years", { required: true }) }}
       />
-
-      <input type="submit" className="btn2 bg-blue-700" />
+      <section className="pt-3 pb-5">
+        <input type="submit" className="btn btn-primary bg-blue-700 w-full" />
+      </section>
     </form>
   );
 
@@ -312,7 +313,7 @@ const CreationForms = () => {
   ) : loading === "no response" ? (
     <h1>There was no response</h1>
   ) : (
-    <span className="creationforms-loading" />
+    <span className="lc-loading" />
   );
 };
 

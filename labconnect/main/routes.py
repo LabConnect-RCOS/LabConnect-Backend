@@ -2,11 +2,24 @@ import datetime
 
 
 from typing import Any
-from flask import abort, request
 
+<<<<<<< HEAD
 
 from labconnect import db
 from labconnect.helpers import SemesterEnum, OrJSONProvider
+=======
+from flask import abort, jsonify, redirect, request, url_for
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+    unset_jwt_cookies,
+)
+
+from labconnect import bcrypt, db
+from labconnect.helpers import SemesterEnum
+>>>>>>> main
 from labconnect.models import (
     ClassYears,
     Courses,
@@ -19,29 +32,10 @@ from labconnect.models import (
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
+    User,
 )
 
 from . import main_blueprint
-
-# Example queries
-# @main_blueprint.route("/test")
-# def test():
-#     query = (
-#         db.session.query(Opportunities, Majors)
-#         .filter(Majors.major_code == "CSCI")
-#         .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
-#         .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
-#     )
-#     query = (
-#         db.session.query(Opportunities, Majors)
-#         .filter(Opportunities.id == 2)
-#         .join(RecommendsMajors, Opportunities.id == RecommendsMajors.opportunity_id)
-#         .join(Majors, RecommendsMajors.major_code == Majors.major_code)
-#     )
-#     print(query)
-#     data = query.all()
-#     print(data)
-#     return {"Hello": "There"}
 
 
 def packageOpportunity(opportunityInfo, professorInfo):
@@ -113,6 +107,7 @@ def index():
     return {"Hello": "There"}
 
 
+<<<<<<< HEAD
 
 @main_blueprint.route("/opportunities")
 def positions():
@@ -124,6 +119,8 @@ def opportunity(id: int):
     return {"Hello": "There"}
 
 
+=======
+>>>>>>> main
 @main_blueprint.route("/profile/<string:rcs_id>")
 def profile(rcs_id: str):
     return {"Hello": "There"}
@@ -171,8 +168,50 @@ def department():
 
 @main_blueprint.route("/discover")
 def discover():
-    return {"Hello": "There"}
+    query = (
+        # db.session.query(Opportunities, Majors)
+        # .filter(Majors.major_code == "CSCI")
+        # .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
+        # .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+        db.select(
+            Opportunities.id,
+            Opportunities.name,
+            Opportunities.description,
+            Opportunities.pay,
+            Majors,
+            RecommendsMajors,
+        )
+        .filter(Majors.code == "CSCI")
+        .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
+        .join(Majors, RecommendsMajors.major_code == Majors.code)
+        # commented out code above needs fixing
+    )
 
+    print(query)
+    return {
+        "data": [
+            {
+                "title": "Nelson",
+                "major": "CS",
+                # "experience": "x",
+                # "description": "d",
+                "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
+                "credits": 4,
+                "pay": 9000.0,
+            },
+            {
+                "title": "Name",
+                "major": "Major",
+                # "experience": "XP",
+                # "description": "Hi",
+                "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
+                "credits": 3,
+                "pay": 123,
+            },
+        ]
+    }
+
+<<<<<<< HEAD
 @main_blueprint.route("/getSchoolsAndDepartments/", methods=["GET"])
 def getSchoolsAndDepartments():
     if request.method == "GET":
@@ -219,10 +258,27 @@ def getOpportunitiesRaw(id: int):
         print(data)
 
         return {"data": "check terminal"}
+=======
 
-    abort(500)
+@main_blueprint.get("/lab_manager")
+def getLabManagers():
+    if not request.data:
+        abort(400)
+
+    rcs_id = request.get_json().get("rcs_id", None)
+>>>>>>> main
+
+    if not rcs_id:
+        abort(400)
+
+    data = db.first_or_404(db.select(LabManager).filter(LabManager.rcs_id == rcs_id))
+
+    result = data.to_dict()
+
+    return result
 
 
+<<<<<<< HEAD
 @main_blueprint.route("/getProfessorProfile/<string:rcs_id>", methods=["GET"])
 def getProfessorProfile(rcs_id: str):
     # test code until database code is added
@@ -267,8 +323,19 @@ def getOpportunity(opp_id: int):
 
     # return data in the below format if opportunity is found
     return {"data": oppData}
+=======
+@main_blueprint.get("/lab_manager/opportunities")
+def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
+    if not request.data:
+        abort(400)
 
+    rcs_id = request.get_json().get("rcs_id", None)
+>>>>>>> main
 
+    if not rcs_id:
+        abort(400)
+
+<<<<<<< HEAD
 @main_blueprint.route("/getProfessorOpportunityCards/<string:rcs_id>", methods=["GET"])
 def getProfessorOpportunityCards(rcs_id: str):
     if request.method == "GET":
@@ -763,6 +830,22 @@ def createOpportunity():
         return {"data": "Opportunity Created"}
 
     abort(500)
+=======
+    data = db.session.execute(
+        db.select(Opportunities, LabManager)
+        .filter(LabManager.rcs_id == rcs_id)
+        .join(Leads, LabManager.rcs_id == Leads.lab_manager_rcs_id)
+        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+        .order_by(Opportunities.id)
+    ).scalars()
+
+    if not data:
+        abort(404)
+
+    result = {rcs_id: [opportunity.to_dict() for opportunity in data]}
+
+    return result
+>>>>>>> main
 
 
 @main_blueprint.route("/create_post", methods=["POST"])
@@ -770,9 +853,78 @@ def create_post():
     return {"Hello": "There"}
 
 
-@main_blueprint.route("/login")
+@main_blueprint.post("/register")
+def register():
+
+    if not request.data:
+        abort(400)
+
+    json_data = request.get_json()
+    email = json_data.get("email", None)
+    password = json_data.get("password", None)
+    first_name = json_data.get("first_name", None)
+    last_name = json_data.get("last_name", None)
+    class_year = json_data.get("class_year", None)
+
+    if (
+        email is None
+        or password is None
+        or first_name is None
+        or last_name is None
+        or class_year is None
+    ):
+        abort(400)
+
+    data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
+
+    if data is None:
+        user = User(
+            email=email,
+            password=bcrypt.generate_password_hash(password + email),
+            first_name=first_name,
+            last_name=last_name,
+            preferred_name=json_data.get("preferred_name", None),
+            class_year=class_year,
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        return {"msg": "User created successfully"}
+
+    return {"msg": "User already exists"}, 403
+
+
+@main_blueprint.post("/login")
 def login():
-    return {"Hello": "There"}
+    if not request.data:
+        abort(400)
+
+    json_data = request.get_json()
+    email = json_data.get("email", None)
+    password = json_data.get("password", None)
+
+    if email is None or password is None:
+        abort(400)
+
+    data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
+
+    if data is None:
+        abort(401)
+
+    if not bcrypt.check_password_hash(data.password, password + email):
+        return {"msg": "Wrong email or password"}, 401
+
+    access_token = create_access_token(identity=email)
+    response = {"access_token": access_token}
+
+    return response
+
+
+@main_blueprint.get("/logout")
+def logout():
+    response = jsonify({"msg": "logout successful"})
+    unset_jwt_cookies(response)
+    return response
 
 
 @main_blueprint.route("/500")
@@ -784,6 +936,10 @@ def force_error():
 def schools() -> list[Any]:
 
     data = db.session.execute(db.select(RPISchools).order_by(RPISchools.name)).scalars()
+
+    if not data:
+        abort(404)
+
     result = [school.to_dict() for school in data]
 
     return result
@@ -795,6 +951,10 @@ def departments() -> list[Any]:
     data = db.session.execute(
         db.select(RPIDepartments).order_by(RPIDepartments.name)
     ).scalars()
+
+    if not data:
+        abort(404)
+
     result = [department.to_dict() for department in data]
 
     return result
@@ -814,11 +974,19 @@ def majors() -> list[Any]:
                 | (Majors.name.ilike(f"%{partial_key}%"))
             )
         ).scalars()
+
+        if not data:
+            abort(404)
+
         result = [major.to_dict() for major in data]
 
         return result
 
     data = db.session.execute(db.select(Majors).order_by(Majors.code)).scalars()
+
+    if not data:
+        abort(404)
+
     result = [major.to_dict() for major in data]
 
     return result
@@ -832,7 +1000,14 @@ def years() -> list[Any]:
         .order_by(ClassYears.class_year)
         .filter(ClassYears.active == True)
     ).scalars()
+
+    if not data:
+        abort(404)
+
     result = [year.class_year for year in data]
+
+    if result == []:
+        abort(404)
 
     return result
 
@@ -856,6 +1031,12 @@ def courses() -> list[Any]:
         )
     ).scalars()
 
+    if not data:
+        abort(404)
+
     result = [course.to_dict() for course in data]
+
+    if result == []:
+        abort(404)
 
     return result
