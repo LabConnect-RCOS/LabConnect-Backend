@@ -5,6 +5,7 @@ import ProfileDescription from "../../staff/components/ProfileDescription";
 import ProfileOpportunities from "../components/Profile/ProfileOpportunities";
 import EditProfile from "./EditProfile";
 import useGlobalContext from "../../context/global/useGlobalContext";
+import StickyFooter from "../components/Navigation/StickyFooter.js"
 
 const PROFILES = {
   d1: {
@@ -90,17 +91,20 @@ const ProfilePage = () => {
 
   return (
     <section>
-      {!loggedIn ? (
-        "Please log in to view your profile"
-      ) : profileFound ? (
-        <>
-          {loggedIn && editButton}
-          {loggedIn && editMode && <EditProfile />}
-          {loggedIn && !editMode && profilePage}
-        </>
-      ) : (
-        "Profile not found"
-      )}
+      <section>
+        {!loggedIn ? (
+          "Please log in to view your profile"
+        ) : profileFound ? (
+          <>
+            {loggedIn && editButton}
+            {loggedIn && editMode && <EditProfile />}
+            {loggedIn && !editMode && profilePage}
+          </>
+        ) : (
+          "Profile not found"
+        )}
+      </section>
+      <br/><br/><br/><br/><br/><br/><br/>
     </section>
   );
 };
