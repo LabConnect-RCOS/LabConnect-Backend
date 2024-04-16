@@ -75,23 +75,15 @@ def department():
         )
     ).scalars()
 
-    # result4 = [prof for prof in prof_data]
     result2 = []
     Ids = []
     for prof in prof_data:
         result2.append(prof.name)
         Ids.append(prof.rcs_id)
 
-    # result2 = [prof.name for prof in prof_data]
-    # Ids = [prof.rcs_id for prof in prof_data]
-
-    print(result2)
-    print(Ids)
-
-    result["Professors"] = result2
+    result["professors"] = result2
 
     opportunitys = {}
-    # leads = []
     for prof in Ids:
         data = db.session.execute(
             db.select(Opportunities, Leads)
@@ -103,22 +95,10 @@ def department():
         for opp in data:
             hold = [opp.id, opp.year, opp.semester, opp.active]
             opportunitys[opp.name] = hold
-            # print(opp.name)
+            print(hold)
+            print("^")
 
-    # for opp in data:
-    # opportunitys.append(opp.id)
-
-    # id_holder = []
-    # for opp_id in data:
-    #     id_holder.append(opp_id.id)
-    # for opp_id in data:
-    #     id_holder.append(opp_id.name)
-
-    # for thing in opportunitys:
-    # print(thing)
-
-    result["Opportunitys"] = opportunitys
-    # leads.append(opp.to_dict())
+    result["opportunitys"] = opportunitys
 
     return result
 
