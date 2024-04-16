@@ -29,6 +29,7 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
+    Participates,
 )
 
 app = create_app()
@@ -315,6 +316,18 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        participates_rows = (
+            (1, 1),
+            (1, 2),
+            (2, 3),
+            (2, 4),
+        )
+
+        for r in participates_rows:
+            row = Participates(user_id=r[0], opportunity_id=r[1])
+            db.session.add(row)
+            db.session.commit()
+
         tables = [
             ClassYears,
             Courses,
@@ -331,6 +344,7 @@ elif sys.argv[1] == "create":
             UserCourses,
             UserDepartments,
             UserMajors,
+            Participates,
         ]
 
         for table in tables:
