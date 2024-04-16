@@ -2,12 +2,24 @@ from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 
 from labconnect import db
-from labconnect.helpers import CustomSerializerMixin, SemesterEnum, LocationEnum
+from labconnect.helpers import CustomSerializerMixin, LocationEnum, SemesterEnum
 
 # DD - Entities
 
 
 class User(db.Model):
+    __tablename__ = "user"
+
+    serialize_only = (
+        "id",
+        "email",
+        "first_name",
+        "last_name",
+        "preferred_name",
+        "class_year",
+    )
+    serialize_rules = ()
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False, unique=False)
@@ -90,11 +102,16 @@ class Opportunities(db.Model, CustomSerializerMixin):
         "description",
         "recommended_experience",
         "pay",
-        "credits",
+        "one_credit",
+        "two_credits",
+        "three_credits",
+        "four_credits",
         "semester",
         "year",
         "application_due",
         "active",
+        "last_updated",
+        "location",
     )
     serialize_rules = ()
 
@@ -103,7 +120,10 @@ class Opportunities(db.Model, CustomSerializerMixin):
     description = db.Column(db.String(2000), nullable=True, unique=False)
     recommended_experience = db.Column(db.String(500), nullable=True, unique=False)
     pay = db.Column(db.Float, nullable=True, unique=False)
-    credits = db.Column(db.String(8), nullable=True, unique=False)
+    one_credit = db.Column(db.Boolean, nullable=True, unique=False)
+    two_credits = db.Column(db.Boolean, nullable=True, unique=False)
+    three_credits = db.Column(db.Boolean, nullable=True, unique=False)
+    four_credits = db.Column(db.Boolean, nullable=True, unique=False)
     semester = db.Column(Enum(SemesterEnum), nullable=True, unique=False)
     year = db.Column(db.Integer, nullable=True, unique=False)
     application_due = db.Column(db.Date, nullable=True, unique=False)
@@ -205,7 +225,9 @@ class UserCourses(db.Model):
     __tablename__ = "user_courses"
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    courses = db.Column(db.String(8), db.ForeignKey("courses.code"), primary_key=True)
+    course_code = db.Column(
+        db.String(8), db.ForeignKey("courses.code"), primary_key=True
+    )
     in_progress = db.Column(db.Boolean, nullable=False, default=False)
 
     user = relationship("User", back_populates="courses")

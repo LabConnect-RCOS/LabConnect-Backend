@@ -1,6 +1,6 @@
 from typing import Any
 
-from flask import abort, request, jsonify, redirect, url_for
+from flask import abort, jsonify, redirect, request, url_for
 from flask_jwt_extended import (
     create_access_token,
     get_jwt,
@@ -31,16 +31,6 @@ from . import main_blueprint
 
 @main_blueprint.route("/")
 def index():
-    return {"Hello": "There"}
-
-
-@main_blueprint.route("/opportunities")
-def positions():
-    return {"Hello": "There"}
-
-
-@main_blueprint.route("/opportunity/<int:id>")
-def opportunity(id: int):
     return {"Hello": "There"}
 
 
@@ -125,7 +115,6 @@ def discover():
             Opportunities.name,
             Opportunities.description,
             Opportunities.pay,
-            Opportunities.credits,
             Majors,
             RecommendsMajors,
         )
@@ -177,23 +166,6 @@ def getLabManagers():
     return result
 
 
-@main_blueprint.get("/opportunity")
-def getOpportunity():
-    if not request.data:
-        abort(400)
-
-    id = request.get_json().get("id", None)
-
-    if not id:
-        abort(400)
-
-    data = db.first_or_404(db.select(Opportunities).filter(Opportunities.id == id))
-
-    result = data.to_dict()
-
-    return result
-
-
 @main_blueprint.get("/lab_manager/opportunities")
 def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     if not request.data:
@@ -218,46 +190,6 @@ def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     result = {rcs_id: [opportunity.to_dict() for opportunity in data]}
 
     return result
-
-
-# _______________________________________________________________________________________________#
-
-# Editing Opportunities in Profile Page
-
-
-@main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
-def deleteOpportunity():
-    if request.method in ["DELETE", "POST"]:
-        data = request.json
-        postID = data["postID"]
-        authToken = data["authToken"]
-        authorID = data["authToken"]
-
-        # query database to see if the credentials above match
-
-        # if match is found, delete the opportunity, return status 200
-
-        abort(200)
-
-    abort(500)
-
-
-@main_blueprint.route("/changeActiveStatus", methods=["DELETE", "POST"])
-def changeActiveStatus():
-    if request.method in ["DELETE", "POST"]:
-        data = request.json
-        postID = data["postID"]
-        authToken = data["authToken"]
-        authorID = data["authToken"]
-        setStatus = data["setStatus"]
-
-        # query database to see if the credentials above match
-
-        # if match is found, change the opportunities active status to true or false based on setStatus
-
-        abort(200)
-
-    abort(500)
 
 
 @main_blueprint.route("/create_post", methods=["POST"])

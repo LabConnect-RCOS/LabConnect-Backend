@@ -34,6 +34,7 @@ class LocationEnum(EnumPython):
     WALKER = "Walker Laboratory"
     WEST = "West Hall"
     WINSLOW = "Winslow Building"
+    REMOTE = "Remote"
 
 
 class OrJSONProvider(JSONProvider):
