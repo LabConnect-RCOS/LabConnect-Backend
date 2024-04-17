@@ -48,18 +48,14 @@ def getOpportunity():
 
 @main_blueprint.get("/opportunity/filter")
 def filterOpportunities():
-    print("HERE 1")
 
     if not request.data:
         abort(400)
-    print("HERE 2")
 
     filter_json = request.get_json()
 
     if not filter_json:
         abort(400)
-
-    print("HERE 3")
 
     filters = filter_json.get("filters", None)
 
@@ -75,8 +71,13 @@ def filterOpportunities():
 
     else:
 
-        filter_conditions = []
-        query = db.select(Opportunities).where(Opportunities.active == True).limit(20)
+        where_conditions = []
+        query = (
+            db.select(Opportunities)
+            .where(Opportunities.active == True)
+            .limit(20)
+            .distinct()
+        )
         for filter in filters:
             field = filter.get("field", None)
             value = filter.get("value", None)
@@ -85,10 +86,10 @@ def filterOpportunities():
             if field and value:
                 if field == "location" and value.lower() == "remote":
                     print("Remote")
-                    filter_conditions.append(Opportunities.location == "REMOTE")
+                    where_conditions.append(Opportunities.location == "REMOTE")
 
                 elif field == "location":
-                    filter_conditions.append(Opportunities.location != "REMOTE")
+                    where_conditions.append(Opportunities.location != "REMOTE")
 
                 elif field == "class_year":
                     if not isinstance(value, list):
@@ -142,29 +143,23 @@ def filterOpportunities():
                     max_pay = value.get("max", None)
                     if min_pay is None or max_pay is None:
                         abort(400)
-                    filter_conditions.append(
-                        Opportunities.pay.between(min_pay, max_pay)
-                    )
+                    where_conditions.append(Opportunities.pay.between(min_pay, max_pay))
 
                 else:
                     try:
-                        filter_conditions.append(
+                        where_conditions.append(
                             getattr(Opportunities, field).ilike(f"%{value}%")
                         )
                     except AttributeError:
                         abort(400)
 
-        query = query.where(*filter_conditions)
-        print(query)
+        query = query.where(*where_conditions)
         data = db.session.execute(query).scalars()
-        print(data)
 
     if not data:
         abort(404)
 
-    data = set(data)
     result = [opportunity.to_dict() for opportunity in data]
-    print(result)
 
     return result
 
