@@ -61,7 +61,7 @@ const CreationForms = () => {
       active: true,
       //upfrontPay: 0,
       //salary: 0,
-      credits: 0,
+      credits: [],
       description: "",
       recommended_experience: "",
       semester: [],
@@ -131,7 +131,7 @@ const CreationForms = () => {
     const { id } = state;
 
     data.pay = +data.pay;
-    data.credits = +data.credits;
+
     data.active = true;
 
     console.log({ ...data, authorID: "led" });
@@ -221,7 +221,16 @@ const CreationForms = () => {
         type="number"
       />
 
-      <Input
+      <CheckBox
+        label="Credit Options"
+        options={["1", "2", "3", "4"]}
+        errors={errors}
+        errorMessage={""}
+        name={"years"}
+        formHook={{ ...register("credits", { required: false }) }}
+      />
+
+      {/* <Input
         errors={errors}
         label="Credits"
         name={"credits"}
@@ -234,7 +243,7 @@ const CreationForms = () => {
           }),
         }}
         type="number"
-      />
+      /> */}
 
       <Input
         errors={errors}

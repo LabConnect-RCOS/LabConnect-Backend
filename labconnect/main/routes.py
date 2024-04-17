@@ -50,14 +50,24 @@ def packageIndividualOpportunity(opportunityInfo, professorInfo):
     data["author"] = professorInfo.name
     data["department"] = professorInfo.department_id
 
+    credits = ""
+    if opportunityInfo.one_credit:
+        credits += "1, "
+    if opportunityInfo.two_credits:
+        credits += "2, "
+    if opportunityInfo.three_credits:
+        credits += "3, "
+    if opportunityInfo.four_credits:
+        credits += "4"
+
+    if credits != "":
+        credits += " credits"
+
+
     data["aboutSection"] = [
         {
             "title": "Pay",
             "description": f"${opportunityInfo.pay} per hour",
-        },
-        {
-            "title": "Credits",
-            "description": f"{opportunityInfo.credits} credits",
         },
         {
             "title": "Semester",
@@ -68,6 +78,14 @@ def packageIndividualOpportunity(opportunityInfo, professorInfo):
             "description": opportunityInfo.application_due,
         },
     ]
+
+    if credits != "":
+        data["aboutSection"].append(
+            {
+                "title": "Credits",
+                "description": credits,
+            }
+        )
 
     return data
 
@@ -353,8 +371,8 @@ def getProfessorOpportunityCards(rcs_id: str):
             if opportunity.pay != None and opportunity.pay > 0:
                 oppData["attributes"].append("Paid")
 
-            if opportunity.credits != None:
-                oppData["attributes"].append("Credits")
+            if opportunity.one_credit or opportunity.two_credits or opportunity.three_credits or opportunity.four_credits:
+                oppData["attributes"].append("Credit Available")
 
             cards["data"].append(oppData)
 
@@ -392,7 +410,7 @@ def getProfileOpportunities(rcs_id: str):
 
             if opportunity.pay != None and opportunity.pay > 0:
                 oppData["attributes"].append("Paid")
-            if opportunity.credits != None and ("1" in opportunity.credits or "2" in opportunity.credits or "3" in opportunity.credits or "4" in opportunity.credits):
+            if opportunity.one_credit or opportunity.two_credits or opportunity.three_credits or opportunity.four_credits:
                 oppData["attributes"].append("Credits")
 
             cards["data"].append(oppData)
@@ -556,6 +574,24 @@ def getOpportunityMeta(id: int):
         for i in range(len(dictionary["years"])):
             dictionary["years"][i] = str(dictionary["years"][i])
 
+        dictionary["credits"] = []
+        if dictionary["one_credit"]:
+            dictionary["credits"].append("1")
+
+        if dictionary["two_credits"]:
+            dictionary["credits"].append("2")
+
+        if dictionary["three_credits"]:
+            dictionary["credits"].append("3")
+
+        if dictionary["four_credits"]:
+            dictionary["credits"].append("4")
+
+        dictionary.pop("one_credit")
+        dictionary.pop("two_credits")
+        dictionary.pop("three_credits")
+        dictionary.pop("four_credits")
+
         return {"data": dictionary}
 
     abort(500)
@@ -676,12 +712,29 @@ def editOpportunity():
 
         opportunity = data[0][0]
 
+        one = False
+        two = False
+        three = False
+        four = False
+
+        if "1" in newPostData["credits"]:
+            one = True
+        if "2" in newPostData["credits"]:
+            two = True
+        if "3" in newPostData["credits"]:
+            three = True
+        if "4" in newPostData["credits"]:
+            four = True
+
         # if match is found, edit the opportunity with the new data provided
         opportunity.name = newPostData["name"]
         opportunity.description = newPostData["description"]
         opportunity.recommended_experience = newPostData["recommended_experience"]
         opportunity.pay = newPostData["pay"]
-        opportunity.credits = newPostData["credits"]
+        opportunity.one_credit = one
+        opportunity.two_credits = two
+        opportunity.three_credits = three
+        opportunity.four_credits = four
         opportunity.semester = newPostData["semester"]
         opportunity.year = newPostData["year"]
         opportunity.application_due = datetime.datetime.strptime(
@@ -766,12 +819,29 @@ def createOpportunity():
         # TODO: how do we get the opportunity id?
         # if match is found, create a new opportunity with the new data provided
 
+        one = False
+        two = False
+        three = False
+        four = False
+
+        if "1" in newPostData["credits"]:
+            one = True
+        if "2" in newPostData["credits"]:
+            two = True
+        if "3" in newPostData["credits"]:
+            three = True
+        if "4" in newPostData["credits"]:
+            four = True
+
         newOpportunity = Opportunities(
             name=newPostData["name"],
             description=newPostData["description"],
             recommended_experience=newPostData["recommended_experience"],
             pay=newPostData["pay"],
-            credits=newPostData["credits"],
+            one_credit=one,
+            two_credits=two,
+            three_credits=three,
+            four_credits=four,
             semester=newPostData["semester"],
             year=newPostData["year"],
             application_due=datetime.datetime.strptime(
