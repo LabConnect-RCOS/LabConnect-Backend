@@ -22,6 +22,8 @@ from labconnect.models import (
     RPIDepartments,
     RPISchools,
     User,
+    RecommendsCourses,
+    RecommendsClassYears,
 )
 
 from . import main_blueprint
