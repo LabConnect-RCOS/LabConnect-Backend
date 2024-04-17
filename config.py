@@ -26,4 +26,10 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    pass
+    TESTING = False
+    DEBUG = False
+
+    # Using SQLLITE locally as a fallback, the goal is to use postgresql in production
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DB", f"sqlite:///{os.path.join(basedir, 'db', 'database.db')}"
+    )
