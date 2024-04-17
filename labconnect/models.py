@@ -57,7 +57,7 @@ class RPISchools(db.Model, CustomSerializerMixin):
 class RPIDepartments(db.Model, CustomSerializerMixin):
     __tablename__ = "rpi_departments"
 
-    serialize_only = ("name", "description")
+    serialize_only = ("name", "description", "school_id")
     serialize_rules = ()
 
     name = db.Column(db.String(64), primary_key=True)
