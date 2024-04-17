@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Fade, Typography, Checkbox, FormControlLabel, Select, MenuItem, Button } from "@mui/material";
 
 const FormHeader = ({ handleClose }) => {
@@ -25,25 +25,20 @@ const FormFooter = ({ handleClear, handleShowResults }) => {
   );
 };
 
-const FormContent = ({ checkedItems, setCheckedItems, selectedDepartment, setSelectedDepartment, selectedSalaryRange, setSelectedSalaryRange }) => {
+const FormContent = ({ checkedItems, setCheckedItems, departments, selectedDepartment, setSelectedDepartment, selectedSalaryRange, setSelectedSalaryRange, majors }) => {
   return (
     <div style={{ overflowY: 'auto', maxHeight: 'calc(80vh - 172px)', padding: '20px', paddingRight: '20px' }}>
       <div>
         <Typography variant="h6" gutterBottom>
           Major
         </Typography>
-        <FormControlLabel
-          control={<Checkbox checked={checkedItems.computerScience} onChange={() => setCheckedItems({ ...checkedItems, computerScience: !checkedItems.computerScience })} />}
-          label="Computer Science"
-        />
-        <FormControlLabel
-          control={<Checkbox checked={checkedItems.itws} onChange={() => setCheckedItems({ ...checkedItems, itws: !checkedItems.itws })} />}
-          label="ITWS"
-        />
-        <FormControlLabel
-          control={<Checkbox checked={checkedItems.mechanicalEngineering} onChange={() => setCheckedItems({ ...checkedItems, mechanicalEngineering: !checkedItems.mechanicalEngineering })} />}
-          label="Mechanical Engineering"
-        />
+        {departments.map(department => (
+          <FormControlLabel
+            key={department.code}
+            control={<Checkbox checked={checkedItems[department.code]} onChange={() => setCheckedItems({ ...checkedItems, [department.code]: !checkedItems[department.code] })} />}
+            label={department.name}
+          />
+        ))}
       </div>
       <div>
         <Typography variant="h6" gutterBottom>
@@ -84,9 +79,10 @@ const FormContent = ({ checkedItems, setCheckedItems, selectedDepartment, setSel
           Department
         </Typography>
         <Select value={selectedDepartment} onChange={(event) => setSelectedDepartment(event.target.value)}>
-          <MenuItem value="engineering">School of Engineering</MenuItem>
-          <MenuItem value="science">School of Science</MenuItem>
-          <MenuItem value="business">Lally School of Management</MenuItem>
+          <MenuItem value="">Select Departments</MenuItem>
+          {departments.map(department => (
+            <MenuItem key={department.code} value={department.code}>{department.name}</MenuItem>
+          ))}
         </Select>
       </div>
       <div>
@@ -118,6 +114,17 @@ const FilterModal = ({ open, handleClose }) => {
 
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedSalaryRange, setSelectedSalaryRange] = useState('');
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+    fetch("https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/202409/schools.json")
+      .then(response => response.json())
+      .then(data => {
+        const extractedDepartments = data.flatMap(school => school.depts);
+        setDepartments(extractedDepartments);
+      })
+      .catch(error => console.error("Error fetching departments:", error));
+  }, []);
 
   const handleClear = () => {
     setCheckedItems({
@@ -167,6 +174,7 @@ const FilterModal = ({ open, handleClose }) => {
           <FormContent
             checkedItems={checkedItems}
             setCheckedItems={setCheckedItems}
+            departments={departments}
             selectedDepartment={selectedDepartment}
             setSelectedDepartment={setSelectedDepartment}
             selectedSalaryRange={selectedSalaryRange}
