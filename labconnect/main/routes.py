@@ -3,11 +3,6 @@ import datetime
 
 from typing import Any
 
-<<<<<<< HEAD
-
-from labconnect import db
-from labconnect.helpers import SemesterEnum, OrJSONProvider
-=======
 from flask import abort, jsonify, redirect, request, url_for
 from flask_jwt_extended import (
     create_access_token,
@@ -19,7 +14,6 @@ from flask_jwt_extended import (
 
 from labconnect import bcrypt, db
 from labconnect.helpers import SemesterEnum
->>>>>>> main
 from labconnect.models import (
     ClassYears,
     Courses,
@@ -107,7 +101,6 @@ def index():
     return {"Hello": "There"}
 
 
-<<<<<<< HEAD
 
 @main_blueprint.route("/opportunities")
 def positions():
@@ -119,8 +112,6 @@ def opportunity(id: int):
     return {"Hello": "There"}
 
 
-=======
->>>>>>> main
 @main_blueprint.route("/profile/<string:rcs_id>")
 def profile(rcs_id: str):
     return {"Hello": "There"}
@@ -211,7 +202,6 @@ def discover():
         ]
     }
 
-<<<<<<< HEAD
 @main_blueprint.route("/getSchoolsAndDepartments/", methods=["GET"])
 def getSchoolsAndDepartments():
     if request.method == "GET":
@@ -258,7 +248,6 @@ def getOpportunitiesRaw(id: int):
         print(data)
 
         return {"data": "check terminal"}
-=======
 
 @main_blueprint.get("/lab_manager")
 def getLabManagers():
@@ -266,7 +255,6 @@ def getLabManagers():
         abort(400)
 
     rcs_id = request.get_json().get("rcs_id", None)
->>>>>>> main
 
     if not rcs_id:
         abort(400)
@@ -278,7 +266,6 @@ def getLabManagers():
     return result
 
 
-<<<<<<< HEAD
 @main_blueprint.route("/getProfessorProfile/<string:rcs_id>", methods=["GET"])
 def getProfessorProfile(rcs_id: str):
     # test code until database code is added
@@ -323,19 +310,18 @@ def getOpportunity(opp_id: int):
 
     # return data in the below format if opportunity is found
     return {"data": oppData}
-=======
+
+
 @main_blueprint.get("/lab_manager/opportunities")
 def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     if not request.data:
         abort(400)
 
     rcs_id = request.get_json().get("rcs_id", None)
->>>>>>> main
 
     if not rcs_id:
         abort(400)
 
-<<<<<<< HEAD
 @main_blueprint.route("/getProfessorOpportunityCards/<string:rcs_id>", methods=["GET"])
 def getProfessorOpportunityCards(rcs_id: str):
     if request.method == "GET":
@@ -830,22 +816,6 @@ def createOpportunity():
         return {"data": "Opportunity Created"}
 
     abort(500)
-=======
-    data = db.session.execute(
-        db.select(Opportunities, LabManager)
-        .filter(LabManager.rcs_id == rcs_id)
-        .join(Leads, LabManager.rcs_id == Leads.lab_manager_rcs_id)
-        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-        .order_by(Opportunities.id)
-    ).scalars()
-
-    if not data:
-        abort(404)
-
-    result = {rcs_id: [opportunity.to_dict() for opportunity in data]}
-
-    return result
->>>>>>> main
 
 
 @main_blueprint.route("/create_post", methods=["POST"])

@@ -65,11 +65,6 @@ const Browse = () => {
     ["Research Centers", "Departments"],
     "Research Centers",
   );
-<<<<<<< HEAD
-
-=======
-  
->>>>>>> main
   return (
     <section className="flex2 gap-3">
       <PageNavigation

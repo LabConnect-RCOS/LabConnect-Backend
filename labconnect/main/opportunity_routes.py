@@ -29,21 +29,21 @@ from labconnect.models import (
 from . import main_blueprint
 
 
-@main_blueprint.get("/opportunity")
-def getOpportunity():
-    if not request.data:
-        abort(400)
+# @main_blueprint.get("/opportunity")
+# def getOpportunity():
+#     if not request.data:
+#         abort(400)
 
-    id = request.get_json().get("id", None)
+#     id = request.get_json().get("id", None)
 
-    if not id:
-        abort(400)
+#     if not id:
+#         abort(400)
 
-    data = db.first_or_404(db.select(Opportunities).where(Opportunities.id == id))
+#     data = db.first_or_404(db.select(Opportunities).where(Opportunities.id == id))
 
-    result = data.to_dict()
+#     result = data.to_dict()
 
-    return result
+#     return result
 
 
 @main_blueprint.get("/opportunity/filter")
@@ -169,32 +169,32 @@ def filterOpportunities():
     return result
 
 
-@main_blueprint.delete("/opportunity")
-def deleteOpportunity():
+# @main_blueprint.delete("/opportunity")
+# def deleteOpportunity():
 
-    id = request.get_json().get("id", None)
+#     id = request.get_json().get("id", None)
 
-    if not id:
-        abort(400)
+#     if not id:
+#         abort(400)
 
-    db.session.execute(db.delete(Opportunities).where(Opportunities.id == id))
+#     db.session.execute(db.delete(Opportunities).where(Opportunities.id == id))
 
-    return 202
+#     return 202
 
 
-@main_blueprint.put("/opportunity")
-def changeActiveStatus():
-    if request.method in ["DELETE", "POST"]:
-        data = request.get_json()
-        postID = data["postID"]
-        authToken = data["authToken"]
-        authorID = data["authToken"]
-        setStatus = data["setStatus"]
+# @main_blueprint.put("/opportunity")
+# def changeActiveStatus():
+#     if request.method in ["DELETE", "POST"]:
+#         data = request.get_json()
+#         postID = data["postID"]
+#         authToken = data["authToken"]
+#         authorID = data["authToken"]
+#         setStatus = data["setStatus"]
 
-        # query database to see if the credentials above match
+#         # query database to see if the credentials above match
 
-        # if match is found, change the opportunities active status to true or false based on setStatus
+#         # if match is found, change the opportunities active status to true or false based on setStatus
 
-        abort(200)
+#         abort(200)
 
-    abort(500)
+#     abort(500)
