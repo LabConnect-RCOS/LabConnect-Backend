@@ -1,6 +1,6 @@
 from typing import Any
 
-from flask import abort, jsonify, redirect, request, url_for
+from flask import abort, jsonify, request
 from flask_jwt_extended import (
     create_access_token,
     get_jwt,
@@ -10,7 +10,6 @@ from flask_jwt_extended import (
 )
 
 from labconnect import bcrypt, db
-from labconnect.helpers import SemesterEnum
 from labconnect.models import (
     ClassYears,
     Courses,
@@ -18,8 +17,6 @@ from labconnect.models import (
     Leads,
     Majors,
     Opportunities,
-    RecommendsClassYears,
-    RecommendsCourses,
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
@@ -45,19 +42,24 @@ def department():
     if not request.data:
         abort(400)
 
-    department = request.get_json().get("department", None)
+    json_request_data = request.get_json()
+
+    if not json_request_data:
+        abort(400)
+
+    department = json_request_data.get("department", None)
 
     if not department:
         abort(400)
 
     department_data = db.first_or_404(
-        db.select(RPIDepartments).filter(RPIDepartments.name == department)
+        db.select(RPIDepartments).where(RPIDepartments.name == department)
     )
 
     result = department_data.to_dict()
 
     prof_data = db.session.execute(
-        db.select(LabManager).filter(LabManager.department_id == department)
+        db.select(LabManager).where(LabManager.department_id == department)
     ).scalars()
 
     query = (
@@ -108,7 +110,6 @@ def discover():
         # commented out code above needs fixing
     )
 
-    print(query)
     return {
         "data": [
             {
@@ -138,12 +139,17 @@ def getLabManagers():
     if not request.data:
         abort(400)
 
-    rcs_id = request.get_json().get("rcs_id", None)
+    json_request_data = request.get_json()
+
+    if not json_request_data:
+        abort(400)
+
+    rcs_id = json_request_data.get("rcs_id", None)
 
     if not rcs_id:
         abort(400)
 
-    data = db.first_or_404(db.select(LabManager).filter(LabManager.rcs_id == rcs_id))
+    data = db.first_or_404(db.select(LabManager).where(LabManager.rcs_id == rcs_id))
 
     result = data.to_dict()
 
@@ -155,14 +161,19 @@ def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     if not request.data:
         abort(400)
 
-    rcs_id = request.get_json().get("rcs_id", None)
+    json_request_data = request.get_json()
+
+    if not json_request_data:
+        abort(400)
+
+    rcs_id = json_request_data.get("rcs_id", None)
 
     if not rcs_id:
         abort(400)
 
     data = db.session.execute(
         db.select(Opportunities, LabManager)
-        .filter(LabManager.rcs_id == rcs_id)
+        .where(LabManager.rcs_id == rcs_id)
         .join(Leads, LabManager.rcs_id == Leads.lab_manager_rcs_id)
         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         .order_by(Opportunities.id)
@@ -187,12 +198,16 @@ def register():
     if not request.data:
         abort(400)
 
-    json_data = request.get_json()
-    email = json_data.get("email", None)
-    password = json_data.get("password", None)
-    first_name = json_data.get("first_name", None)
-    last_name = json_data.get("last_name", None)
-    class_year = json_data.get("class_year", None)
+    json_request_data = request.get_json()
+
+    if not json_request_data:
+        abort(400)
+
+    email = json_request_data.get("email", None)
+    password = json_request_data.get("password", None)
+    first_name = json_request_data.get("first_name", None)
+    last_name = json_request_data.get("last_name", None)
+    class_year = json_request_data.get("class_year", None)
 
     if (
         email is None
@@ -200,18 +215,24 @@ def register():
         or first_name is None
         or last_name is None
         or class_year is None
+        or not isinstance(email, str)
+        or not isinstance(password, str)
+        or not isinstance(first_name, str)
+        or not isinstance(last_name, str)
+        or not isinstance(class_year, int)
     ):
         abort(400)
 
-    data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
+    data = db.session.execute(db.select(User).where(User.email == email)).scalar()
 
     if data is None:
+
         user = User(
             email=email,
             password=bcrypt.generate_password_hash(password + email),
             first_name=first_name,
             last_name=last_name,
-            preferred_name=json_data.get("preferred_name", None),
+            preferred_name=json_request_data.get("preferred_name", None),
             class_year=class_year,
         )
         db.session.add(user)
@@ -227,14 +248,18 @@ def login():
     if not request.data:
         abort(400)
 
-    json_data = request.get_json()
-    email = json_data.get("email", None)
-    password = json_data.get("password", None)
+    json_request_data = request.get_json()
+
+    if not json_request_data:
+        abort(400)
+
+    email = json_request_data.get("email", None)
+    password = json_request_data.get("password", None)
 
     if email is None or password is None:
         abort(400)
 
-    data = db.session.execute(db.select(User).filter(User.email == email)).scalar()
+    data = db.session.execute(db.select(User).where(User.email == email)).scalar()
 
     if data is None:
         abort(401)
@@ -292,12 +317,18 @@ def departments() -> list[Any]:
 def majors() -> list[Any]:
 
     if request.data:
-        partial_key = request.get_json().get("input", None)
+
+        json_request_data = request.get_json()
+
+        if not json_request_data:
+            abort(400)
+
+        partial_key = json_request_data.get("input", None)
 
         data = db.session.execute(
             db.select(Majors)
             .order_by(Majors.code)
-            .filter(
+            .where(
                 (Majors.code.ilike(f"%{partial_key}%"))
                 | (Majors.name.ilike(f"%{partial_key}%"))
             )
@@ -326,7 +357,7 @@ def years() -> list[Any]:
     data = db.session.execute(
         db.select(ClassYears)
         .order_by(ClassYears.class_year)
-        .filter(ClassYears.active == True)
+        .where(ClassYears.active == True)
     ).scalars()
 
     if not data:
@@ -345,15 +376,20 @@ def courses() -> list[Any]:
     if not request.data:
         abort(400)
 
-    partial_key = request.get_json().get("input", None)
+    json_request_data = request.get_json()
 
-    if not partial_key:
+    if not json_request_data:
+        abort(400)
+
+    partial_key = json_request_data.get("input", None)
+
+    if not partial_key or not isinstance(partial_key, str):
         abort(400)
 
     data = db.session.execute(
         db.select(Courses)
         .order_by(Courses.code)
-        .filter(
+        .where(
             (Courses.code.ilike(f"%{partial_key}%"))
             | (Courses.name.ilike(f"%{partial_key}%"))
         )
