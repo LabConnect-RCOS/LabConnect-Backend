@@ -56,24 +56,23 @@ def test_department_route(test_client: FlaskClient) -> None:
 
     json_data = json.loads(response.data)
 
-    hold_prof = ["Duy Le", "Rafael", "Turner", "Kuzmin", "Goldschmidt"]
+    assert json_data["name"] == "Computer Science"
+    assert json_data["description"] == "DS"
+    assert json_data["school_id"] == "School of Science"
 
-    hold_opp = {
-        "Automated Cooling System": [1, 2024, "Spring", True],
-        "Iphone 15 durability test": [2, 2024, "Spring", True],
-    }
+    prof_names = ["Duy Le", "Rafael", "Turner", "Kuzmin", "Goldschmidt"]
+    prof_rcs_ids = ["led", "cenzar", "turner", "kuzmin", "goldd"]
 
-    assert {
-        "name": "Computer Science",
-        "description": "DS",
-        "professors": hold_prof,
-        "opportunitys": hold_opp,
-    } == json.loads(response.data)
-    Opps = (("1", "2024", "Spring", "True"), ("1", "2024", "Spring", "True"))
+    for prof in json_data["professors"]:
+        assert prof["name"] in prof_names
+        assert prof["rcs_id"] in prof_rcs_ids
 
-    assert {"name": "Computer Science", "description": "DS"} == json.loads(
-        response.data
-    )
+    opportunity_ids = [1, 2]
+    opportunity_names = ["Automated Cooling System", "Iphone 15 durability test"]
+
+    for opportunity in json_data["opportunities"]:
+        assert opportunity["id"] in opportunity_ids
+        assert opportunity["name"] in opportunity_names
 
 
 def test_department_route_no_json(test_client: FlaskClient) -> None:
