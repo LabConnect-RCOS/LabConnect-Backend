@@ -50,30 +50,40 @@ def department():
     if not department:
         abort(400)
 
-    # departmentOf department_name
     department_data = db.first_or_404(
-        db.select(RPIDepartments, RPISchools.name)
-        .filter(RPIDepartments.name == department)
-        .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+        db.select(RPIDepartments).filter(RPIDepartments.name == department)
     )
 
-    # print(data)
-
-    # professors = (
-    #     db.session.query(
-    #         # Need all professors
-    #         RPIDepartments.name
-    #     )
-    #     # Professors department needs to match department (data[0])
-    #     .filter(RPIDepartments.name == data[0])
-    #     # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
-    # ).first()
-
-    # rpidepartment.name
-
-    # combine with professor dictionary
     result = department_data.to_dict()
-    print(result)
+
+    prof_data = db.session.execute(
+        db.select(LabManager).filter(LabManager.department_id == department)
+    ).scalars()
+
+    query = (
+        db.select(Opportunities)
+        .where(Opportunities.active == True)
+        .limit(20)
+        .join(Leads, Opportunities.id == Leads.opportunity_id)
+        .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+        .distinct()
+    )
+
+    professors = []
+    where_conditions = []
+
+    for prof in prof_data:
+        professors.append({"name": prof.name, "rcs_id": prof.rcs_id})
+        where_conditions.append(LabManager.rcs_id == prof.rcs_id)
+
+    result["professors"] = professors
+
+    query = query.where(db.or_(*where_conditions))
+    data = db.session.execute(query).scalars()
+    opportunities = [opportunity.to_dict() for opportunity in data]
+
+    result["opportunities"] = opportunities
+
     return result
 
 
