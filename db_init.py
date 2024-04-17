@@ -53,7 +53,6 @@ elif sys.argv[1] == "create":
             row = RPISchools(name=row_tuple[0], description=row_tuple[1])
             db.session.add(row)
             db.session.commit()
-            
 
         rpi_departments_rows = (
             ("Computer Science", "DS", "School of Science"),

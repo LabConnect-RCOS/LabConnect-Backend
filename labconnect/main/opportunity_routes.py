@@ -18,7 +18,6 @@ from labconnect.models import (
 
 from . import main_blueprint
 
-
 # @main_blueprint.get("/opportunity")
 # def getOpportunity():
 #     if not request.data:

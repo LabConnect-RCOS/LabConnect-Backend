@@ -1,6 +1,4 @@
 import datetime
-
-
 from typing import Any
 
 from flask import abort, jsonify, request
@@ -37,7 +35,6 @@ def packageOpportunity(opportunityInfo, professorInfo):
     return data
 
 
-
 def packageIndividualOpportunity(opportunityInfo, professorInfo):
     data = {}
     data["id"] = opportunityInfo.id
@@ -59,7 +56,6 @@ def packageIndividualOpportunity(opportunityInfo, professorInfo):
 
     if credits != "":
         credits += " credits"
-
 
     data["aboutSection"] = [
         {
@@ -111,10 +107,10 @@ def packageOpportunityCard(opportunity):
 
     return card
 
+
 @main_blueprint.route("/")
 def index():
     return {"Hello": "There"}
-
 
 
 @main_blueprint.route("/opportunities")
@@ -185,8 +181,6 @@ def department():
     return result
 
 
-
-
 @main_blueprint.route("/discover")
 def discover():
     query = (
@@ -231,12 +225,14 @@ def discover():
         ]
     }
 
+
 @main_blueprint.route("/getSchoolsAndDepartments/", methods=["GET"])
 def getSchoolsAndDepartments():
     if request.method == "GET":
         query = db.session.execute(
-            db.select(RPISchools, RPIDepartments)
-            .join(RPIDepartments, RPISchools.name == RPIDepartments.school_id)
+            db.select(RPISchools, RPIDepartments).join(
+                RPIDepartments, RPISchools.name == RPIDepartments.school_id
+            )
         )
         data = query.all()
 
@@ -248,6 +244,7 @@ def getSchoolsAndDepartments():
 
         return dictionary
     abort(400)
+
 
 @main_blueprint.route("/getOpportunitiesRaw/<int:id>", methods=["GET"])
 def getOpportunitiesRaw(id: int):
@@ -277,6 +274,7 @@ def getOpportunitiesRaw(id: int):
         print(data)
 
         return {"data": "check terminal"}
+
 
 @main_blueprint.get("/lab_manager")
 def getLabManagers():
@@ -311,15 +309,17 @@ def getProfessorProfile(rcs_id: str):
     data = data[0][0]
     dictionary = data.to_dict()
     dictionary.pop("rcs_id")
-    dictionary["image"] = "https://cdn.dribbble.com/users/2033319/screenshots/12591684/media/0557608c87ed8c5a80bd5faa48c3cd71.png"
+    dictionary["image"] = (
+        "https://cdn.dribbble.com/users/2033319/screenshots/12591684/media/0557608c87ed8c5a80bd5faa48c3cd71.png"
+    )
     dictionary["department"] = data.department_id
     dictionary["email"] = data.rcs_id + "@rpi.edu"
     dictionary["role"] = "admin"
-    dictionary["description"] = "I am the evil professor Doofenshmirtz. I am a professor at RPI and I am looking for students to help me with my evil schemes"
+    dictionary["description"] = (
+        "I am the evil professor Doofenshmirtz. I am a professor at RPI and I am looking for students to help me with my evil schemes"
+    )
     dictionary["phone"] = "123-456-7890"
     return dictionary
-
-
 
 
 @main_blueprint.route("/getOpportunity/<int:opp_id>", methods=["GET"])
@@ -361,6 +361,7 @@ def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     if not rcs_id:
         abort(400)
 
+
 @main_blueprint.route("/getProfessorOpportunityCards/<string:rcs_id>", methods=["GET"])
 def getProfessorOpportunityCards(rcs_id: str):
     if request.method == "GET":
@@ -392,7 +393,12 @@ def getProfessorOpportunityCards(rcs_id: str):
             if opportunity.pay != None and opportunity.pay > 0:
                 oppData["attributes"].append("Paid")
 
-            if opportunity.one_credit or opportunity.two_credits or opportunity.three_credits or opportunity.four_credits:
+            if (
+                opportunity.one_credit
+                or opportunity.two_credits
+                or opportunity.three_credits
+                or opportunity.four_credits
+            ):
                 oppData["attributes"].append("Credit Available")
 
             cards["data"].append(oppData)
@@ -431,7 +437,12 @@ def getProfileOpportunities(rcs_id: str):
 
             if opportunity.pay != None and opportunity.pay > 0:
                 oppData["attributes"].append("Paid")
-            if opportunity.one_credit or opportunity.two_credits or opportunity.three_credits or opportunity.four_credits:
+            if (
+                opportunity.one_credit
+                or opportunity.two_credits
+                or opportunity.three_credits
+                or opportunity.four_credits
+            ):
                 oppData["attributes"].append("Credits")
 
             cards["data"].append(oppData)
@@ -483,7 +494,9 @@ def getOpportunities():
 
     abort(500)
 
+
 # Jobs page
+
 
 @main_blueprint.route("/getOpportunityCards", methods=["GET"])
 def getOpportunityCards():
@@ -530,14 +543,13 @@ def getProfessorMeta(rcs_id: str):
 
 # _______________________________________________________________________________________________#
 
+
 # Editing Opportunities in Profile Page
 @main_blueprint.route("/getProfessorCookies/<string:id>", methods=["GET"])
 def getProfessorCookies(id: str):
     # this is already restricted to "GET" requests
 
-    query = db.session.execute(
-        db.select(LabManager).filter(LabManager.rcs_id == id)
-    )
+    query = db.session.execute(db.select(LabManager).filter(LabManager.rcs_id == id))
 
     data = query.all()
     data = data[0][0]
@@ -553,6 +565,7 @@ def getProfessorCookies(id: str):
     dictionary.pop("rcs_id")
 
     return dictionary
+
 
 @main_blueprint.route("/getOpportunityMeta/<int:id>", methods=["GET"])
 def getOpportunityMeta(id: int):
@@ -584,9 +597,9 @@ def getOpportunityMeta(id: int):
         dictionary["years"] = set()
 
         for row in data:
-                dictionary["courses"].add(row[2].course_code)
-                dictionary["majors"].add(row[1].major_code)
-                dictionary["years"].add(row[3].class_year)
+            dictionary["courses"].add(row[2].course_code)
+            dictionary["majors"].add(row[1].major_code)
+            dictionary["years"].add(row[3].class_year)
 
         dictionary["courses"] = list(dictionary["courses"])
         dictionary["majors"] = list(dictionary["majors"])
@@ -626,7 +639,11 @@ def deleteOpportunity():
 
         query = db.session.execute(
             db.select(
-                Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears, Leads
+                Opportunities,
+                RecommendsMajors,
+                RecommendsCourses,
+                RecommendsClassYears,
+                Leads,
             )
             .filter(Opportunities.id == id)
             .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
@@ -657,7 +674,6 @@ def deleteOpportunity():
         leads = data[0][4]
 
         db.session.delete(opportunity)
-
 
         db.session.commit()
 
@@ -782,9 +798,7 @@ def editOpportunity():
             db.session.commit()
 
         for major in newPostData["majors"]:
-            newMajor = RecommendsMajors(
-                opportunity_id=opportunity.id, major_code=major
-            )
+            newMajor = RecommendsMajors(opportunity_id=opportunity.id, major_code=major)
             db.session.add(newMajor)
             db.session.commit()
 
@@ -874,7 +888,7 @@ def createOpportunity():
         db.session.add(newOpportunity)
         db.session.commit()
 
-        print ("got here atleast")
+        print("got here atleast")
 
         newLead = Leads(lab_manager_rcs_id=authorID, opportunity_id=newOpportunity.id)
 
