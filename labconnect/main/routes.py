@@ -51,104 +51,38 @@ def department():
         abort(400)
 
     department_data = db.first_or_404(
-        db.select(RPIDepartments, RPISchools.name)
-        .filter(RPIDepartments.name == department)
-        .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
+        db.select(RPIDepartments).filter(RPIDepartments.name == department)
     )
 
-    # professors = request.get_json().get("labmanagers", None)
-
-    # professors = (
-    # db.session.query(
-    # Need all professors first
-    # RPIDepartments.lab_managers
-    # )
-    # now old format look bellow for new way to do
-    # Professors department needs to match department (data[0])
-    # .filter(RPIDepartments.name == data[0])
-    # .join(RPISchools, RPIDepartments.school_id == RPISchools.name)
-    # ).first()
-
-    # print(data)
-
-    # rpidepartment.name
-
-    # combine with professor dictionary
     result = department_data.to_dict()
-
-    # print(result)
-
-    # Might not need
-    result = department_data.to_dict()
-
-    if not request.data:
-        abort(400)
-
-    # professors = request.get_json().get("department", None)
-
-    # if not professors:
-    #     abort(400)
 
     prof_data = db.session.execute(
-        db.select(LabManager)
-        .filter(LabManager.department_id == department)
-        .join(
-            RPIDepartments,
-            LabManager.department_id == RPIDepartments.name,
-        )
+        db.select(LabManager).filter(LabManager.department_id == department)
     ).scalars()
 
-    # result4 = [prof for prof in prof_data]
-    result2 = []
-    Ids = []
+    query = (
+        db.select(Opportunities)
+        .where(Opportunities.active == True)
+        .limit(20)
+        .join(Leads, Opportunities.id == Leads.opportunity_id)
+        .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+        .distinct()
+    )
+
+    professors = []
+    where_conditions = []
+
     for prof in prof_data:
-        result2.append(prof.name)
-        Ids.append(prof.rcs_id)
+        professors.append({"name": prof.name, "rcs_id": prof.rcs_id})
+        where_conditions.append(LabManager.rcs_id == prof.rcs_id)
 
-    # result2 = [prof.name for prof in prof_data]
-    # Ids = [prof.rcs_id for prof in prof_data]
+    result["professors"] = professors
 
-    print(result2)
-    print(Ids)
+    query = query.where(db.or_(*where_conditions))
+    data = db.session.execute(query).scalars()
+    opportunities = [opportunity.to_dict() for opportunity in data]
 
-    result["Professors"] = result2
-
-    opportunitys = {}
-    # leads = []
-    result["professors"] = result2
-
-    opportunitys = {}
-    for prof in Ids:
-        data = db.session.execute(
-            db.select(Opportunities, Leads)
-            .filter(Leads.lab_manager_rcs_id == prof)
-            .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-        ).scalars()
-        print(Leads.lab_manager_rcs_id == prof)
-
-        for opp in data:
-            hold = [opp.id, opp.year, opp.semester, opp.active]
-            opportunitys[opp.name] = hold
-            # print(opp.name)
-
-    # for opp in data:
-    # opportunitys.append(opp.id)
-
-    # id_holder = []
-    # for opp_id in data:
-    #     id_holder.append(opp_id.id)
-    # for opp_id in data:
-    #     id_holder.append(opp_id.name)
-
-    # for thing in opportunitys:
-    # print(thing)
-
-    result["Opportunitys"] = opportunitys
-    # leads.append(opp.to_dict())
-            print(hold)
-            print("^")
-
-    result["opportunitys"] = opportunitys
+    result["opportunities"] = opportunities
 
     return result
 
