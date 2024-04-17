@@ -79,6 +79,8 @@ def department():
     # print(result)
 
     # Might not need
+    result = department_data.to_dict()
+
     if not request.data:
         abort(400)
 
@@ -113,6 +115,9 @@ def department():
 
     opportunitys = {}
     # leads = []
+    result["professors"] = result2
+
+    opportunitys = {}
     for prof in Ids:
         data = db.session.execute(
             db.select(Opportunities, Leads)
@@ -140,6 +145,10 @@ def department():
 
     result["Opportunitys"] = opportunitys
     # leads.append(opp.to_dict())
+            print(hold)
+            print("^")
+
+    result["opportunitys"] = opportunitys
 
     return result
 
