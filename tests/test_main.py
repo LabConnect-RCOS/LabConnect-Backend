@@ -205,28 +205,31 @@ def test_create_opportunity(test_client: FlaskClient) -> None:
         data=json.dumps(test_data),
         content_type="application/json",
     )
-    
+
     assert response.status_code == 200
-    
+
     # query database to check for new opportunity with the same name
-    query = db.session.query(Opportunities).filter(Opportunities.name == "Some test opportunity", Opportunities.description == "Some test description", Opportunities.recommended_experience == "Some test experience")
-    
+    query = db.session.query(Opportunities).filter(
+        Opportunities.name == "Some test opportunity",
+        Opportunities.description == "Some test description",
+        Opportunities.recommended_experience == "Some test experience",
+    )
+
     data = query.first()
     id = data.id
-    
+
     # delete the opportunity by sending request to deleteOpportunity
     response = test_client.post(
         "/deleteOpportunity",
         data=json.dumps({"id": id}),
         content_type="application/json",
     )
-    
+
     assert response.status_code == 200
-    
+
     # check that the opportunity was deleted
     query = db.session.query(Opportunities).filter(Opportunities.id == id)
     assert query.first() == None
-    
 
 
 # def test_schools_and_departments(test_client: FlaskClient) -> None:
