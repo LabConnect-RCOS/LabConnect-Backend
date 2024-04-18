@@ -112,7 +112,7 @@
    ```
    or with Makefile
     ```sh
-   $ gunicorn run:app -w 6 --preload --max-requests-jitter 300
+   $ gunicorn run:app -w 6 --preload --max-requests-jitter 300 --bind 0.0.0.0:8000
    ```
 
 ## Project Contributors
