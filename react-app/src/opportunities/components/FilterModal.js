@@ -25,7 +25,7 @@ const FormFooter = ({ handleClear, handleShowResults }) => {
   );
 };
 
-const FormContent = ({ checkedItems, setCheckedItems, departments, selectedDepartment, setSelectedDepartment, selectedSalaryRange, setSelectedSalaryRange, majors }) => {
+const FormContent = ({ checkedItems, setCheckedItems, departments, selectedDepartments, setSelectedDepartments, selectedSalaryRange, setSelectedSalaryRange, majors }) => {
   return (
     <div style={{ overflowY: 'auto', maxHeight: 'calc(80vh - 172px)', padding: '20px', paddingRight: '20px' }}>
       <div>
@@ -78,9 +78,30 @@ const FormContent = ({ checkedItems, setCheckedItems, departments, selectedDepar
         <Typography variant="h6" gutterBottom>
           Department
         </Typography>
-        <Select value={selectedDepartment} onChange={(event) => setSelectedDepartment(event.target.value)}>
-          <MenuItem value="">Select Departments</MenuItem>
-          {departments.map(department => (
+        <Select
+          multiple
+          value={selectedDepartments}
+          onChange={(event) => setSelectedDepartments(event.target.value)}
+          style={{ width: 330 }}
+          MenuProps={{
+            anchorOrigin: {
+              vertical: "bottom",
+              horizontal: "left"
+            },
+            transformOrigin: {
+              vertical: "top",
+              horizontal: "left"
+            },
+            getContentAnchorEl: null,
+            PaperProps: {
+              style: {
+                marginTop: 8,
+                marginLeft: 0
+              }
+            }
+          }}
+        >
+          {departments.map((department) => (
             <MenuItem key={department.code} value={department.code}>{department.name}</MenuItem>
           ))}
         </Select>
@@ -112,7 +133,7 @@ const FilterModal = ({ open, handleClose }) => {
     hybrid: false,
   });
 
-  const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [selectedDepartments, setSelectedDepartments] = useState([]);
   const [selectedSalaryRange, setSelectedSalaryRange] = useState('');
   const [departments, setDepartments] = useState([]);
 
@@ -139,7 +160,7 @@ const FilterModal = ({ open, handleClose }) => {
       hybrid: false,
     });
 
-    setSelectedDepartment('');
+    setSelectedDepartments([]);
     setSelectedSalaryRange('');
   };
 
@@ -175,8 +196,8 @@ const FilterModal = ({ open, handleClose }) => {
             checkedItems={checkedItems}
             setCheckedItems={setCheckedItems}
             departments={departments}
-            selectedDepartment={selectedDepartment}
-            setSelectedDepartment={setSelectedDepartment}
+            selectedDepartments={selectedDepartments}
+            setSelectedDepartments={setSelectedDepartments}
             selectedSalaryRange={selectedSalaryRange}
             setSelectedSalaryRange={setSelectedSalaryRange}
           />
