@@ -53,6 +53,9 @@
 [![JS][JS]][JS-url]
 [![Flask][Flask]][Flask-url]
 [![Bootstrap][Bootstrap]][Bootstrap-url]
+[![React][React]][React-url]
+[![Node.js][Node.js]][Node.js-url]
+[![Tailwind CSS][TailwindCSS]][TailwindCSS-url]
 
 
 <!-- Getting Started -->
@@ -109,7 +112,7 @@
    ```
    or with Makefile
     ```sh
-   $ gunicorn run:app -w 6 --preload --max-requests-jitter 300
+   $ gunicorn run:app -w 6 --preload --max-requests-jitter 300 --bind 0.0.0.0:8000
    ```
 
 ## Project Contributors
@@ -122,7 +125,7 @@ Running list of contributors to the LabConnect project:
 
 ### Rensselaer Center for Open Source Development Team
 
-- **Siddhi W** [UI / UX]
+- **Siddhi W** [Frontend]
 - **Mrunal A** [Frontend / Backend]
 - **Abid T** [Frontend / Backend]
 - **Sarah** [Backend]
@@ -175,3 +178,9 @@ Distributed under the Apache License. See [LICENSE](https://github.com/RafaelCen
 [Flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 [Bootstrap]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
 [Bootstrap-url]: https://getbootstrap.com/
+[React]: https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black
+[React-url]: https://reactjs.org/
+[Node.js]: https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white
+[Node.js-url]: https://nodejs.org/
+[TailwindCSS]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
+[TailwindCSS-url]: https://tailwindcss.com/

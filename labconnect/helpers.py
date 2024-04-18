@@ -1,7 +1,7 @@
+import json
 from enum import Enum as EnumPython
 
 import orjson
-import json
 from flask.json.provider import JSONProvider
 from sqlalchemy_serializer import SerializerMixin
 
@@ -49,6 +49,7 @@ class OrJSONProvider(JSONProvider):
     def loads(self, s, **kwargs):
         return orjson.loads(s)
 
+
 class LeadsCustomSerializerMixin(SerializerMixin):
     # date_format = "%s"  # Unixtimestamp (seconds)
     # datetime_format = "%Y %b %d %H:%M:%S.%f"
@@ -56,11 +57,13 @@ class LeadsCustomSerializerMixin(SerializerMixin):
     professor = "lab_manager.name"
     pass
 
+
 class CustomSerializerMixin(SerializerMixin):
     # date_format = "%s"  # Unixtimestamp (seconds)
     # datetime_format = "%Y %b %d %H:%M:%S.%f"
     # time_format = "%H:%M.%f"
     decimal_format = "{:0>10.3}"
+
 
 # pass in a tuple of opportunity, lead, labmanager
 def serializeOpportunity(data):

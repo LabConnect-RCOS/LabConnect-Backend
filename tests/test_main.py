@@ -6,8 +6,9 @@ Test mains
 
 from flask import json
 from flask.testing import FlaskClient
+
 from labconnect import db
-from labconnect.helpers import SemesterEnum, OrJSONProvider
+from labconnect.helpers import OrJSONProvider, SemesterEnum
 from labconnect.models import (
     ClassYears,
     Courses,
@@ -122,6 +123,7 @@ def test_get_opportunity(test_client: FlaskClient) -> None:
         assert "title" in eachSection
         assert "description" in eachSection
 
+
 def test_get_opportunity_meta(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
@@ -129,9 +131,7 @@ def test_get_opportunity_meta(test_client: FlaskClient) -> None:
     THEN check that the response is valid and contains expected opportunity data
     """
 
-    response = test_client.get(
-        "/getOpportunityMeta/5", content_type="application/json"
-    )
+    response = test_client.get("/getOpportunityMeta/5", content_type="application/json")
 
     assert response.status_code == 200
 
@@ -152,6 +152,7 @@ def test_get_opportunity_meta(test_client: FlaskClient) -> None:
     assert "majors" in data
     assert "years" in data
     assert "active" in data
+
 
 def test_get_opportunity_professor(test_client: FlaskClient) -> None:
     response = test_client.get("/getOpportunityByProfessor/led")
@@ -178,9 +179,10 @@ def test_get_opportunity_professor(test_client: FlaskClient) -> None:
         assert "department" in opportunity
 
 
-
 def test_get_professor_opportunity_cards(test_client: FlaskClient) -> None:
-    response = test_client.get("/getProfessorOpportunityCards/led", content_type="application/json")
+    response = test_client.get(
+        "/getProfessorOpportunityCards/led", content_type="application/json"
+    )
 
     assert response.status_code == 200
 
@@ -193,8 +195,11 @@ def test_get_professor_opportunity_cards(test_client: FlaskClient) -> None:
         assert "attributes" in eachCard
         assert "id" in eachCard
 
+
 def test_profile_opportunities(test_client: FlaskClient) -> None:
-    response = test_client.get("/getProfileOpportunities/led", content_type="application/json")
+    response = test_client.get(
+        "/getProfileOpportunities/led", content_type="application/json"
+    )
 
     assert response.status_code == 200
 
@@ -243,9 +248,10 @@ def test_create_opportunity(test_client: FlaskClient) -> None:
     assert response.status_code == 200
 
 
-
 def test_schools_and_departments(test_client: FlaskClient) -> None:
-    response = test_client.get("/getSchoolsAndDepartments", content_type="application/json")
+    response = test_client.get(
+        "/getSchoolsAndDepartments", content_type="application/json"
+    )
 
     assert response.status_code == 200
 
@@ -255,8 +261,9 @@ def test_schools_and_departments(test_client: FlaskClient) -> None:
     assert "School of Engineering" in data
 
     query = db.session.execute(
-        db.select(RPISchools, RPIDepartments)
-        .join(RPIDepartments, RPISchools.name == RPIDepartments.school_id)
+        db.select(RPISchools, RPIDepartments).join(
+            RPIDepartments, RPISchools.name == RPIDepartments.school_id
+        )
     )
 
     results = query.all()
