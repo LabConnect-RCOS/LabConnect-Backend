@@ -63,9 +63,8 @@ const DUMMY_DATA = {
 const Browse = () => {
   var [pages, switchPage] = usePageNavigation(
     ["Research Centers", "Departments"],
-    "Research Centers"
+    "Research Centers",
   );
-  
   return (
     <section className="flex2 gap-3">
       <PageNavigation

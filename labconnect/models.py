@@ -237,6 +237,9 @@ class UserCourses(db.Model):
 class Leads(db.Model):
     __tablename__ = "leads"
 
+    serialize_only = ("lab_manager_rcs_id", "opportunity_id")
+    serialize_rules = ()
+
     lab_manager_rcs_id = db.Column(
         db.String(9),
         db.ForeignKey("lab_manager.rcs_id", ondelete="CASCADE"),

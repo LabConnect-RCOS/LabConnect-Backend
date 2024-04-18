@@ -20,7 +20,7 @@ from . import main_blueprint
 
 
 @main_blueprint.get("/opportunity")
-def getOpportunity():
+def getOpportunity2():
 
     if not request.data:
         abort(400)
@@ -175,7 +175,7 @@ def filterOpportunities():
 
 
 @main_blueprint.delete("/opportunity")
-def deleteOpportunity():
+def deleteOpportunity2():
 
     if not request.data:
         abort(400)
@@ -196,7 +196,7 @@ def deleteOpportunity():
 
 
 @main_blueprint.put("/opportunity")
-def changeActiveStatus():
+def changeActiveStatus2():
 
     if not request.data:
         abort(400)

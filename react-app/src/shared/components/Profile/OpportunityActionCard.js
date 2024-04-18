@@ -42,7 +42,7 @@ const OpportunityActionCard = ({
           <button
             className={buttonClass}
             onClick={() => {
-              changeActiveStatus(id);
+              changeActiveStatus(id, activeStatus);
             }}
           >
             {activeStatus ? "Deactivate" : "Activate"}
