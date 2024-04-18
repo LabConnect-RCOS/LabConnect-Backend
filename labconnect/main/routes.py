@@ -120,11 +120,6 @@ def positions():
     return {"Hello": "There"}
 
 
-@main_blueprint.route("/opportunity/<int:id>")
-def opportunity(id: int):
-    return {"Hello": "There"}
-
-
 @main_blueprint.route("/profile/<string:rcs_id>")
 def profile(rcs_id: str):
     return {"Hello": "There"}
@@ -520,27 +515,6 @@ def getOpportunityCards():
     abort(500)
 
 
-@main_blueprint.route("/getProfessorMeta/<string:rcs_id>", methods=["GET"])
-def getProfessorMeta(rcs_id: str):
-    if request.method == "GET":
-        # data = request.json
-
-        # user_id = data["user_id"]
-        # auth_token = data["authToken"]
-
-        # query database to match user id and password from data received
-        query = db.session.execute(
-            db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
-        )
-
-        # if match, return user data
-        # more fields to be added here later
-
-        data = query.all()[0][0]
-
-        return data.to_dict()
-
-    abort(500)
 
 
 # _______________________________________________________________________________________________#
