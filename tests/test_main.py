@@ -38,7 +38,7 @@ def test_home_page(test_client: FlaskClient) -> None:
 
 def test_professor_profile(test_client: FlaskClient) -> None:
 
-    response = test_client.get("/getProfessorProfile/d1")
+    response = test_client.get("/getProfessorProfile/cenzar")
     assert response.status_code == 200
 
     # Load the response data as JSON
