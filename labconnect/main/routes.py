@@ -348,15 +348,25 @@ def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     if not request.data:
         abort(400)
 
-    json_request_data = request.get_json()
-
-    if not json_request_data:
-        abort(400)
-
-    rcs_id = json_request_data.get("rcs_id", None)
+    rcs_id = request.get_json().get("rcs_id", None)
 
     if not rcs_id:
         abort(400)
+
+    data = db.session.execute(
+        db.select(Opportunities, LabManager)
+        .filter(LabManager.rcs_id == rcs_id)
+        .join(Leads, LabManager.rcs_id == Leads.lab_manager_rcs_id)
+        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+        .order_by(Opportunities.id)
+    ).scalars()
+
+    if not data:
+        abort(404)
+
+    result = {rcs_id: [opportunity.to_dict() for opportunity in data]}
+
+    return result
 
 
 @main_blueprint.route("/getProfessorOpportunityCards/<string:rcs_id>", methods=["GET"])
