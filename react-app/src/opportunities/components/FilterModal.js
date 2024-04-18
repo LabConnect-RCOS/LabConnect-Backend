@@ -26,19 +26,46 @@ const FormFooter = ({ handleClear, handleShowResults }) => {
 };
 
 const FormContent = ({ checkedItems, setCheckedItems, departments, selectedDepartments, setSelectedDepartments, selectedSalaryRange, setSelectedSalaryRange, majors }) => {
+  const majorOptions = [
+    { value: "Computer Science", label: "Computer Science" },
+    { value: "ITWS", label: "ITWS" },
+    { value: "Mechanical Engineering", label: "Mechanical Engineering" },
+    { value: "Chemical Engineering", label: "Chemical Engineering" }
+  ];
   return (
     <div style={{ overflowY: 'auto', maxHeight: 'calc(80vh - 172px)', padding: '20px', paddingRight: '20px' }}>
       <div>
         <Typography variant="h6" gutterBottom>
           Major
         </Typography>
-        {departments.map(department => (
-          <FormControlLabel
-            key={department.code}
-            control={<Checkbox checked={checkedItems[department.code]} onChange={() => setCheckedItems({ ...checkedItems, [department.code]: !checkedItems[department.code] })} />}
-            label={department.name}
-          />
-        ))}
+        <Select
+          multiple
+          value={selectedDepartments}
+          onChange={(event) => setSelectedDepartments(event.target.value)}
+          style={{ width: 300 }}
+          MenuProps={{
+            anchorOrigin: {
+              vertical: "bottom",
+              horizontal: "left"
+            },
+            transformOrigin: {
+              vertical: "top",
+              horizontal: "left"
+            },
+            getContentAnchorEl: null,
+            PaperProps: {
+              style: {
+                marginTop: 8
+              }
+            }
+          }}
+        >
+          {majorOptions.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
       </div>
       <div>
         <Typography variant="h6" gutterBottom>
@@ -82,7 +109,7 @@ const FormContent = ({ checkedItems, setCheckedItems, departments, selectedDepar
           multiple
           value={selectedDepartments}
           onChange={(event) => setSelectedDepartments(event.target.value)}
-          style={{ width: 330 }}
+          style={{ width: 300 }}
           MenuProps={{
             anchorOrigin: {
               vertical: "bottom",
@@ -110,7 +137,9 @@ const FormContent = ({ checkedItems, setCheckedItems, departments, selectedDepar
         <Typography variant="h6" gutterBottom>
           Salary Range
         </Typography>
-        <Select value={selectedSalaryRange} onChange={(event) => setSelectedSalaryRange(event.target.value)}>
+        <Select 
+        style={{ width: 300 }}
+        value={selectedSalaryRange} onChange={(event) => setSelectedSalaryRange(event.target.value)}>
           <MenuItem value="<15">&lt; $15</MenuItem>
           <MenuItem value="15-18">$15 - $18</MenuItem>
           <MenuItem value="18">$18</MenuItem>
