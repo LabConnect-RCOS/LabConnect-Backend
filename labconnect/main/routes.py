@@ -37,14 +37,14 @@ def packageOpportunity(opportunityInfo, professorInfo):
     return data
 
 
-def packageIndividualOpportunity(opportunityInfo, professorInfo):
+def packageIndividualOpportunity(opportunityInfo):
     data = {}
     data["id"] = opportunityInfo.id
     data["name"] = opportunityInfo.name
     data["description"] = opportunityInfo.description
     data["recommended_experience"] = opportunityInfo.recommended_experience
-    data["author"] = professorInfo.name
-    data["department"] = professorInfo.department_id
+    data["author"] = ""
+    data["department"] = ""
 
     credits = ""
     if opportunityInfo.one_credit:
@@ -82,6 +82,32 @@ def packageIndividualOpportunity(opportunityInfo, professorInfo):
             }
         )
 
+    # get professor and department by getting Leads and LabManager
+
+    query = db.session.execute(
+        db.select(Leads, LabManager)
+        .filter(Leads.opportunity_id == opportunityInfo.id)
+        .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+    )
+
+    queryInfo = query.all()
+    print(queryInfo)
+
+    if len(queryInfo) == 0:
+        return data
+
+    data["department"] = queryInfo[0][1].department_id
+
+    for i in range(len(queryInfo)):
+        data["author"] += queryInfo[i][1].name
+        if i != len(queryInfo) - 1:
+            data["author"] += ", "
+
+    if len(queryInfo) > 1:
+        data["authorProfile"] = "https://t4.ftcdn.net/jpg/03/78/40/51/360_F_378405187_PyVLw51NVo3KltNlhUOpKfULdkUOUn7j.jpg"
+    elif len(queryInfo) == 1:
+        data["authorProfile"] = "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+
     return data
 
 
@@ -96,12 +122,17 @@ def packageOpportunityCard(opportunity):
 
     data = query.all()
 
-    professor = data[0][1]
+    professorInfo = ""
+
+    for i in range(len(data)):
+        professorInfo += data[i][1].name
+        if i != len(data) - 1:
+            professorInfo += ", "
 
     card = {
         "id": opportunity.id,
         "title": opportunity.name,
-        "professor": professor.name,
+        "professor": professorInfo,
         "season": opportunity.semester,
         "location": "TBA",
         "year": opportunity.year,
@@ -323,10 +354,8 @@ def getProfessorProfile(rcs_id: str):
 def getOpportunity(opp_id: int):
     # query database for opportunity
     query = db.session.execute(
-        db.select(Opportunities, Leads, LabManager)
+        db.select(Opportunities)
         .filter(Opportunities.id == opp_id)
-        .join(Leads, Leads.opportunity_id == Opportunities.id)
-        .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
     )
 
     data = query.all()
@@ -337,7 +366,7 @@ def getOpportunity(opp_id: int):
 
     data = data[0]
 
-    oppData = packageIndividualOpportunity(data[0], data[2])
+    oppData = packageIndividualOpportunity(data[0])
 
     # return data in the below format if opportunity is found
     return {"data": oppData}
@@ -510,17 +539,21 @@ def getOpportunityCards():
     if request.method == "GET":
         # query database for opportunity
         query = db.session.execute(
-            db.select(Opportunities, Leads)
+            db.select(Opportunities)
             .filter(Opportunities.active == True)
-            .join(Leads, Leads.opportunity_id == Opportunities.id)
         )
 
         data = query.fetchall()
 
         # return data in the below format if opportunity is found
-        return {
+        cards = {
             "data": [packageOpportunityCard(opportunity[0]) for opportunity in data]
         }
+
+        return cards
+
+
+
 
     abort(500)
 
