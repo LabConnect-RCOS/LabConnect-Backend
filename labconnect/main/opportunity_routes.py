@@ -18,21 +18,28 @@ from labconnect.models import (
 
 from . import main_blueprint
 
-# @main_blueprint.get("/opportunity")
-# def getOpportunity():
-#     if not request.data:
-#         abort(400)
 
-#     id = request.get_json().get("id", None)
+@main_blueprint.get("/opportunity")
+def getOpportunity2():
 
-#     if not id:
-#         abort(400)
+    if not request.data:
+        abort(400)
 
-#     data = db.first_or_404(db.select(Opportunities).where(Opportunities.id == id))
+    json_request_data = request.get_json()
 
-#     result = data.to_dict()
+    if not json_request_data:
+        abort(400)
 
-#     return result
+    id = json_request_data.get("id", None)
+
+    if not id:
+        abort(400)
+
+    data = db.first_or_404(db.select(Opportunities).where(Opportunities.id == id))
+
+    result = data.to_dict()
+
+    return result
 
 
 @main_blueprint.get("/opportunity/filter")
@@ -167,32 +174,52 @@ def filterOpportunities():
     return result
 
 
-# @main_blueprint.delete("/opportunity")
-# def deleteOpportunity():
+@main_blueprint.delete("/opportunity")
+def deleteOpportunity2():
 
-#     id = request.get_json().get("id", None)
+    if not request.data:
+        abort(400)
 
-#     if not id:
-#         abort(400)
+    json_request_data = request.get_json()
 
-#     db.session.execute(db.delete(Opportunities).where(Opportunities.id == id))
+    if not json_request_data:
+        abort(400)
 
-#     return 202
+    id = json_request_data.get("id", None)
+
+    if id is None or not isinstance(id, int):
+        abort(400)
+
+    db.session.execute(db.delete(Opportunities).where(Opportunities.id == id))
+
+    return {"msg": "Delete successful"}, 202
 
 
-# @main_blueprint.put("/opportunity")
-# def changeActiveStatus():
-#     if request.method in ["DELETE", "POST"]:
-#         data = request.get_json()
-#         postID = data["postID"]
-#         authToken = data["authToken"]
-#         authorID = data["authToken"]
-#         setStatus = data["setStatus"]
+@main_blueprint.put("/opportunity")
+def changeActiveStatus2():
 
-#         # query database to see if the credentials above match
+    if not request.data:
+        abort(400)
 
-#         # if match is found, change the opportunities active status to true or false based on setStatus
+    json_request_data = request.get_json()
 
-#         abort(200)
+    if not json_request_data:
+        abort(400)
 
-#     abort(500)
+    postID = json_request_data.get("id", None)
+    status = json_request_data.get("status", None)
+
+    if (
+        postID is None
+        or status is None
+        or not isinstance(postID, int)
+        or not isinstance(status, bool)
+    ):
+        abort(400)
+
+    opportunity = db.first_or_404(
+        db.select(Opportunities).where(Opportunities.id == postID)
+    )
+    opportunity.active = status
+    db.session.commit()
+    return {"msg": "Opportunity updated successfully"}, 200

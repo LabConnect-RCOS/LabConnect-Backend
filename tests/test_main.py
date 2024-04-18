@@ -137,8 +137,8 @@ def test_get_opportunity_professor(test_client: FlaskClient) -> None:
         assert "year" in opportunity
         assert "application_due" in opportunity
         assert "active" in opportunity
-        #assert "professor" in opportunity
-        #assert "department" in opportunity
+        # assert "professor" in opportunity
+        # assert "department" in opportunity
 
 
 def test_get_professor_opportunity_cards(test_client: FlaskClient) -> None:
