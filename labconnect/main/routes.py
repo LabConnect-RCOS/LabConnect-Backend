@@ -18,6 +18,8 @@ from labconnect.models import (
     Leads,
     Majors,
     Opportunities,
+    RecommendsClassYears,
+    RecommendsCourses,
     RecommendsMajors,
     RPIDepartments,
     RPISchools,

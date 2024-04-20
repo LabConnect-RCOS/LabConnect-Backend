@@ -9,8 +9,6 @@ Then pass an Executable into Session.execute()
 import sys
 from datetime import date, datetime
 
-from sqlalchemy import inspect, select
-
 from labconnect import bcrypt, create_app, db
 from labconnect.helpers import LocationEnum, SemesterEnum
 from labconnect.models import LabManager  # Professors and Grad students
@@ -331,7 +329,6 @@ elif sys.argv[1] == "create":
         tables = [
             ClassYears,
             Courses,
-            LabManager,
             Leads,
             Majors,
             Opportunities,
@@ -348,15 +345,15 @@ elif sys.argv[1] == "create":
         ]
 
         for table in tables:
-            stmt = select(table)
-            result = db.session.execute(stmt)
+            stmt = db.select(table)
+            result = db.session.execute(stmt).scalars()
 
-            inst = inspect(table)
+            inst = db.inspect(table)
             attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
 
             print(f"{table.__tablename__}")
             print(attr_names)
-            for row in result.scalars():
+            for row in result:
                 print(row)
             print()
 
