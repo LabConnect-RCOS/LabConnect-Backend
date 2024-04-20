@@ -57,7 +57,7 @@ class RPISchools(db.Model, CustomSerializerMixin):
 class RPIDepartments(db.Model, CustomSerializerMixin):
     __tablename__ = "rpi_departments"
 
-    serialize_only = ("name", "description")
+    serialize_only = ("name", "description", "school_id")
     serialize_rules = ()
 
     name = db.Column(db.String(64), primary_key=True)
@@ -245,6 +245,9 @@ class UserCourses(db.Model, CustomSerializerMixin):
 
 class Leads(db.Model):
     __tablename__ = "leads"
+
+    serialize_only = ("lab_manager_rcs_id", "opportunity_id")
+    serialize_rules = ()
 
     lab_manager_rcs_id = db.Column(
         db.String(9),

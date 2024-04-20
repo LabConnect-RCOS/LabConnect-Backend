@@ -26,14 +26,6 @@ const DUMMY_DATA = [
         title: "Application Deadline",
         description: "July 1, 2024, 12pm",
       },
-      {
-        title: "Application Deadline",
-        description: "July 1, 2024, 12pm",
-      },
-      {
-        title: "Application Deadline",
-        description: "July 1, 2024, 12pm",
-      },
     ],
   },
   {
@@ -71,31 +63,34 @@ const DUMMY_DATA = [
 
 const IndividualPost = () => {
   const { postID } = useParams();
+  
+  var [details, setDetails] = useState("Searching");
 
-  const findJobDetails = (id) => {
-    return DUMMY_DATA.find((item) => item.id === id);
+  const fetchOpportunities = async () => {
+    // Consider moving the base URL to a configuration
+    const baseURL = "http://localhost:8000";
+    const url = `${baseURL}/getOpportunity/${postID}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = await response.json();
+    console.log(data);
+    return data["data"];
   };
-  
-  async function getDetails(id) {
-    // fetch details from server
-    // wait 5 seconds 
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(findJobDetails(id));
-      }, 5000);
-    });
-  }
-  
-  async function findDetails(id) {
-    var data = await getDetails(id);
+
+  async function findDetails() {
+    var data = await fetchOpportunities();
     details = data || "Nothing found";
     setDetails(details);
   }
 
-  var [details, setDetails] = useState("Searching");
 
   useEffect(() => {
-    findDetails(postID);
+    findDetails();
   }, []);
 
   return (
