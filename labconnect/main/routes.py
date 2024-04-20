@@ -1137,6 +1137,9 @@ def user():
 
     id = request.get_json().get("id", None)
 
+    if not id:
+        abort(400)
+
     # Query for user
     user = db.first_or_404(db.select(User).filter(User.id == id))
     result = user.to_dict()
