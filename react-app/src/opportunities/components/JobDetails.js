@@ -7,17 +7,18 @@ import SmallTextButton from "./SmallTextButton";
 import JobInteractionButton from "./JobInteractionButton";
 
 const JobDetails = ({
-  title,
+  name,
   author,
   department,
   description,
   authorProfile,
   aboutSection,
+  recommended_experience,
 }) => {
   return (
     <article className="job-details-header">
       <JobHeader
-        title={title}
+        title={name}
         author={author}
         img={authorProfile}
         department={department}
@@ -26,6 +27,15 @@ const JobDetails = ({
       <JobDescription
         description={`${
           description ? description : "No description available."
+        }`}
+      />
+
+      <JobDescription
+        title="Recommended Experience"
+        description={`${
+          recommended_experience
+            ? recommended_experience
+            : "No recommended experience available."
         }`}
       />
     </article>

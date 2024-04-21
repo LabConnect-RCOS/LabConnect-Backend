@@ -36,6 +36,7 @@ export default function MainNavigation() {
     { name: "Staff", href: "/staff", current: false },
     { name: "Profile", href: "/profile", current: false },
     { name: "Authenticate", href: "/auth", current: false },
+    
   ]);
 
   useEffect(() => {

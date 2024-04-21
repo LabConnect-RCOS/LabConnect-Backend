@@ -5,16 +5,16 @@ clean:
 	pystarter clean
 
 run: 
-	gunicorn run:app -w 6 --preload --max-requests-jitter 300
+	gunicorn run:app -w 6 --preload --max-requests-jitter 300 --bind 0.0.0.0:8000
 
 develop:
 	python3 run.py
 
-test: 
+test: drop create
 	python3 -m pytest --cov --cov-report=html:coverage_report
 
 drop:
 	python3 db_init.py clear
 
-db_create:
+create:
 	python3 db_init.py create

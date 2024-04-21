@@ -3,6 +3,33 @@ import usePageNavigation from "../../shared/hooks/page-navigation-hook";
 import PageNavigation from "../../shared/components/Navigation/PageNavigation";
 import BrowseItems from "../components/BrowseItems";
 
+/**import { useEffect, useState } from 'react';
+
+const FetchGetRequest = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDataForPosts = async () => {
+      const response = await fetch(
+        `https://jsonplaceholder.typicode.com/posts?_limit=8`
+      );
+      if (!response.ok) {
+        setData(null);
+        return <div></div>
+      }
+      let postsData = await response.json();
+      setData(postsData);
+      setLoading(false);
+    };
+
+    fetchDataForPosts();
+  }, []);
+
+  return <div></div>;
+
+};*/
+
 const DUMMY_DATA = {
   to: "/staff",
   items: [
@@ -36,10 +63,8 @@ const DUMMY_DATA = {
 const Browse = () => {
   var [pages, switchPage] = usePageNavigation(
     ["Research Centers", "Departments"],
-    "Research Centers"
+    "Research Centers",
   );
-  
-  
   return (
     <section className="flex2 gap-3">
       <PageNavigation
@@ -48,6 +73,7 @@ const Browse = () => {
         switchPage={switchPage}
       />
 
+
       {pages.activePage === "Research Centers" && (
         <BrowseItems to={DUMMY_DATA.to} items={DUMMY_DATA.items} />
       )}
@@ -55,6 +81,7 @@ const Browse = () => {
       {pages.activePage === "Departments" && (
         <BrowseItems to={DUMMY_DATA.to} items={DUMMY_DATA.items} />
       )}
+      <br/><br/>
     </section>
   );
 };

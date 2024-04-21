@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import JobPost from "./JobPost";
 import JobDetails from "./JobDetails";
@@ -87,15 +87,34 @@ const DUMMY_DATA = [
   },
 ];
 
-const PostsField = ({ activeId, setActive }) => {
+const PostsField = ({ activeId, setActive, opportunities }) => {
   const findJobDetails = (id) => {
     return DUMMY_DATA.find((item) => item.id === id);
   };
+  
+  var [activeOpportunity, setActiveOpportunity] = useState(null);
+  
+  const fetchOpportunity = async (id) => {
+    const url = `http://localhost:8000/getOpportunity/${id}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.log("Error fetching opportunity");
+      setActiveOpportunity(null);
+    } else {
+      let data = await response.json();
+      data = data.data;
+      setActiveOpportunity(data);
+    }
+  }
+  
+  useEffect(() => {
+    fetchOpportunity(activeId);
+  }, [activeId]);
 
   return (
     <div className="postsfield-header">
       <div className="col-span-2">
-        {DUMMY_JOBS.map((job) => {
+        {opportunities && opportunities.map((job) => {
           return (
             <JobPost
               active={job.id == activeId}
@@ -106,7 +125,8 @@ const PostsField = ({ activeId, setActive }) => {
           );
         })}
       </div>
-      <JobDetails {...findJobDetails(activeId)} />
+      {activeId != "" && activeOpportunity && <JobDetails {...activeOpportunity} />}
+      {(activeId == "" || !activeOpportunity) && "Opportunity not found."}
     </div>
   );
 };
