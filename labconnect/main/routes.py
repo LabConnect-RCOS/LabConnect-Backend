@@ -32,26 +32,6 @@ from labconnect.models import (
 
 from . import main_blueprint
 
-# Example queries
-# @main_blueprint.route("/test")
-# def test():
-#     query = (
-#         db.session.query(Opportunities, Majors)
-#         .filter(Majors.major_code == "CSCI")
-#         .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
-#         .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
-#     )
-#     query = (
-#         db.session.query(Opportunities, Majors)
-#         .filter(Opportunities.id == 2)
-#         .join(RecommendsMajors, Opportunities.id == RecommendsMajors.opportunity_id)
-#         .join(Majors, RecommendsMajors.major_code == Majors.major_code)
-#     )
-#     print(query)
-#     data = query.all()
-#     print(data)
-#     return {"Hello": "There"}
-
 
 def packageOpportunity(opportunityInfo, professorInfo):
     data = opportunityInfo.to_dict()
