@@ -18,6 +18,9 @@ from labconnect.models import (
     Leads,
     Majors,
     Opportunities,
+    Participates,
+    RecommendsClassYears,
+    RecommendsCourses,
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
@@ -25,9 +28,6 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
-    Participates,
-    RecommendsCourses,
-    RecommendsClassYears,
 )
 
 from . import main_blueprint
@@ -124,9 +124,26 @@ def positions():
     return {"Hello": "There"}
 
 
-@main_blueprint.route("/profile/<string:rcs_id>")
-def profile(rcs_id: str):
-    return {"Hello": "There"}
+@main_blueprint.get("/profile")
+def profile():
+    request_data = request.get_json()
+    rcs_id = request_data.get("rcs_id", None)
+
+    lab_manager = db.first_or_404(
+        db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
+    )
+
+    result = lab_manager.to_dict()
+
+    data = db.session.execute(
+        db.select(Opportunities, Leads)
+        .filter(Leads.lab_manager_rcs_id == rcs_id)
+        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+    ).scalars()
+
+    result["opportunities"] = [opportunity.to_dict() for opportunity in data]
+
+    return result
 
 
 @main_blueprint.route("/department")

@@ -62,6 +62,7 @@ class RPIDepartments(db.Model, CustomSerializerMixin):
 
     name = db.Column(db.String(64), primary_key=True)
     description = db.Column(db.String(2000), nullable=True, unique=False)
+    school_id = db.Column(db.String(64), db.ForeignKey("rpi_schools.name"))
 
     school_id = db.Column(db.String(64), db.ForeignKey("rpi_schools.name"))
 
@@ -83,6 +84,7 @@ class LabManager(db.Model, CustomSerializerMixin):
     alt_email = db.Column(db.String(64), nullable=True, unique=False)
     phone_number = db.Column(db.String(15), nullable=True, unique=False)
     website = db.Column(db.String(128), nullable=True, unique=False)
+    department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
 
     department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
 
