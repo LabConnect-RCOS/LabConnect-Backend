@@ -22,6 +22,10 @@ from labconnect.models import (
     RPIDepartments,
     RPISchools,
     User,
+    UserCourses,
+    UserDepartments,
+    UserMajors,
+    Participates,
     RecommendsCourses,
     RecommendsClassYears,
 )
@@ -1122,5 +1126,53 @@ def courses() -> list[Any]:
 
     if result == []:
         abort(404)
+
+    return result
+
+
+@main_blueprint.get("/user")
+def user():
+    if not request.data:
+        abort(400)
+
+    id = request.get_json().get("id", None)
+
+    if not id:
+        abort(400)
+
+    # Query for user
+    user = db.first_or_404(db.select(User).filter(User.id == id))
+    result = user.to_dict()
+
+    # Query for user's department(s)
+    user_departments = db.session.execute(
+        db.select(UserDepartments).filter(UserDepartments.user_id == id)
+    ).scalars()
+    result["departments"] = [dept.to_dict() for dept in user_departments]
+
+    # Query for user's major(s)
+    user_majors = db.session.execute(
+        db.select(UserMajors).filter(UserMajors.user_id == id)
+    ).scalars()
+    result["majors"] = [major.to_dict() for major in user_majors]
+
+    # Query for user's courses
+    user_courses = db.session.execute(
+        db.select(UserCourses)
+        .order_by(UserCourses.in_progress)
+        .filter(UserCourses.user_id == id)
+    ).scalars()
+    result["courses"] = [course.to_dict() for course in user_courses]
+
+    # Query for user's opportunities
+    user_opportunities = db.session.execute(
+        db.select(Opportunities, Participates)
+        .filter(Participates.user_id == id)
+        .join(Opportunities, Participates.opportunity_id == Opportunities.id)
+        .order_by(Opportunities.active.desc())
+    ).scalars()
+    result["opportunities"] = [
+        opportunity.to_dict() for opportunity in user_opportunities
+    ]
 
     return result
