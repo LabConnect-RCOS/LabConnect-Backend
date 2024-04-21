@@ -1,17 +1,17 @@
-import os
-from datetime import datetime, timezone, timedelta
 import json
+import os
+from datetime import datetime, timedelta, timezone
 
 # Import Flask modules
 from flask import Flask
 from flask_bcrypt import Bcrypt
-from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import (
+    JWTManager,
     create_access_token,
     get_jwt,
     get_jwt_identity,
-    JWTManager,
 )
+from flask_sqlalchemy import SQLAlchemy
 
 from labconnect.helpers import OrJSONProvider
 
@@ -24,6 +24,7 @@ jwt = JWTManager()
 def create_app() -> Flask:
     # Create flask app object
     app = Flask(__name__)
+
     app.config.from_object(os.environ.get("CONFIG", "config.TestingConfig"))
 
     initialize_extensions(app)

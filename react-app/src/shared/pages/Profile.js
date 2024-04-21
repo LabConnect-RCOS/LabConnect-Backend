@@ -5,6 +5,7 @@ import ProfileDescription from "../../staff/components/ProfileDescription";
 import ProfileOpportunities from "../components/Profile/ProfileOpportunities";
 import EditProfile from "./EditProfile";
 import useGlobalContext from "../../context/global/useGlobalContext";
+import StickyFooter from "../components/Navigation/StickyFooter.js"
 
 const PROFILES = {
   d1: {
@@ -19,7 +20,7 @@ const PROFILES = {
           pharetra sit amet aliquam id diam maecenas ultricies mi. Montes
           nascetur ridiculus mus mauris vitae ultricies leo. Porttitor massa
           id neque aliquam. Malesuada bibendum arcu vitae elementum. Nulla
-          aliquet porrsus mattis molestie aiaculis at erat pellentesque. 
+          aliquet porrsus mattis molestie aiaculis at erat pellentesque.
           At risus viverra adipiscing at.
           Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu
           feugiat. Eget fUt eu sem integer vitae justo
@@ -53,14 +54,23 @@ const ProfilePage = () => {
 
   const { id } = state;
 
+  const fetchProfile = async () => {
+    const response = await fetch(
+      `http://localhost:8000/getProfessorProfile/${id}`,
+    );
+
+    if (response) {
+      let data = await response.json();
+      setProfile(data);
+      setProfileFound(true);
+    } else {
+      setProfileFound(false);
+    }
+  };
+
   useEffect(() => {
     if (id) {
-      const tempProfile = PROFILES[id];
-
-      if (tempProfile) {
-        setProfile(tempProfile);
-        setProfileFound(true);
-      }
+      fetchProfile();
     }
   }, []);
 
@@ -90,17 +100,20 @@ const ProfilePage = () => {
 
   return (
     <section>
-      {!loggedIn ? (
-        "Please log in to view your profile"
-      ) : profileFound ? (
-        <>
-          {loggedIn && editButton}
-          {loggedIn && editMode && <EditProfile />}
-          {loggedIn && !editMode && profilePage}
-        </>
-      ) : (
-        "Profile not found"
-      )}
+      <section>
+        {!loggedIn ? (
+          "Please log in to view your profile"
+        ) : profileFound ? (
+          <>
+            {loggedIn && editButton}
+            {loggedIn && editMode && <EditProfile />}
+            {loggedIn && !editMode && profilePage}
+          </>
+        ) : (
+          "Profile not found"
+        )}
+      </section>
+      <br/><br/><br/><br/><br/><br/><br/>
     </section>
   );
 };

@@ -2,16 +2,30 @@ from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 
 from labconnect import db
-from labconnect.helpers import CustomSerializerMixin, SemesterEnum, LocationEnum
+from labconnect.helpers import CustomSerializerMixin, LocationEnum, SemesterEnum
 
 # DD - Entities
 
 
-class User(db.Model):
+class User(db.Model, CustomSerializerMixin):
+    __tablename__ = "user"
+
+    serialize_only = (
+        "id",
+        "email",
+        "first_name",
+        "last_name",
+        "preferred_name",
+        "class_year",
+    )
+    serialize_rules = ()
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False, unique=False)
-    name = db.Column(db.String(1000), nullable=False, unique=False)
+    first_name = db.Column(db.String(50), nullable=False, unique=False)
+    last_name = db.Column(db.String(200), nullable=False, unique=False)
+    preferred_name = db.Column(db.String(50), nullable=True, unique=False)
     class_year = db.Column(
         db.Integer,
         db.ForeignKey("class_years.class_year"),
@@ -43,7 +57,7 @@ class RPISchools(db.Model, CustomSerializerMixin):
 class RPIDepartments(db.Model, CustomSerializerMixin):
     __tablename__ = "rpi_departments"
 
-    serialize_only = ("name", "description")
+    serialize_only = ("name", "description", "school_id")
     serialize_rules = ()
 
     name = db.Column(db.String(64), primary_key=True)
@@ -88,11 +102,16 @@ class Opportunities(db.Model, CustomSerializerMixin):
         "description",
         "recommended_experience",
         "pay",
-        "credits",
+        "one_credit",
+        "two_credits",
+        "three_credits",
+        "four_credits",
         "semester",
         "year",
         "application_due",
         "active",
+        "last_updated",
+        "location",
     )
     serialize_rules = ()
 
@@ -101,7 +120,10 @@ class Opportunities(db.Model, CustomSerializerMixin):
     description = db.Column(db.String(2000), nullable=True, unique=False)
     recommended_experience = db.Column(db.String(500), nullable=True, unique=False)
     pay = db.Column(db.Float, nullable=True, unique=False)
-    credits = db.Column(db.String(8), nullable=True, unique=False)
+    one_credit = db.Column(db.Boolean, nullable=True, unique=False)
+    two_credits = db.Column(db.Boolean, nullable=True, unique=False)
+    three_credits = db.Column(db.Boolean, nullable=True, unique=False)
+    four_credits = db.Column(db.Boolean, nullable=True, unique=False)
     semester = db.Column(Enum(SemesterEnum), nullable=True, unique=False)
     year = db.Column(db.Integer, nullable=True, unique=False)
     application_due = db.Column(db.Date, nullable=True, unique=False)
@@ -177,33 +199,44 @@ class ClassYears(db.Model, CustomSerializerMixin):
 # DD - Relationships
 
 
-class UserDepartments(db.Model):
+class UserDepartments(db.Model, CustomSerializerMixin):
     __tablename__ = "user_departments"
+
+    serialize_only = ("user_id", "department_id")
+    serialize_rules = ()
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     department_id = db.Column(
-        db.Integer, db.ForeignKey("rpi_departments.name"), primary_key=True
+        db.String(64), db.ForeignKey("rpi_departments.name"), primary_key=True
     )
 
     user = relationship("User", back_populates="departments")
     department = relationship("RPIDepartments", back_populates="users")
 
 
-class UserMajors(db.Model):
+class UserMajors(db.Model, CustomSerializerMixin):
     __tablename__ = "user_majors"
 
+    serialize_only = ("user_id", "major_code")
+    serialize_rules = ()
+
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    major_code = db.Column(db.Integer, db.ForeignKey("majors.code"), primary_key=True)
+    major_code = db.Column(db.String(4), db.ForeignKey("majors.code"), primary_key=True)
 
     user = relationship("User", back_populates="majors")
     major = relationship("Majors", back_populates="users")
 
 
-class UserCourses(db.Model):
+class UserCourses(db.Model, CustomSerializerMixin):
     __tablename__ = "user_courses"
 
+    serialize_only = ("user_id", "course_code", "in_progress")
+    serialize_rules = ()
+
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    courses = db.Column(db.Integer, db.ForeignKey("courses.code"), primary_key=True)
+    course_code = db.Column(
+        db.String(8), db.ForeignKey("courses.code"), primary_key=True
+    )
     in_progress = db.Column(db.Boolean, nullable=False, default=False)
 
     user = relationship("User", back_populates="courses")
@@ -212,6 +245,9 @@ class UserCourses(db.Model):
 
 class Leads(db.Model):
     __tablename__ = "leads"
+
+    serialize_only = ("lab_manager_rcs_id", "opportunity_id")
+    serialize_rules = ()
 
     lab_manager_rcs_id = db.Column(
         db.String(9),
@@ -270,7 +306,7 @@ class RecommendsMajors(db.Model):
         primary_key=True,
     )
     major_code = db.Column(
-        db.String(8),
+        db.String(4),
         db.ForeignKey("majors.code", ondelete="CASCADE"),
         primary_key=True,
     )

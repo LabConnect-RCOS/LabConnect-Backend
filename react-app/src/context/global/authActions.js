@@ -2,7 +2,6 @@ import useGlobalContext from "./useGlobalContext";
 import { useCookies } from "react-cookie";
 
 const useAuthActions = () => {
-  
   const { dispatch } = useGlobalContext();
   const [cookie, setCookie, removeCookie] = useCookies(["userCookie"]);
 
@@ -10,19 +9,29 @@ const useAuthActions = () => {
     // make fake call to server
 
     async function getDetails() {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve({
-            loggedIn: true,
-            id: "d1",
-            name: "John Doe",
-            email: "johnd@rpi.edu",
-            role: "admin",
-            department: "Computer Science",
-            researchCenter: "AI",
-          });
-        }, 500);
-      });
+      const response = await fetch(
+        "http://localhost:8000/getProfessorCookies/cenzar",
+      );
+
+      if (!response.ok) {
+        return;
+      } else {
+        return response.json();
+      }
+
+      // return new Promise((resolve, reject) => {
+      //   setTimeout(() => {
+      //     resolve({
+      //       loggedIn: true,
+      //       id: "d1",
+      //       name: "John Doe",
+      //       email: "johnd@rpi.edu",
+      //       role: "admin",
+      //       department: "Computer Science",
+      //       researchCenter: "AI",
+      //     });
+      //   }, 500);
+      // });
     }
 
     const response = await getDetails();
@@ -39,7 +48,7 @@ const useAuthActions = () => {
     removeCookie("userCookie", {
       path: "/",
     });
-    dispatch({ type: "logout", payload: {dispatch} });
+    dispatch({ type: "logout", payload: { dispatch } });
   };
 
   return { login, logout };

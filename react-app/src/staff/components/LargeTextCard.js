@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const LargeTextCard = ({ to, title, body, attributes }) => {
   return (
     <Link to={to} className="no-underline">
-      <div className="lg-txt-card">
+      <div className="lg-txt-card hover:shadow-md card">
         <div className="card-body">
           <div className="flex flex-wrap gap-1">
             {attributes &&

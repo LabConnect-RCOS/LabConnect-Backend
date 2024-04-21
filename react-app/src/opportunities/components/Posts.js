@@ -3,6 +3,7 @@ import FiltersField from "../components/FiltersField";
 import PostsField from "./PostsField";
 import { useReducer } from "react";
 import { useCallback } from "react";
+import { useEffect } from "react";
 
 const Posts = () => {
   const reducer = (state, action) => {
@@ -11,19 +12,24 @@ const Posts = () => {
         if (action.filter) {
           state.filters = state.filters.filter((item) => item != action.filter);
         }
-        return {...state};
+        return { ...state };
       case "ADD_FILTER":
         if (action.filter) {
           state.filters.push(action.filter);
         }
-        return {...state};
+        return { ...state };
       case "SET_ACTIVE_ID":
         if (action.id) {
           if (state.jobs.find((job) => job.id === action.id)) {
             state.activeId = action.id;
           }
         }
-        return {...state};
+        return { ...state };
+      case "SET_JOBS":
+        if (action.jobs) {
+          state.jobs = action.jobs;
+        }
+        return { ...state };
       default:
         return state;
     }
@@ -31,25 +37,8 @@ const Posts = () => {
 
   var [jobState, dispatch] = useReducer(reducer, {
     filters: ["Fall", "Credit", "Remote"],
-    activeId: "u1",
-    jobs: [
-      {
-        title: "Software Engineer",
-        professor: "Turner",
-        id: "u1",
-        location: "CII",
-        season: "Spring",
-        year: 2024,
-      },
-      {
-        title: "Physics Research Engineer",
-        professor: "Turner",
-        id: "u2",
-        location: "CII",
-        season: "Spring",
-        year: 2024,
-      },
-    ],
+    activeId: "",
+    jobs: [],
   });
 
   const removeFilter = useCallback((name) => {
@@ -65,10 +54,34 @@ const Posts = () => {
     dispatch({ type: "SET_ACTIVE_ID", id: val });
   });
 
+  const fetchOpportunities = async () => {
+    const url = "http://localhost:8000/getOpportunityCards";
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      console.log("Error fetching opportunities");
+    } else {
+      let data = await response.json();
+      data = data.data;
+      // console.log(data);
+      dispatch({ type: "SET_JOBS", jobs: data });
+      console.log(jobState.jobs);
+    }
+  };
+
+  useEffect(() => {
+    fetchOpportunities();
+  }, [jobState.filters]);
+
   return (
     <section>
       <FiltersField deleteFilter={removeFilter} filters={jobState.filters} />
-      <PostsField activeId={jobState.activeId} setActive={setActiveId} />
+      <PostsField
+        activeId={jobState.activeId}
+        setActive={setActiveId}
+        opportunities={jobState.jobs}
+      />
     </section>
   );
 };
