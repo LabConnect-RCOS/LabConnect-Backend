@@ -315,7 +315,7 @@ class RecommendsMajors(db.Model):
 
     opportunity = relationship("Opportunities", back_populates="recommends_majors")
     major = relationship("Majors", back_populates="opportunities")
-    
+
 
 class RecommendsClassYears(db.Model):
     __tablename__ = "recommends_class_years"

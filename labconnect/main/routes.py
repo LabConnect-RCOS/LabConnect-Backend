@@ -18,6 +18,9 @@ from labconnect.models import (
     Leads,
     Majors,
     Opportunities,
+    Participates,
+    RecommendsClassYears,
+    RecommendsCourses,
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
@@ -25,9 +28,6 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
-    Participates,
-    RecommendsCourses,
-    RecommendsClassYears,
 )
 
 from . import main_blueprint
@@ -165,7 +165,7 @@ def profile():
 
     return result
 
-  
+
 @main_blueprint.route("/department")
 def department():
 
