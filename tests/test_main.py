@@ -198,6 +198,7 @@ def test_create_opportunity(test_client: FlaskClient) -> None:
         "majors": ["BIOL"],
         "years": [2023, 2024],
         "active": True,
+        "location": "TBD",
     }
 
     response = test_client.post(
