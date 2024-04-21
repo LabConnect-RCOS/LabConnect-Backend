@@ -18,6 +18,7 @@ from labconnect.models import (
     Leads,
     Majors,
     Opportunities,
+    Participates,
     RecommendsClassYears,
     RecommendsCourses,
     RecommendsMajors,
@@ -27,7 +28,6 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
-    Participates,
 )
 
 app = create_app()
@@ -332,6 +332,7 @@ elif sys.argv[1] == "create":
             Leads,
             Majors,
             Opportunities,
+            Participates,
             RecommendsClassYears,
             RecommendsCourses,
             RecommendsMajors,
@@ -341,7 +342,6 @@ elif sys.argv[1] == "create":
             UserCourses,
             UserDepartments,
             UserMajors,
-            Participates,
         ]
 
         for table in tables:
