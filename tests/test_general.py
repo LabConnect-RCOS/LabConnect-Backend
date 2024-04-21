@@ -43,11 +43,14 @@ def test_profile_page(test_client: FlaskClient) -> None:
     WHEN the '/profile/<user>' page is requested (GET)
     THEN check that the response is valid
     """
-    response = test_client.get("/profile/bob")
+    response = test_client.get("/profile", json={"rcs_id": "cenzar"})
 
     assert response.status_code == 200
 
-    assert {"Hello": "There"} == json.loads(response.data)
+    json_data = json.loads(response.data)
+    assert json_data["rcs_id"] == "cenzar"
+    assert json_data["name"] == "Rafael"
+    assert json_data["opportunities"] != []
 
 
 def test_schools_route(test_client: FlaskClient) -> None:
