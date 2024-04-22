@@ -18,12 +18,16 @@ from labconnect.models import (
     Leads,
     Majors,
     Opportunities,
+    Participates,
+    RecommendsClassYears,
+    RecommendsCourses,
     RecommendsMajors,
     RPIDepartments,
     RPISchools,
     User,
-    RecommendsCourses,
-    RecommendsClassYears,
+    UserCourses,
+    UserDepartments,
+    UserMajors,
 )
 from labconnect.helpers import LocationEnum, SemesterEnum
 
@@ -39,9 +43,26 @@ def positions():
     return {"Hello": "There"}
 
 
-@main_blueprint.route("/profile/<string:rcs_id>")
-def profile(rcs_id: str):
-    return {"Hello": "There"}
+@main_blueprint.get("/profile")
+def profile():
+    request_data = request.get_json()
+    rcs_id = request_data.get("rcs_id", None)
+
+    lab_manager = db.first_or_404(
+        db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
+    )
+
+    result = lab_manager.to_dict()
+
+    data = db.session.execute(
+        db.select(Opportunities, Leads)
+        .filter(Leads.lab_manager_rcs_id == rcs_id)
+        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+    ).scalars()
+
+    result["opportunities"] = [opportunity.to_dict() for opportunity in data]
+
+    return result
 
 
 @main_blueprint.route("/department")
@@ -556,5 +577,53 @@ def courses() -> list[Any]:
 
     if result == []:
         abort(404)
+
+    return result
+
+
+@main_blueprint.get("/user")
+def user():
+    if not request.data:
+        abort(400)
+
+    id = request.get_json().get("id", None)
+
+    if not id:
+        abort(400)
+
+    # Query for user
+    user = db.first_or_404(db.select(User).filter(User.id == id))
+    result = user.to_dict()
+
+    # Query for user's department(s)
+    user_departments = db.session.execute(
+        db.select(UserDepartments).filter(UserDepartments.user_id == id)
+    ).scalars()
+    result["departments"] = [dept.to_dict() for dept in user_departments]
+
+    # Query for user's major(s)
+    user_majors = db.session.execute(
+        db.select(UserMajors).filter(UserMajors.user_id == id)
+    ).scalars()
+    result["majors"] = [major.to_dict() for major in user_majors]
+
+    # Query for user's courses
+    user_courses = db.session.execute(
+        db.select(UserCourses)
+        .order_by(UserCourses.in_progress)
+        .filter(UserCourses.user_id == id)
+    ).scalars()
+    result["courses"] = [course.to_dict() for course in user_courses]
+
+    # Query for user's opportunities
+    user_opportunities = db.session.execute(
+        db.select(Opportunities, Participates)
+        .filter(Participates.user_id == id)
+        .join(Opportunities, Participates.opportunity_id == Opportunities.id)
+        .order_by(Opportunities.active.desc())
+    ).scalars()
+    result["opportunities"] = [
+        opportunity.to_dict() for opportunity in user_opportunities
+    ]
 
     return result

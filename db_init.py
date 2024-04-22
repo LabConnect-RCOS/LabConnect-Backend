@@ -20,6 +20,7 @@ from labconnect.models import (
     Leads,
     Majors,
     Opportunities,
+    Participates,
     RecommendsClassYears,
     RecommendsCourses,
     RecommendsMajors,
@@ -283,9 +284,9 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         user_majors = (
-            (0, "MATH"),
-            (0, "CSCI"),
+            (1, "MATH"),
             (1, "CSCI"),
+            (2, "CSCI"),
         )
 
         for r in user_majors:
@@ -294,9 +295,9 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         user_departments = (
-            (0, "Computer Science"),
-            (0, "Math"),
             (1, "Computer Science"),
+            (1, "Math"),
+            (2, "Computer Science"),
         )
 
         for r in user_departments:
@@ -305,13 +306,25 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         user_courses = (
-            (0, "CSCI2300", False),
-            (0, "CSCI4430", True),
             (1, "CSCI2300", False),
+            (1, "CSCI4430", True),
+            (2, "CSCI2300", False),
         )
 
         for r in user_courses:
             row = UserCourses(user_id=r[0], course_code=r[1], in_progress=r[2])
+            db.session.add(row)
+            db.session.commit()
+
+        participates_rows = (
+            (1, 1),
+            (1, 2),
+            (2, 3),
+            (2, 4),
+        )
+
+        for r in participates_rows:
+            row = Participates(user_id=r[0], opportunity_id=r[1])
             db.session.add(row)
             db.session.commit()
 
@@ -331,6 +344,7 @@ elif sys.argv[1] == "create":
             UserCourses,
             UserDepartments,
             UserMajors,
+            Participates,
         ]
 
         for table in tables:

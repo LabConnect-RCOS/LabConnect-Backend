@@ -7,7 +7,7 @@ from labconnect.helpers import CustomSerializerMixin, LocationEnum, SemesterEnum
 # DD - Entities
 
 
-class User(db.Model):
+class User(db.Model, CustomSerializerMixin):
     __tablename__ = "user"
 
     serialize_only = (
@@ -62,6 +62,7 @@ class RPIDepartments(db.Model, CustomSerializerMixin):
 
     name = db.Column(db.String(64), primary_key=True)
     description = db.Column(db.String(2000), nullable=True, unique=False)
+    school_id = db.Column(db.String(64), db.ForeignKey("rpi_schools.name"))
 
     school_id = db.Column(db.String(64), db.ForeignKey("rpi_schools.name"))
 
@@ -83,6 +84,7 @@ class LabManager(db.Model, CustomSerializerMixin):
     alt_email = db.Column(db.String(64), nullable=True, unique=False)
     phone_number = db.Column(db.String(15), nullable=True, unique=False)
     website = db.Column(db.String(128), nullable=True, unique=False)
+    department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
 
     department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
 
@@ -199,8 +201,11 @@ class ClassYears(db.Model, CustomSerializerMixin):
 # DD - Relationships
 
 
-class UserDepartments(db.Model):
+class UserDepartments(db.Model, CustomSerializerMixin):
     __tablename__ = "user_departments"
+
+    serialize_only = ("user_id", "department_id")
+    serialize_rules = ()
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     department_id = db.Column(
@@ -211,8 +216,11 @@ class UserDepartments(db.Model):
     department = relationship("RPIDepartments", back_populates="users")
 
 
-class UserMajors(db.Model):
+class UserMajors(db.Model, CustomSerializerMixin):
     __tablename__ = "user_majors"
+
+    serialize_only = ("user_id", "major_code")
+    serialize_rules = ()
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     major_code = db.Column(db.String(4), db.ForeignKey("majors.code"), primary_key=True)
@@ -221,8 +229,11 @@ class UserMajors(db.Model):
     major = relationship("Majors", back_populates="users")
 
 
-class UserCourses(db.Model):
+class UserCourses(db.Model, CustomSerializerMixin):
     __tablename__ = "user_courses"
+
+    serialize_only = ("user_id", "course_code", "in_progress")
+    serialize_rules = ()
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     course_code = db.Column(
