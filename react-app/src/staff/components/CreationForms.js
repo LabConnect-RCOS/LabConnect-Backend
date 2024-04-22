@@ -30,12 +30,8 @@ const CreationForms = () => {
   const { id: authorId } = state;
 
   async function fetchDetails(key) {
-    // return new Promise((resolve, reject) => {
-    //   setTimeout(() => {
-    //     resolve(DUMMY_DATA[key]);
-    //   }, 5000);
-    // });
     const url = "http://localhost:8000/getOpportunityMeta/" + key;
+
     const response = await fetch(url);
     if (!response.ok) {
       return false;
@@ -56,28 +52,25 @@ const CreationForms = () => {
       id: "",
       name: "",
       //department: "",
-      //location: "",
+      location: "",
       application_due: "",
       active: true,
-      //upfrontPay: 0,
-      //salary: 0,
       credits: [],
       description: "",
       recommended_experience: "",
       semester: [],
       pay: 0,
       years: [],
-      year: 2023,
+      year: 2024,
     },
   });
 
   async function fetchData(key) {
     const response = await fetchDetails(key);
     response && reset(response);
-    // console.log(response);
+
     response ? setLoading(false) : setLoading("no response");
     console.log(getValues());
-    // check what data is currently in the form
   }
 
   useEffect(() => {
@@ -134,7 +127,7 @@ const CreationForms = () => {
 
     data.active = true;
 
-    console.log({ ...data, authorID: "led" });
+    console.log({ ...data, authorID: id });
 
     // send data to the backend
     !postID && createOpportunity({ ...data, authorID: id });
@@ -168,35 +161,45 @@ const CreationForms = () => {
         }}
       />
 
-      {/* <Input
+      <Input
         errors={errors}
-        label="Department"
-        name={"department"}
+        label="Location"
+        name={"location"}
         type="select"
-        options={["Computer Science", "Biology", "Physics"]}
-        errorMessage={"Department must be at least 3 characters"}
+        options={[
+          "Amos Eaton",
+          "Carnegie",
+          "Center for Computational Innovations",
+          "Center for Biotechnology and Interdisciplinary Studies",
+          "Cogswell Laboratory",
+          "Darrin Communications Center",
+          "Experimental Media and Performing Arts Center",
+          "Greene Library",
+          "Jonsson Engineering Center",
+          "Lally Hall",
+          "Low Center for Industrial Innovation (CII)",
+          "LINAC Facility (Gaerttner Laboratory)",
+          "Materials Research Center",
+          "Pittsburgh Building",
+          "Ricketts Building",
+          "Russell Sage Laboratory",
+          "Jonsson-Rowland Science Center",
+          "Voorhees Computing Center",
+          "Walker Laboratory",
+          "West Hall",
+          "Winslow Building",
+          "Remote",
+          "TBD",
+        ]}
+        errorMessage={"Location must be selected"}
         formHook={{
-          ...register("department", {
+          ...register("location", {
             required: true,
             minLength: 3,
             maxLength: 40,
           }),
         }}
-      /> */}
-
-      {/* <Input
-        errors={errors}
-        label="Location"
-        name={"location"}
-        errorMessage={"Location must be at least 5 characters"}
-        formHook={{
-          ...register("location", {
-            required: true,
-            minLength: 5,
-            maxLength: 100,
-          }),
-        }}
-      /> */}
+      />
 
       <Input
         errors={errors}
