@@ -91,9 +91,9 @@ const PostsField = ({ activeId, setActive, opportunities }) => {
   const findJobDetails = (id) => {
     return DUMMY_DATA.find((item) => item.id === id);
   };
-  
+
   var [activeOpportunity, setActiveOpportunity] = useState(null);
-  
+
   const fetchOpportunity = async (id) => {
     const url = `http://localhost:8000/getOpportunity/${id}`;
     const response = await fetch(url);
@@ -105,8 +105,8 @@ const PostsField = ({ activeId, setActive, opportunities }) => {
       data = data.data;
       setActiveOpportunity(data);
     }
-  }
-  
+  };
+
   useEffect(() => {
     fetchOpportunity(activeId);
   }, [activeId]);
@@ -114,18 +114,21 @@ const PostsField = ({ activeId, setActive, opportunities }) => {
   return (
     <div className="postsfield-header">
       <div className="col-span-2">
-        {opportunities && opportunities.map((job) => {
-          return (
-            <JobPost
-              active={job.id == activeId}
-              onClick={setActive}
-              key={job.id}
-              {...job}
-            />
-          );
-        })}
+        {opportunities &&
+          opportunities.map((job) => {
+            return (
+              <JobPost
+                active={job.id == activeId}
+                onClick={setActive}
+                key={job.id}
+                {...job}
+              />
+            );
+          })}
       </div>
-      {activeId != "" && activeOpportunity && <JobDetails {...activeOpportunity} />}
+      {activeId != "" && activeOpportunity && (
+        <JobDetails {...activeOpportunity} />
+      )}
       {(activeId == "" || !activeOpportunity) && "Opportunity not found."}
     </div>
   );

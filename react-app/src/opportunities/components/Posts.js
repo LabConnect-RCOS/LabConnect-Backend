@@ -72,7 +72,7 @@ const Posts = () => {
 
   useEffect(() => {
     fetchOpportunities();
-  }, [jobState.filters]);
+  }, []);
 
   return (
     <section>
