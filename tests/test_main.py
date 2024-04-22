@@ -45,6 +45,7 @@ def test_professor_profile(test_client: FlaskClient) -> None:
     assert "phone" in data
     assert "role" in data
 
+
 def test_get_opportunity(test_client: FlaskClient) -> None:
     response = test_client.get("/getOpportunity/2")
 
@@ -66,9 +67,6 @@ def test_get_opportunity(test_client: FlaskClient) -> None:
     for eachSection in data["aboutSection"]:
         assert "title" in eachSection
         assert "description" in eachSection
-
-
-
 
 
 # def test_schools_and_departments(test_client: FlaskClient) -> None:
