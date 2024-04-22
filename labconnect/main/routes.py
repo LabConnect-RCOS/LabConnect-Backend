@@ -33,6 +33,7 @@ from labconnect.helpers import LocationEnum, SemesterEnum
 
 from . import main_blueprint
 
+
 @main_blueprint.route("/")
 def index():
     return {"Hello": "There"}
@@ -259,9 +260,6 @@ def getProfessorProfile(rcs_id: str):
     return dictionary
 
 
-
-
-
 @main_blueprint.get("/lab_manager/opportunities")
 def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     if not request.data:
@@ -288,16 +286,6 @@ def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
     return result
 
 
-
-
-
-
-
-
-
-
-
-
 # _______________________________________________________________________________________________#
 
 
@@ -322,9 +310,6 @@ def getProfessorCookies(id: str):
     dictionary.pop("rcs_id")
 
     return dictionary
-
-
-
 
 
 @main_blueprint.route("/changeActiveStatus", methods=["DELETE", "POST"])

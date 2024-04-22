@@ -129,9 +129,13 @@ def packageIndividualOpportunity(opportunityInfo):
             data["author"] += ", "
 
     if len(queryInfo) > 1:
-        data["authorProfile"] = "https://t4.ftcdn.net/jpg/03/78/40/51/360_F_378405187_PyVLw51NVo3KltNlhUOpKfULdkUOUn7j.jpg"
+        data["authorProfile"] = (
+            "https://t4.ftcdn.net/jpg/03/78/40/51/360_F_378405187_PyVLw51NVo3KltNlhUOpKfULdkUOUn7j.jpg"
+        )
     elif len(queryInfo) == 1:
-        data["authorProfile"] = "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+        data["authorProfile"] = (
+            "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+        )
 
     return data
 
@@ -170,8 +174,7 @@ def packageOpportunityCard(opportunity):
 def getOpportunity(opp_id: int):
     # query database for opportunity
     query = db.session.execute(
-        db.select(Opportunities)
-        .filter(Opportunities.id == opp_id)
+        db.select(Opportunities).filter(Opportunities.id == opp_id)
     )
 
     data = query.all()
@@ -320,7 +323,6 @@ def filterOpportunities():
     return result
 
 
-
 @main_blueprint.put("/opportunity")
 def changeActiveStatus2():
 
@@ -349,9 +351,6 @@ def changeActiveStatus2():
     opportunity.active = status
     db.session.commit()
     return {"msg": "Opportunity updated successfully"}, 200
-
-
-
 
 
 @main_blueprint.route("/getOpportunityMeta/<int:id>", methods=["GET"])
@@ -424,8 +423,7 @@ def getOpportunityCards():
     if request.method == "GET":
         # query database for opportunity
         query = db.session.execute(
-            db.select(Opportunities)
-            .filter(Opportunities.active == True)
+            db.select(Opportunities).filter(Opportunities.active == True)
         )
 
         data = query.fetchall()
@@ -461,6 +459,7 @@ def getOpportunities():
         }
 
     abort(500)
+
 
 @main_blueprint.route("/getOpportunityByProfessor/<string:rcs_id>", methods=["GET"])
 def getOpportunityByProfessor(rcs_id: str):
@@ -570,7 +569,6 @@ def getProfileOpportunities(rcs_id: str):
         return cards
 
     abort(500)
-
 
 
 # functions to create/edit/delete opportunities
@@ -770,6 +768,7 @@ def editOpportunity():
         return "Successful"
 
     abort(500)
+
 
 @main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
 def deleteOpportunity():

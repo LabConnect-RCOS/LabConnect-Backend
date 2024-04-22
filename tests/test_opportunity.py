@@ -2,7 +2,6 @@
 Test opportunity routes
 """
 
-
 import json
 from flask import json
 from flask.testing import FlaskClient
@@ -115,7 +114,6 @@ def test_opportunity_incorrect_json(test_client: FlaskClient) -> None:
     response = test_client.get("/opportunity", json={"wrong": "wrong"})
 
     assert response.status_code == 400
-
 
 
 def test_get_opportunity_meta(test_client: FlaskClient) -> None:
