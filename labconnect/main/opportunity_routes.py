@@ -123,8 +123,8 @@ def packageIndividualOpportunity(opportunityInfo):
 
     data["department"] = queryInfo[0][1].department_id
 
-    for i in range(len(queryInfo)):
-        data["author"] += queryInfo[i][1].name
+    for i, item in enumerate(queryInfo):
+        data["author"] += item[1].name
         if i != len(queryInfo) - 1:
             data["author"] += ", "
 
@@ -153,8 +153,8 @@ def packageOpportunityCard(opportunity):
 
     professorInfo = ""
 
-    for i in range(len(data)):
-        professorInfo += data[i][1].name
+    for i, item in enumerate(data):
+        professorInfo += item[1].name
         if i != len(data) - 1:
             professorInfo += ", "
 
