@@ -18,3 +18,8 @@ drop:
 
 create:
 	python3 db_init.py create
+
+docker-build:
+	docker build -t labconnect-backend .
+	docker tag labconnect-backend enchanter77/labconnect-backend
+	docker push enchanter77/labconnect-backend
