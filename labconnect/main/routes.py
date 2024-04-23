@@ -175,10 +175,10 @@ def getSchoolsAndDepartments():
         data = query.all()
 
         dictionary = {}
-        for tuple in data:
-            if tuple[0].name not in dictionary:
-                dictionary[tuple[0].name] = []
-            dictionary[tuple[0].name].append(tuple[1].name)
+        for item in data:
+            if item[0].name not in dictionary:
+                dictionary[item[0].name] = []
+            dictionary[item[0].name].append(item[1].name)
 
         return dictionary
     abort(400)

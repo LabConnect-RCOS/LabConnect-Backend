@@ -71,18 +71,18 @@ def packageIndividualOpportunity(opportunityInfo):
     data["author"] = ""
     data["department"] = ""
 
-    credits = ""
+    opportunity_credits = ""
     if opportunityInfo.one_credit:
-        credits += "1, "
+        opportunity_credits += "1, "
     if opportunityInfo.two_credits:
-        credits += "2, "
+        opportunity_credits += "2, "
     if opportunityInfo.three_credits:
-        credits += "3, "
+        opportunity_credits += "3, "
     if opportunityInfo.four_credits:
-        credits += "4"
+        opportunity_credits += "4"
 
-    if credits != "":
-        credits += " credits"
+    if opportunity_credits != "":
+        opportunity_credits += " credits"
 
     data["aboutSection"] = [
         {
@@ -99,11 +99,11 @@ def packageIndividualOpportunity(opportunityInfo):
         },
     ]
 
-    if credits != "":
+    if opportunity_credits != "":
         data["aboutSection"].append(
             {
                 "title": "Credits",
-                "description": credits,
+                "description": opportunity_credits,
             }
         )
 
@@ -222,9 +222,9 @@ def filterOpportunities():
             .order_by(Opportunities.last_updated)
             .distinct()
         )
-        for filter in filters:
-            field = filter.get("field", None)
-            value = filter.get("value", None)
+        for given_filter in filters:
+            field = given_filter.get("field", None)
+            value = given_filter.get("value", None)
 
             if field and value:
 
@@ -508,7 +508,7 @@ def getProfessorOpportunityCards(rcs_id: str):
                 "attributes": [],
             }
 
-            if opportunity.pay != None and opportunity.pay > 0:
+            if opportunity.pay is not None and opportunity.pay > 0:
                 oppData["attributes"].append("Paid")
 
             if (
@@ -553,7 +553,7 @@ def getProfileOpportunities(rcs_id: str):
                 "activeStatus": opportunity.active,
             }
 
-            if opportunity.pay != None and opportunity.pay > 0:
+            if opportunity.pay is not None and opportunity.pay > 0:
                 oppData["attributes"].append("Paid")
             if (
                 opportunity.one_credit
