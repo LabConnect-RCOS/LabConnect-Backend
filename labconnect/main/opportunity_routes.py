@@ -575,7 +575,11 @@ def getProfileOpportunities(rcs_id: str):
 @main_blueprint.route("/createOpportunity", methods=["POST"])
 def createOpportunity():
     if request.method == "POST":
-        data = request.json
+        data = request.get_json()
+
+        if data is None:
+            abort(400)
+
         authorID = data["authorID"]
         newPostData = data
 
@@ -667,10 +671,8 @@ def createOpportunity():
 @main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
 def editOpportunity():
     if True:
-        data = request.json
+        data = request.get_json()
         id = data["id"]
-        # authToken = data["authToken"]
-        # authorID = data["authorID"]
         newPostData = data
 
         # query database to see if the credentials above match
@@ -711,9 +713,6 @@ def editOpportunity():
             four = True
 
         lenum = convert_to_enum(newPostData["location"])
-        print(newPostData["location"])
-        print("printing lenum")
-        print(lenum)
 
         # if match is found, edit the opportunity with the new data provided
         opportunity.name = newPostData["name"]
@@ -773,7 +772,11 @@ def editOpportunity():
 @main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
 def deleteOpportunity():
     if request.method in ["DELETE", "POST"]:
-        data = request.json
+        data = request.get_json()
+
+        if data is None:
+            abort(400)
+
         id = data["id"]
 
         query = db.session.execute(

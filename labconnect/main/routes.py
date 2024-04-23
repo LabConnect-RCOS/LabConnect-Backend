@@ -1,4 +1,3 @@
-import datetime
 from typing import Any
 
 from flask import abort, jsonify, request
@@ -122,10 +121,6 @@ def department():
 @main_blueprint.route("/discover")
 def discover():
     query = (
-        # db.session.query(Opportunities, Majors)
-        # .filter(Majors.major_code == "CSCI")
-        # .join(RecommendsMajors, Majors.major_code == RecommendsMajors.major_code)
-        # .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
         db.select(
             Opportunities.id,
             Opportunities.name,
@@ -137,7 +132,6 @@ def discover():
         .filter(Majors.code == "CSCI")
         .join(Opportunities, Opportunities.id == RecommendsMajors.opportunity_id)
         .join(Majors, RecommendsMajors.major_code == Majors.code)
-        # commented out code above needs fixing
     )
 
     return {
@@ -145,8 +139,6 @@ def discover():
             {
                 "title": "Nelson",
                 "major": "CS",
-                # "experience": "x",
-                # "description": "d",
                 "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
                 "credits": 4,
                 "pay": 9000.0,
@@ -154,8 +146,6 @@ def discover():
             {
                 "title": "Name",
                 "major": "Major",
-                # "experience": "XP",
-                # "description": "Hi",
                 "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
                 "credits": 3,
                 "pay": 123,
