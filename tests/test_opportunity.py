@@ -247,6 +247,7 @@ def test_create_opportunity(test_client: FlaskClient) -> None:
     )
 
     data = query.first()
+    assert data is not None
     id = data.id
 
     # delete the opportunity by sending request to deleteOpportunity
@@ -260,7 +261,7 @@ def test_create_opportunity(test_client: FlaskClient) -> None:
 
     # check that the opportunity was deleted
     query = db.session.query(Opportunities).filter(Opportunities.id == id)
-    assert query.first() == None
+    assert query.first() is None
 
 
 def test_professor_opportunity_cards(test_client: FlaskClient) -> None:
