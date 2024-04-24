@@ -102,7 +102,7 @@ def test_user_route_with_input_id_2(test_client: FlaskClient) -> None:
     assert json_data["id"] == 2
     assert json_data["first_name"] == "RCOS"
     assert json_data["last_name"] == "RCOS"
-    assert json_data["preferred_name"] == None
+    assert json_data["preferred_name"] is None
     assert json_data["email"] == "test@rpi.edu"
 
     departments_data = [
