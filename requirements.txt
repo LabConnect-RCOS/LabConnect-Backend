@@ -3,7 +3,7 @@ bcrypt==4.1.2
 blinker==1.8.1
 click==8.1.7
 coverage==7.5.0
-Flask-Cors==4.0.0
+Flask-Cors==4.0.1
 dnspython==2.6.1
 email_validator==2.1.1
 Flask==3.0.3
