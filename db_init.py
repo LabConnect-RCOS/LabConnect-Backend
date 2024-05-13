@@ -253,6 +253,7 @@ elif sys.argv[1] == "create":
 
         user_rows = (
             (
+                "cenzar",
                 "cenzar@rpi.edu",
                 "testpassworD1",
                 "Rafael",
@@ -261,6 +262,7 @@ elif sys.argv[1] == "create":
                 2025,
             ),
             (
+                "test",
                 "test@rpi.edu",
                 "testpassworD2",
                 "RCOS",
@@ -271,20 +273,21 @@ elif sys.argv[1] == "create":
         )
         for r in user_rows:
             row = User(
-                email=r[0],
-                password=bcrypt.generate_password_hash(r[1] + r[0]),
-                first_name=r[2],
-                last_name=r[3],
-                preferred_name=r[4],
-                class_year=r[5],
+                id=r[0],
+                email=r[1],
+                password=bcrypt.generate_password_hash(r[2] + r[1]),
+                first_name=r[3],
+                last_name=r[4],
+                preferred_name=r[5],
+                class_year=r[6],
             )
             db.session.add(row)
             db.session.commit()
 
         user_majors = (
-            (1, "MATH"),
-            (1, "CSCI"),
-            (2, "CSCI"),
+            ("cenzar", "MATH"),
+            ("cenzar", "CSCI"),
+            ("test", "CSCI"),
         )
 
         for r in user_majors:
@@ -293,9 +296,9 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         user_departments = (
-            (1, "Computer Science"),
-            (1, "Math"),
-            (2, "Computer Science"),
+            ("cenzar", "Computer Science"),
+            ("cenzar", "Math"),
+            ("test", "Computer Science"),
         )
 
         for r in user_departments:
@@ -304,9 +307,9 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         user_courses = (
-            (1, "CSCI2300", False),
-            (1, "CSCI4430", True),
-            (2, "CSCI2300", False),
+            ("cenzar", "CSCI2300", False),
+            ("cenzar", "CSCI4430", True),
+            ("test", "CSCI2300", False),
         )
 
         for r in user_courses:
@@ -315,10 +318,10 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         participates_rows = (
-            (1, 1),
-            (1, 2),
-            (2, 3),
-            (2, 4),
+            ("cenzar", 1),
+            ("cenzar", 2),
+            ("test", 3),
+            ("test", 4),
         )
 
         for r in participates_rows:

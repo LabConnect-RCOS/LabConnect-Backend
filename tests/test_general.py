@@ -86,3 +86,25 @@ def test_years_route(test_client: FlaskClient) -> None:
     assert response.status_code == 200
 
     assert [2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031] == json.loads(response.data)
+
+
+def test_professor_profile(test_client: FlaskClient) -> None:
+
+    response = test_client.get("/getProfessorProfile/cenzar")
+    assert response.status_code == 200
+
+    # Load the response data as JSON
+    data = json.loads(response.data)
+
+    # Test that the "name" key exists
+    assert "name" in data
+    assert "image" in data
+    assert "department" in data
+    assert "description" in data
+    assert "role" in data
+    assert "phone_number" in data
+    assert "email" in data
+    assert "alt_email" in data
+    assert "website" in data
+    assert "phone" in data
+    assert "role" in data
