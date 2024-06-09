@@ -20,6 +20,7 @@ from labconnect.models import (
     Leads,
     Majors,
     Opportunities,
+    Participates,
     RecommendsClassYears,
     RecommendsCourses,
     RecommendsMajors,
@@ -29,7 +30,6 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
-    Participates,
 )
 
 app = create_app()

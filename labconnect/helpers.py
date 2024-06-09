@@ -39,14 +39,17 @@ class LocationEnum(EnumPython):
 
 
 class OrJSONProvider(JSONProvider):
-    def dumps(self, obj, *, option=None, **kwargs):
+
+    @staticmethod
+    def dumps(obj, *, option=None, **kwargs):
         if option is None:
             option = orjson.OPT_APPEND_NEWLINE | orjson.OPT_NAIVE_UTC
         if isinstance(obj, set):
             return orjson.dumps(list(obj), option=option).decode()
         return orjson.dumps(obj, option=option).decode()
 
-    def loads(self, s, **kwargs):
+    @staticmethod
+    def loads(s, **kwargs):
         return orjson.loads(s)
 
 

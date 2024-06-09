@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 # Import Flask modules
 from flask import Flask
+from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import (
     JWTManager,
@@ -24,6 +25,7 @@ jwt = JWTManager()
 def create_app() -> Flask:
     # Create flask app object
     app = Flask(__name__)
+    CORS(app)
 
     app.config.from_object(os.environ.get("CONFIG", "config.TestingConfig"))
 
