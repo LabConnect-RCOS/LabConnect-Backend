@@ -18,8 +18,6 @@ def test_courses_route_with_input_name(test_client: FlaskClient) -> None:
 
     json_data = json.loads(response.data)
 
-    print(json_data)
-
     assert json_data[0]["code"] == "CSCI4390"
     assert json_data[0]["name"] == "Data Mining"
 
@@ -80,7 +78,5 @@ def test_courses_not_found(test_client: FlaskClient) -> None:
     THEN check that the response is valid
     """
     response = test_client.get("/courses", json={"input": "not found"})
-
-    print(json.loads(response.data))
 
     assert response.status_code == 404
