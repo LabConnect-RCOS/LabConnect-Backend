@@ -1,5 +1,4 @@
 from sqlalchemy import Enum
-from sqlalchemy.orm import relationship
 
 from labconnect import db
 from labconnect.helpers import CustomSerializerMixin, LocationEnum, SemesterEnum
@@ -41,13 +40,13 @@ class User(db.Model, CustomSerializerMixin):
         unique=False,
     )
 
-    saved_opportunities = relationship("UserSavedOpportunities", back_populates="user")
-    opportunities = relationship("Participates", back_populates="user")
-    year = relationship("ClassYears", back_populates="users")
-    departments = relationship("UserDepartments", back_populates="user")
-    majors = relationship("UserMajors", back_populates="user")
-    courses = relationship("UserCourses", back_populates="user")
-    lab_manager = relationship("LabManager", back_populates="user")
+    saved_opportunities = db.relationship("UserSavedOpportunities", back_populates="user")
+    # lab_manager = db.relationship("LabManager", back_populates="user")
+    opportunities = db.relationship("Participates", back_populates="user")
+    year = db.relationship("ClassYears", back_populates="users")
+    departments = db.relationship("UserDepartments", back_populates="user")
+    majors = db.relationship("UserMajors", back_populates="user")
+    courses = db.relationship("UserCourses", back_populates="user")
 
 
 # rpi_schools( name, description ), key: name
@@ -60,7 +59,7 @@ class RPISchools(db.Model, CustomSerializerMixin):
     name = db.Column(db.String(64), primary_key=True)
     description = db.Column(db.String(2000), nullable=True, unique=False)
 
-    departments = relationship("RPIDepartments", back_populates="school")
+    departments = db.relationship("RPIDepartments", back_populates="school")
 
 
 # rpi_departments( name, description ), key: name
@@ -76,9 +75,9 @@ class RPIDepartments(db.Model, CustomSerializerMixin):
 
     school_id = db.Column(db.String(64), db.ForeignKey("rpi_schools.name"))
 
-    school = relationship("RPISchools", back_populates="departments")
-    lab_managers = relationship("LabManager", back_populates="department")
-    users = relationship("UserDepartments", back_populates="department")
+    school = db.relationship("RPISchools", back_populates="departments")
+    lab_managers = db.relationship("LabManager", back_populates="department")
+    users = db.relationship("UserDepartments", back_populates="department")
 
 
 # lab_manager( rcs_id, name ), key: rcs_id
@@ -93,9 +92,9 @@ class LabManager(db.Model, CustomSerializerMixin):
     email = db.Column(db.String(64), nullable=True, unique=False)
     department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
 
-    user = relationship("User", back_populates="lab_manager")
-    department = relationship("RPIDepartments", back_populates="lab_managers")
-    opportunities = relationship(
+    user = db.relationship("User", back_populates="lab_manager")
+    department = db.relationship("RPIDepartments", back_populates="lab_managers")
+    opportunities = db.relationship(
         "Leads", back_populates="lab_manager", passive_deletes=True
     )
 
@@ -139,19 +138,19 @@ class Opportunities(db.Model, CustomSerializerMixin):
     last_updated = db.Column(db.DateTime, nullable=True, unique=False)
     location = db.Column(Enum(LocationEnum), nullable=True, unique=False)
 
-    lab_managers = relationship(
+    lab_managers = db.relationship(
         "Leads", back_populates="opportunity", passive_deletes=True
     )
-    users = relationship(
+    users = db.relationship(
         "Participates", back_populates="opportunity", passive_deletes=True
     )
-    courses = relationship(
+    courses = db.relationship(
         "RecommendsCourses", back_populates="opportunity", passive_deletes=True
     )
-    recommends_majors = relationship(
+    recommends_majors = db.relationship(
         "RecommendsMajors", back_populates="opportunity", passive_deletes=True
     )
-    recommends_class_years = relationship(
+    recommends_class_years = db.relationship(
         "RecommendsClassYears", back_populates="opportunity", passive_deletes=True
     )
     saved_opportunities = relationship(
@@ -169,10 +168,12 @@ class Courses(db.Model, CustomSerializerMixin):
     code = db.Column(db.String(8), primary_key=True)
     name = db.Column(db.String(128), nullable=True, unique=False)
 
-    opportunities = relationship(
+    opportunities = db.relationship(
         "RecommendsCourses", back_populates="course", passive_deletes=True
     )
-    users = relationship("UserCourses", back_populates="course", passive_deletes=True)
+    users = db.relationship(
+        "UserCourses", back_populates="course", passive_deletes=True
+    )
 
 
 # majors( code, name ), key: code
@@ -185,10 +186,10 @@ class Majors(db.Model, CustomSerializerMixin):
     code = db.Column(db.String(4), primary_key=True)
     name = db.Column(db.String(64), nullable=True, unique=False)
 
-    opportunities = relationship(
+    opportunities = db.relationship(
         "RecommendsMajors", back_populates="major", passive_deletes=True
     )
-    users = relationship("UserMajors", back_populates="major")
+    users = db.relationship("UserMajors", back_populates="major")
 
 
 # class_years( class_year ), key: class_year
@@ -201,10 +202,10 @@ class ClassYears(db.Model, CustomSerializerMixin):
     class_year = db.Column(db.Integer, primary_key=True)
     active = db.Column(db.Boolean)
 
-    opportunities = relationship(
+    opportunities = db.relationship(
         "RecommendsClassYears", back_populates="year", passive_deletes=True
     )
-    users = relationship("User", back_populates="year")
+    users = db.relationship("User", back_populates="year")
 
 
 # DD - Relationships
@@ -218,8 +219,8 @@ class UserDepartments(db.Model, CustomSerializerMixin):
         db.String(64), db.ForeignKey("rpi_departments.name"), primary_key=True
     )
 
-    user = relationship("User", back_populates="departments")
-    department = relationship("RPIDepartments", back_populates="users")
+    user = db.relationship("User", back_populates="departments")
+    department = db.relationship("RPIDepartments", back_populates="users")
 
 
 class UserMajors(db.Model, CustomSerializerMixin):
@@ -228,8 +229,8 @@ class UserMajors(db.Model, CustomSerializerMixin):
     user_id = db.Column(db.String(9), db.ForeignKey("user.id"), primary_key=True)
     major_code = db.Column(db.String(4), db.ForeignKey("majors.code"), primary_key=True)
 
-    user = relationship("User", back_populates="majors")
-    major = relationship("Majors", back_populates="users")
+    user = db.relationship("User", back_populates="majors")
+    major = db.relationship("Majors", back_populates="users")
 
 
 class UserCourses(db.Model, CustomSerializerMixin):
@@ -241,8 +242,8 @@ class UserCourses(db.Model, CustomSerializerMixin):
     )
     in_progress = db.Column(db.Boolean, nullable=False, default=False)
 
-    user = relationship("User", back_populates="courses")
-    course = relationship("Courses", back_populates="users")
+    user = db.relationship("User", back_populates="courses")
+    course = db.relationship("Courses", back_populates="users")
 
 
 class UserSavedOpportunities(db.Model):
@@ -277,8 +278,8 @@ class Leads(db.Model):
         primary_key=True,
     )
 
-    lab_manager = relationship("LabManager", back_populates="opportunities")
-    opportunity = relationship("Opportunities", back_populates="lab_managers")
+    lab_manager = db.relationship("LabManager", back_populates="opportunities")
+    opportunity = db.relationship("Opportunities", back_populates="lab_managers")
 
 
 class Participates(db.Model):
@@ -289,8 +290,8 @@ class Participates(db.Model):
         db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
     )
 
-    user = relationship("User", back_populates="opportunities")
-    opportunity = relationship("Opportunities", back_populates="users")
+    user = db.relationship("User", back_populates="opportunities")
+    opportunity = db.relationship("Opportunities", back_populates="users")
 
 
 class RecommendsCourses(db.Model):
@@ -307,8 +308,8 @@ class RecommendsCourses(db.Model):
         primary_key=True,
     )
 
-    opportunity = relationship("Opportunities", back_populates="courses")
-    course = relationship("Courses", back_populates="opportunities")
+    opportunity = db.relationship("Opportunities", back_populates="courses")
+    course = db.relationship("Courses", back_populates="opportunities")
 
 
 class RecommendsMajors(db.Model):
@@ -325,8 +326,8 @@ class RecommendsMajors(db.Model):
         primary_key=True,
     )
 
-    opportunity = relationship("Opportunities", back_populates="recommends_majors")
-    major = relationship("Majors", back_populates="opportunities")
+    opportunity = db.relationship("Opportunities", back_populates="recommends_majors")
+    major = db.relationship("Majors", back_populates="opportunities")
 
 
 class RecommendsClassYears(db.Model):
@@ -343,5 +344,7 @@ class RecommendsClassYears(db.Model):
         primary_key=True,
     )
 
-    opportunity = relationship("Opportunities", back_populates="recommends_class_years")
-    year = relationship("ClassYears", back_populates="opportunities")
+    opportunity = db.relationship(
+        "Opportunities", back_populates="recommends_class_years"
+    )
+    year = db.relationship("ClassYears", back_populates="opportunities")
