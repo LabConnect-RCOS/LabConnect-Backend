@@ -1,4 +1,3 @@
-import datetime
 from typing import Any
 
 from flask import abort, jsonify, request
@@ -11,7 +10,6 @@ from flask_jwt_extended import (
 )
 
 from labconnect import bcrypt, db
-from labconnect.helpers import SemesterEnum
 from labconnect.models import (
     ClassYears,
     Courses,
@@ -30,7 +28,6 @@ from labconnect.models import (
     UserDepartments,
     UserMajors,
 )
-from labconnect.helpers import LocationEnum, SemesterEnum
 
 from . import main_blueprint
 

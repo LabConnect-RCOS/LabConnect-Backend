@@ -1,35 +1,18 @@
-import datetime
-from typing import Any
-from unittest import result
-
-from flask import abort, request
 from flask_jwt_extended import (
-    create_access_token,
-    get_jwt,
     get_jwt_identity,
     jwt_required,
-    unset_jwt_cookies,
 )
 
-from labconnect import bcrypt, db
-from .discover_routes import *
-from labconnect.helpers import SemesterEnum
+from labconnect import db
 from labconnect.models import (
     ClassYears,
-    Courses,
     LabManager,
     Leads,
     Majors,
     Opportunities,
     RecommendsMajors,
-    RPIDepartments,
-    RPISchools,
     User,
-    UserCourses,
-    UserDepartments,
     UserMajors,
-    Participates,
-    RecommendsCourses,
     RecommendsClassYears,
 )
 
