@@ -1,5 +1,6 @@
 import datetime
 from typing import Any
+from unittest import result
 
 from flask import abort, request
 from flask_jwt_extended import (
@@ -37,8 +38,10 @@ from . import main_blueprint
 
 @main_blueprint.get("/discover")
 def discover():
-    result = discover_data(get_jwt_identity(), 5)
+    # result = discover_data(get_jwt_identity(), 5)
+    result = discover_data(None, 5)
     return result
+
 
 def discover_data(jwt_identity, limit):
     data = []
@@ -46,26 +49,42 @@ def discover_data(jwt_identity, limit):
         user = db.select(User).where(User.email == jwt_identity).first()
         query = (
             db.select(
-                Opportunities,
+                Opportunities.id,
+                Opportunities.name,
+                Opportunities.semester,
+                Opportunities.location,
+                LabManager.name,
             )
-            .where(
-                Opportunities.active == True
+            .where(Opportunities.active == True)
+            .join(
+                RecommendsClassYears,
+                Opportunities.id == RecommendsClassYears.class_year,
             )
-            .join(RecommendsClassYears, Opportunities.id == RecommendsClassYears.class_year)
             .join(ClassYears, RecommendsClassYears.class_year == ClassYears.class_year)
-            .where(
-                ClassYears.class_year == user.class_year
-            )
+            .where(ClassYears.class_year == user.class_year)
+            .join(Leads, Opportunities.id == Leads.opportunity_id)
+            .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
             .limit(limit)
             .order_by(Opportunities.last_updated.desc())
         )
 
-        majors = [Majors.code == user_major.major_code for user_major in db.select(UserMajors).where(UserMajors.user_id == user.id).scalars()]
+        majors = [
+            Majors.code == user_major.major_code
+            for user_major in db.select(UserMajors)
+            .where(UserMajors.user_id == user.id)
+            .scalars()
+        ]
         query = query.join(Majors, RecommendsMajors.major_code == Majors.code)
         query = query.where(db.or_(*majors))
 
         data = db.session.execute(query).scalars()
     if jwt_identity is None or data is None:
-        data = db.session.execute(db.select(Opportunities).where(Opportunities.active == True).limit(limit).order_by(Opportunities.last_updated.desc()))
+        data = db.session.execute(
+            db.select(Opportunities)
+            .where(Opportunities.active == True)
+            .limit(limit)
+            .order_by(Opportunities.last_updated.desc())
+        ).scalars()
+    
     result = [opportunity.to_dict() for opportunity in data]
     return result

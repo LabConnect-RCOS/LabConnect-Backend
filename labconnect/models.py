@@ -162,7 +162,9 @@ class Courses(db.Model, CustomSerializerMixin):
     opportunities = db.relationship(
         "RecommendsCourses", back_populates="course", passive_deletes=True
     )
-    users = db.relationship("UserCourses", back_populates="course", passive_deletes=True)
+    users = db.relationship(
+        "UserCourses", back_populates="course", passive_deletes=True
+    )
 
 
 # majors( code, name ), key: code
@@ -330,5 +332,7 @@ class RecommendsClassYears(db.Model):
         primary_key=True,
     )
 
-    opportunity = db.relationship("Opportunities", back_populates="recommends_class_years")
+    opportunity = db.relationship(
+        "Opportunities", back_populates="recommends_class_years"
+    )
     year = db.relationship("ClassYears", back_populates="opportunities")
