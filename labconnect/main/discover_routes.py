@@ -85,6 +85,6 @@ def discover_data(jwt_identity, limit):
             .limit(limit)
             .order_by(Opportunities.last_updated.desc())
         ).scalars()
-    
+
     result = [opportunity.to_dict() for opportunity in data]
     return result
