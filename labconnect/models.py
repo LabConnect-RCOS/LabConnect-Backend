@@ -41,7 +41,7 @@ class User(db.Model, CustomSerializerMixin):
     )
 
     saved_opportunities = db.relationship("UserSavedOpportunities", back_populates="user")
-    # lab_manager = db.relationship("LabManager", back_populates="user")
+    lab_manager = db.relationship("LabManager", back_populates="user")
     opportunities = db.relationship("Participates", back_populates="user")
     year = db.relationship("ClassYears", back_populates="users")
     departments = db.relationship("UserDepartments", back_populates="user")
@@ -153,7 +153,7 @@ class Opportunities(db.Model, CustomSerializerMixin):
     recommends_class_years = db.relationship(
         "RecommendsClassYears", back_populates="opportunity", passive_deletes=True
     )
-    saved_opportunities = relationship(
+    saved_opportunities = db.relationship(
         "UserSavedOpportunities", back_populates="opportunity", passive_deletes=True
     )
 
@@ -254,8 +254,8 @@ class UserSavedOpportunities(db.Model):
         db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
     )
 
-    user = relationship("User", back_populates="saved_opportunities")
-    opportunity = relationship("Opportunities", back_populates="saved_opportunities")
+    user = db.relationship("User", back_populates="saved_opportunities")
+    opportunity = db.relationship("Opportunities", back_populates="saved_opportunities")
 
 
 class Leads(db.Model):
