@@ -45,17 +45,17 @@ def positions():
 @main_blueprint.get("/profile")
 def profile():
     request_data = request.get_json()
-    rcs_id = request_data.get("rcs_id", None)
+    id = request_data.get("id", None)
 
-    lab_manager = db.first_or_404(
-        db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
-    )
+    # TODO: Fix to a join query
+    lab_manager = db.first_or_404(db.select(LabManager).where(LabManager.id == id))
+    user = db.first_or_404(db.select(User).where(User.lab_manager_id == id))
 
-    result = lab_manager.to_dict()
+    result = lab_manager.to_dict() | user.to_dict()
 
     data = db.session.execute(
         db.select(Opportunities, Leads)
-        .filter(Leads.lab_manager_rcs_id == rcs_id)
+        .where(Leads.lab_manager_id == lab_manager.id)
         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
     ).scalars()
 
@@ -87,7 +87,7 @@ def department():
     result = department_data.to_dict()
 
     prof_data = db.session.execute(
-        db.select(LabManager).where(LabManager.department_id == department)
+        db.select(LabManager.id, User.preferred_name, User.last_name, User.id.label("rcs_id")).where(LabManager.department_id == department).join(User, LabManager.id == User.lab_manager_id)
     ).scalars()
 
     query = (
@@ -95,7 +95,7 @@ def department():
         .where(Opportunities.active == True)
         .limit(20)
         .join(Leads, Opportunities.id == Leads.opportunity_id)
-        .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+        .join(LabManager, Leads.lab_manager_id == LabManager.id)
         .distinct()
     )
 
@@ -103,8 +103,8 @@ def department():
     where_conditions = []
 
     for prof in prof_data:
-        professors.append({"name": prof.name, "rcs_id": prof.rcs_id})
-        where_conditions.append(LabManager.rcs_id == prof.rcs_id)
+        professors.append(prof.to_dict())
+        where_conditions.append(LabManager.id == prof.id)
 
     result["professors"] = professors
 
@@ -119,52 +119,48 @@ def department():
 
 @main_blueprint.route("/getSchoolsAndDepartments/", methods=["GET"])
 def getSchoolsAndDepartments():
-    if request.method == "GET":
-        query = db.session.execute(
-            db.select(RPISchools, RPIDepartments).join(
-                RPIDepartments, RPISchools.name == RPIDepartments.school_id
-            )
+    data = db.session.execute(
+        db.select(RPISchools, RPIDepartments).join(
+            RPIDepartments, RPISchools.name == RPIDepartments.school_id
         )
-        data = query.all()
+    ).scalars()
 
-        dictionary = {}
-        for item in data:
-            if item[0].name not in dictionary:
-                dictionary[item[0].name] = []
-            dictionary[item[0].name].append(item[1].name)
+    dictionary = {}
+    for item in data:
+        if item[0].name not in dictionary:
+            dictionary[item[0].name] = []
+        dictionary[item[0].name].append(item[1].name)
 
-        return dictionary
-    abort(400)
+    return dictionary
 
 
 @main_blueprint.route("/getOpportunitiesRaw/<int:id>", methods=["GET"])
 def getOpportunitiesRaw(id: int):
-    if request.method == "GET":
-        query = db.session.execute(
-            db.select(
-                Opportunities,
-                Leads,
-                LabManager,
-                RecommendsMajors,
-                RecommendsCourses,
-                RecommendsClassYears,
-            )
-            .filter(Opportunities.id == id)
-            .join(Leads, Leads.opportunity_id == Opportunities.id)
-            .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
-            .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-            .join(
-                RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
-            )
-            .join(
-                RecommendsClassYears,
-                RecommendsClassYears.opportunity_id == Opportunities.id,
-            )
+    data = db.session.execute(
+        db.select(
+            Opportunities,
+            Leads,
+            LabManager,
+            RecommendsMajors,
+            RecommendsCourses,
+            RecommendsClassYears,
         )
-        data = query.all()
-        print(data)
+        .where(Opportunities.id == id)
+        .join(Leads, Leads.opportunity_id == Opportunities.id)
+        .join(LabManager, Leads.lab_manager_id == LabManager.id)
+        .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
+        .join(
+            RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
+        )
+        .join(
+            RecommendsClassYears,
+            RecommendsClassYears.opportunity_id == Opportunities.id,
+        )
+    ).scalars()
 
-        return {"data": "check terminal"}
+    opportunities = [opportunity.to_dict() for opportunity in data]
+
+    return {"data": opportunities}
 
 
 @main_blueprint.get("/lab_manager")
@@ -182,34 +178,33 @@ def getLabManagers():
     if not rcs_id:
         abort(400)
 
-    data = db.first_or_404(db.select(LabManager).where(LabManager.rcs_id == rcs_id))
+    data = db.first_or_404(db.select(LabManager).where(LabManager.id == rcs_id))
 
     result = data.to_dict()
 
     return result
 
 
-@main_blueprint.route("/getProfessorProfile/<string:rcs_id>", methods=["GET"])
-def getProfessorProfile(rcs_id: str):
+@main_blueprint.route("/getProfessorProfile/<int:id>", methods=["GET"])
+def getProfessorProfile(id: int):
     # test code until database code is added
-    query = db.session.execute(
-        db.select(LabManager).filter(LabManager.rcs_id == rcs_id)
+
+    # TODO: Use JOIN query
+    lab_manager = db.first_or_404(
+        db.select(LabManager).where(LabManager.id == id)
+    )
+    user = db.first_or_404(
+        db.select(User).where(User.lab_manager_id == id)
     )
 
-    data = query.all()
-    data = data[0][0]
-    dictionary = data.to_dict()
-    dictionary.pop("rcs_id")
+    dictionary = lab_manager.to_dict() | user.to_dict()
     dictionary["image"] = (
         "https://cdn.dribbble.com/users/2033319/screenshots/12591684/media/0557608c87ed8c5a80bd5faa48c3cd71.png"
     )
-    dictionary["department"] = data.department_id
-    dictionary["email"] = data.rcs_id + "@rpi.edu"
     dictionary["role"] = "admin"
     dictionary["description"] = (
         "I am the evil professor Doofenshmirtz. I am a professor at RPI and I am looking for students to help me with my evil schemes"
     )
-    dictionary["phone"] = "123-456-7890"
     return dictionary
 
 
@@ -225,8 +220,8 @@ def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
 
     data = db.session.execute(
         db.select(Opportunities, LabManager)
-        .filter(LabManager.rcs_id == rcs_id)
-        .join(Leads, LabManager.rcs_id == Leads.lab_manager_rcs_id)
+        .where(LabManager.id == rcs_id)
+        .join(Leads, LabManager.id == Leads.lab_manager_id)
         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         .order_by(Opportunities.id)
     ).scalars()
@@ -247,20 +242,19 @@ def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
 def getProfessorCookies(id: str):
     # this is already restricted to "GET" requests
 
-    query = db.session.execute(db.select(LabManager).filter(LabManager.rcs_id == id))
+    # TODO: Use JOIN query
+    lab_manager = db.first_or_404(
+        db.select(LabManager).where(LabManager.id == id)
+    )
+    user = db.first_or_404(
+        db.select(User).where(User.lab_manager_id == id)
+    )
 
-    data = query.all()
-    data = data[0][0]
-    # print(data)
-    dictionary = data.to_dict()
-    dictionary["id"] = data.rcs_id
-    dictionary["department"] = data.department_id
+    dictionary = lab_manager.to_dict() | user.to_dict()
+
     dictionary["role"] = "admin"
     dictionary["researchCenter"] = "AI"
     dictionary["loggedIn"] = True
-
-    # remove rcs_id from dictionary
-    dictionary.pop("rcs_id")
 
     return dictionary
 
@@ -268,23 +262,14 @@ def getProfessorCookies(id: str):
 @main_blueprint.route("/changeActiveStatus", methods=["DELETE", "POST"])
 def changeActiveStatus():
     if request.method in ["POST"]:
-        data = request.json
+        data = request.get_json()
         postID = data["oppID"]
-        authToken = data["authToken"]
         setStatus = data["setStatus"]
 
         # query database to see if the credentials above match
-        query = db.session.execute(
-            db.select(Opportunities).filter(Opportunities.id == postID)
+        data = db.first_or_404(
+            db.select(Opportunities).where(Opportunities.id == postID)
         )
-
-        data = query.all()
-        print(data)
-
-        if not data or len(data) == 0:
-            abort(404)
-
-        data = data[0][0]
 
         data.active = setStatus
 
@@ -530,18 +515,18 @@ def user():
         abort(400)
 
     # Query for user
-    user = db.first_or_404(db.select(User).filter(User.id == id))
+    user = db.first_or_404(db.select(User).where(User.id == id))
     result = user.to_dict()
 
     # Query for user's department(s)
     user_departments = db.session.execute(
-        db.select(UserDepartments).filter(UserDepartments.user_id == id)
+        db.select(UserDepartments).where(UserDepartments.user_id == id)
     ).scalars()
     result["departments"] = [dept.to_dict() for dept in user_departments]
 
     # Query for user's major(s)
     user_majors = db.session.execute(
-        db.select(UserMajors).filter(UserMajors.user_id == id)
+        db.select(UserMajors).where(UserMajors.user_id == id)
     ).scalars()
     result["majors"] = [major.to_dict() for major in user_majors]
 
@@ -549,14 +534,14 @@ def user():
     user_courses = db.session.execute(
         db.select(UserCourses)
         .order_by(UserCourses.in_progress)
-        .filter(UserCourses.user_id == id)
+        .where(UserCourses.user_id == id)
     ).scalars()
     result["courses"] = [course.to_dict() for course in user_courses]
 
     # Query for user's opportunities
     user_opportunities = db.session.execute(
         db.select(Opportunities, Participates)
-        .filter(Participates.user_id == id)
+        .where(Participates.user_id == id)
         .join(Opportunities, Participates.opportunity_id == Opportunities.id)
         .order_by(Opportunities.active.desc())
     ).scalars()
