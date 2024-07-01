@@ -15,7 +15,10 @@ class User(db.Model, CustomSerializerMixin):
         "first_name",
         "last_name",
         "preferred_name",
+        "phone_number",
+        "website",
         "class_year",
+        "lab_manager_id",
     )
     serialize_rules = ()
 
@@ -26,16 +29,16 @@ class User(db.Model, CustomSerializerMixin):
     last_name = db.Column(db.String(200), nullable=False, unique=False)
     preferred_name = db.Column(db.String(50), nullable=True, unique=False)
     phone_number = db.Column(db.String(15), nullable=True, unique=False)
-    website = db.Column(db.String(128), nullable=True, unique=False)
+    website = db.Column(db.String(512), nullable=True, unique=False)
     class_year = db.Column(
         db.Integer,
         db.ForeignKey("class_years.class_year"),
-        nullable=False,
+        nullable=True,
         unique=False,
     )
     lab_manager_id = db.Column(
         db.Integer,
-        db.ForeignKey("lab_manager.rcs_id"),
+        db.ForeignKey("lab_manager.id"),
         nullable=True,
         unique=False,
     )
@@ -47,6 +50,23 @@ class User(db.Model, CustomSerializerMixin):
     departments = db.relationship("UserDepartments", back_populates="user")
     majors = db.relationship("UserMajors", back_populates="user")
     courses = db.relationship("UserCourses", back_populates="user")
+
+
+# lab_manager( id, name ), key: id
+class LabManager(db.Model, CustomSerializerMixin):
+    __tablename__ = "lab_manager"
+
+    serialize_only = ("id", "department_id")
+    serialize_rules = ()
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
+
+    user = db.relationship("User", back_populates="lab_manager")
+    department = db.relationship("RPIDepartments", back_populates="lab_managers")
+    opportunities = db.relationship(
+        "Leads", back_populates="lab_manager", passive_deletes=True
+    )
 
 
 # rpi_schools( name, description ), key: name
@@ -78,25 +98,6 @@ class RPIDepartments(db.Model, CustomSerializerMixin):
     school = db.relationship("RPISchools", back_populates="departments")
     lab_managers = db.relationship("LabManager", back_populates="department")
     users = db.relationship("UserDepartments", back_populates="department")
-
-
-# lab_manager( rcs_id, name ), key: rcs_id
-class LabManager(db.Model, CustomSerializerMixin):
-    __tablename__ = "lab_manager"
-
-    serialize_only = ("rcs_id", "name", "email", "alt_email", "phone_number", "website")
-    serialize_rules = ()
-
-    rcs_id = db.Column(db.String(9), primary_key=True)
-    name = db.Column(db.String(64), nullable=True, unique=False)
-    email = db.Column(db.String(64), nullable=True, unique=False)
-    department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
-
-    user = db.relationship("User", back_populates="lab_manager")
-    department = db.relationship("RPIDepartments", back_populates="lab_managers")
-    opportunities = db.relationship(
-        "Leads", back_populates="lab_manager", passive_deletes=True
-    )
 
 
 # opportunities( id, name, description, active_status, recommended_experience ), key: id
@@ -261,12 +262,12 @@ class UserSavedOpportunities(db.Model):
 class Leads(db.Model):
     __tablename__ = "leads"
 
-    serialize_only = ("lab_manager_rcs_id", "opportunity_id")
+    serialize_only = ("lab_manager_id", "opportunity_id")
     serialize_rules = ()
 
-    lab_manager_rcs_id = db.Column(
-        db.String(9),
-        db.ForeignKey("lab_manager.rcs_id", ondelete="CASCADE"),
+    lab_manager_id = db.Column(
+        db.Integer,
+        db.ForeignKey("lab_manager.id", ondelete="CASCADE"),
         primary_key=True,
     )
     opportunity_id = db.Column(
