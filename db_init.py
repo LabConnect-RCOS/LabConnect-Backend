@@ -79,20 +79,62 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         lab_manager_rows = (
-            ("led", "Duy Le", "Computer Science"),
-            ("cenzar", "Rafael", "Computer Science"),
-            ("turner", "Turner", "Computer Science"),
-            ("kuzmin", "Kuzmin", "Computer Science"),
-            ("goldd", "Goldschmidt", "Computer Science"),
-            ("rami", "Rami", "Material Science"),
-            ("holm", "Holmes", "Math"),
+            ("led", "Duy", "Le", "Computer Science"),
+            ("turner", "Wes", "Turner", "Computer Science"),
+            ("kuzmin", "Konstantine", "Kuzmin", "Computer Science"),
+            ("goldd", "David", "Goldschmidt", "Computer Science"),
+            ("rami", "Rami", "Rami", "Material Science"),
+            ("holm", "Mark", "Holmes", "Math"),
         )
 
+        raf_test_user = (
+            "cenzar",
+            "testpassworD1",
+            "Rafael",
+            "Cenzano",
+            "Raf",
+            2025,
+            "Computer Science",
+        )
+
+        lab_manager = LabManager(
+            department_id=raf_test_user[6]
+        )
+
+        db.session.add(lab_manager)
+        db.session.commit()
+
+        user = User(
+            id=raf_test_user[0],
+            email=raf_test_user[0] + "@rpi.edu",
+            password=bcrypt.generate_password_hash(raf_test_user[1] + raf_test_user[0] + "@rpi.edu"),
+            first_name=raf_test_user[2],
+            last_name=raf_test_user[3],
+            preferred_name=raf_test_user[4],
+            class_year=raf_test_user[5],
+            lab_manager_id=lab_manager.id,
+        )
+        
+        db.session.add(user)
+        db.session.commit()
+
         for row_tuple in lab_manager_rows:
-            row = LabManager(
-                rcs_id=row_tuple[0], name=row_tuple[1], department_id=row_tuple[2]
+            lab_manager = LabManager(
+                department_id=row_tuple[3]
             )
-            db.session.add(row)
+
+            db.session.add(lab_manager)
+            db.session.commit()
+
+            user = User(
+                id=row_tuple[0],
+                email=row_tuple[0] + "@rpi.edu",
+                password=bcrypt.generate_password_hash(row_tuple[0] + "@rpi.edu"),
+                first_name=row_tuple[1],
+                last_name=row_tuple[2],
+                lab_manager_id=lab_manager.id,
+            )
+            db.session.add(user)
             db.session.commit()
 
         opportunities_rows = (
@@ -218,15 +260,15 @@ elif sys.argv[1] == "create":
         # https://www.tutorialspoint.com/handling-timezone-in-python
 
         leads_rows = (
-            ("led", 1),
-            ("cenzar", 1),
-            ("cenzar", 2),
-            ("rami", 3),
-            ("holm", 4),
+            (2, 1),
+            (1, 1),
+            (2, 2),
+            (1, 3),
+            (4, 4),
         )
 
         for r in leads_rows:
-            row = Leads(lab_manager_rcs_id=r[0], opportunity_id=r[1])
+            row = Leads(lab_manager_id=r[0], opportunity_id=r[1])
             db.session.add(row)
             db.session.commit()
 
@@ -253,15 +295,6 @@ elif sys.argv[1] == "create":
 
         user_rows = (
             (
-                "cenzar",
-                "cenzar@rpi.edu",
-                "testpassworD1",
-                "Rafael",
-                "Cenzano",
-                "Raf",
-                2025,
-            ),
-            (
                 "test",
                 "test@rpi.edu",
                 "testpassworD2",
@@ -269,6 +302,24 @@ elif sys.argv[1] == "create":
                 "RCOS",
                 None,
                 2028,
+            ),
+            (
+                "test2",
+                "test2@rpi.edu",
+                "testpassworD3",
+                "RCOS",
+                "RCOS",
+                None,
+                2029,
+            ),
+            (
+                "test3",
+                "test3@rpi.edu",
+                "testpassworD4",
+                "RCOS",
+                "RCOS",
+                None,
+                2025,
             ),
         )
         for r in user_rows:
