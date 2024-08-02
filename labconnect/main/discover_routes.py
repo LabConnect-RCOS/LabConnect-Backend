@@ -36,7 +36,7 @@ def discover_data(jwt_identity, limit):
                 Opportunities.name,
                 Opportunities.semester,
                 Opportunities.location,
-                LabManager.name,
+                LabManager.id.label("lab_manager_id"),
             )
             .where(Opportunities.active == True)
             .join(
@@ -46,7 +46,7 @@ def discover_data(jwt_identity, limit):
             .join(ClassYears, RecommendsClassYears.class_year == ClassYears.class_year)
             .where(ClassYears.class_year == user.class_year)
             .join(Leads, Opportunities.id == Leads.opportunity_id)
-            .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+            .join(LabManager, Leads.lab_manager_id == LabManager.id)
             .limit(limit)
             .order_by(Opportunities.last_updated.desc())
         )

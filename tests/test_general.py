@@ -43,13 +43,13 @@ def test_profile_page(test_client: FlaskClient) -> None:
     WHEN the '/profile/<user>' page is requested (GET)
     THEN check that the response is valid
     """
-    response = test_client.get("/profile", json={"rcs_id": "cenzar"})
+    response = test_client.get("/profile", json={"id": 1})
 
     assert response.status_code == 200
 
     json_data = json.loads(response.data)
-    assert json_data["rcs_id"] == "cenzar"
-    assert json_data["name"] == "Rafael"
+    assert json_data["id"] == "cenzar"
+    assert json_data["first_name"] == "Rafael"
     assert json_data["opportunities"] != []
 
 
@@ -86,3 +86,23 @@ def test_years_route(test_client: FlaskClient) -> None:
     assert response.status_code == 200
 
     assert [2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031] == json.loads(response.data)
+
+
+def test_professor_profile(test_client: FlaskClient) -> None:
+
+    response = test_client.get("/getProfessorProfile/1")
+    assert response.status_code == 200
+
+    # Load the response data as JSON
+    data = json.loads(response.data)
+    print(data)
+
+    # Test that the "name" key exists
+    assert data["first_name"] == "Rafael"
+    assert data["last_name"] == "Cenzano"
+    assert data["preferred_name"] == "Raf"
+    assert data["email"] == "cenzar@rpi.edu"
+    assert data["department_id"] == "Computer Science"
+    assert data["id"] == "cenzar"
+    assert "phone_number" in data
+    assert "website" in data

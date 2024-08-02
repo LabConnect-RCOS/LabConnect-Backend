@@ -2,11 +2,8 @@ import datetime
 
 from flask import abort, request
 from flask_jwt_extended import (
-    create_access_token,
-    get_jwt,
     get_jwt_identity,
     jwt_required,
-    unset_jwt_cookies,
 )
 
 from labconnect import db
@@ -19,7 +16,7 @@ from labconnect.models import (
     RecommendsCourses,
 )
 
-from labconnect.helpers import LocationEnum, SemesterEnum
+from labconnect.helpers import LocationEnum
 
 from . import main_blueprint
 
@@ -111,8 +108,8 @@ def packageIndividualOpportunity(opportunityInfo):
 
     query = db.session.execute(
         db.select(Leads, LabManager)
-        .filter(Leads.opportunity_id == opportunityInfo.id)
-        .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+        .where(Leads.opportunity_id == opportunityInfo.id)
+        .join(LabManager, Leads.lab_manager_id == LabManager.id)
     )
 
     queryInfo = query.all()
@@ -145,8 +142,8 @@ def packageOpportunityCard(opportunity):
     # get professor and department by getting Leads and LabManager
     query = db.session.execute(
         db.select(Leads, LabManager)
-        .filter(Leads.opportunity_id == opportunity.id)
-        .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+        .where(Leads.opportunity_id == opportunity.id)
+        .join(LabManager, Leads.lab_manager_id == LabManager.id)
     )
 
     data = query.all()
@@ -174,7 +171,7 @@ def packageOpportunityCard(opportunity):
 def getOpportunity(opp_id: int):
     # query database for opportunity
     query = db.session.execute(
-        db.select(Opportunities).filter(Opportunities.id == opp_id)
+        db.select(Opportunities).where(Opportunities.id == opp_id)
     )
 
     data = query.all()
@@ -287,7 +284,7 @@ def filterOpportunities():
 
                     query = (
                         query.join(Leads, Opportunities.id == Leads.opportunity_id)
-                        .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+                        .join(LabManager, Leads.lab_manager_id == LabManager.id)
                         .where(LabManager.department_id.in_(value))
                     )
 
@@ -360,7 +357,7 @@ def getOpportunityMeta(id: int):
             db.select(
                 Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
             )
-            .filter(Opportunities.id == id)
+            .where(Opportunities.id == id)
             .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
             .join(
                 RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
@@ -423,7 +420,7 @@ def getOpportunityCards():
     if request.method == "GET":
         # query database for opportunity
         query = db.session.execute(
-            db.select(Opportunities).filter(Opportunities.active == True)
+            db.select(Opportunities).where(Opportunities.active == True)
         )
 
         data = query.fetchall()
@@ -445,7 +442,7 @@ def getOpportunities():
         query = db.session.execute(
             db.select(Opportunities, Leads, LabManager)
             .join(Leads, Leads.opportunity_id == Opportunities.id)
-            .join(LabManager, Leads.lab_manager_rcs_id == LabManager.rcs_id)
+            .join(LabManager, Leads.lab_manager_id == LabManager.id)
         )
         data = query.all()
         print(data[0])
@@ -467,7 +464,7 @@ def getOpportunityByProfessor(rcs_id: str):
         # query database for opportunity
         query = db.session.execute(
             db.select(Opportunities, Leads)
-            .filter(Leads.lab_manager_rcs_id == rcs_id)
+            .where(Leads.lab_manager_id == rcs_id)
             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         )
 
@@ -487,7 +484,7 @@ def getProfessorOpportunityCards(rcs_id: str):
 
         query = db.session.execute(
             db.select(Opportunities, Leads)
-            .filter(Leads.lab_manager_rcs_id == rcs_id)
+            .where(Leads.lab_manager_id == rcs_id)
             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         )
 
@@ -534,7 +531,7 @@ def getProfileOpportunities(rcs_id: str):
 
         query = db.session.execute(
             db.select(Opportunities, Leads)
-            .filter(Leads.lab_manager_rcs_id == rcs_id)
+            .where(Leads.lab_manager_id == rcs_id)
             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         )
 
@@ -575,13 +572,13 @@ def getProfileOpportunities(rcs_id: str):
 @main_blueprint.route("/createOpportunity", methods=["POST"])
 def createOpportunity():
     if request.method == "POST":
-        data = request.json
+        data = request.get_json()
         authorID = data["authorID"]
         newPostData = data
 
         # query database to see if the credentials above match
         query = db.session.execute(
-            db.select(LabManager).filter(LabManager.rcs_id == authorID)
+            db.select(LabManager).where(LabManager.id == authorID)
         )
 
         data = query.all()[0][0]
@@ -631,7 +628,7 @@ def createOpportunity():
 
         print("got here atleast")
 
-        newLead = Leads(lab_manager_rcs_id=authorID, opportunity_id=newOpportunity.id)
+        newLead = Leads(lab_manager_id=authorID, opportunity_id=newOpportunity.id)
 
         db.session.add(newLead)
         db.session.commit()
@@ -667,7 +664,7 @@ def createOpportunity():
 @main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
 def editOpportunity():
     if True:
-        data = request.json
+        data = request.get_json()
         id = data["id"]
         # authToken = data["authToken"]
         # authorID = data["authorID"]
@@ -678,7 +675,7 @@ def editOpportunity():
             db.select(
                 Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
             )
-            .filter(Opportunities.id == id)
+            .where(Opportunities.id == id)
             .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
             .join(
                 RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
@@ -773,7 +770,7 @@ def editOpportunity():
 @main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
 def deleteOpportunity():
     if request.method in ["DELETE", "POST"]:
-        data = request.json
+        data = request.get_json()
         id = data["id"]
 
         query = db.session.execute(
@@ -784,7 +781,7 @@ def deleteOpportunity():
                 RecommendsClassYears,
                 Leads,
             )
-            .filter(Opportunities.id == id)
+            .where(Opportunities.id == id)
             .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
             .join(
                 RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id

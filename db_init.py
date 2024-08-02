@@ -9,9 +9,7 @@ Then pass an Executable into Session.execute()
 import sys
 from datetime import date, datetime
 
-from sqlalchemy import inspect, select
-
-from labconnect import bcrypt, create_app, db
+from labconnect import create_app, db
 from labconnect.helpers import LocationEnum, SemesterEnum
 from labconnect.models import LabManager  # Professors and Grad students
 from labconnect.models import (
@@ -81,20 +79,55 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         lab_manager_rows = (
-            ("led", "Duy Le", "Computer Science"),
-            ("cenzar", "Rafael", "Computer Science"),
-            ("turner", "Turner", "Computer Science"),
-            ("kuzmin", "Kuzmin", "Computer Science"),
-            ("goldd", "Goldschmidt", "Computer Science"),
-            ("rami", "Rami", "Material Science"),
-            ("holm", "Holmes", "Math"),
+            ("led", "Duy", "Le", "Computer Science"),
+            ("turner", "Wes", "Turner", "Computer Science"),
+            ("kuzmin", "Konstantine", "Kuzmin", "Computer Science"),
+            ("goldd", "David", "Goldschmidt", "Computer Science"),
+            ("rami", "Rami", "Rami", "Material Science"),
+            ("holm", "Mark", "Holmes", "Math"),
         )
 
+        raf_test_user = (
+            "cenzar",
+            "Rafael",
+            "Cenzano",
+            "Raf",
+            2025,
+            "Computer Science",
+        )
+
+        lab_manager = LabManager(department_id=raf_test_user[5])
+
+        db.session.add(lab_manager)
+        db.session.commit()
+
+        user = User(
+            id=raf_test_user[0],
+            email=raf_test_user[0] + "@rpi.edu",
+            first_name=raf_test_user[1],
+            last_name=raf_test_user[2],
+            preferred_name=raf_test_user[3],
+            class_year=raf_test_user[4],
+            lab_manager_id=lab_manager.id,
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
         for row_tuple in lab_manager_rows:
-            row = LabManager(
-                rcs_id=row_tuple[0], name=row_tuple[1], department_id=row_tuple[2]
+            lab_manager = LabManager(department_id=row_tuple[3])
+
+            db.session.add(lab_manager)
+            db.session.commit()
+
+            user = User(
+                id=row_tuple[0],
+                email=row_tuple[0] + "@rpi.edu",
+                first_name=row_tuple[1],
+                last_name=row_tuple[2],
+                lab_manager_id=lab_manager.id,
             )
-            db.session.add(row)
+            db.session.add(user)
             db.session.commit()
 
         opportunities_rows = (
@@ -220,15 +253,15 @@ elif sys.argv[1] == "create":
         # https://www.tutorialspoint.com/handling-timezone-in-python
 
         leads_rows = (
-            ("led", 1),
-            ("cenzar", 1),
-            ("cenzar", 2),
-            ("rami", 3),
-            ("holm", 4),
+            (2, 1),
+            (1, 1),
+            (2, 2),
+            (1, 3),
+            (4, 4),
         )
 
         for r in leads_rows:
-            row = Leads(lab_manager_rcs_id=r[0], opportunity_id=r[1])
+            row = Leads(lab_manager_id=r[0], opportunity_id=r[1])
             db.session.add(row)
             db.session.commit()
 
@@ -255,26 +288,34 @@ elif sys.argv[1] == "create":
 
         user_rows = (
             (
-                "cenzar@rpi.edu",
-                "testpassworD1",
-                "Rafael",
-                "Cenzano",
-                "Raf",
-                2025,
-            ),
-            (
+                "test",
                 "test@rpi.edu",
-                "testpassworD2",
                 "RCOS",
                 "RCOS",
                 None,
                 2028,
             ),
+            (
+                "test2",
+                "test2@rpi.edu",
+                "RCOS",
+                "RCOS",
+                None,
+                2029,
+            ),
+            (
+                "test3",
+                "test3@rpi.edu",
+                "RCOS",
+                "RCOS",
+                None,
+                2025,
+            ),
         )
         for r in user_rows:
             row = User(
-                email=r[0],
-                password=bcrypt.generate_password_hash(r[1] + r[0]),
+                id=r[0],
+                email=r[1],
                 first_name=r[2],
                 last_name=r[3],
                 preferred_name=r[4],
@@ -284,9 +325,9 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         user_majors = (
-            (1, "MATH"),
-            (1, "CSCI"),
-            (2, "CSCI"),
+            ("cenzar", "MATH"),
+            ("cenzar", "CSCI"),
+            ("test", "CSCI"),
         )
 
         for r in user_majors:
@@ -295,9 +336,9 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         user_departments = (
-            (1, "Computer Science"),
-            (1, "Math"),
-            (2, "Computer Science"),
+            ("cenzar", "Computer Science"),
+            ("cenzar", "Math"),
+            ("test", "Computer Science"),
         )
 
         for r in user_departments:
@@ -306,9 +347,9 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         user_courses = (
-            (1, "CSCI2300", False),
-            (1, "CSCI4430", True),
-            (2, "CSCI2300", False),
+            ("cenzar", "CSCI2300", False),
+            ("cenzar", "CSCI4430", True),
+            ("test", "CSCI2300", False),
         )
 
         for r in user_courses:
@@ -317,10 +358,10 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         participates_rows = (
-            (1, 1),
-            (1, 2),
-            (2, 3),
-            (2, 4),
+            ("cenzar", 1),
+            ("cenzar", 2),
+            ("test", 3),
+            ("test", 4),
         )
 
         for r in participates_rows:
@@ -331,10 +372,10 @@ elif sys.argv[1] == "create":
         tables = [
             ClassYears,
             Courses,
-            LabManager,
             Leads,
             Majors,
             Opportunities,
+            Participates,
             RecommendsClassYears,
             RecommendsCourses,
             RecommendsMajors,
@@ -344,19 +385,18 @@ elif sys.argv[1] == "create":
             UserCourses,
             UserDepartments,
             UserMajors,
-            Participates,
         ]
 
         for table in tables:
-            stmt = select(table)
-            result = db.session.execute(stmt)
+            stmt = db.select(table)
+            result = db.session.execute(stmt).scalars()
 
-            inst = inspect(table)
+            inst = db.inspect(table)
             attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
 
             print(f"{table.__tablename__}")
             print(attr_names)
-            for row in result.scalars():
+            for row in result:
                 print(row)
             print()
 

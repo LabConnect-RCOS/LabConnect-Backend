@@ -146,6 +146,29 @@ def test_get_opportunity_meta(test_client: FlaskClient) -> None:
     assert "active" in data
 
 
+def test_get_opportunity(test_client: FlaskClient) -> None:
+    response = test_client.get("/getOpportunity/2")
+
+    assert response.status_code == 200
+
+    # Load the response data as JSON
+    data = json.loads(response.data.decode("utf-8"))
+    data = data["data"]
+
+    # Test that the "name" key exists
+    assert "id" in data
+    assert "name" in data
+    assert "description" in data
+    assert "recommended_experience" in data
+    assert "author" in data
+    assert "department" in data
+    assert "aboutSection" in data
+
+    for eachSection in data["aboutSection"]:
+        assert "title" in eachSection
+        assert "description" in eachSection
+
+
 def test_get_opportunity_professor(test_client: FlaskClient) -> None:
     response = test_client.get("/getOpportunityByProfessor/led")
 
