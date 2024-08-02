@@ -16,6 +16,8 @@ class Config:
 
     PREFERRED_URL_SCHEME = "https"
 
+    SAML_CONFIG = os.path.join(basedir, "config/saml/")
+
 
 class TestingConfig(Config):
     TESTING = True

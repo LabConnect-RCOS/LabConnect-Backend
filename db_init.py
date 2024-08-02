@@ -9,7 +9,7 @@ Then pass an Executable into Session.execute()
 import sys
 from datetime import date, datetime
 
-from labconnect import bcrypt, create_app, db
+from labconnect import create_app, db
 from labconnect.helpers import LocationEnum, SemesterEnum
 from labconnect.models import LabManager  # Professors and Grad students
 from labconnect.models import (
@@ -89,7 +89,6 @@ elif sys.argv[1] == "create":
 
         raf_test_user = (
             "cenzar",
-            "testpassworD1",
             "Rafael",
             "Cenzano",
             "Raf",
@@ -97,9 +96,7 @@ elif sys.argv[1] == "create":
             "Computer Science",
         )
 
-        lab_manager = LabManager(
-            department_id=raf_test_user[6]
-        )
+        lab_manager = LabManager(department_id=raf_test_user[5])
 
         db.session.add(lab_manager)
         db.session.commit()
@@ -107,21 +104,18 @@ elif sys.argv[1] == "create":
         user = User(
             id=raf_test_user[0],
             email=raf_test_user[0] + "@rpi.edu",
-            password=bcrypt.generate_password_hash(raf_test_user[1] + raf_test_user[0] + "@rpi.edu"),
-            first_name=raf_test_user[2],
-            last_name=raf_test_user[3],
-            preferred_name=raf_test_user[4],
-            class_year=raf_test_user[5],
+            first_name=raf_test_user[1],
+            last_name=raf_test_user[2],
+            preferred_name=raf_test_user[3],
+            class_year=raf_test_user[4],
             lab_manager_id=lab_manager.id,
         )
-        
+
         db.session.add(user)
         db.session.commit()
 
         for row_tuple in lab_manager_rows:
-            lab_manager = LabManager(
-                department_id=row_tuple[3]
-            )
+            lab_manager = LabManager(department_id=row_tuple[3])
 
             db.session.add(lab_manager)
             db.session.commit()
@@ -129,7 +123,6 @@ elif sys.argv[1] == "create":
             user = User(
                 id=row_tuple[0],
                 email=row_tuple[0] + "@rpi.edu",
-                password=bcrypt.generate_password_hash(row_tuple[0] + "@rpi.edu"),
                 first_name=row_tuple[1],
                 last_name=row_tuple[2],
                 lab_manager_id=lab_manager.id,
@@ -297,7 +290,6 @@ elif sys.argv[1] == "create":
             (
                 "test",
                 "test@rpi.edu",
-                "testpassworD2",
                 "RCOS",
                 "RCOS",
                 None,
@@ -306,7 +298,6 @@ elif sys.argv[1] == "create":
             (
                 "test2",
                 "test2@rpi.edu",
-                "testpassworD3",
                 "RCOS",
                 "RCOS",
                 None,
@@ -315,7 +306,6 @@ elif sys.argv[1] == "create":
             (
                 "test3",
                 "test3@rpi.edu",
-                "testpassworD4",
                 "RCOS",
                 "RCOS",
                 None,
@@ -326,11 +316,10 @@ elif sys.argv[1] == "create":
             row = User(
                 id=r[0],
                 email=r[1],
-                password=bcrypt.generate_password_hash(r[2] + r[1]),
-                first_name=r[3],
-                last_name=r[4],
-                preferred_name=r[5],
-                class_year=r[6],
+                first_name=r[2],
+                last_name=r[3],
+                preferred_name=r[4],
+                class_year=r[5],
             )
             db.session.add(row)
             db.session.commit()
