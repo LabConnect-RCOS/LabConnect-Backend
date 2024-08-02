@@ -5,7 +5,6 @@ from datetime import datetime, timedelta, timezone
 # Import Flask modules
 from flask import Flask
 from flask_cors import CORS
-from flask_bcrypt import Bcrypt
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
@@ -18,7 +17,6 @@ from labconnect.helpers import OrJSONProvider
 
 # Create Database object
 db = SQLAlchemy()
-bcrypt = Bcrypt()
 jwt = JWTManager()
 
 
@@ -44,7 +42,6 @@ def initialize_extensions(app) -> None:
     # Since the application instance is now created, pass it to each Flask
     # extension instance to bind it to the Flask application instance (app)
     db.init_app(app)
-    bcrypt.init_app(app)
     jwt.init_app(app)
     app.json = OrJSONProvider(app)
 

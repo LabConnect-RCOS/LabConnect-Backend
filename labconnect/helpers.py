@@ -75,3 +75,16 @@ def serializeOpportunity(data):
     oppData["department"] = data[2].department_id
 
     return oppData
+
+
+def prepare_flask_request(request):
+    # If server is behind proxys or balancers use the HTTP_X_FORWARDED fields
+    return {
+        "https": "on" if request.scheme == "https" else "off",
+        "http_host": request.host,
+        "script_name": request.path,
+        "get_data": request.args.copy(),
+        # Uncomment if using ADFS as IdP, https://github.com/onelogin/python-saml/pull/144
+        # 'lowercase_urlencoding': True,
+        "post_data": request.form.copy(),
+    }

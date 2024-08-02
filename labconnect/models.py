@@ -22,9 +22,8 @@ class User(db.Model, CustomSerializerMixin):
     )
     serialize_rules = ()
 
-    id = db.Column(db.String(9), primary_key=True, unique=True)
+    id = db.Column(db.String(9), primary_key=True, unique=True, nullable=False)
     email = db.Column(db.String(150), nullable=False, unique=True)
-    password = db.Column(db.String(100), nullable=False, unique=False)
     first_name = db.Column(db.String(50), nullable=False, unique=False)
     last_name = db.Column(db.String(200), nullable=False, unique=False)
     preferred_name = db.Column(db.String(50), nullable=True, unique=False)
@@ -52,6 +51,17 @@ class User(db.Model, CustomSerializerMixin):
     departments = db.relationship("UserDepartments", back_populates="user")
     majors = db.relationship("UserMajors", back_populates="user")
     courses = db.relationship("UserCourses", back_populates="user")
+
+
+class ManagementPermissions(db.Model):
+    __tablename__ = "management_permissions"
+
+    user_id = db.Column(
+        db.String(9), db.ForeignKey("user.id"), primary_key=True, nullable=False
+    )
+    super_admin = db.Column(db.Boolean, nullable=False, default=False)
+    admin = db.Column(db.Boolean, nullable=False, default=False)
+    moderator = db.Column(db.Boolean, nullable=False, default=False)
 
 
 # lab_manager( id, name ), key: id

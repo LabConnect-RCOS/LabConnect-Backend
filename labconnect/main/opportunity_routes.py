@@ -2,11 +2,8 @@ import datetime
 
 from flask import abort, request
 from flask_jwt_extended import (
-    create_access_token,
-    get_jwt,
     get_jwt_identity,
     jwt_required,
-    unset_jwt_cookies,
 )
 
 from labconnect import db
@@ -19,7 +16,7 @@ from labconnect.models import (
     RecommendsCourses,
 )
 
-from labconnect.helpers import LocationEnum, SemesterEnum
+from labconnect.helpers import LocationEnum
 
 from . import main_blueprint
 
