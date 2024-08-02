@@ -43,7 +43,9 @@ class User(db.Model, CustomSerializerMixin):
         unique=False,
     )
 
-    saved_opportunities = db.relationship("UserSavedOpportunities", back_populates="user")
+    saved_opportunities = db.relationship(
+        "UserSavedOpportunities", back_populates="user"
+    )
     lab_manager = db.relationship("LabManager", back_populates="user")
     opportunities = db.relationship("Participates", back_populates="user")
     year = db.relationship("ClassYears", back_populates="users")

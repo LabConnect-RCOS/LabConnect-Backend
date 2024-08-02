@@ -87,7 +87,11 @@ def department():
     result = department_data.to_dict()
 
     prof_data = db.session.execute(
-        db.select(LabManager.id, User.preferred_name, User.last_name, User.id.label("rcs_id")).where(LabManager.department_id == department).join(User, LabManager.id == User.lab_manager_id)
+        db.select(
+            LabManager.id, User.preferred_name, User.last_name, User.id.label("rcs_id")
+        )
+        .where(LabManager.department_id == department)
+        .join(User, LabManager.id == User.lab_manager_id)
     ).scalars()
 
     query = (
@@ -117,7 +121,7 @@ def department():
     return result
 
 
-@main_blueprint.route("/getSchoolsAndDepartments/", methods=["GET"])
+@main_blueprint.get("/getSchoolsAndDepartments/")
 def getSchoolsAndDepartments():
     data = db.session.execute(
         db.select(RPISchools, RPIDepartments).join(
@@ -134,7 +138,7 @@ def getSchoolsAndDepartments():
     return dictionary
 
 
-@main_blueprint.route("/getOpportunitiesRaw/<int:id>", methods=["GET"])
+@main_blueprint.get("/getOpportunitiesRaw/<int:id>")
 def getOpportunitiesRaw(id: int):
     data = db.session.execute(
         db.select(
@@ -149,9 +153,7 @@ def getOpportunitiesRaw(id: int):
         .join(Leads, Leads.opportunity_id == Opportunities.id)
         .join(LabManager, Leads.lab_manager_id == LabManager.id)
         .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-        .join(
-            RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
-        )
+        .join(RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id)
         .join(
             RecommendsClassYears,
             RecommendsClassYears.opportunity_id == Opportunities.id,
@@ -190,12 +192,8 @@ def getProfessorProfile(id: int):
     # test code until database code is added
 
     # TODO: Use JOIN query
-    lab_manager = db.first_or_404(
-        db.select(LabManager).where(LabManager.id == id)
-    )
-    user = db.first_or_404(
-        db.select(User).where(User.lab_manager_id == id)
-    )
+    lab_manager = db.first_or_404(db.select(LabManager).where(LabManager.id == id))
+    user = db.first_or_404(db.select(User).where(User.lab_manager_id == id))
 
     dictionary = lab_manager.to_dict() | user.to_dict()
     dictionary["image"] = (
@@ -238,17 +236,14 @@ def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
 
 
 # Editing Opportunities in Profile Page
-@main_blueprint.route("/getProfessorCookies/<string:id>", methods=["GET"])
+@main_blueprint.get("/getProfessorCookies/<string:id>")
 def getProfessorCookies(id: str):
+
     # this is already restricted to "GET" requests
 
     # TODO: Use JOIN query
-    lab_manager = db.first_or_404(
-        db.select(LabManager).where(LabManager.id == id)
-    )
-    user = db.first_or_404(
-        db.select(User).where(User.lab_manager_id == id)
-    )
+    lab_manager = db.first_or_404(db.select(LabManager).where(LabManager.id == id))
+    user = db.first_or_404(db.select(User).where(User.lab_manager_id == id))
 
     dictionary = lab_manager.to_dict() | user.to_dict()
 
@@ -259,33 +254,32 @@ def getProfessorCookies(id: str):
     return dictionary
 
 
-@main_blueprint.route("/changeActiveStatus", methods=["DELETE", "POST"])
-def changeActiveStatus():
-    if request.method in ["POST"]:
-        data = request.get_json()
-        postID = data["oppID"]
-        setStatus = data["setStatus"]
+@main_blueprint.post("/changeActiveStatus")
+def changeActiveStatus() -> dict[str, bool]:
+    data = request.get_json()
+    postID = data.get("oppID")
+    setStatus = data.get("setStatus")
 
-        # query database to see if the credentials above match
-        data = db.first_or_404(
-            db.select(Opportunities).where(Opportunities.id == postID)
-        )
+    if not postID or not setStatus:
+        abort(404)
 
-        data.active = setStatus
+    # query database to see if the credentials above match
+    opportunity = db.first_or_404(
+        db.select(Opportunities).where(Opportunities.id == postID)
+    )
 
-        db.session.commit()
+    opportunity.active = setStatus
 
-        if data.active != setStatus:
-            abort(500)
+    db.session.commit()
 
-        # if match is found, change the opportunities active status to true or false based on setStatus
+    if opportunity.active != setStatus:
+        abort(500)
 
-        return {"activeStatus": data.active}
+    # if match is found, change the opportunities active status to true or false based on setStatus
+    return {"activeStatus": opportunity}
 
-    abort(500)
 
-
-@main_blueprint.route("/create_post", methods=["POST"])
+@main_blueprint.post("/create_post")
 def create_post():
     return {"Hello": "There"}
 
