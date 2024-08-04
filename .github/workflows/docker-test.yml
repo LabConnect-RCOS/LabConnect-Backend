@@ -1,4 +1,4 @@
-name: Docker-Test
+name: Docker Build Test
 
 on: [pull_request]
 
