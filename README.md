@@ -67,7 +67,7 @@
     $ git clone https://github.com/LabConnect-RCOS/LabConnect-Backend.git
     ```
     * To fork, press the fork button on the top right of the repo, or [here](https://github.com/LabConnect-RCOS/LabConnect-Backend/fork)
- * Install Python 3.12.2 [here](https://www.python.org/downloads/release/python-3122/)
+ * Install Python 3.12.4 [here]([https://www.python.org/downloads/release/python-3122/](https://www.python.org/downloads/release/python-3124/))
  * Install Libraries 
     * Download through the command line
     ```sh
