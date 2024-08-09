@@ -1,9 +1,9 @@
 [run]
 branch = True
-omit = db_test.py
+omit = db_init.py
 
 [report]
-omit = db_test.py
+omit = db_init.py
 precision = 2
 skip_empty = True
 ignore_errors = True
