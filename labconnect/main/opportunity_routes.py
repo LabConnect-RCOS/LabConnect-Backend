@@ -188,7 +188,8 @@ def getOpportunity(opp_id: int):
     return {"data": oppData}
 
 
-@main_blueprint.get("/opportunity/filter")
+# @main_blueprint.get("/opportunity/filter")
+@main_blueprint.route("/opportunity/filter", methods=["GET", "POST"])
 def filterOpportunities():
 
     if not request.data:
