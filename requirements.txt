@@ -8,7 +8,7 @@ Flask==3.0.3
 Flask-Cors==5.0.0
 Flask-JWT-Extended==4.6.0
 Flask-SQLAlchemy==3.1.1
-gunicorn==22.0.0
+gunicorn==23.0.0
 idna==3.7
 iniconfig==2.0.0
 isodate==0.6.1
