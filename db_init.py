@@ -65,10 +65,15 @@ elif sys.argv[1] == "create":
                 "School of Engineering",
             ),
             (
-                "Areonautical Engineering",
+                "Aeronautical Engineering",
                 "flying, need for speed",
                 "School of Engineering",
             ),
+            (
+                "Material Science",
+                "Creating the best materials",
+                "School of Engineering",
+            )
         )
 
         for row_tuple in rpi_departments_rows:
@@ -77,6 +82,15 @@ elif sys.argv[1] == "create":
             )
             db.session.add(row)
             db.session.commit()
+        
+        class_years_rows = (2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031)
+
+        for row_item in class_years_rows:
+            row = ClassYears(class_year=row_item, active=True)
+            db.session.add(row)
+            db.session.commit()
+        
+        
 
         lab_manager_rows = (
             ("led", "Duy", "Le", "Computer Science"),
@@ -235,6 +249,7 @@ elif sys.argv[1] == "create":
             ("BIOL", "Biological Science"),
             ("MATH", "Mathematics"),
             ("COGS", "Cognitive Science"),
+            ("PHYS", "Physics")
         )
 
         for row_tuple in majors_rows:
@@ -242,12 +257,7 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        class_years_rows = (2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031)
-
-        for row_item in class_years_rows:
-            row = ClassYears(class_year=row_item, active=True)
-            db.session.add(row)
-            db.session.commit()
+        
 
         # https://www.geeksforgeeks.org/datetime-timezone-in-sqlalchemy/
         # https://www.tutorialspoint.com/handling-timezone-in-python
