@@ -7,19 +7,6 @@
             "url": "https://api.labconnect.cs.rpi.edu/?acs",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
         },
-        "attributeConsumingService": {
-            "serviceName": "SP test",
-            "serviceDescription": "Test Service",
-            "requestedAttributes": [
-                {
-                    "name": "",
-                    "isRequired": false,
-                    "nameFormat": "",
-                    "friendlyName": "",
-                    "attributeValue": []
-                }
-            ]
-        },
         "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
         "x509cert": "",
         "privateKey": ""
