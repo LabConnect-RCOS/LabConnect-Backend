@@ -105,8 +105,6 @@ class RPIDepartments(db.Model, CustomSerializerMixin):
     description = db.Column(db.String(2000), nullable=True, unique=False)
     school_id = db.Column(db.String(64), db.ForeignKey("rpi_schools.name"))
 
-    school_id = db.Column(db.String(64), db.ForeignKey("rpi_schools.name"))
-
     school = db.relationship("RPISchools", back_populates="departments")
     lab_managers = db.relationship("LabManager", back_populates="department")
     users = db.relationship("UserDepartments", back_populates="department")
