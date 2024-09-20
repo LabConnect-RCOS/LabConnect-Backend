@@ -14,7 +14,7 @@
     "idp": {
         "entityId": "https://shib-idp.rpi.edu/idp/shibboleth",
         "singleSignOnService": {
-            "url": "https://shib.auth.rpi.edu/idp/profile/SAML2/POST/SSO",
+            "url": "https://shib.auth.rpi.edu/idp/profile/SAML2/Redirect/SSO",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
         },
         "x509cert": "<onelogin_connector_cert>"
