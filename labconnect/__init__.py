@@ -17,6 +17,7 @@ from labconnect.helpers import OrJSONProvider
 
 # Create Database object
 db = SQLAlchemy()
+
 jwt = JWTManager()
 
 

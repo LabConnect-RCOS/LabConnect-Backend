@@ -1,4 +1,5 @@
-from sqlalchemy import Enum
+from sqlalchemy import Enum, Index, func, event
+from sqlalchemy.dialects.postgresql import TSVECTOR
 
 from labconnect import db
 from labconnect.helpers import CustomSerializerMixin, LocationEnum, SemesterEnum
@@ -52,6 +53,15 @@ class User(db.Model, CustomSerializerMixin):
     majors = db.relationship("UserMajors", back_populates="user")
     courses = db.relationship("UserCourses", back_populates="user")
 
+    def getLabManager(self):
+        return self.lab_manager
+
+    def __repr__(self):
+        return f"<User {self.id}>"
+
+    def __str__(self):
+        return f"<User> {self.first_name} {self.last_name}"
+
 
 class ManagementPermissions(db.Model):
     __tablename__ = "management_permissions"
@@ -79,6 +89,15 @@ class LabManager(db.Model, CustomSerializerMixin):
     opportunities = db.relationship(
         "Leads", back_populates="lab_manager", passive_deletes=True
     )
+
+    def getUser(self):
+        return User.query.filter_by(lab_manager_id=self.id).all()
+
+    def getName(self):
+        return self.user[0].first_name + " " + self.user[0].last_name
+
+    def getEmail(self):
+        return self.user[0].email
 
 
 # rpi_schools( name, description ), key: name
@@ -166,6 +185,21 @@ class Opportunities(db.Model, CustomSerializerMixin):
     )
     saved_opportunities = db.relationship(
         "UserSavedOpportunities", back_populates="opportunity", passive_deletes=True
+    )
+
+    # Search Vector
+    search_vector = db.Column(TSVECTOR)
+
+    __table_args__ = (
+        Index("ix_opportunity_search_vector", search_vector, postgresql_using="gin"),
+    )
+
+
+@event.listens_for(Opportunities, "before_insert")
+@event.listens_for(Opportunities, "before_update")
+def update_search_vector(mapper, connection, target):
+    target.search_vector = func.to_tsvector(
+        "english", target.name + " " + target.description
     )
 
 
