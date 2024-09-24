@@ -17,6 +17,7 @@ class Config:
     PREFERRED_URL_SCHEME = "https"
 
     SAML_CONFIG = os.path.join(basedir, "config/saml/")
+    FRONTEND_URL = os.environ.get("FRONTEND_URL", "https://labconnect.cs.rpi.edu")
 
 
 class TestingConfig(Config):

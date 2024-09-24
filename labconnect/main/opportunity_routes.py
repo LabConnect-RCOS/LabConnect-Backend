@@ -228,7 +228,17 @@ def getOpportunity(opp_id: int):
 def filterOpportunities():
 
     if not request.data:
-        abort(400)
+        data = db.session.execute(
+            db.select(Opportunities)
+            .where(Opportunities.active == True)
+            .limit(20)
+            .order_by(Opportunities.last_updated)
+            .distinct()
+        ).scalars()
+
+        result = [opportunity.to_dict() for opportunity in data]
+
+        return result
 
     json_request_data = request.get_json()
 

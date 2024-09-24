@@ -280,3 +280,6 @@ def test_opportunity_filter_credits_departments(test_client: FlaskClient) -> Non
 
     for data in json_data:
         assert data["name"] in opportunities
+
+
+# TODO: Add test for no fields

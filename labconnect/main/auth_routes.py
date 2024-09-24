@@ -1,6 +1,6 @@
 from typing import Any
 
-from flask import Response, abort, request, redirect, jsonify, current_app
+from flask import Response, request, redirect, jsonify, current_app, make_response
 from flask_jwt_extended import (
     create_access_token,
     unset_jwt_cookies,
@@ -57,9 +57,27 @@ def saml_callback():
         token = create_access_token(identity=user_id)
 
         # Send the JWT to the frontend
-        return {"token": token}
+        return redirect(f"{current_app.config['FRONTEND_URL']}/?token={token}")
     else:
-        return {"errors": errors}, 400
+        return {"errors": errors}, 500
+
+
+@main_blueprint.route("/metadata/")
+def metadata():
+    req = prepare_flask_request(request)
+    auth = auth = OneLogin_Saml2_Auth(
+        req, custom_base_path=current_app.config["SAML_CONFIG"]
+    )
+    settings = auth.get_settings()
+    metadata = settings.get_sp_metadata()
+    errors = settings.validate_metadata(metadata)
+
+    if len(errors) == 0:
+        resp = make_response(metadata, 200)
+        resp.headers["Content-Type"] = "text/xml"
+    else:
+        resp = make_response(", ".join(errors), 500)
+    return resp
 
 
 @main_blueprint.get("/logout")
