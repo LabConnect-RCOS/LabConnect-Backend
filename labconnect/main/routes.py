@@ -61,10 +61,19 @@ def profile():
     return result
 
 
-@main_blueprint.get('/departments')
+@main_blueprint.get("/departments")
 def departmentCards():
-    data = db.session.execute(db.select(RPIDepartments.name, RPIDepartments.school_id)).all()
-    results = [{"title": department.name, "school": department.school_id, "image": "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"} for department in data]
+    data = db.session.execute(
+        db.select(RPIDepartments.name, RPIDepartments.school_id)
+    ).all()
+    results = [
+        {
+            "title": department.name,
+            "school": department.school_id,
+            "image": "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+        }
+        for department in data
+    ]
 
     return results
 
@@ -178,12 +187,11 @@ def getProfessorProfile(email: int):
     data = query.all()
     user = data[0][0]
     lm = user.getLabManager()
-    
+
     result = {}
-    
+
     dictionary = user.to_dict()
-    
-    
+
     dictionary["image"] = "https://www.svgrepo.com/show/206842/professor.svg"
     dictionary["department"] = lm.department_id
     dictionary["email"] = user.email
@@ -191,11 +199,13 @@ def getProfessorProfile(email: int):
     dictionary["description"] = (
         "This is the description from the backend but we need to add more fields for LabManager"
     )
-    
+
     # clean data
-    dictionary["name"] = dictionary.pop("first_name") + " " + dictionary.pop("last_name")
+    dictionary["name"] = (
+        dictionary.pop("first_name") + " " + dictionary.pop("last_name")
+    )
     dictionary.pop("class_year")
-    
+
     return dictionary
 
 

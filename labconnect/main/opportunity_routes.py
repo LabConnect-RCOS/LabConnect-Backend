@@ -14,34 +14,45 @@ from labconnect.models import (
     RecommendsClassYears,
     RecommendsMajors,
     RecommendsCourses,
-    User
+    User,
 )
 
 from labconnect.helpers import LocationEnum
 
 from . import main_blueprint
 
+
 @main_blueprint.route("/searchOpportunity/<string:input>", methods=["GET"])
 def searchOpportunity(input: str):
     # Perform a search
-    stmt = db.select(Opportunities).where(
-        (Opportunities.search_vector.match(input)) |  # Full-text search using pre-generated tsvector
-        (db.func.similarity(Opportunities.name, input) >= 0.1) |  # Fuzzy search on the 'name' field
-        (db.func.similarity(Opportunities.description, input) >= 0.1)  # Fuzzy search on the 'description' field
-    ).order_by(
-        db.func.similarity(Opportunities.name, input).desc()  # Order by similarity for fuzzy search results
+    stmt = (
+        db.select(Opportunities)
+        .where(
+            (
+                Opportunities.search_vector.match(input)
+            )  # Full-text search using pre-generated tsvector
+            | (
+                db.func.similarity(Opportunities.name, input) >= 0.1
+            )  # Fuzzy search on the 'name' field
+            | (
+                db.func.similarity(Opportunities.description, input) >= 0.1
+            )  # Fuzzy search on the 'description' field
+        )
+        .order_by(
+            db.func.similarity(
+                Opportunities.name, input
+            ).desc()  # Order by similarity for fuzzy search results
+        )
     )
-    
+
     data = db.session.execute(stmt).scalars().all()
-    
+
     results = []
-    
+
     for opportunity in data:
         results.append(opportunity.to_dict())
-    
-    return results
 
-    
+    return results
 
 
 @main_blueprint.get("/opportunity")
