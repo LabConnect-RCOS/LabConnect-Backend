@@ -11,13 +11,10 @@ COPY db_init.py .
 COPY config.py .
 COPY run.sh .
 RUN chmod +x run.sh
-RUN ls -l /app/run.sh
-RUN pwd
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:9000 || exit 1
 
 EXPOSE 9000
 
-CMD ["./run.sh"]
-ENTRYPOINT ["./run.sh"]
+CMD ["/app/run.sh"]

@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 # Eventually add alembic migrations here
 
