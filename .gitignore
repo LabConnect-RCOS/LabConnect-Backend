@@ -1,7 +1,5 @@
 venv/
 .venv/
-myenv/
-.myenv/
 env/
 *.pyc
 *.DS_Store
