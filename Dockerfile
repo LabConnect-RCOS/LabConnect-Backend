@@ -17,4 +17,4 @@ HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
 
 EXPOSE 8000
 
-CMD ["./run.sh"]
+CMD ["./app/un.sh"]
