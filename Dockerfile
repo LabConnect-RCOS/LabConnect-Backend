@@ -17,4 +17,5 @@ HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
 
 EXPOSE 9000
 
-CMD gunicorn run:app -w 6 --preload --max-requests-jitter 300 --bind 0.0.0.0:9000
+CMD ["./run.sh"]
+ENTRYPOINT ["./run.sh"]
