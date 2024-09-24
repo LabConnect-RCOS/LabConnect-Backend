@@ -13,9 +13,8 @@ COPY run.sh .
 RUN chmod +x run.sh
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8000 || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://localhost:9000 || exit 1
 
 EXPOSE 9000
 
-CMD ["./app/run.sh"]
-ENTRYPOINT ["./app/run.sh"]
+CMD gunicorn run:app -w 6 --preload --max-requests-jitter 300 --bind 0.0.0.0:9000
