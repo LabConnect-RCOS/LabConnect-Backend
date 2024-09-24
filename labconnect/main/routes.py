@@ -61,24 +61,15 @@ def profile():
     return result
 
 
-@main_blueprint.route("/departments", methods=["GET"])
+@main_blueprint.get('/departments')
 def departmentCards():
-    results = []
-
-    data = db.session.execute(db.select(RPIDepartments)).scalars()
-    # data = db.session.execute(db.select(RPIDepartments)).all()
-
-    for department in data:
-        dict = {}
-        dict["title"] = department.name
-        dict["school"] = department.school_id
-        dict["image"] = "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
-        results.append(dict)
+    data = db.session.execute(db.select(RPIDepartments.name, RPIDepartments.school_id)).all()
+    results = [{"title": department.name, "school": department.school_id, "image": "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"} for department in data]
 
     return results
 
 
-@main_blueprint.route("/departments/<string:department>", methods=["GET"])
+@main_blueprint.get("/departments/<string:department>")
 def departmentDetails(department: str):
 
     if not department:
@@ -89,8 +80,6 @@ def departmentDetails(department: str):
     )
 
     result = department_data.to_dict()
-    print("Results from department data")
-    print(result)
 
     prof_data = department_data.lab_managers
 
@@ -182,7 +171,7 @@ def getLabManagers():
     return result
 
 
-@main_blueprint.route("/getProfessorProfile/<string:email>", methods=["GET"])
+@main_blueprint.get("/getProfessorProfile/<string:email>")
 def getProfessorProfile(email: int):
     # test code until database code is added
     query = db.session.execute(db.select(User).where(User.email == email))
@@ -258,7 +247,7 @@ def getProfessorCookies(id: str):
     return dictionary
 
 
-@main_blueprint.route("/getStaff/<string:department>", methods=["GET"])
+@main_blueprint.get("/getStaff/<string:department>")
 def getStaff(department: str):
     query = db.session.execute(
         db.select(LabManager).filter(LabManager.department_id == department)
