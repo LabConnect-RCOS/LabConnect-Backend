@@ -7,6 +7,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: "Build Docker Image"
         run: |
-          docker build .
+          docker build -t labconnect-backend .
+
+      - name: "Run Docker Container"
+        run: |
+          docker run -d --name labconnect-backend-container labconnect-backend
+          sleep 60
+          docker logs labconnect-backend-container
+          docker stop labconnect-backend-container
+          docker rm labconnect-backend-container
