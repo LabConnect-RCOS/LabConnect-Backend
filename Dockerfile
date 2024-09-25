@@ -6,7 +6,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY labconnect .
-COPY run.py .
+COPY app.py .
 COPY db_init.py .
 COPY config.py .
 COPY run.sh .
