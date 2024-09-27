@@ -1,5 +1,6 @@
 import json
 import os
+
 from datetime import datetime, timedelta, timezone
 
 # Import Flask modules
@@ -11,7 +12,12 @@ from flask_jwt_extended import (
     get_jwt,
     get_jwt_identity,
 )
+
 from flask_sqlalchemy import SQLAlchemy
+
+import sentry_sdk
+
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from labconnect.helpers import OrJSONProvider
 
@@ -26,6 +32,14 @@ def create_app() -> Flask:
     CORS(app)
 
     app.config.from_object(os.environ.get("CONFIG", "config.TestingConfig"))
+
+    sentry_sdk.init(
+        dsn=app.config['SENTRY_DSN'],
+        integrations=[FlaskIntegration()],
+        traces_sample_rate=app.config['SENTRY_TRACES_SAMPLE_RATE'],
+        profiles_sample_rate=app.config['SENTRY_PROFILES_SAMPLE_RATE'],
+
+    )
 
     initialize_extensions(app)
     register_blueprints(app)
