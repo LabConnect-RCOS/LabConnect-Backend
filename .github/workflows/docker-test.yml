@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "**.py"
+      - "Dockerfile"
+      - "run.sh"
+      - "requirements.txt"
 
 jobs:
   build:
