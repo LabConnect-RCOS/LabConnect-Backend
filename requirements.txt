@@ -25,7 +25,7 @@ pydantic==2.7.0
 pydantic_core==2.18.1
 PyJWT==2.9.0
 PyStarter==1.5.1
-pytest==8.2.2
+pytest==8.3.3
 pytest-cov==5.0.0
 python3-saml==1.16.0
 pytz==2024.1
