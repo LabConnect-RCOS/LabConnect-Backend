@@ -10,7 +10,7 @@ Flask-JWT-Extended==4.6.0
 Flask-SQLAlchemy==3.1.1
 Flask-Migrate==4.0.7
 gunicorn==23.0.0
-idna==3.7
+idna==3.10
 iniconfig==2.0.0
 isodate==0.6.1
 itsdangerous==2.2.0
