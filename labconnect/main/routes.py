@@ -61,18 +61,25 @@ def profile():
     return result
 
 
-@main_blueprint.route("/department")
-def department():
+@main_blueprint.get("/departments")
+def departmentCards():
+    data = db.session.execute(
+        db.select(RPIDepartments.name, RPIDepartments.school_id)
+    ).all()
+    results = [
+        {
+            "title": department.name,
+            "school": department.school_id,
+            "image": "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+        }
+        for department in data
+    ]
 
-    if not request.data:
-        abort(400)
+    return results
 
-    json_request_data = request.get_json()
 
-    if not json_request_data:
-        abort(400)
-
-    department = json_request_data.get("department", None)
+@main_blueprint.get("/departments/<string:department>")
+def departmentDetails(department: str):
 
     if not department:
         abort(400)
@@ -83,37 +90,26 @@ def department():
 
     result = department_data.to_dict()
 
-    prof_data = db.session.execute(
-        db.select(
-            LabManager.id, User.preferred_name, User.last_name, User.id.label("rcs_id")
-        )
-        .where(LabManager.department_id == department)
-        .join(User, LabManager.id == User.lab_manager_id)
-    ).scalars()
-
-    query = (
-        db.select(Opportunities)
-        .where(Opportunities.active == True)
-        .limit(20)
-        .join(Leads, Opportunities.id == Leads.opportunity_id)
-        .join(LabManager, Leads.lab_manager_id == LabManager.id)
-        .distinct()
-    )
+    prof_data = department_data.lab_managers
 
     professors = []
     where_conditions = []
 
     for prof in prof_data:
-        professors.append(prof.to_dict())
+        professors.append(
+            {
+                "name": prof.getName(),
+                "rcs_id": prof.getEmail(),
+                "image": "https://www.svgrepo.com/show/206842/professor.svg",
+            }
+        )
         where_conditions.append(LabManager.id == prof.id)
 
     result["professors"] = professors
 
-    query = query.where(db.or_(*where_conditions))
-    data = db.session.execute(query).scalars()
-    opportunities = [opportunity.to_dict() for opportunity in data]
-
-    result["opportunities"] = opportunities
+    result["image"] = (
+        "https://t4.ftcdn.net/jpg/02/77/10/87/360_F_277108701_1JAbS8jg7Gw42dU6nz7sF72bWiCm3VMv.jpg"
+    )
 
     return result
 
@@ -184,22 +180,32 @@ def getLabManagers():
     return result
 
 
-@main_blueprint.route("/getProfessorProfile/<int:id>", methods=["GET"])
-def getProfessorProfile(id: int):
+@main_blueprint.get("/getProfessorProfile/<string:email>")
+def getProfessorProfile(email: int):
     # test code until database code is added
+    query = db.session.execute(db.select(User).where(User.email == email))
+    data = query.all()
+    user = data[0][0]
+    lm = user.getLabManager()
 
-    # TODO: Use JOIN query
-    lab_manager = db.first_or_404(db.select(LabManager).where(LabManager.id == id))
-    user = db.first_or_404(db.select(User).where(User.lab_manager_id == id))
+    result = {}
 
-    dictionary = lab_manager.to_dict() | user.to_dict()
-    dictionary["image"] = (
-        "https://cdn.dribbble.com/users/2033319/screenshots/12591684/media/0557608c87ed8c5a80bd5faa48c3cd71.png"
-    )
+    dictionary = user.to_dict()
+
+    dictionary["image"] = "https://www.svgrepo.com/show/206842/professor.svg"
+    dictionary["department"] = lm.department_id
+    dictionary["email"] = user.email
     dictionary["role"] = "admin"
     dictionary["description"] = (
-        "I am the evil professor Doofenshmirtz. I am a professor at RPI and I am looking for students to help me with my evil schemes"
+        "This is the description from the backend but we need to add more fields for LabManager"
     )
+
+    # clean data
+    dictionary["name"] = (
+        dictionary.pop("first_name") + " " + dictionary.pop("last_name")
+    )
+    dictionary.pop("class_year")
+
     return dictionary
 
 
@@ -247,6 +253,20 @@ def getProfessorCookies(id: str):
     dictionary["role"] = "admin"
     dictionary["researchCenter"] = "AI"
     dictionary["loggedIn"] = True
+
+    return dictionary
+
+
+@main_blueprint.get("/getStaff/<string:department>")
+def getStaff(department: str):
+    query = db.session.execute(
+        db.select(LabManager).filter(LabManager.department_id == department)
+    )
+    data = query.all()
+    dictionary = {}
+    for item in data:
+        dictionary[item[0].rcs_id] = item[0].to_dict()
+        dictionary[item[0].rcs_id].pop("rcs_id")
 
     return dictionary
 
@@ -299,7 +319,7 @@ def schools() -> list[Any]:
     return result
 
 
-@main_blueprint.get("/departments")
+@main_blueprint.get("/departmentsList")
 def departments() -> list[Any]:
 
     data = db.session.execute(

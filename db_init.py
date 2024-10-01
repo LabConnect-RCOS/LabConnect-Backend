@@ -65,8 +65,13 @@ elif sys.argv[1] == "create":
                 "School of Engineering",
             ),
             (
-                "Areonautical Engineering",
+                "Aeronautical Engineering",
                 "flying, need for speed",
+                "School of Engineering",
+            ),
+            (
+                "Material Science",
+                "Creating the best materials",
                 "School of Engineering",
             ),
         )
@@ -75,6 +80,13 @@ elif sys.argv[1] == "create":
             row = RPIDepartments(
                 name=row_tuple[0], description=row_tuple[1], school_id=row_tuple[2]
             )
+            db.session.add(row)
+            db.session.commit()
+
+        class_years_rows = (2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031)
+
+        for row_item in class_years_rows:
+            row = ClassYears(class_year=row_item, active=True)
             db.session.add(row)
             db.session.commit()
 
@@ -235,17 +247,11 @@ elif sys.argv[1] == "create":
             ("BIOL", "Biological Science"),
             ("MATH", "Mathematics"),
             ("COGS", "Cognitive Science"),
+            ("PHYS", "Physics"),
         )
 
         for row_tuple in majors_rows:
             row = Majors(code=row_tuple[0], name=row_tuple[1])
-            db.session.add(row)
-            db.session.commit()
-
-        class_years_rows = (2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031)
-
-        for row_item in class_years_rows:
-            row = ClassYears(class_year=row_item, active=True)
             db.session.add(row)
             db.session.commit()
 

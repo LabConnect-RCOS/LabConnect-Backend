@@ -14,11 +14,45 @@ from labconnect.models import (
     RecommendsClassYears,
     RecommendsMajors,
     RecommendsCourses,
+    User,
 )
 
 from labconnect.helpers import LocationEnum
 
 from . import main_blueprint
+
+
+@main_blueprint.route("/searchOpportunity/<string:input>", methods=["GET"])
+def searchOpportunity(input: str):
+    # Perform a search
+    stmt = (
+        db.select(Opportunities)
+        .where(
+            (
+                Opportunities.search_vector.match(input)
+            )  # Full-text search using pre-generated tsvector
+            | (
+                db.func.similarity(Opportunities.name, input) >= 0.1
+            )  # Fuzzy search on the 'name' field
+            | (
+                db.func.similarity(Opportunities.description, input) >= 0.1
+            )  # Fuzzy search on the 'description' field
+        )
+        .order_by(
+            db.func.similarity(
+                Opportunities.name, input
+            ).desc()  # Order by similarity for fuzzy search results
+        )
+    )
+
+    data = db.session.execute(stmt).scalars().all()
+
+    results = []
+
+    for opportunity in data:
+        results.append(opportunity.to_dict())
+
+    return results
 
 
 @main_blueprint.get("/opportunity")
@@ -121,7 +155,8 @@ def packageIndividualOpportunity(opportunityInfo):
     data["department"] = queryInfo[0][1].department_id
 
     for i, item in enumerate(queryInfo):
-        data["author"] += item[1].name
+        data["author"] += item[1].getName()
+        # data["author"] += "look at def packageIndividualOpportunity(opportunityInfo):"
         if i != len(queryInfo) - 1:
             data["author"] += ", "
 
@@ -151,7 +186,7 @@ def packageOpportunityCard(opportunity):
     professorInfo = ""
 
     for i, item in enumerate(data):
-        professorInfo += item[1].name
+        professorInfo += item[1].getName()
         if i != len(data) - 1:
             professorInfo += ", "
 
@@ -188,7 +223,8 @@ def getOpportunity(opp_id: int):
     return {"data": oppData}
 
 
-@main_blueprint.get("/opportunity/filter")
+# @main_blueprint.get("/opportunity/filter")
+@main_blueprint.route("/opportunity/filter", methods=["GET", "POST"])
 def filterOpportunities():
 
     if not request.data:
@@ -491,10 +527,11 @@ def getOpportunityByProfessor(rcs_id: str):
 def getProfessorOpportunityCards(rcs_id: str):
     if request.method == "GET":
         # query database for opportunity
+        user = db.first_or_404(db.select(User).where(User.email == rcs_id))
 
         query = db.session.execute(
             db.select(Opportunities, Leads)
-            .where(Leads.lab_manager_id == rcs_id)
+            .where(Leads.lab_manager_id == user.lab_manager_id)
             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
         )
 

@@ -103,10 +103,16 @@
    ```
 
 ## Deployment
-* TBD, planning to use an RPI VM
+Create PRs to release branch, upon merge a new docker container will be created and pushed. This will be planned for weekly pushes on Tuesdays.
 
 ## Production
- * Run gunicorn
+Use the docker container in the packages tab. You can set these environment variables:
+- SECRET_KEY
+- JWT_SECRET_KEY
+- FRONTEND_URL
+- DB
+
+ * Run gunicorn to test how the service runs in production
    ```sh
    $ make run
    ```
@@ -125,19 +131,22 @@ Running list of contributors to the LabConnect project:
 
 ### Rensselaer Center for Open Source Development Team
 
-- **Siddhi W** [Frontend]
+- **Siddhi W** [Frontend / Backend]
 - **Mrunal A** [Frontend / Backend]
-- **Abid T** [Frontend / Backend]
-- **Sarah** [Backend]
-- **Ramzey** [Backend]
-- **Will** [Frontend]
-- **Nelson** [Backend]
+- **Sarah W** [Backend]
+- **Ramzey Y** [Backend]
+- **Will B** [Frontend]
+- - **Sidarth E** [Frontend]
+
 
 ### Past Rensselaer Center for Open Source Development Team
 
+- **Abid T** [Frontend / Backend]
+- **Nelson** [Backend]
 - **Duy L** [Database Systems]
 - **Yash K** [Frontend]
 - **Sam B** [Scraping / Integration]
+
 
 ### Special Thanks
 
