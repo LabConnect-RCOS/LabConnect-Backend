@@ -5,7 +5,7 @@ clean:
 	pystarter clean
 
 run: 
-	gunicorn run:app -w 6 --preload --max-requests-jitter 300 --bind 0.0.0.0:8000
+	gunicorn app:app -w 6 --preload --max-requests-jitter 300 --bind 0.0.0.0:9000
 
 develop:
 	python3 run.py
@@ -18,8 +18,3 @@ drop:
 
 create:
 	python3 db_init.py create
-
-docker-build:
-	docker build -t labconnect-backend .
-	docker tag labconnect-backend enchanter77/labconnect-backend
-	docker push enchanter77/labconnect-backend

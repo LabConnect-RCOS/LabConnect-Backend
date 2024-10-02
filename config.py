@@ -28,7 +28,8 @@ class TestingConfig(Config):
     DEBUG = True
 
     # Using SQLLITE locally
-    SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(basedir, 'database.db')}"
+    # SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(basedir, 'database.db')}"
+    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://postgres:root@localhost/labconnect"
 
 
 class ProductionConfig(Config):

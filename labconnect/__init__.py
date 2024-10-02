@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 # Import Flask modules
 from flask import Flask
 from flask_cors import CORS
+
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
@@ -14,15 +15,14 @@ from flask_jwt_extended import (
 )
 
 from flask_sqlalchemy import SQLAlchemy
-
 import sentry_sdk
-
 from sentry_sdk.integrations.flask import FlaskIntegration
-
+from flask_migrate import Migrate
 from labconnect.helpers import OrJSONProvider
 
 # Create Database object
 db = SQLAlchemy()
+migrate = Migrate()
 jwt = JWTManager()
 
 
@@ -56,6 +56,7 @@ def initialize_extensions(app) -> None:
     # Since the application instance is now created, pass it to each Flask
     # extension instance to bind it to the Flask application instance (app)
     db.init_app(app)
+    migrate.init_app(app, db)
     jwt.init_app(app)
     app.json = OrJSONProvider(app)
 
