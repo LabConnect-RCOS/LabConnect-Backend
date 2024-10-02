@@ -93,12 +93,6 @@ class LabManager(db.Model, CustomSerializerMixin):
     def getUser(self):
         return User.query.filter_by(lab_manager_id=self.id).all()
 
-    def getName(self):
-        return self.user[0].first_name + " " + self.user[0].last_name
-
-    def getEmail(self):
-        return self.user[0].email
-
 
 # rpi_schools( name, description ), key: name
 class RPISchools(db.Model, CustomSerializerMixin):

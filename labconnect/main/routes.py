@@ -78,8 +78,18 @@ def departmentCards():
     return results
 
 
-@main_blueprint.get("/departments/<string:department>")
-def departmentDetails(department: str):
+@main_blueprint.get("/department")
+def departmentDetails():
+
+    if not request.data:
+        abort(400)
+
+    json_request_data = request.get_json()
+
+    if not json_request_data:
+        abort(400)
+
+    department = json_request_data.get("department", None)
 
     if not department:
         abort(400)
@@ -90,26 +100,33 @@ def departmentDetails(department: str):
 
     result = department_data.to_dict()
 
-    prof_data = department_data.lab_managers
+    lab_managers = db.execute(
+        db.select(User)
+        .join(LabManager, User.lab_manager_id == LabManager.id)
+        .where(LabManager.department_id == department_data.name)
+    ).scalars()
 
     professors = []
-    where_conditions = []
 
-    for prof in prof_data:
+    for manager in lab_managers:
         professors.append(
             {
-                "name": prof.getName(),
-                "rcs_id": prof.getEmail(),
+                "name": manager.first_name + " " + manager.last_name,
+                "rcs_id": manager.email,
                 "image": "https://www.svgrepo.com/show/206842/professor.svg",
             }
         )
-        where_conditions.append(LabManager.id == prof.id)
 
     result["professors"] = professors
 
     result["image"] = (
         "https://t4.ftcdn.net/jpg/02/77/10/87/360_F_277108701_1JAbS8jg7Gw42dU6nz7sF72bWiCm3VMv.jpg"
     )
+
+    opportunities = db.execute(
+        db.select(Opportunities).where(Opportunities.id == department_data.id)
+    )
+    result["opportunities"] = opportunities.to_dict()
 
     return result
 
