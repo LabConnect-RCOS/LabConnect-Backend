@@ -1,6 +1,7 @@
 import datetime
 
 from flask import abort, request
+
 from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
@@ -22,25 +23,25 @@ from labconnect.helpers import LocationEnum
 from . import main_blueprint
 
 
-@main_blueprint.route("/searchOpportunity/<string:input>", methods=["GET"])
-def searchOpportunity(input: str):
+@main_blueprint.route("/searchOpportunity/<string:query>", methods=["GET"])
+def searchOpportunity(query: str):
     # Perform a search
     stmt = (
         db.select(Opportunities)
         .where(
             (
-                Opportunities.search_vector.match(input)
+                Opportunities.search_vector.match(query)
             )  # Full-text search using pre-generated tsvector
             | (
-                db.func.similarity(Opportunities.name, input) >= 0.1
+                db.func.similarity(Opportunities.name, query) >= 0.1
             )  # Fuzzy search on the 'name' field
             | (
-                db.func.similarity(Opportunities.description, input) >= 0.1
+                db.func.similarity(Opportunities.description, query) >= 0.1
             )  # Fuzzy search on the 'description' field
         )
         .order_by(
             db.func.similarity(
-                Opportunities.name, input
+                Opportunities.name, query
             ).desc()  # Order by similarity for fuzzy search results
         )
     )
@@ -94,13 +95,14 @@ def packageOpportunity(opportunityInfo, professorInfo):
 
 
 def packageIndividualOpportunity(opportunityInfo):
-    data = {}
-    data["id"] = opportunityInfo.id
-    data["name"] = opportunityInfo.name
-    data["description"] = opportunityInfo.description
-    data["recommended_experience"] = opportunityInfo.recommended_experience
-    data["author"] = ""
-    data["department"] = ""
+    data = {
+        "id": opportunityInfo.id,
+        "name": opportunityInfo.name,
+        "description": opportunityInfo.description,
+        "recommended_experience": opportunityInfo.recommended_experience,
+        "author": "",
+        "department": "",
+    }
 
     opportunity_credits = ""
     if opportunityInfo.one_credit:
@@ -299,15 +301,15 @@ def filterOpportunities():
                     for credit in value:
 
                         if credit == 1:
-                            credit_conditions.append(Opportunities.one_credit == True)
+                            credit_conditions.append(Opportunities.one_credit is True)
                         elif credit == 2:
-                            credit_conditions.append(Opportunities.two_credits == True)
+                            credit_conditions.append(Opportunities.two_credits is True)
                         elif credit == 3:
                             credit_conditions.append(
-                                Opportunities.three_credits == True
+                                Opportunities.three_credits is True
                             )
                         elif credit == 4:
-                            credit_conditions.append(Opportunities.four_credits == True)
+                            credit_conditions.append(Opportunities.four_credits is True)
                         else:
                             abort(400)
 
@@ -710,7 +712,7 @@ def createOpportunity():
 
 @main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
 def editOpportunity():
-    if True:
+    if request.method in ["DELETE", "POST"]:
         data = request.get_json()
         id = data["id"]
         # authToken = data["authToken"]

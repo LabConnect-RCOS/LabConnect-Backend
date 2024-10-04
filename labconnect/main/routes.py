@@ -428,7 +428,7 @@ def courses() -> list[Any]:
 
 
 @main_blueprint.get("/user")
-def user():
+def get_user():
     if not request.data:
         abort(400)
 
