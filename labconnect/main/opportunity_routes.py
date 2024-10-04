@@ -82,7 +82,7 @@ def getOpportunity2():
 def convert_to_enum(location_string):
     try:
         return LocationEnum[location_string]  # Use upper() for case-insensitivity
-    except:
+    except KeyError:
         return None  # Or raise an exception if you prefer
 
 
@@ -226,22 +226,23 @@ def getOpportunity(opp_id: int):
 
 
 # @main_blueprint.get("/opportunity/filter")
-@main_blueprint.route("/opportunity/filter", methods=["GET", "POST"])
+@main_blueprint.route("/opportunity/filter", methods=["GET"])
+def getOpportunities():
+    # Handle GET requests for fetching default active opportunities
+    data = db.session.execute(
+        db.select(Opportunities)
+        .where(Opportunities.active == True)
+        .limit(20)
+        .order_by(Opportunities.last_updated.desc())
+        .distinct()
+    ).scalars()
+    result = [opportunity.to_dict() for opportunity in data]
+    return result
+
+
+@main_blueprint.route("/opportunity/filter", methods=["POST"])
 def filterOpportunities():
-
-    if not request.data:
-        data = db.session.execute(
-            db.select(Opportunities)
-            .where(Opportunities.active == True)
-            .limit(20)
-            .order_by(Opportunities.last_updated)
-            .distinct()
-        ).scalars()
-
-        result = [opportunity.to_dict() for opportunity in data]
-
-        return result
-
+    # Handle POST requests for filtering opportunities
     json_request_data = request.get_json()
 
     if not json_request_data:
@@ -272,83 +273,78 @@ def filterOpportunities():
             value = given_filter.get("value", None)
 
             if field and value:
-
                 field = field.lower()
 
-                if field == "location" and value.lower() == "remote":
-                    where_conditions.append(Opportunities.location == "REMOTE")
+                # Location filter
+                if field == "location":
+                    if value.lower() == "remote":
+                        where_conditions.append(Opportunities.location == "REMOTE")
+                    else:
+                        where_conditions.append(Opportunities.location != "REMOTE")
 
-                elif field == "location":
-                    where_conditions.append(Opportunities.location != "REMOTE")
-
+                # Class year filter
                 elif field == "class_year":
-
                     if not isinstance(value, list):
                         abort(400)
-
                     query = query.join(
                         RecommendsClassYears,
                         Opportunities.id == RecommendsClassYears.opportunity_id,
                     ).where(RecommendsClassYears.class_year.in_(value))
 
+                # Credits filter
                 elif field == "credits":
-
                     if not isinstance(value, list):
                         abort(400)
-
                     credit_conditions = []
-
                     for credit in value:
-
                         if credit == 1:
-                            credit_conditions.append(Opportunities.one_credit is True)
+                            credit_conditions.append(Opportunities.one_credit.is_(True))
                         elif credit == 2:
-                            credit_conditions.append(Opportunities.two_credits is True)
+                            credit_conditions.append(
+                                Opportunities.two_credits.is_(True)
+                            )
                         elif credit == 3:
                             credit_conditions.append(
-                                Opportunities.three_credits is True
+                                Opportunities.three_credits.is_(True)
                             )
                         elif credit == 4:
-                            credit_conditions.append(Opportunities.four_credits is True)
+                            credit_conditions.append(
+                                Opportunities.four_credits.is_(True)
+                            )
                         else:
                             abort(400)
+                    where_conditions.append(db.or_(*credit_conditions))
 
-                    query = query.where(db.or_(*credit_conditions))
-
+                # Majors filter
                 elif field == "majors":
-
                     if not isinstance(value, list):
                         abort(400)
-
                     query = query.join(
                         RecommendsMajors,
                         Opportunities.id == RecommendsMajors.opportunity_id,
                     ).where(RecommendsMajors.major_code.in_(value))
 
+                # Departments filter
                 elif field == "departments":
-
                     if not isinstance(value, list):
                         abort(400)
-
                     query = (
                         query.join(Leads, Opportunities.id == Leads.opportunity_id)
                         .join(LabManager, Leads.lab_manager_id == LabManager.id)
                         .where(LabManager.department_id.in_(value))
                     )
 
+                # Pay filter
                 elif field == "pay":
-
                     if not isinstance(value, dict):
                         abort(400)
-
-                    min_pay = value.get("min", None)
-                    max_pay = value.get("max", None)
-
+                    min_pay = value.get("min")
+                    max_pay = value.get("max")
                     if min_pay is None or max_pay is None:
                         abort(400)
-
                     where_conditions.append(Opportunities.pay.between(min_pay, max_pay))
 
+                # Other fields
                 else:
                     try:
                         where_conditions.append(
