@@ -34,11 +34,10 @@ def create_app() -> Flask:
     app.config.from_object(os.environ.get("CONFIG", "config.TestingConfig"))
 
     sentry_sdk.init(
-        dsn=app.config['SENTRY_DSN'],
+        dsn=app.config["SENTRY_DSN"],
         integrations=[FlaskIntegration()],
-        traces_sample_rate=app.config['SENTRY_TRACES_SAMPLE_RATE'],
-        profiles_sample_rate=app.config['SENTRY_PROFILES_SAMPLE_RATE'],
-
+        traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"],
+        profiles_sample_rate=app.config["SENTRY_PROFILES_SAMPLE_RATE"],
     )
 
     initialize_extensions(app)

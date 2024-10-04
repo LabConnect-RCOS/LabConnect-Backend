@@ -4,6 +4,7 @@ from datetime import timedelta
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+
 class Config:
     # Configuration
     SECRET_KEY = os.environ.get("SECRET_KEY", os.urandom(32))
@@ -20,7 +21,9 @@ class Config:
 
     SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
     SENTRY_TRACES_SAMPLE_RATE = float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", 1.0))
-    SENTRY_PROFILES_SAMPLE_RATE = float(os.environ.get("SENTRY_PROFILES_SAMPLE_RATE", 1.0))
+    SENTRY_PROFILES_SAMPLE_RATE = float(
+        os.environ.get("SENTRY_PROFILES_SAMPLE_RATE", 1.0)
+    )
 
 
 class TestingConfig(Config):
@@ -40,4 +43,3 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DB", f"sqlite:///{os.path.join(basedir, 'db', 'database.db')}"
     )
-
