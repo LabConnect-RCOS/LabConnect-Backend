@@ -55,27 +55,27 @@ def searchOpportunity(input: str):
     return results
 
 
-@main_blueprint.get("/opportunity")
-def getOpportunity2():
+# @main_blueprint.get("/opportunity")
+# def getOpportunity2():
 
-    if not request.data:
-        abort(400)
+#     if not request.data:
+#         abort(400)
 
-    json_request_data = request.get_json()
+#     json_request_data = request.get_json()
 
-    if not json_request_data:
-        abort(400)
+#     if not json_request_data:
+#         abort(400)
 
-    id = json_request_data.get("id", None)
+#     id = json_request_data.get("id", None)
 
-    if not id:
-        abort(400)
+#     if not id:
+#         abort(400)
 
-    data = db.first_or_404(db.select(Opportunities).where(Opportunities.id == id))
+#     data = db.first_or_404(db.select(Opportunities).where(Opportunities.id == id))
 
-    result = data.to_dict()
+#     result = data.to_dict()
 
-    return result
+#     return result
 
 
 def convert_to_enum(location_string):
@@ -203,638 +203,655 @@ def packageOpportunityCard(opportunity):
     return card
 
 
-@main_blueprint.get("/getOpportunity/<int:opp_id>")
-def getOpportunity(opp_id: int):
-    # query database for opportunity
-    query = db.session.execute(
-        db.select(Opportunities).where(Opportunities.id == opp_id)
-    )
+# @main_blueprint.get("/getOpportunity/<int:opp_id>")
+# def getOpportunity(opp_id: int):
+#     # query database for opportunity
+#     query = db.session.execute(
+#         db.select(Opportunities).where(Opportunities.id == opp_id)
+#     )
 
-    data = query.all()
+#     data = query.all()
 
-    # check if opportunity exists
-    if not data or len(data) == 0:
-        abort(404)
+#     # check if opportunity exists
+#     if not data or len(data) == 0:
+#         abort(404)
 
-    data = data[0]
+#     data = data[0]
 
-    oppData = packageIndividualOpportunity(data[0])
+#     oppData = packageIndividualOpportunity(data[0])
 
-    # return data in the below format if opportunity is found
-    return {"data": oppData}
+#     # return data in the below format if opportunity is found
+#     return {"data": oppData}
 
 
 # @main_blueprint.get("/opportunity/filter")
-@main_blueprint.route("/opportunity/filter", methods=["GET", "POST"])
-def filterOpportunities():
+# @main_blueprint.route("/opportunity/filter", methods=["GET", "POST"])
+# def filterOpportunities():
 
-    if not request.data:
-        data = db.session.execute(
-            db.select(Opportunities)
-            .where(Opportunities.active == True)
-            .limit(20)
-            .order_by(Opportunities.last_updated)
-            .distinct()
-        ).scalars()
+#     if not request.data:
+#         data = db.session.execute(
+#             db.select(Opportunities)
+#             .where(Opportunities.active == True)
+#             .limit(20)
+#             .order_by(Opportunities.last_updated)
+#             .distinct()
+#         ).scalars()
 
-        result = [opportunity.to_dict() for opportunity in data]
+#         result = [opportunity.to_dict() for opportunity in data]
 
-        return result
+#         return result
 
-    json_request_data = request.get_json()
+#     json_request_data = request.get_json()
 
-    if not json_request_data:
-        abort(400)
+#     if not json_request_data:
+#         abort(400)
 
-    filters = json_request_data.get("filters", None)
+#     filters = json_request_data.get("filters", None)
 
-    data = None
+#     data = None
 
-    if filters is None:
-        data = db.session.execute(db.select(Opportunities).limit(20)).scalars()
+#     if filters is None:
+#         data = db.session.execute(db.select(Opportunities).limit(20)).scalars()
 
-    elif not isinstance(filters, list):
-        abort(400)
+#     elif not isinstance(filters, list):
+#         abort(400)
 
-    else:
+#     else:
 
-        where_conditions = []
-        query = (
-            db.select(Opportunities)
-            .where(Opportunities.active == True)
-            .limit(20)
-            .order_by(Opportunities.last_updated)
-            .distinct()
-        )
-        for given_filter in filters:
-            field = given_filter.get("field", None)
-            value = given_filter.get("value", None)
+#         where_conditions = []
+#         query = (
+#             db.select(Opportunities)
+#             .where(Opportunities.active == True)
+#             .limit(20)
+#             .order_by(Opportunities.last_updated)
+#             .distinct()
+#         )
+#         for given_filter in filters:
+#             field = given_filter.get("field", None)
+#             value = given_filter.get("value", None)
 
-            if field and value:
+#             if field and value:
 
-                field = field.lower()
+#                 field = field.lower()
 
-                if field == "location" and value.lower() == "remote":
-                    where_conditions.append(Opportunities.location == "REMOTE")
+#                 if field == "location" and value.lower() == "remote":
+#                     where_conditions.append(Opportunities.location == "REMOTE")
 
-                elif field == "location":
-                    where_conditions.append(Opportunities.location != "REMOTE")
+#                 elif field == "location":
+#                     where_conditions.append(Opportunities.location != "REMOTE")
 
-                elif field == "class_year":
+#                 elif field == "class_year":
 
-                    if not isinstance(value, list):
-                        abort(400)
+#                     if not isinstance(value, list):
+#                         abort(400)
 
-                    query = query.join(
-                        RecommendsClassYears,
-                        Opportunities.id == RecommendsClassYears.opportunity_id,
-                    ).where(RecommendsClassYears.class_year.in_(value))
+#                     query = query.join(
+#                         RecommendsClassYears,
+#                         Opportunities.id == RecommendsClassYears.opportunity_id,
+#                     ).where(RecommendsClassYears.class_year.in_(value))
 
-                elif field == "credits":
+#                 elif field == "credits":
 
-                    if not isinstance(value, list):
-                        abort(400)
+#                     if not isinstance(value, list):
+#                         abort(400)
 
-                    credit_conditions = []
+#                     credit_conditions = []
 
-                    for credit in value:
+#                     for credit in value:
 
-                        if credit == 1:
-                            credit_conditions.append(Opportunities.one_credit == True)
-                        elif credit == 2:
-                            credit_conditions.append(Opportunities.two_credits == True)
-                        elif credit == 3:
-                            credit_conditions.append(
-                                Opportunities.three_credits == True
-                            )
-                        elif credit == 4:
-                            credit_conditions.append(Opportunities.four_credits == True)
-                        else:
-                            abort(400)
+#                         if credit == 1:
+#                             credit_conditions.append(Opportunities.one_credit == True)
+#                         elif credit == 2:
+#                             credit_conditions.append(Opportunities.two_credits == True)
+#                         elif credit == 3:
+#                             credit_conditions.append(
+#                                 Opportunities.three_credits == True
+#                             )
+#                         elif credit == 4:
+#                             credit_conditions.append(Opportunities.four_credits == True)
+#                         else:
+#                             abort(400)
 
-                    query = query.where(db.or_(*credit_conditions))
+#                     query = query.where(db.or_(*credit_conditions))
 
-                elif field == "majors":
+#                 elif field == "majors":
 
-                    if not isinstance(value, list):
-                        abort(400)
+#                     if not isinstance(value, list):
+#                         abort(400)
 
-                    query = query.join(
-                        RecommendsMajors,
-                        Opportunities.id == RecommendsMajors.opportunity_id,
-                    ).where(RecommendsMajors.major_code.in_(value))
+#                     query = query.join(
+#                         RecommendsMajors,
+#                         Opportunities.id == RecommendsMajors.opportunity_id,
+#                     ).where(RecommendsMajors.major_code.in_(value))
 
-                elif field == "departments":
+#                 elif field == "departments":
 
-                    if not isinstance(value, list):
-                        abort(400)
+#                     if not isinstance(value, list):
+#                         abort(400)
 
-                    query = (
-                        query.join(Leads, Opportunities.id == Leads.opportunity_id)
-                        .join(LabManager, Leads.lab_manager_id == LabManager.id)
-                        .where(LabManager.department_id.in_(value))
-                    )
-
-                elif field == "pay":
+#                     query = (
+#                         query.join(Leads, Opportunities.id == Leads.opportunity_id)
+#                         .join(LabManager, Leads.lab_manager_id == LabManager.id)
+#                         .where(LabManager.department_id.in_(value))
+#                     )
 
-                    if not isinstance(value, dict):
-                        abort(400)
+#                 elif field == "pay":
 
-                    min_pay = value.get("min", None)
-                    max_pay = value.get("max", None)
+#                     if not isinstance(value, dict):
+#                         abort(400)
 
-                    if min_pay is None or max_pay is None:
-                        abort(400)
+#                     min_pay = value.get("min", None)
+#                     max_pay = value.get("max", None)
 
-                    where_conditions.append(Opportunities.pay.between(min_pay, max_pay))
+#                     if min_pay is None or max_pay is None:
+#                         abort(400)
 
-                else:
-                    try:
-                        where_conditions.append(
-                            getattr(Opportunities, field).ilike(f"%{value}%")
-                        )
-                    except AttributeError:
-                        abort(400)
+#                     where_conditions.append(Opportunities.pay.between(min_pay, max_pay))
 
-        query = query.where(*where_conditions)
-        data = db.session.execute(query).scalars()
+#                 else:
+#                     try:
+#                         where_conditions.append(
+#                             getattr(Opportunities, field).ilike(f"%{value}%")
+#                         )
+#                     except AttributeError:
+#                         abort(400)
 
-    if not data:
-        abort(404)
+#         query = query.where(*where_conditions)
+#         data = db.session.execute(query).scalars()
 
-    result = [opportunity.to_dict() for opportunity in data]
+#     if not data:
+#         abort(404)
 
-    return result
+#     result = [opportunity.to_dict() for opportunity in data]
 
+#     return result
 
-@main_blueprint.put("/opportunity")
-def changeActiveStatus2():
 
-    if not request.data:
-        abort(400)
+# @main_blueprint.put("/opportunity")
+# def changeActiveStatus2():
 
-    json_request_data = request.get_json()
+#     if not request.data:
+#         abort(400)
 
-    if not json_request_data:
-        abort(400)
+#     json_request_data = request.get_json()
 
-    postID = json_request_data.get("id", None)
-    status = json_request_data.get("status", None)
+#     if not json_request_data:
+#         abort(400)
 
-    if (
-        postID is None
-        or status is None
-        or not isinstance(postID, int)
-        or not isinstance(status, bool)
-    ):
-        abort(400)
+#     postID = json_request_data.get("id", None)
+#     status = json_request_data.get("status", None)
 
-    opportunity = db.first_or_404(
-        db.select(Opportunities).where(Opportunities.id == postID)
-    )
-    opportunity.active = status
-    db.session.commit()
-    return {"msg": "Opportunity updated successfully"}, 200
+#     if (
+#         postID is None
+#         or status is None
+#         or not isinstance(postID, int)
+#         or not isinstance(status, bool)
+#     ):
+#         abort(400)
 
+#     opportunity = db.first_or_404(
+#         db.select(Opportunities).where(Opportunities.id == postID)
+#     )
+#     opportunity.active = status
+#     db.session.commit()
+#     return {"msg": "Opportunity updated successfully"}, 200
 
-@main_blueprint.get("/getOpportunityMeta/<int:id>")
-def getOpportunityMeta(id: int):
-    query = db.session.execute(
-        db.select(
-            Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
-        )
-        .where(Opportunities.id == id)
-        .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-        .join(RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id)
-        .join(
-            RecommendsClassYears,
-            RecommendsClassYears.opportunity_id == Opportunities.id,
-        )
-    )
-    data = query.all()
-    print(data)
 
-    if not data or len(data) == 0:
-        abort(404)
+# @main_blueprint.get("/getOpportunityMeta/<int:id>")
+# def getOpportunityMeta(id: int):
+#     query = db.session.execute(
+#         db.select(
+#             Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
+#         )
+#         .where(Opportunities.id == id)
+#         .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
+#         .join(RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id)
+#         .join(
+#             RecommendsClassYears,
+#             RecommendsClassYears.opportunity_id == Opportunities.id,
+#         )
+#     )
+#     data = query.all()
+#     print(data)
 
-    dictionary = data[0][0].to_dict()
-    dictionary["semester"] = dictionary["semester"].upper()
-    dictionary["courses"] = set()
-    dictionary["majors"] = set()
-    dictionary["years"] = set()
 
-    for row in data:
-        dictionary["courses"].add(row[2].course_code)
-        dictionary["majors"].add(row[1].major_code)
-        dictionary["years"].add(row[3].class_year)
+#     if not data or len(data) == 0:
+#         abort(404)
 
-    dictionary["courses"] = list(dictionary["courses"])
-    dictionary["majors"] = list(dictionary["majors"])
-    dictionary["years"] = list(dictionary["years"])
+#     dictionary = data[0][0].to_dict()
+#     dictionary["semester"] = dictionary["semester"].upper()
+#     dictionary["courses"] = set()
+#     dictionary["majors"] = set()
+#     dictionary["years"] = set()
 
-    for i in range(len(dictionary["years"])):
-        dictionary["years"][i] = str(dictionary["years"][i])
+#     for row in data:
+#         dictionary["courses"].add(row[2].course_code)
+#         dictionary["majors"].add(row[1].major_code)
+#         dictionary["years"].add(row[3].class_year)
 
-    dictionary["credits"] = []
-    if dictionary["one_credit"]:
-        dictionary["credits"].append("1")
+#     dictionary["courses"] = list(dictionary["courses"])
+#     dictionary["majors"] = list(dictionary["majors"])
+#     dictionary["years"] = list(dictionary["years"])
 
-    if dictionary["two_credits"]:
-        dictionary["credits"].append("2")
+#     for i in range(len(dictionary["years"])):
+#         dictionary["years"][i] = str(dictionary["years"][i])
 
-    if dictionary["three_credits"]:
-        dictionary["credits"].append("3")
+#     dictionary["credits"] = []
+#     if dictionary["one_credit"]:
+#         dictionary["credits"].append("1")
 
-    if dictionary["four_credits"]:
-        dictionary["credits"].append("4")
+#     if dictionary["two_credits"]:
+#         dictionary["credits"].append("2")
 
-    dictionary.pop("one_credit")
-    dictionary.pop("two_credits")
-    dictionary.pop("three_credits")
-    dictionary.pop("four_credits")
+#     if dictionary["three_credits"]:
+#         dictionary["credits"].append("3")
 
-    return {"data": dictionary}
+#     if dictionary["four_credits"]:
+#         dictionary["credits"].append("4")
 
+#     dictionary.pop("one_credit")
+#     dictionary.pop("two_credits")
+#     dictionary.pop("three_credits")
+#     dictionary.pop("four_credits")
 
-# Jobs page
-@main_blueprint.get("/getOpportunityCards")
-def getOpportunityCards():
-    # query database for opportunity
-    query = db.session.execute(
-        db.select(Opportunities).where(Opportunities.active == True)
-    )
+#     return {"data": dictionary}
+
+#     abort(500)
 
-    data = query.fetchall()
 
-    # return data in the below format if opportunity is found
-    cards = {"data": [packageOpportunityCard(opportunity[0]) for opportunity in data]}
+# # Jobs page
+# @main_blueprint.get("/getOpportunityCards")
+# def getOpportunityCards():
+# #     # query database for opportunity
+#     query = db.session.execute(
+#         db.select(Opportunities).where(Opportunities.active == True)
+#     )
 
-    return cards
+#     data = query.fetchall()
 
+#         # return data in the below format if opportunity is found
+#         cards = {
+#             "data": [packageOpportunityCard(opportunity[0]) for opportunity in data]
+#         }
 
-@main_blueprint.get("/getOpportunities")
-def getOpportunities():
-    # query database for opportunity
-    query = db.session.execute(
-        db.select(Opportunities, Leads, LabManager)
-        .join(Leads, Leads.opportunity_id == Opportunities.id)
-        .join(LabManager, Leads.lab_manager_id == LabManager.id)
-    )
-    data = query.all()
-    print(data[0])
+#     return cards
 
-    # return data in the below format if opportunity is found
-    return {
-        "data": [
-            packageOpportunity(opportunity[0], opportunity[2]) for opportunity in data
-        ]
-    }
+#     abort(500)
 
+# @main_blueprint.get("/getOpportunities")
+# def getOpportunities():
+# #     # query database for opportunity
+#     query = db.session.execute(
+#         db.select(Opportunities, Leads, LabManager)
+#         .join(Leads, Leads.opportunity_id == Opportunities.id)
+#         .join(LabManager, Leads.lab_manager_id == LabManager.id)
+#     )
+#     data = query.all()
+#     print(data[0])
 
-@main_blueprint.get("/getOpportunityByProfessor/<string:rcs_id>")
-def getOpportunityByProfessor(rcs_id: str):
-    # query database for opportunity
-    query = db.session.execute(
-        db.select(Opportunities, Leads)
-        .where(Leads.lab_manager_id == rcs_id)
-        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-    )
+#         # return data in the below format if opportunity is found
+#         return {
+#             "data": [
+#                 packageOpportunity(opportunity[0], opportunity[2])
+#                 for opportunity in data
+#             ]
+#         }
+
+#     abort(500)
+
+# @main_blueprint.get("/getOpportunityByProfessor/<string:rcs_id>")
+# def getOpportunityByProfessor(rcs_id: str):
+# #     # query database for opportunity
+#     query = db.session.execute(
+#         db.select(Opportunities, Leads)
+#         .where(Leads.lab_manager_id == rcs_id)
+#         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+#     )
 
-    data = query.all()
-    print(data)
-    # return data in the format bellow if opportunity is found
-    return {"data": [opportunity[0].to_dict() for opportunity in data]}
+#         data = query.all()
+#         print(data)
 
+#         # return data in the below format if opportunity is found
+#         return {"data": [opportunity[0].to_dict() for opportunity in data]}
 
-@main_blueprint.get("/getProfessorOpportunityCards/<string:rcs_id>")
-def getProfessorOpportunityCards(rcs_id: str):
+#     abort(500)
 
-    # query database for opportunity
-    user = db.first_or_404(db.select(User).where(User.email == rcs_id))
+# @main_blueprint.get("/getProfessorOpportunityCards/<string:rcs_id>")
+# def getProfessorOpportunityCards(rcs_id: str):
+#
+#     # query database for opportunity
+#     user = db.first_or_404(db.select(User).where(User.email == rcs_id))
 
-    query = db.session.execute(
-        db.select(Opportunities, Leads)
-        .where(Leads.lab_manager_id == user.lab_manager_id)
-        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-    )
+#     query = db.session.execute(
+#         db.select(Opportunities, Leads)
+#         .where(Leads.lab_manager_id == user.lab_manager_id)
+#         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+#     )
 
-    data = query.all()
+#     data = query.all()
 
-    cards = {"data": []}
+#     cards = {"data": []}
 
-    for row in data:
-        opportunity = row[0]
+#     for row in data:
+#         opportunity = row[0]
 
-        if not opportunity.active:
-            continue
+#         if not opportunity.active:
+#             continue
 
-        oppData = {
-            "id": opportunity.id,
-            "title": opportunity.name,
-            "body": "Due " + str(opportunity.application_due),
-            "attributes": [],
-        }
+#         oppData = {
+#             "id": opportunity.id,
+#             "title": opportunity.name,
+#             "body": "Due " + str(opportunity.application_due),
+#             "attributes": [],
+#         }
 
-        if opportunity.pay is not None and opportunity.pay > 0:
-            oppData["attributes"].append("Paid")
+#         if opportunity.pay is not None and opportunity.pay > 0:
+#             oppData["attributes"].append("Paid")
 
-        if (
-            opportunity.one_credit
-            or opportunity.two_credits
-            or opportunity.three_credits
-            or opportunity.four_credits
-        ):
-            oppData["attributes"].append("Credit Available")
+#         if (
+#             opportunity.one_credit
+#             or opportunity.two_credits
+#             or opportunity.three_credits
+#             or opportunity.four_credits
+#         ):
+#             oppData["attributes"].append("Credit Available")
 
-        cards["data"].append(oppData)
+#         cards["data"].append(oppData)
 
-    # return data in the below format if opportunity is found
-    return cards
+#     # return data in the below format if opportunity is found
+#     return cards
 
+#     abort(500)
 
-@main_blueprint.get("/getProfileOpportunities/<string:rcs_id>")
-def getProfileOpportunities(rcs_id: str):
-    # query database for opportunity
+# @main_blueprint.get("/getProfileOpportunities/<string:rcs_id>")
+# def getProfileOpportunities(rcs_id: str):
+# #     # query database for opportunity
 
-    query = db.session.execute(
-        db.select(Opportunities, Leads)
-        .where(Leads.lab_manager_id == rcs_id)
-        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-    )
+#     query = db.session.execute(
+#         db.select(Opportunities, Leads)
+#         .where(Leads.lab_manager_id == rcs_id)
+#         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+#     )
 
-    data = query.all()
+#     data = query.all()
 
-    cards = {"data": []}
+#     cards = {"data": []}
 
-    for row in data:
-        opportunity = row[0]
+#     for row in data:
+#         opportunity = row[0]
 
-        oppData = {
-            "id": opportunity.id,
-            "title": opportunity.name,
-            "body": "Due " + str(opportunity.application_due),
-            "attributes": [],
-            "activeStatus": opportunity.active,
-        }
+#         oppData = {
+#             "id": opportunity.id,
+#             "title": opportunity.name,
+#             "body": "Due " + str(opportunity.application_due),
+#             "attributes": [],
+#             "activeStatus": opportunity.active,
+#         }
 
-        if opportunity.pay is not None and opportunity.pay > 0:
-            oppData["attributes"].append("Paid")
-        if (
-            opportunity.one_credit
-            or opportunity.two_credits
-            or opportunity.three_credits
-            or opportunity.four_credits
-        ):
-            oppData["attributes"].append("Credits")
+#         if opportunity.pay is not None and opportunity.pay > 0:
+#             oppData["attributes"].append("Paid")
+#         if (
+#             opportunity.one_credit
+#             or opportunity.two_credits
+#             or opportunity.three_credits
+#             or opportunity.four_credits
+#         ):
+#             oppData["attributes"].append("Credits")
 
-        cards["data"].append(oppData)
+#         cards["data"].append(oppData)
 
-    # return data in the below format if opportunity is found
-    return cards
+#     # return data in the below format if opportunity is found
+#     return cards
+
+#     abort(500)
 
 
 # functions to create/edit/delete opportunities
-@main_blueprint.post("/createOpportunity")
-def createOpportunity():
-    # if request.method == "POST":
-    data = request.get_json()
-    authorID = data["authorID"]
-    newPostData = data
+# @main_blueprint.post("/createOpportunity")
+# def createOpportunity():
+#     # if request.method == "POST":
+#     data = request.get_json()
+#     authorID = data["authorID"]
+#     newPostData = data
 
-    # query database to see if the credentials above match
-    query = db.session.execute(db.select(LabManager).where(LabManager.id == authorID))
+#         # query database to see if the credentials above match
+#         query = db.session.execute(
+#             db.select(LabManager).where(LabManager.id == authorID)
+#         )
 
-    data = query.all()[0][0]
+#     data = query.all()[0][0]
 
-    # TODO: how do we get the opportunity id?
-    # if match is found, create a new opportunity with the new data provided
+#     # TODO: how do we get the opportunity id?
+#     # if match is found, create a new opportunity with the new data provided
 
-    one = False
-    two = False
-    three = False
-    four = False
+#     one = False
+#     two = False
+#     three = False
+#     four = False
 
-    if "1" in newPostData["credits"]:
-        one = True
-    if "2" in newPostData["credits"]:
-        two = True
-    if "3" in newPostData["credits"]:
-        three = True
-    if "4" in newPostData["credits"]:
-        four = True
+#     if "1" in newPostData["credits"]:
+#         one = True
+#     if "2" in newPostData["credits"]:
+#         two = True
+#     if "3" in newPostData["credits"]:
+#         three = True
+#     if "4" in newPostData["credits"]:
+#         four = True
 
-    lenum = convert_to_enum(newPostData["location"])
+#     lenum = convert_to_enum(newPostData["location"])
 
-    if lenum is None:
-        lenum = LocationEnum.TBD
+#     if lenum is None:
+#         lenum = LocationEnum.TBD
 
-    newOpportunity = Opportunities(
-        name=newPostData["name"],
-        description=newPostData["description"],
-        recommended_experience=newPostData["recommended_experience"],
-        pay=newPostData["pay"],
-        one_credit=one,
-        two_credits=two,
-        three_credits=three,
-        four_credits=four,
-        semester=newPostData["semester"],
-        year=newPostData["year"],
-        application_due=datetime.datetime.strptime(
-            newPostData["application_due"], "%Y-%m-%d"
-        ),
-        active=newPostData["active"],
-        location=lenum,
-    )
-    print("before comitting")
-    db.session.add(newOpportunity)
-    db.session.commit()
+#     newOpportunity = Opportunities(
+#         name=newPostData["name"],
+#         description=newPostData["description"],
+#         recommended_experience=newPostData["recommended_experience"],
+#         pay=newPostData["pay"],
+#         one_credit=one,
+#         two_credits=two,
+#         three_credits=three,
+#         four_credits=four,
+#         semester=newPostData["semester"],
+#         year=newPostData["year"],
+#         application_due=datetime.datetime.strptime(
+#             newPostData["application_due"], "%Y-%m-%d"
+#         ),
+#         active=newPostData["active"],
+#         location=lenum,
+#     )
+#     print("before comitting")
+#     db.session.add(newOpportunity)
+#     db.session.commit()
 
-    print("got here atleast")
+#     print("got here atleast")
 
-    newLead = Leads(lab_manager_id=authorID, opportunity_id=newOpportunity.id)
+#     newLead = Leads(lab_manager_id=authorID, opportunity_id=newOpportunity.id)
 
-    db.session.add(newLead)
-    db.session.commit()
+#     db.session.add(newLead)
+#     db.session.commit()
 
-    for course in newPostData["courses"]:
-        newCourse = RecommendsCourses(
-            opportunity_id=newOpportunity.id, course_code=course
-        )
-        db.session.add(newCourse)
-        db.session.commit()
+#     for course in newPostData["courses"]:
+#         newCourse = RecommendsCourses(
+#             opportunity_id=newOpportunity.id, course_code=course
+#         )
+#         db.session.add(newCourse)
+#         db.session.commit()
 
-    for major in newPostData["majors"]:
-        newMajor = RecommendsMajors(opportunity_id=newOpportunity.id, major_code=major)
-        db.session.add(newMajor)
-        db.session.commit()
+#         for major in newPostData["majors"]:
+#             newMajor = RecommendsMajors(
+#                 opportunity_id=newOpportunity.id, major_code=major
+#             )
+#             db.session.add(newMajor)
+#             db.session.commit()
 
-    for year in newPostData["years"]:
-        newYear = RecommendsClassYears(
-            opportunity_id=newOpportunity.id, class_year=year
-        )
-        db.session.add(newYear)
-        db.session.commit()
+#     for year in newPostData["years"]:
+#         newYear = RecommendsClassYears(
+#             opportunity_id=newOpportunity.id, class_year=year
+#         )
+#         db.session.add(newYear)
+#         db.session.commit()
 
-    # db.session.add(newOpportunity)
+#     # db.session.add(newOpportunity)
 
-    return {"data": "Opportunity Created"}
+#     return {"data": "Opportunity Created"}
 
-
+#
 # abort(500)
 
 
-@main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
-def editOpportunity():
-    if True:
-        data = request.get_json()
-        id = data["id"]
-        # authToken = data["authToken"]
-        # authorID = data["authorID"]
-        newPostData = data
+# @main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
+# def editOpportunity():
+#     if True:
+#         data = request.get_json()
+#         id = data["id"]
+#         # authToken = data["authToken"]
+#         # authorID = data["authorID"]
+#         newPostData = data
 
-        # query database to see if the credentials above match
-        query = db.session.execute(
-            db.select(
-                Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
-            )
-            .where(Opportunities.id == id)
-            .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-            .join(
-                RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
-            )
-            .join(
-                RecommendsClassYears,
-                RecommendsClassYears.opportunity_id == Opportunities.id,
-            )
-        )
+#         # query database to see if the credentials above match
+#         query = db.session.execute(
+#             db.select(
+#                 Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
+#             )
+#             .where(Opportunities.id == id)
+#             .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
+#             .join(
+#                 RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
+#             )
+#             .join(
+#                 RecommendsClassYears,
+#                 RecommendsClassYears.opportunity_id == Opportunities.id,
+#             )
+#         )
 
-        data = query.all()
+#         data = query.all()
 
-        if not data or len(data) == 0:
-            abort(404)
+#         if not data or len(data) == 0:
+#             abort(404)
 
-        opportunity = data[0][0]
+#         opportunity = data[0][0]
 
-        one = False
-        two = False
-        three = False
-        four = False
+#         one = False
+#         two = False
+#         three = False
+#         four = False
 
-        if "1" in newPostData["credits"]:
-            one = True
-        if "2" in newPostData["credits"]:
-            two = True
-        if "3" in newPostData["credits"]:
-            three = True
-        if "4" in newPostData["credits"]:
-            four = True
+#         if "1" in newPostData["credits"]:
+#             one = True
+#         if "2" in newPostData["credits"]:
+#             two = True
+#         if "3" in newPostData["credits"]:
+#             three = True
+#         if "4" in newPostData["credits"]:
+#             four = True
 
-        lenum = convert_to_enum(newPostData["location"])
-        print(newPostData["location"])
-        print("printing lenum")
-        print(lenum)
+#         lenum = convert_to_enum(newPostData["location"])
+#         print(newPostData["location"])
+#         print("printing lenum")
+#         print(lenum)
 
-        # if match is found, edit the opportunity with the new data provided
-        opportunity.name = newPostData["name"]
-        opportunity.description = newPostData["description"]
-        opportunity.recommended_experience = newPostData["recommended_experience"]
-        opportunity.pay = newPostData["pay"]
-        opportunity.one_credit = one
-        opportunity.two_credits = two
-        opportunity.three_credits = three
-        opportunity.four_credits = four
-        opportunity.semester = newPostData["semester"]
-        opportunity.year = newPostData["year"]
-        opportunity.application_due = datetime.datetime.strptime(
-            newPostData["application_due"], "%Y-%m-%d"
-        )
-        opportunity.active = newPostData["active"]
+#         # if match is found, edit the opportunity with the new data provided
+#         opportunity.name = newPostData["name"]
+#         opportunity.description = newPostData["description"]
+#         opportunity.recommended_experience = newPostData["recommended_experience"]
+#         opportunity.pay = newPostData["pay"]
+#         opportunity.one_credit = one
+#         opportunity.two_credits = two
+#         opportunity.three_credits = three
+#         opportunity.four_credits = four
+#         opportunity.semester = newPostData["semester"]
+#         opportunity.year = newPostData["year"]
+#         opportunity.application_due = datetime.datetime.strptime(
+#             newPostData["application_due"], "%Y-%m-%d"
+#         )
+#         opportunity.active = newPostData["active"]
 
-        if lenum is not None:
-            opportunity.location = lenum
+#         if lenum is not None:
+#             opportunity.location = lenum
 
-        db.session.add(opportunity)
-        db.session.commit()
+#         db.session.add(opportunity)
+#         db.session.commit()
 
-        # delete all the old data in the recommends tables
+#         # delete all the old data in the recommends tables
 
-        for row in data:
-            db.session.delete(row[1])
-            db.session.delete(row[2])
-            db.session.delete(row[3])
+#         for row in data:
+#             db.session.delete(row[1])
+#             db.session.delete(row[2])
+#             db.session.delete(row[3])
 
-        # create new data for allow the tables
+#         # create new data for allow the tables
 
-        for course in newPostData["courses"]:
-            newCourse = RecommendsCourses(
-                opportunity_id=opportunity.id, course_code=course
-            )
-            db.session.add(newCourse)
-            db.session.commit()
+#         for course in newPostData["courses"]:
+#             newCourse = RecommendsCourses(
+#                 opportunity_id=opportunity.id, course_code=course
+#             )
+#             db.session.add(newCourse)
+#             db.session.commit()
 
-        for major in newPostData["majors"]:
-            newMajor = RecommendsMajors(opportunity_id=opportunity.id, major_code=major)
-            db.session.add(newMajor)
-            db.session.commit()
+#         for major in newPostData["majors"]:
+#             newMajor = RecommendsMajors(opportunity_id=opportunity.id, major_code=major)
+#             db.session.add(newMajor)
+#             db.session.commit()
 
-        for year in newPostData["years"]:
-            newYear = RecommendsClassYears(
-                opportunity_id=opportunity.id, class_year=year
-            )
-            db.session.add(newYear)
-            db.session.commit()
+#         for year in newPostData["years"]:
+#             newYear = RecommendsClassYears(
+#                 opportunity_id=opportunity.id, class_year=year
+#             )
+#             db.session.add(newYear)
+#             db.session.commit()
 
-        return "Successful"
+#         return "Successful"
 
-    abort(500)
+#     abort(500)
 
 
-@main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
-def deleteOpportunity():
-    if request.method in ["DELETE", "POST"]:
-        data = request.get_json()
-        id = data["id"]
+# @main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
+# def deleteOpportunity():
+#     if request.method in ["DELETE", "POST"]:
+#         data = request.get_json()
+#         id = data["id"]
 
-        query = db.session.execute(
-            db.select(
-                Opportunities,
-                RecommendsMajors,
-                RecommendsCourses,
-                RecommendsClassYears,
-                Leads,
-            )
-            .where(Opportunities.id == id)
-            .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-            .join(
-                RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
-            )
-            .join(
-                RecommendsClassYears,
-                RecommendsClassYears.opportunity_id == Opportunities.id,
-            )
-            .join(Leads, Leads.opportunity_id == Opportunities.id)
-        )
+#         query = db.session.execute(
+#             db.select(
+#                 Opportunities,
+#                 RecommendsMajors,
+#                 RecommendsCourses,
+#                 RecommendsClassYears,
+#                 Leads,
+#             )
+#             .where(Opportunities.id == id)
+#             .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
+#             .join(
+#                 RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
+#             )
+#             .join(
+#                 RecommendsClassYears,
+#                 RecommendsClassYears.opportunity_id == Opportunities.id,
+#             )
+#             .join(Leads, Leads.opportunity_id == Opportunities.id)
+#         )
 
-        data = query.all()
-        print(data)
+#         data = query.all()
+#         print(data)
 
-        if not data or len(data) == 0:
-            abort(404)
+#         if not data or len(data) == 0:
+#             abort(404)
 
-        opportunity = data[0][0]
+#         opportunity = data[0][0]
 
-        for row in data:
-            db.session.delete(row[1])
-            db.session.delete(row[2])
-            db.session.delete(row[3])
-            db.session.delete(row[4])
+#         for row in data:
+#             db.session.delete(row[1])
+#             db.session.delete(row[2])
+#             db.session.delete(row[3])
+#             db.session.delete(row[4])
 
-        leads = data[0][4]
+#         leads = data[0][4]
 
-        db.session.delete(opportunity)
+#         db.session.delete(opportunity)
 
-        db.session.commit()
+#         db.session.commit()
 
-        return "Success"
+#         return "Success"
 
-    abort(500)
+#     abort(500)
