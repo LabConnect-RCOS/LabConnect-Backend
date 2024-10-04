@@ -22,7 +22,7 @@ from labconnect.helpers import LocationEnum
 from . import main_blueprint
 
 
-@main_blueprint.route("/searchOpportunity/<string:input>", methods=["GET"])
+@main_blueprint.get("/searchOpportunity/<string:input>")
 def searchOpportunity(input: str):
     # Perform a search
     stmt = (
@@ -202,7 +202,7 @@ def packageOpportunityCard(opportunity):
     return card
 
 
-@main_blueprint.route("/getOpportunity/<int:opp_id>", methods=["GET"])
+@main_blueprint.get("/getOpportunity/<int:opp_id>")
 def getOpportunity(opp_id: int):
     # query database for opportunity
     query = db.session.execute(
@@ -396,9 +396,8 @@ def changeActiveStatus2():
     return {"msg": "Opportunity updated successfully"}, 200
 
 
-@main_blueprint.route("/getOpportunityMeta/<int:id>", methods=["GET"])
+@main_blueprint.get("/getOpportunityMeta/<int:id>")
 def getOpportunityMeta(id: int):
-    if request.method == "GET":
         query = db.session.execute(
             db.select(
                 Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
@@ -457,13 +456,9 @@ def getOpportunityMeta(id: int):
 
         return {"data": dictionary}
 
-    abort(500)
-
-
 # Jobs page
-@main_blueprint.route("/getOpportunityCards", methods=["GET"])
+@main_blueprint.get("/getOpportunityCards")
 def getOpportunityCards():
-    if request.method == "GET":
         # query database for opportunity
         query = db.session.execute(
             db.select(Opportunities).where(Opportunities.active == True)
@@ -478,12 +473,8 @@ def getOpportunityCards():
 
         return cards
 
-    abort(500)
-
-
-@main_blueprint.route("/getOpportunities", methods=["GET"])
+@main_blueprint.get("/getOpportunities")
 def getOpportunities():
-    if request.method == "GET":
         # query database for opportunity
         query = db.session.execute(
             db.select(Opportunities, Leads, LabManager)
@@ -501,12 +492,9 @@ def getOpportunities():
             ]
         }
 
-    abort(500)
 
-
-@main_blueprint.route("/getOpportunityByProfessor/<string:rcs_id>", methods=["GET"])
+@main_blueprint.get("/getOpportunityByProfessor/<string:rcs_id>")
 def getOpportunityByProfessor(rcs_id: str):
-    if request.method == "GET":
         # query database for opportunity
         query = db.session.execute(
             db.select(Opportunities, Leads)
@@ -516,16 +504,14 @@ def getOpportunityByProfessor(rcs_id: str):
 
         data = query.all()
         print(data)
-
-        # return data in the below format if opportunity is found
+        # return data in the format bellow if opportunity is found
         return {"data": [opportunity[0].to_dict() for opportunity in data]}
 
-    abort(500)
 
 
-@main_blueprint.route("/getProfessorOpportunityCards/<string:rcs_id>", methods=["GET"])
+@main_blueprint.get("/getProfessorOpportunityCards/<string:rcs_id>")
 def getProfessorOpportunityCards(rcs_id: str):
-    if request.method == "GET":
+
         # query database for opportunity
         user = db.first_or_404(db.select(User).where(User.email == rcs_id))
 
@@ -568,12 +554,11 @@ def getProfessorOpportunityCards(rcs_id: str):
         # return data in the below format if opportunity is found
         return cards
 
-    abort(500)
 
 
-@main_blueprint.route("/getProfileOpportunities/<string:rcs_id>", methods=["GET"])
+
+@main_blueprint.get("/getProfileOpportunities/<string:rcs_id>")
 def getProfileOpportunities(rcs_id: str):
-    if request.method == "GET":
         # query database for opportunity
 
         query = db.session.execute(
@@ -612,13 +597,12 @@ def getProfileOpportunities(rcs_id: str):
         # return data in the below format if opportunity is found
         return cards
 
-    abort(500)
 
 
 # functions to create/edit/delete opportunities
-@main_blueprint.route("/createOpportunity", methods=["POST"])
+@main_blueprint.post("/createOpportunity")
 def createOpportunity():
-    if request.method == "POST":
+    #if request.method == "POST":
         data = request.get_json()
         authorID = data["authorID"]
         newPostData = data
@@ -705,7 +689,7 @@ def createOpportunity():
 
         return {"data": "Opportunity Created"}
 
-    abort(500)
+    #abort(500)
 
 
 @main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
