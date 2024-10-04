@@ -25,21 +25,17 @@ class Config:
         os.environ.get("SENTRY_PROFILES_SAMPLE_RATE", 1.0)
     )
 
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DB", f"sqlite:///{os.path.join(basedir, 'db', 'database.db')}"
+    )
+    # "postgresql+psycopg2://postgres:root@localhost/labconnect"
+
 
 class TestingConfig(Config):
     TESTING = True
     DEBUG = True
 
-    # Using SQLLITE locally
-    # SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(basedir, 'database.db')}"
-    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://postgres:root@localhost/labconnect"
-
 
 class ProductionConfig(Config):
     TESTING = False
     DEBUG = False
-
-    # Using SQLLITE locally as a fallback, the goal is to use postgresql in production
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DB", f"sqlite:///{os.path.join(basedir, 'db', 'database.db')}"
-    )
