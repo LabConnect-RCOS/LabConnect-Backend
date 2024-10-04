@@ -24,11 +24,11 @@ jobs:
           sleep 60
           docker logs labconnect-backend-container
           docker stop labconnect-backend-container
-          docker rm labconnect-backend-container
       
       - name: "Check for Container Exit Code"
         run: |
           docker inspect labconnect-backend-container --format='{{.State.ExitCode}}'
+          docker rm labconnect-backend-container
         id: exit_code
 
       - name: "Fail if Container Fails"
