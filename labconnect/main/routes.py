@@ -174,6 +174,7 @@ def profile():
 
     return result
 
+
 # @main_blueprint.get("/getProfessorProfile/<string:email>")
 # def getProfessorProfile(email: int):
 #     # test code until database code is added
@@ -262,7 +263,7 @@ def profile():
 #         dictionary[item[0].rcs_id] = item[0].to_dict()
 #         dictionary[item[0].rcs_id].pop("rcs_id")
 
-    # return dictionary
+# return dictionary
 
 
 @main_blueprint.post("/changeActiveStatus")
