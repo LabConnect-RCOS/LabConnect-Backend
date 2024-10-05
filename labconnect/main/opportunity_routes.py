@@ -22,7 +22,7 @@ from labconnect.helpers import LocationEnum
 from . import main_blueprint
 
 
-@main_blueprint.route("/searchOpportunity/<string:input>", methods=["GET"])
+@main_blueprint.get("/searchOpportunity/<string:input>")
 def searchOpportunity(input: str):
     # Perform a search
     stmt = (
@@ -94,13 +94,14 @@ def packageOpportunity(opportunityInfo, professorInfo):
 
 
 def packageIndividualOpportunity(opportunityInfo):
-    data = {}
-    data["id"] = opportunityInfo.id
-    data["name"] = opportunityInfo.name
-    data["description"] = opportunityInfo.description
-    data["recommended_experience"] = opportunityInfo.recommended_experience
-    data["author"] = ""
-    data["department"] = ""
+    data = {
+        "id": opportunityInfo.id,
+        "name": opportunityInfo.name,
+        "description": opportunityInfo.description,
+        "recommended_experience": opportunityInfo.recommended_experience,
+        "author": "",
+        "department": "",
+    }
 
     opportunity_credits = ""
     if opportunityInfo.one_credit:
@@ -202,7 +203,7 @@ def packageOpportunityCard(opportunity):
     return card
 
 
-# @main_blueprint.route("/getOpportunity/<int:opp_id>", methods=["GET"])
+# @main_blueprint.get("/getOpportunity/<int:opp_id>")
 # def getOpportunity(opp_id: int):
 #     # query database for opportunity
 #     query = db.session.execute(
@@ -396,102 +397,97 @@ def packageOpportunityCard(opportunity):
 #     return {"msg": "Opportunity updated successfully"}, 200
 
 
-# @main_blueprint.route("/getOpportunityMeta/<int:id>", methods=["GET"])
+# @main_blueprint.get("/getOpportunityMeta/<int:id>")
 # def getOpportunityMeta(id: int):
-#     if request.method == "GET":
-#         query = db.session.execute(
-#             db.select(
-#                 Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
-#             )
-#             .where(Opportunities.id == id)
-#             .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-#             .join(
-#                 RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
-#             )
-#             .join(
-#                 RecommendsClassYears,
-#                 RecommendsClassYears.opportunity_id == Opportunities.id,
-#             )
+#     query = db.session.execute(
+#         db.select(
+#             Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
 #         )
-#         data = query.all()
-#         print(data)
+#         .where(Opportunities.id == id)
+#         .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
+#         .join(RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id)
+#         .join(
+#             RecommendsClassYears,
+#             RecommendsClassYears.opportunity_id == Opportunities.id,
+#         )
+#     )
+#     data = query.all()
+#     print(data)
 
-#         if not data or len(data) == 0:
-#             abort(404)
 
-#         dictionary = data[0][0].to_dict()
-#         dictionary["semester"] = dictionary["semester"].upper()
-#         dictionary["courses"] = set()
-#         dictionary["majors"] = set()
-#         dictionary["years"] = set()
+#     if not data or len(data) == 0:
+#         abort(404)
 
-#         for row in data:
-#             dictionary["courses"].add(row[2].course_code)
-#             dictionary["majors"].add(row[1].major_code)
-#             dictionary["years"].add(row[3].class_year)
+#     dictionary = data[0][0].to_dict()
+#     dictionary["semester"] = dictionary["semester"].upper()
+#     dictionary["courses"] = set()
+#     dictionary["majors"] = set()
+#     dictionary["years"] = set()
 
-#         dictionary["courses"] = list(dictionary["courses"])
-#         dictionary["majors"] = list(dictionary["majors"])
-#         dictionary["years"] = list(dictionary["years"])
+#     for row in data:
+#         dictionary["courses"].add(row[2].course_code)
+#         dictionary["majors"].add(row[1].major_code)
+#         dictionary["years"].add(row[3].class_year)
 
-#         for i in range(len(dictionary["years"])):
-#             dictionary["years"][i] = str(dictionary["years"][i])
+#     dictionary["courses"] = list(dictionary["courses"])
+#     dictionary["majors"] = list(dictionary["majors"])
+#     dictionary["years"] = list(dictionary["years"])
 
-#         dictionary["credits"] = []
-#         if dictionary["one_credit"]:
-#             dictionary["credits"].append("1")
+#     for i in range(len(dictionary["years"])):
+#         dictionary["years"][i] = str(dictionary["years"][i])
 
-#         if dictionary["two_credits"]:
-#             dictionary["credits"].append("2")
+#     dictionary["credits"] = []
+#     if dictionary["one_credit"]:
+#         dictionary["credits"].append("1")
 
-#         if dictionary["three_credits"]:
-#             dictionary["credits"].append("3")
+#     if dictionary["two_credits"]:
+#         dictionary["credits"].append("2")
 
-#         if dictionary["four_credits"]:
-#             dictionary["credits"].append("4")
+#     if dictionary["three_credits"]:
+#         dictionary["credits"].append("3")
 
-#         dictionary.pop("one_credit")
-#         dictionary.pop("two_credits")
-#         dictionary.pop("three_credits")
-#         dictionary.pop("four_credits")
+#     if dictionary["four_credits"]:
+#         dictionary["credits"].append("4")
 
-#         return {"data": dictionary}
+#     dictionary.pop("one_credit")
+#     dictionary.pop("two_credits")
+#     dictionary.pop("three_credits")
+#     dictionary.pop("four_credits")
+
+#     return {"data": dictionary}
 
 #     abort(500)
 
 
 # # Jobs page
-# @main_blueprint.route("/getOpportunityCards", methods=["GET"])
+# @main_blueprint.get("/getOpportunityCards")
 # def getOpportunityCards():
-#     if request.method == "GET":
-#         # query database for opportunity
-#         query = db.session.execute(
-#             db.select(Opportunities).where(Opportunities.active == True)
-#         )
+# #     # query database for opportunity
+#     query = db.session.execute(
+#         db.select(Opportunities).where(Opportunities.active == True)
+#     )
 
-#         data = query.fetchall()
+#     data = query.fetchall()
 
 #         # return data in the below format if opportunity is found
 #         cards = {
 #             "data": [packageOpportunityCard(opportunity[0]) for opportunity in data]
 #         }
 
-#         return cards
+#     return cards
 
 #     abort(500)
 
-
-# @main_blueprint.route("/getOpportunities", methods=["GET"])
+# @main_blueprint.get("/getOpportunities")
 # def getOpportunities():
-#     if request.method == "GET":
-#         # query database for opportunity
-#         query = db.session.execute(
-#             db.select(Opportunities, Leads, LabManager)
-#             .join(Leads, Leads.opportunity_id == Opportunities.id)
-#             .join(LabManager, Leads.lab_manager_id == LabManager.id)
-#         )
-#         data = query.all()
-#         print(data[0])
+# #     # query database for opportunity
+#     query = db.session.execute(
+#         db.select(Opportunities, Leads, LabManager)
+#         .join(Leads, Leads.opportunity_id == Opportunities.id)
+#         .join(LabManager, Leads.lab_manager_id == LabManager.id)
+#     )
+#     data = query.all()
+#     print(data[0])
 
 #         # return data in the below format if opportunity is found
 #         return {
@@ -503,16 +499,14 @@ def packageOpportunityCard(opportunity):
 
 #     abort(500)
 
-
-# @main_blueprint.route("/getOpportunityByProfessor/<string:rcs_id>", methods=["GET"])
+# @main_blueprint.get("/getOpportunityByProfessor/<string:rcs_id>")
 # def getOpportunityByProfessor(rcs_id: str):
-#     if request.method == "GET":
-#         # query database for opportunity
-#         query = db.session.execute(
-#             db.select(Opportunities, Leads)
-#             .where(Leads.lab_manager_id == rcs_id)
-#             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-#         )
+# #     # query database for opportunity
+#     query = db.session.execute(
+#         db.select(Opportunities, Leads)
+#         .where(Leads.lab_manager_id == rcs_id)
+#         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+#     )
 
 #         data = query.all()
 #         print(data)
@@ -522,170 +516,167 @@ def packageOpportunityCard(opportunity):
 
 #     abort(500)
 
-
-# @main_blueprint.route("/getProfessorOpportunityCards/<string:rcs_id>", methods=["GET"])
+# @main_blueprint.get("/getProfessorOpportunityCards/<string:rcs_id>")
 # def getProfessorOpportunityCards(rcs_id: str):
-#     if request.method == "GET":
-#         # query database for opportunity
-#         user = db.first_or_404(db.select(User).where(User.email == rcs_id))
+#
+#     # query database for opportunity
+#     user = db.first_or_404(db.select(User).where(User.email == rcs_id))
 
-#         query = db.session.execute(
-#             db.select(Opportunities, Leads)
-#             .where(Leads.lab_manager_id == user.lab_manager_id)
-#             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-#         )
+#     query = db.session.execute(
+#         db.select(Opportunities, Leads)
+#         .where(Leads.lab_manager_id == user.lab_manager_id)
+#         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+#     )
 
-#         data = query.all()
+#     data = query.all()
 
-#         cards = {"data": []}
+#     cards = {"data": []}
 
-#         for row in data:
-#             opportunity = row[0]
+#     for row in data:
+#         opportunity = row[0]
 
-#             if not opportunity.active:
-#                 continue
+#         if not opportunity.active:
+#             continue
 
-#             oppData = {
-#                 "id": opportunity.id,
-#                 "title": opportunity.name,
-#                 "body": "Due " + str(opportunity.application_due),
-#                 "attributes": [],
-#             }
+#         oppData = {
+#             "id": opportunity.id,
+#             "title": opportunity.name,
+#             "body": "Due " + str(opportunity.application_due),
+#             "attributes": [],
+#         }
 
-#             if opportunity.pay is not None and opportunity.pay > 0:
-#                 oppData["attributes"].append("Paid")
+#         if opportunity.pay is not None and opportunity.pay > 0:
+#             oppData["attributes"].append("Paid")
 
-#             if (
-#                 opportunity.one_credit
-#                 or opportunity.two_credits
-#                 or opportunity.three_credits
-#                 or opportunity.four_credits
-#             ):
-#                 oppData["attributes"].append("Credit Available")
+#         if (
+#             opportunity.one_credit
+#             or opportunity.two_credits
+#             or opportunity.three_credits
+#             or opportunity.four_credits
+#         ):
+#             oppData["attributes"].append("Credit Available")
 
-#             cards["data"].append(oppData)
+#         cards["data"].append(oppData)
 
-#         # return data in the below format if opportunity is found
-#         return cards
+#     # return data in the below format if opportunity is found
+#     return cards
 
 #     abort(500)
 
-
-# @main_blueprint.route("/getProfileOpportunities/<string:rcs_id>", methods=["GET"])
+# @main_blueprint.get("/getProfileOpportunities/<string:rcs_id>")
 # def getProfileOpportunities(rcs_id: str):
-#     if request.method == "GET":
-#         # query database for opportunity
+# #     # query database for opportunity
 
-#         query = db.session.execute(
-#             db.select(Opportunities, Leads)
-#             .where(Leads.lab_manager_id == rcs_id)
-#             .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-#         )
+#     query = db.session.execute(
+#         db.select(Opportunities, Leads)
+#         .where(Leads.lab_manager_id == rcs_id)
+#         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+#     )
 
-#         data = query.all()
+#     data = query.all()
 
-#         cards = {"data": []}
+#     cards = {"data": []}
 
-#         for row in data:
-#             opportunity = row[0]
+#     for row in data:
+#         opportunity = row[0]
 
-#             oppData = {
-#                 "id": opportunity.id,
-#                 "title": opportunity.name,
-#                 "body": "Due " + str(opportunity.application_due),
-#                 "attributes": [],
-#                 "activeStatus": opportunity.active,
-#             }
+#         oppData = {
+#             "id": opportunity.id,
+#             "title": opportunity.name,
+#             "body": "Due " + str(opportunity.application_due),
+#             "attributes": [],
+#             "activeStatus": opportunity.active,
+#         }
 
-#             if opportunity.pay is not None and opportunity.pay > 0:
-#                 oppData["attributes"].append("Paid")
-#             if (
-#                 opportunity.one_credit
-#                 or opportunity.two_credits
-#                 or opportunity.three_credits
-#                 or opportunity.four_credits
-#             ):
-#                 oppData["attributes"].append("Credits")
+#         if opportunity.pay is not None and opportunity.pay > 0:
+#             oppData["attributes"].append("Paid")
+#         if (
+#             opportunity.one_credit
+#             or opportunity.two_credits
+#             or opportunity.three_credits
+#             or opportunity.four_credits
+#         ):
+#             oppData["attributes"].append("Credits")
 
-#             cards["data"].append(oppData)
+#         cards["data"].append(oppData)
 
-#         # return data in the below format if opportunity is found
-#         return cards
+#     # return data in the below format if opportunity is found
+#     return cards
 
 #     abort(500)
 
 
 # functions to create/edit/delete opportunities
-# @main_blueprint.route("/createOpportunity", methods=["POST"])
+# @main_blueprint.post("/createOpportunity")
 # def createOpportunity():
-#     if request.method == "POST":
-#         data = request.get_json()
-#         authorID = data["authorID"]
-#         newPostData = data
+#     # if request.method == "POST":
+#     data = request.get_json()
+#     authorID = data["authorID"]
+#     newPostData = data
 
 #         # query database to see if the credentials above match
 #         query = db.session.execute(
 #             db.select(LabManager).where(LabManager.id == authorID)
 #         )
 
-#         data = query.all()[0][0]
+#     data = query.all()[0][0]
 
-#         # TODO: how do we get the opportunity id?
-#         # if match is found, create a new opportunity with the new data provided
+#     # TODO: how do we get the opportunity id?
+#     # if match is found, create a new opportunity with the new data provided
 
-#         one = False
-#         two = False
-#         three = False
-#         four = False
+#     one = False
+#     two = False
+#     three = False
+#     four = False
 
-#         if "1" in newPostData["credits"]:
-#             one = True
-#         if "2" in newPostData["credits"]:
-#             two = True
-#         if "3" in newPostData["credits"]:
-#             three = True
-#         if "4" in newPostData["credits"]:
-#             four = True
+#     if "1" in newPostData["credits"]:
+#         one = True
+#     if "2" in newPostData["credits"]:
+#         two = True
+#     if "3" in newPostData["credits"]:
+#         three = True
+#     if "4" in newPostData["credits"]:
+#         four = True
 
-#         lenum = convert_to_enum(newPostData["location"])
+#     lenum = convert_to_enum(newPostData["location"])
 
-#         if lenum is None:
-#             lenum = LocationEnum.TBD
+#     if lenum is None:
+#         lenum = LocationEnum.TBD
 
-#         newOpportunity = Opportunities(
-#             name=newPostData["name"],
-#             description=newPostData["description"],
-#             recommended_experience=newPostData["recommended_experience"],
-#             pay=newPostData["pay"],
-#             one_credit=one,
-#             two_credits=two,
-#             three_credits=three,
-#             four_credits=four,
-#             semester=newPostData["semester"],
-#             year=newPostData["year"],
-#             application_due=datetime.datetime.strptime(
-#                 newPostData["application_due"], "%Y-%m-%d"
-#             ),
-#             active=newPostData["active"],
-#             location=lenum,
+#     newOpportunity = Opportunities(
+#         name=newPostData["name"],
+#         description=newPostData["description"],
+#         recommended_experience=newPostData["recommended_experience"],
+#         pay=newPostData["pay"],
+#         one_credit=one,
+#         two_credits=two,
+#         three_credits=three,
+#         four_credits=four,
+#         semester=newPostData["semester"],
+#         year=newPostData["year"],
+#         application_due=datetime.datetime.strptime(
+#             newPostData["application_due"], "%Y-%m-%d"
+#         ),
+#         active=newPostData["active"],
+#         location=lenum,
+#     )
+#     print("before comitting")
+#     db.session.add(newOpportunity)
+#     db.session.commit()
+
+#     print("got here atleast")
+
+#     newLead = Leads(lab_manager_id=authorID, opportunity_id=newOpportunity.id)
+
+#     db.session.add(newLead)
+#     db.session.commit()
+
+#     for course in newPostData["courses"]:
+#         newCourse = RecommendsCourses(
+#             opportunity_id=newOpportunity.id, course_code=course
 #         )
-#         print("before comitting")
-#         db.session.add(newOpportunity)
+#         db.session.add(newCourse)
 #         db.session.commit()
-
-#         print("got here atleast")
-
-#         newLead = Leads(lab_manager_id=authorID, opportunity_id=newOpportunity.id)
-
-#         db.session.add(newLead)
-#         db.session.commit()
-
-#         for course in newPostData["courses"]:
-#             newCourse = RecommendsCourses(
-#                 opportunity_id=newOpportunity.id, course_code=course
-#             )
-#             db.session.add(newCourse)
-#             db.session.commit()
 
 #         for major in newPostData["majors"]:
 #             newMajor = RecommendsMajors(
@@ -694,18 +685,19 @@ def packageOpportunityCard(opportunity):
 #             db.session.add(newMajor)
 #             db.session.commit()
 
-#         for year in newPostData["years"]:
-#             newYear = RecommendsClassYears(
-#                 opportunity_id=newOpportunity.id, class_year=year
-#             )
-#             db.session.add(newYear)
-#             db.session.commit()
+#     for year in newPostData["years"]:
+#         newYear = RecommendsClassYears(
+#             opportunity_id=newOpportunity.id, class_year=year
+#         )
+#         db.session.add(newYear)
+#         db.session.commit()
 
-#         # db.session.add(newOpportunity)
+#     # db.session.add(newOpportunity)
 
-#         return {"data": "Opportunity Created"}
+#     return {"data": "Opportunity Created"}
 
-#     abort(500)
+#
+# abort(500)
 
 
 # @main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
