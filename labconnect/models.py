@@ -197,7 +197,7 @@ class Opportunities(db.Model, CustomSerializerMixin):
 
 @event.listens_for(Opportunities, "before_insert")
 @event.listens_for(Opportunities, "before_update")
-def update_search_vector(mapper, connection, target):
+def update_search_vector(_unusedmapper, _unusedconnection, target):
     target.search_vector = func.to_tsvector(
         "english", target.name + " " + target.description
     )
