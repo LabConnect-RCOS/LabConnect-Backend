@@ -1,6 +1,7 @@
 import datetime
 
 from flask import abort, request
+
 from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
@@ -29,18 +30,18 @@ def searchOpportunity(input: str):
         db.select(Opportunities)
         .where(
             (
-                Opportunities.search_vector.match(input)
+                Opportunities.search_vector.match(query)
             )  # Full-text search using pre-generated tsvector
             | (
-                db.func.similarity(Opportunities.name, input) >= 0.1
+                db.func.similarity(Opportunities.name, query) >= 0.1
             )  # Fuzzy search on the 'name' field
             | (
-                db.func.similarity(Opportunities.description, input) >= 0.1
+                db.func.similarity(Opportunities.description, query) >= 0.1
             )  # Fuzzy search on the 'description' field
         )
         .order_by(
             db.func.similarity(
-                Opportunities.name, input
+                Opportunities.name, query
             ).desc()  # Order by similarity for fuzzy search results
         )
     )
@@ -81,7 +82,7 @@ def searchOpportunity(input: str):
 def convert_to_enum(location_string):
     try:
         return LocationEnum[location_string]  # Use upper() for case-insensitivity
-    except:
+    except KeyError:
         return None  # Or raise an exception if you prefer
 
 
@@ -94,6 +95,14 @@ def packageOpportunity(opportunityInfo, professorInfo):
 
 
 def packageIndividualOpportunity(opportunityInfo):
+    data = {
+        "id": opportunityInfo.id,
+        "name": opportunityInfo.name,
+        "description": opportunityInfo.description,
+        "recommended_experience": opportunityInfo.recommended_experience,
+        "author": "",
+        "department": "",
+    }
     data = {
         "id": opportunityInfo.id,
         "name": opportunityInfo.name,
@@ -225,23 +234,26 @@ def packageOpportunityCard(opportunity):
 
 
 # @main_blueprint.get("/opportunity/filter")
-# @main_blueprint.route("/opportunity/filter", methods=["GET", "POST"])
-# def filterOpportunities():
+# @main_blueprint.route("/opportunity/filter", methods=["GET"])
+# def getOpportunities():
+#     # Handle GET requests for fetching default active opportunities
+#     data = db.session.execute(
+#         db.select(Opportunities)
+#         .where(Opportunities.active == True)
+#         .limit(20)
+#         .order_by(Opportunities.last_updated.desc())
+#         .distinct()
+#     ).scalars()
+#     result = [opportunity.to_dict() for opportunity in data]
+#     return result
 
-#     if not request.data:
-#         data = db.session.execute(
-#             db.select(Opportunities)
-#             .where(Opportunities.active == True)
-#             .limit(20)
-#             .order_by(Opportunities.last_updated)
-#             .distinct()
-#         ).scalars()
 
-#         result = [opportunity.to_dict() for opportunity in data]
+#
+@main_blueprint.route("/opportunity/filter", methods=["POST"])
+def filterOpportunities():
+    # Handle POST requests for filtering opportunities
+    json_request_data = request.get_json()
 
-#         return result
-
-#     json_request_data = request.get_json()
 
 #     if not json_request_data:
 #         abort(400)
@@ -271,100 +283,95 @@ def packageOpportunityCard(opportunity):
 #             value = given_filter.get("value", None)
 
 #             if field and value:
-
 #                 field = field.lower()
 
-#                 if field == "location" and value.lower() == "remote":
-#                     where_conditions.append(Opportunities.location == "REMOTE")
-
-#                 elif field == "location":
-#                     where_conditions.append(Opportunities.location != "REMOTE")
-
-#                 elif field == "class_year":
-
-#                     if not isinstance(value, list):
-#                         abort(400)
-
-#                     query = query.join(
-#                         RecommendsClassYears,
-#                         Opportunities.id == RecommendsClassYears.opportunity_id,
-#                     ).where(RecommendsClassYears.class_year.in_(value))
-
-#                 elif field == "credits":
-
-#                     if not isinstance(value, list):
-#                         abort(400)
-
-#                     credit_conditions = []
-
-#                     for credit in value:
-
-#                         if credit == 1:
-#                             credit_conditions.append(Opportunities.one_credit == True)
-#                         elif credit == 2:
-#                             credit_conditions.append(Opportunities.two_credits == True)
-#                         elif credit == 3:
-#                             credit_conditions.append(
-#                                 Opportunities.three_credits == True
-#                             )
-#                         elif credit == 4:
-#                             credit_conditions.append(Opportunities.four_credits == True)
-#                         else:
-#                             abort(400)
-
-#                     query = query.where(db.or_(*credit_conditions))
-
-#                 elif field == "majors":
-
-#                     if not isinstance(value, list):
-#                         abort(400)
-
-#                     query = query.join(
-#                         RecommendsMajors,
-#                         Opportunities.id == RecommendsMajors.opportunity_id,
-#                     ).where(RecommendsMajors.major_code.in_(value))
-
-#                 elif field == "departments":
-
-#                     if not isinstance(value, list):
-#                         abort(400)
-
-#                     query = (
-#                         query.join(Leads, Opportunities.id == Leads.opportunity_id)
-#                         .join(LabManager, Leads.lab_manager_id == LabManager.id)
-#                         .where(LabManager.department_id.in_(value))
-#                     )
-
-#                 elif field == "pay":
-
-#                     if not isinstance(value, dict):
-#                         abort(400)
-
-#                     min_pay = value.get("min", None)
-#                     max_pay = value.get("max", None)
-
-#                     if min_pay is None or max_pay is None:
-#                         abort(400)
-
-#                     where_conditions.append(Opportunities.pay.between(min_pay, max_pay))
-
+#                 # Location filter
+# if field == "location":
+# if value.lower() == "remote":
+#                         where_conditions.append(Opportunities.location == "REMOTE")
 #                 else:
-#                     try:
-#                         where_conditions.append(
-#                             getattr(Opportunities, field).ilike(f"%{value}%")
-#                         )
-#                     except AttributeError:
+#                         where_conditions.append(Opportunities.location != "REMOTE")
+
+#                 # Class year filter
+#                 elif field == "class_year":
+# #                     if not isinstance(value, list):
+# #                         abort(400)
+# #                     query = query.join(
+# #                         RecommendsClassYears,
+# #                         Opportunities.id == RecommendsClassYears.opportunity_id,
+# #                     ).where(RecommendsClassYears.class_year.in_(value))
+
+# #                 # Credits filter
+#                 elif field == "credits":
+#                     if not isinstance(value, list):
 #                         abort(400)
+# #                     credit_conditions = []
+# #                     for credit in value:
+# #                         if credit == 1:
+# #                             credit_conditions.append(Opportunities.one_credit.is_(True))
+# #                         elif credit == 2:
+# #                             credit_conditions.append(
+#                                 Opportunities.two_credits.is_(True)
+# #                             )
+#                         elif credit == 3:
+# #                             credit_conditions.append(
+# #                                 Opportunities.three_credits.is_(True)
+# #                             )
+# #                         elif credit == 4:
+# #                             credit_conditions.append(
+#                                 Opportunities.four_credits.is_(True)
+# #                             )
+#                         else:
+# #                             abort(400)
+#                     where_conditions.append(db.or_(*credit_conditions))
 
-#         query = query.where(*where_conditions)
-#         data = db.session.execute(query).scalars()
+# #                 # Majors filter
+# #                 elif field == "majors":
+# #                     if not isinstance(value, list):
+# #                         abort(400)
+# #                     query = query.join(
+# #                         RecommendsMajors,
+# #                         Opportunities.id == RecommendsMajors.opportunity_id,
+# #                     ).where(RecommendsMajors.major_code.in_(value))
 
-#     if not data:
-#         abort(404)
+# #                 # Departments filter
+#                 elif field == "departments":
+# #                     if not isinstance(value, list):
+# #                         abort(400)
+# #                     query = (
+# #                         query.join(Leads, Opportunities.id == Leads.opportunity_id)
+# #                         .join(LabManager, Leads.lab_manager_id == LabManager.id)
+# #                         .where(LabManager.department_id.in_(value))
+# #                     )
 
-#     result = [opportunity.to_dict() for opportunity in data]
+# #                 # Pay filter
+#                 elif field == "pay":
+# #                     if not isinstance(value, dict):
+# #                         abort(400)
+# #                     min_pay = value.get("min")
+# #                     max_pay = value.get("max")
+# #                     if min_pay is None or max_pay is None:
+# #                         abort(400)
+# #                     where_conditions.append(Opportunities.pay.between(min_pay, max_pay))
 
-#     return result
+# #                 # Other fields
+#                 else:
+# #                     try:
+# #                         where_conditions.append(
+# #                             getattr(Opportunities, field).ilike(f"%{value}%")
+# #                         )
+# #                     except AttributeError:
+# #                         abort(400)
+
+# #         query = query.where(*where_conditions)
+# #         data = db.session.execute(query).scalars()
+
+# #     if not data:
+# #         abort(404)
+
+# #     result = [opportunity.to_dict() for opportunity in data]
+
+# #     return result
 
 
 # @main_blueprint.put("/opportunity")

@@ -12,7 +12,19 @@ config = context.config
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
+
+# Create a logger for the Alembic environment
 logger = logging.getLogger("alembic.env")
+
+# Ensure that we only log important information in production environments
+if context.config.get_main_option("environment") == "production":
+    logger.setLevel(logging.WARNING)  # Set to WARNING or ERROR for production
+else:
+    logger.setLevel(logging.INFO)  # Allow INFO in non-production environments
+
+# Avoid logging sensitive information like credentials or tokens
+logger.propagate = False
+logger.addHandler(logging.StreamHandler())  # Add a basic handler if none exists
 
 
 def get_engine():
