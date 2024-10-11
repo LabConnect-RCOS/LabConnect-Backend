@@ -7,12 +7,12 @@ RUN apk add --no-cache postgresql-dev gcc python3-dev musl-dev
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY labconnect .
+COPY labconnect/ /app/labconnect/
+COPY migrations/ /app/migrations/
 COPY app.py .
 COPY db_init.py .
 COPY config.py .
 COPY run.sh .
-COPY migrations .
 RUN chmod +x run.sh
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
