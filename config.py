@@ -26,9 +26,8 @@ class Config:
     )
 
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DB", f"sqlite:///{os.path.join(basedir, 'db', 'database.db')}"
+        "DB", "postgresql+psycopg2://postgres:root@localhost/labconnect"
     )
-    # "postgresql+psycopg2://postgres:root@localhost/labconnect"
 
 
 class TestingConfig(Config):
