@@ -183,6 +183,7 @@ def getProfessorProfile(id: str):
     data = db.session.execute(
         db.select(
             User.preferred_name,
+            User.first_name,
             User.last_name,
             User.profile_picture,
             LabManager.department_id,
@@ -197,14 +198,13 @@ def getProfessorProfile(id: str):
         return {"error": "profile not found"}, 404
 
     result = {
-        "name": data[0] + " " + data[1],
-        "image": data[2],
-        "department": data[3],
-        "description": data[4],
-        "website": data[5],
+        "name": data[0] + " " + data[2] if data[0] else data[1] + " " + data[2],
+        "image": data[3],
+        "department": data[4],
+        "description": data[5],
+        "website": data[6],
     }
 
-    print(result)
     return result
 
 
