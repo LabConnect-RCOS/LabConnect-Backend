@@ -58,7 +58,7 @@ def saml_callback():
 
         # Send the JWT to the frontend
         return redirect(f"{current_app.config['FRONTEND_URL']}/?token={token}")
-    
+
     return {"errors": errors}, 500
 
 
