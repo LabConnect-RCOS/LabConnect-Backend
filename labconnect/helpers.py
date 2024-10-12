@@ -92,23 +92,27 @@ def prepare_flask_request(request):
 
 def format_credits(credit_1, credit_2, credit_3, credit_4):
     # Create a list to hold the active credit numbers
-    credits = []
+    credits_output = []
 
     if credit_1:
-        credits.append("1")
+        credits_output.append("1")
     if credit_2:
-        credits.append("2")
+        credits_output.append("2")
     if credit_3:
-        credits.append("3")
+        credits_output.append("3")
     if credit_4:
-        credits.append("4")
+        credits_output.append("4")
 
     # Handle different cases
-    if len(credits) == 0:
+    if len(credits_output) == 0:
         return None
-    elif len(credits) == 1:
-        return f"{credits[0]} Credit" if credit_1 else f"{credits[0]} Credits"
-    elif len(credits) == 4:
+    elif len(credits_output) == 1:
+        return (
+            f"{credits_output[0]} Credit"
+            if credit_1
+            else f"{credits_output[0]} Credits"
+        )
+    elif len(credits_output) == 4:
         return "1-4 Credits"
     else:
-        return f"{','.join(credits)} Credits"
+        return f"{','.join(credits_output)} Credits"
