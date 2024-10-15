@@ -88,3 +88,31 @@ def prepare_flask_request(request):
         # 'lowercase_urlencoding': True,
         "post_data": request.form.copy(),
     }
+
+
+def format_credits(credit_1, credit_2, credit_3, credit_4):
+    # Create a list to hold the active credit numbers
+    credits_output = []
+
+    if credit_1:
+        credits_output.append("1")
+    if credit_2:
+        credits_output.append("2")
+    if credit_3:
+        credits_output.append("3")
+    if credit_4:
+        credits_output.append("4")
+
+    # Handle different cases
+    if len(credits_output) == 0:
+        return None
+    elif len(credits_output) == 1:
+        return (
+            f"{credits_output[0]} Credit"
+            if credit_1
+            else f"{credits_output[0]} Credits"
+        )
+    elif len(credits_output) == 4:
+        return "1-4 Credits"
+    else:
+        return f"{','.join(credits_output)} Credits"

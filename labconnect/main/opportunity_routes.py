@@ -17,7 +17,7 @@ from labconnect.models import (
     # User,
 )
 
-from labconnect.helpers import LocationEnum
+from labconnect.helpers import LocationEnum, format_credits
 
 from . import main_blueprint
 
@@ -543,52 +543,44 @@ def filterOpportunities():
 
 #     abort(500)
 
-# @main_blueprint.get("/getProfessorOpportunityCards/<string:rcs_id>")
-# def getProfessorOpportunityCards(rcs_id: str):
-#
-#     # query database for opportunity
-#     user = db.first_or_404(db.select(User).where(User.email == rcs_id))
 
-#     query = db.session.execute(
-#         db.select(Opportunities, Leads)
-#         .where(Leads.lab_manager_id == user.lab_manager_id)
-#         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-#     )
+@main_blueprint.get("/staff/opportunities/<string:rcs_id>")
+def getLabManagerOpportunityCards(rcs_id: str):
 
-#     data = query.all()
+    query = (
+        db.select(
+            Opportunities.id,
+            Opportunities.name,
+            Opportunities.application_due,
+            Opportunities.pay,
+            Opportunities.one_credit,
+            Opportunities.two_credits,
+            Opportunities.three_credits,
+            Opportunities.four_credits,
+        )
+        .join(LabManager, User.lab_manager_id == LabManager.id)
+        .join(Leads, Leads.lab_manager_id == LabManager.id)
+        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
+        .where(User.id == rcs_id)
+        .select_from(User)
+    )
 
-#     cards = {"data": []}
+    data = db.session.execute(query).all()
 
-#     for row in data:
-#         opportunity = row[0]
+    cards = {
+        "data": [
+            {
+                "id": row[0],
+                "title": row[1],
+                "due": row[2].strftime("%-m/%-d/%y"),
+                "pay": row[3],
+                "credits": format_credits(row[4], row[5], row[6], row[7]),
+            }
+            for row in data
+        ]
+    }
 
-#         if not opportunity.active:
-#             continue
-
-#         oppData = {
-#             "id": opportunity.id,
-#             "title": opportunity.name,
-#             "body": "Due " + str(opportunity.application_due),
-#             "attributes": [],
-#         }
-
-#         if opportunity.pay is not None and opportunity.pay > 0:
-#             oppData["attributes"].append("Paid")
-
-#         if (
-#             opportunity.one_credit
-#             or opportunity.two_credits
-#             or opportunity.three_credits
-#             or opportunity.four_credits
-#         ):
-#             oppData["attributes"].append("Credit Available")
-
-#         cards["data"].append(oppData)
-
-#     # return data in the below format if opportunity is found
-#     return cards
-
-#     abort(500)
+    return cards
 
 # @main_blueprint.get("/getProfileOpportunities/<string:rcs_id>")
 # def getProfileOpportunities(rcs_id: str):

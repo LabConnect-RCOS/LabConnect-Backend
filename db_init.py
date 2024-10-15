@@ -91,12 +91,24 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         lab_manager_rows = (
-            ("led", "Duy", "Le", "Computer Science"),
-            ("turner", "Wes", "Turner", "Computer Science"),
-            ("kuzmin", "Konstantine", "Kuzmin", "Computer Science"),
-            ("goldd", "David", "Goldschmidt", "Computer Science"),
-            ("rami", "Rami", "Rami", "Material Science"),
-            ("holm", "Mark", "Holmes", "Math"),
+            ("led", "Duy", "Le", "Computer Science", "database database database"),
+            (
+                "turner",
+                "Wes",
+                "Turner",
+                "Computer Science",
+                "open source stuff is cool",
+            ),
+            (
+                "kuzmin",
+                "Konstantine",
+                "Kuzmin",
+                "Computer Science",
+                "java, psoft, etc.",
+            ),
+            ("goldd", "David", "Goldschmidt", "Computer Science", "VIM master"),
+            ("rami", "Rami", "Rami", "Material Science", "cubes are cool"),
+            ("holm", "Mark", "Holmes", "Math", "all about that math"),
         )
 
         raf_test_user = (
@@ -106,6 +118,9 @@ elif sys.argv[1] == "create":
             "Raf",
             2025,
             "Computer Science",
+            "labconnect is the best RCOS project",
+            "https://rafael.sirv.com/Images/rafael.jpeg?thumbnail=350&format=webp&q=90",
+            "https://rafaelcenzano.com",
         )
 
         lab_manager = LabManager(department_id=raf_test_user[5])
@@ -121,6 +136,9 @@ elif sys.argv[1] == "create":
             preferred_name=raf_test_user[3],
             class_year=raf_test_user[4],
             lab_manager_id=lab_manager.id,
+            description=raf_test_user[6],
+            profile_picture=raf_test_user[7],
+            website=raf_test_user[8],
         )
 
         db.session.add(user)
@@ -138,6 +156,8 @@ elif sys.argv[1] == "create":
                 first_name=row_tuple[1],
                 last_name=row_tuple[2],
                 lab_manager_id=lab_manager.id,
+                description=row_tuple[4],
+                profile_picture="https://www.svgrepo.com/show/206842/professor.svg",
             )
             db.session.add(user)
             db.session.commit()
@@ -326,6 +346,7 @@ elif sys.argv[1] == "create":
                 last_name=r[3],
                 preferred_name=r[4],
                 class_year=r[5],
+                profile_picture="https://www.svgrepo.com/show/206842/professor.svg",
             )
             db.session.add(row)
             db.session.commit()
