@@ -23,8 +23,8 @@ from labconnect.helpers import LocationEnum
 from . import main_blueprint
 
 
-@main_blueprint.get("/searchOpportunity/<string:input>")
-def searchOpportunity(input: str):
+@main_blueprint.get("/searchOpportunity/<string:query>")
+def searchOpportunity(query: str):
     # Perform a search
     stmt = (
         db.select(Opportunities)
