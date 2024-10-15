@@ -1,53 +1,53 @@
-from typing import Any
+#from typing import Any
 
 from flask import abort, request
-from flask_jwt_extended import (
-    get_jwt_identity,
-    jwt_required,
-)
+#from flask_jwt_extended import (
+    #get_jwt_identity,
+    #jwt_required,
+#)
 
 from labconnect import db
 from labconnect.models import (
-    ClassYears,
-    Courses,
+    #ClassYears,
+    #Courses,
     LabManager,
     Leads,
-    Majors,
+    #Majors,
     Opportunities,
-    Participates,
-    RecommendsClassYears,
-    RecommendsCourses,
-    RecommendsMajors,
+    #Participates,
+    #RecommendsClassYears,
+    #RecommendsCourses,
+    #RecommendsMajors,
     RPIDepartments,
-    RPISchools,
+    #RPISchools,
     User,
-    UserCourses,
-    UserDepartments,
-    UserMajors,
+    #UserCourses,
+    #UserDepartments,
+    #UserMajors,
 )
+# = not currently using
 
 from . import main_blueprint
 
 
-@main_blueprint.route("/")
-def index():
-    return {"Hello": "There"}
+# @main_blueprint.route("/")
+# def index():
+#     return {"Hello": "There"}
 
 
 @main_blueprint.get("/departments")
 def departmentCards():
     data = db.session.execute(
         db.select(RPIDepartments.name, RPIDepartments.school_id)
-    ).all()
-    results = [
-        {
+    ).all() 
+    
+    results = []
+    for department in data:
+        results.append({
             "title": department.name,
             "school": department.school_id,
             "image": "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
-        }
-        for department in data
-    ]
-
+    })
     return results
 
 
