@@ -1,10 +1,11 @@
-import datetime
+#import datetime
 
-from flask import abort, request
-from flask_jwt_extended import (
-    get_jwt_identity,
-    jwt_required,
-)
+#from flask import request
+#from flask import abort
+#from flask_jwt_extended import (
+    #get_jwt_identity,
+    #jwt_required,
+#)
 
 from labconnect import db
 from labconnect.models import (
@@ -30,43 +31,21 @@ def searchOpportunity(input: str):
         .where(
             #Made query input
             (
-                Opportunities.search_vector.match(query)
+                Opportunities.search_vector.match(input)
             )  # Full-text search using pre-generated tsvector
             | (
-                db.func.similarity(Opportunities.name, query) >= 0.1
+                db.func.similarity(Opportunities.name, input) >= 0.1
             )  # Fuzzy search on the 'name' field
             | (
-                db.func.similarity(Opportunities.description, query) >= 0.1
+                db.func.similarity(Opportunities.description, input) >= 0.1
             )  # Fuzzy search on the 'description' field
         )
         .order_by(
             db.func.similarity(
-                Opportunities.name, query
+                Opportunities.name, input
             ).desc()  # Order by similarity for fuzzy search results
         )
     )
-    # Perform a search
-    # stmt = (
-    #     db.select(Opportunities)
-    #     .where(
-    #         (
-    #             Opportunities.search_vector.match(input)
-    #         )  # Full-text search using pre-generated tsvector
-    #         | (
-    #             db.func.similarity(Opportunities.name, input) >= 0.1
-    #         )  # Fuzzy search on the 'name' field
-    #         | (
-    #             db.func.similarity(Opportunities.description, input) >= 0.1
-    #         )  # Fuzzy search on the 'description' field
-    #     )
-    #  .order_by(
-    #         db.func.similarity(
-    #             Opportunities.name, input
-    #         ).desc()  # Order by similarity for fuzzy search results
-    #     )
-    # )
-
-
     data = db.session.execute(stmt).scalars().all()
 
     results = []
@@ -79,30 +58,22 @@ def searchOpportunity(input: str):
 
 # @main_blueprint.get("/opportunity")
 # def getOpportunity2():
-
 #     if not request.data:
 #         abort(400)
-
 #     json_request_data = request.get_json()
-
 #     if not json_request_data:
 #         abort(400)
-
 #     id = json_request_data.get("id", None)
-
 #     if not id:
 #         abort(400)
-
 #     data = db.first_or_404(db.select(Opportunities).where(Opportunities.id == id))
-
 #     result = data.to_dict()
-
 #     return result
 
 
 def convert_to_enum(location_string):
     try:
-        return LocationEnum[location_string]  # Use upper() for case-insensitivity
+        return LocationEnum[location_string.upper()]  # Use upper() for case-insensitivity
     except KeyError:
         return None  # Or raise an exception if you prefer
 
@@ -111,9 +82,7 @@ def packageOpportunity(opportunityInfo, professorInfo):
     data = opportunityInfo.to_dict()
     data["professor"] = professorInfo.name
     data["department"] = professorInfo.department_id
-
     return data
-
 
 def packageIndividualOpportunity(opportunityInfo):
     data = {
@@ -178,18 +147,22 @@ def packageIndividualOpportunity(opportunityInfo):
     )
 
     queryInfo = query.all()
-    print(queryInfo)
+    #print(queryInfo)
 
     if len(queryInfo) == 0:
         return data
 
     data["department"] = queryInfo[0][1].department_id
 
-    for i, item in enumerate(queryInfo):
-        data["author"] += item[1].getName()
-        # data["author"] += "look at def packageIndividualOpportunity(opportunityInfo):"
-        if i != len(queryInfo) - 1:
-            data["author"] += ", "
+    #for i, item in enumerate(queryInfo):
+    #data["author"] += item[1].getName()
+    # data["author"] += "look at def packageIndividualOpportunity(opportunityInfo):"
+    #if i != len(queryInfo) - 1:
+    #data["author"] += ", "
+
+
+    author_names = [item[1].getName() for item in queryInfo]
+    data["author"] = ", ".join(author_names)
 
     if len(queryInfo) > 1:
         data["authorProfile"] = (
@@ -216,10 +189,11 @@ def packageOpportunityCard(opportunity):
 
     professorInfo = ""
 
-    for i, item in enumerate(data):
-        professorInfo += item[1].getName()
-        if i != len(data) - 1:
-            professorInfo += ", "
+    #for i, item in enumerate(data):
+        #professorInfo += item[1].getName()
+        #if i != len(data) - 1:
+            #professorInfo += ", "
+    professorInfo = ", ".join(item[1].getName() for item in data)
 
     card = {
         "id": opportunity.id,
@@ -247,7 +221,6 @@ def packageOpportunityCard(opportunity):
 #         abort(404)
 
 #     data = data[0]
-
 #     oppData = packageIndividualOpportunity(data[0])
 
 #     # return data in the below format if opportunity is found
@@ -269,11 +242,11 @@ def packageOpportunityCard(opportunity):
 #     return result
 
 
-#
-@main_blueprint.route("/opportunity/filter", methods=["POST"])
-def filterOpportunities():
+
+##@main_blueprint.route("/opportunity/filter", methods=["POST"])
+##def filterOpportunities():
     # Handle POST requests for filtering opportunities
-    json_request_data = request.get_json()
+    ##json_request_data = request.get_json()
 
 
 #     if not json_request_data:
@@ -646,7 +619,7 @@ def filterOpportunities():
 
 #     data = query.all()[0][0]
 
-#     # TODO: how do we get the opportunity id?
+#     # How do we get the opportunity id?
 #     # if match is found, create a new opportunity with the new data provided
 
 #     one = False
@@ -719,7 +692,6 @@ def filterOpportunities():
 
 #     return {"data": "Opportunity Created"}
 
-#
 # abort(500)
 
 
