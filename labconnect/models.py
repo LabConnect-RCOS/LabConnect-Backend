@@ -19,7 +19,7 @@ class User(db.Model, CustomSerializerMixin):
         "phone_number",
         "website",
         "class_year",
-        "lab_manager_id",
+        "description",
     )
     serialize_rules = ()
 
@@ -30,6 +30,8 @@ class User(db.Model, CustomSerializerMixin):
     preferred_name = db.Column(db.String(50), nullable=True, unique=False)
     phone_number = db.Column(db.String(15), nullable=True, unique=False)
     website = db.Column(db.String(512), nullable=True, unique=False)
+    description = db.Column(db.String(4096), nullable=True, unique=False)
+    profile_picture = db.Column(db.String(512), nullable=True, unique=False)
     class_year = db.Column(
         db.Integer,
         db.ForeignKey("class_years.class_year"),
@@ -89,15 +91,6 @@ class LabManager(db.Model, CustomSerializerMixin):
     opportunities = db.relationship(
         "Leads", back_populates="lab_manager", passive_deletes=True
     )
-
-    def getUser(self):
-        return User.query.filter_by(lab_manager_id=self.id).all()
-
-    def getName(self):
-        return self.user[0].first_name + " " + self.user[0].last_name
-
-    def getEmail(self):
-        return self.user[0].email
 
 
 # rpi_schools( name, description ), key: name

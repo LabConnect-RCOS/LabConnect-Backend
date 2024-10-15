@@ -30,9 +30,9 @@ from labconnect.models import (
 from . import main_blueprint
 
 
-# @main_blueprint.route("/")
-# def index():
-#     return {"Hello": "There"}
+@main_blueprint.get("/")
+def index():
+    return {"Hello": "There"}
 
 
 @main_blueprint.get("/departments")
@@ -175,33 +175,37 @@ def profile():
     return result
 
 
-# @main_blueprint.get("/getProfessorProfile/<string:email>")
-# def getProfessorProfile(email: int):
-#     # test code until database code is added
-#     query = db.session.execute(db.select(User).where(User.email == email))
-#     data = query.all()
-#     user = data[0][0]
-#     lm = user.getLabManager()
+@main_blueprint.get("/staff/<string:id>")
+def getProfessorProfile(id: str):
 
-#     result = {}
+    # TODO: add ways to share phone number and email
+    # TODO: ensure this fails for non labmanager users
+    data = db.session.execute(
+        db.select(
+            User.preferred_name,
+            User.first_name,
+            User.last_name,
+            User.profile_picture,
+            LabManager.department_id,
+            User.description,
+            User.website,
+        )
+        .where(User.id == id)
+        .join(LabManager, User.lab_manager_id == LabManager.id)
+    ).first()
 
-#     dictionary = user.to_dict()
+    if not data:
+        return {"error": "profile not found"}, 404
 
-#     dictionary["image"] = "https://www.svgrepo.com/show/206842/professor.svg"
-#     dictionary["department"] = lm.department_id
-#     dictionary["email"] = user.email
-#     dictionary["role"] = "admin"
-#     dictionary["description"] = (
-#         "This is the description from the backend but we need to add more fields for LabManager"
-#     )
+    result = {
+        "name": data[0] + " " + data[2] if data[0] else data[1] + " " + data[2],
+        "image": data[3],
+        "department": data[4],
+        "description": data[5],
+        "website": data[6],
+    }
 
-#     # clean data
-#     dictionary["name"] = (
-#         dictionary.pop("first_name") + " " + dictionary.pop("last_name")
-#     )
-#     dictionary.pop("class_year")
-
-#     return dictionary
+    return result
 
 
 # @main_blueprint.get("/lab_manager/opportunities")
@@ -296,7 +300,7 @@ def changeActiveStatus() -> dict[str, bool]:
 #     return {"Hello": "There"}
 
 
-@main_blueprint.route("/500")
+@main_blueprint.get("/500")
 def force_error():
     abort(500)
 

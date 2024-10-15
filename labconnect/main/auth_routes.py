@@ -16,7 +16,7 @@ from labconnect.helpers import prepare_flask_request
 from . import main_blueprint
 
 
-@main_blueprint.route("/login")
+@main_blueprint.get("/login")
 def saml_login():
     # Initialize SAML auth request
     req = prepare_flask_request(request)
@@ -58,11 +58,11 @@ def saml_callback():
 
         # Send the JWT to the frontend
         return redirect(f"{current_app.config['FRONTEND_URL']}/?token={token}")
-    else:
-        return {"errors": errors}, 500
+
+    return {"errors": errors}, 500
 
 
-@main_blueprint.route("/metadata/")
+@main_blueprint.get("/metadata/")
 def metadata():
     req = prepare_flask_request(request)
     auth = auth = OneLogin_Saml2_Auth(
