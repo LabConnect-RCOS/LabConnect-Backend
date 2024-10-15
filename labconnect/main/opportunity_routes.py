@@ -28,7 +28,7 @@ def searchOpportunity(query: str):
     stmt = (
         db.select(Opportunities)
         .where(
-            #Made query input
+            # Made query input
             (
                 Opportunities.search_vector.match(query)
             )  # Full-text search using pre-generated tsvector
@@ -65,7 +65,6 @@ def searchOpportunity(query: str):
     #         ).desc()  # Order by similarity for fuzzy search results
     #     )
     # )
-
 
     data = db.session.execute(stmt).scalars().all()
 
@@ -825,7 +824,7 @@ def filterOpportunities():
 
 #         return "Successful"
 
-#@main_blueprint.post("/editOpportunity")
+# @main_blueprint.post("/editOpportunity")
 # def editOpportunity():
 #         data = request.get_json()
 #         id = data["id"]
