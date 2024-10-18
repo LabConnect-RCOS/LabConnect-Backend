@@ -15,7 +15,7 @@ from labconnect.models import (
     # RecommendsClassYears,
     # RecommendsMajors,
     # RecommendsCourses,
-    # User,
+    User,
 )
 
 from labconnect.helpers import LocationEnum, format_credits
