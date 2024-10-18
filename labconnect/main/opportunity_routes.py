@@ -178,17 +178,20 @@ def packageOpportunityCard(opportunity):
 
     # get professor and department by getting Leads and LabManager
     query = db.session.execute(
-        db.select(Leads, LabManager)
+        db.select(Leads, LabManager,User.first_name, User.last_name)
         .where(Leads.opportunity_id == opportunity.id)
         .join(LabManager, Leads.lab_manager_id == LabManager.id)
+        .join(User, LabManager.id == User.lab_manager_id)
     )
 
     data = query.all()
 
     professorInfo = ""
 
+
     for i, item in enumerate(data):
-        professorInfo += item[1].getName()
+        professor_name = f"{item[2]} {item[3]}"
+        professorInfo += professor_name
         if i != len(data) - 1:
             professorInfo += ", "
 
@@ -460,25 +463,24 @@ def filterOpportunities():
 #     abort(500)
 
 
-# # Jobs page
-# @main_blueprint.route("/getOpportunityCards", methods=["GET"])
-# def getOpportunityCards():
-#     if request.method == "GET":
-#         # query database for opportunity
-#         query = db.session.execute(
-#             db.select(Opportunities).where(Opportunities.active == True)
-#         )
+# Jobs page
+@main_blueprint.get("/getOpportunityCards")
+def getOpportunityCards():
+    # query database for opportunity
+    query = db.session.execute(
+        db.select(Opportunities).where(Opportunities.active == True)
+    )
 
-#         data = query.fetchall()
+    data = query.fetchall()
 
-#         # return data in the below format if opportunity is found
-#         cards = {
-#             "data": [packageOpportunityCard(opportunity[0]) for opportunity in data]
-#         }
+    # return data in the below format if opportunity is found
+    cards = {
+        "data": [packageOpportunityCard(opportunity[0]) for opportunity in data]
+    }
 
-#         return cards
+    return cards
 
-#     abort(500)
+    abort(500)
 
 
 # @main_blueprint.route("/getOpportunities", methods=["GET"])
