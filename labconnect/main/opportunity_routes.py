@@ -18,7 +18,7 @@ from labconnect.models import (
     User,
 )
 
-from labconnect.helpers import LocationEnum, format_credits
+from labconnect.helpers import LocationEnum, SemesterEnum, format_credits
 
 from . import main_blueprint
 
@@ -609,96 +609,99 @@ def getLabManagerOpportunityCards(rcs_id: str):
 
 
 # functions to create/edit/delete opportunities
-# @main_blueprint.route("/createOpportunity", methods=["POST"])
-# def createOpportunity():
-#     if request.method == "POST":
-#         data = request.get_json()
-#         authorID = data["authorID"]
-#         newPostData = data
+@main_blueprint.post("/createOpportunity")
+def createOpportunity():
+    data = request.get_json()
+    
 
-#         # query database to see if the credentials above match
-#         query = db.session.execute(
-#             db.select(LabManager).where(LabManager.id == authorID)
-#         )
+    authorID = data[0]["id"]
+    newPostData = data[0]
 
-#         data = query.all()[0][0]
+    # query database to see if the credentials above match
+    query = db.session.execute(
+        db.select(LabManager).where(LabManager.id == authorID)
+    )
+    
 
-#         # TODO: how do we get the opportunity id?
-#         # if match is found, create a new opportunity with the new data provided
+    data = query.all()[0][0]
 
-#         one = False
-#         two = False
-#         three = False
-#         four = False
+    # TODO: how do we get the opportunity id?
+    # if match is found, create a new opportunity with the new data provided
 
-#         if "1" in newPostData["credits"]:
-#             one = True
-#         if "2" in newPostData["credits"]:
-#             two = True
-#         if "3" in newPostData["credits"]:
-#             three = True
-#         if "4" in newPostData["credits"]:
-#             four = True
+    one = False
+    two = False
+    three = False
+    four = False
 
-#         lenum = convert_to_enum(newPostData["location"])
+    if newPostData["one_credit"]:
+        one = True
+    if newPostData["two_credits"]:
+        two = True
+    if newPostData["three_credits"]:
+        three = True
+    if newPostData["four_credits"]:
+        four = True
 
-#         if lenum is None:
-#             lenum = LocationEnum.TBD
+    lenum = convert_to_enum(newPostData["location"])
 
-#         newOpportunity = Opportunities(
-#             name=newPostData["name"],
-#             description=newPostData["description"],
-#             recommended_experience=newPostData["recommended_experience"],
-#             pay=newPostData["pay"],
-#             one_credit=one,
-#             two_credits=two,
-#             three_credits=three,
-#             four_credits=four,
-#             semester=newPostData["semester"],
-#             year=newPostData["year"],
-#             application_due=datetime.datetime.strptime(
-#                 newPostData["application_due"], "%Y-%m-%d"
-#             ),
-#             active=newPostData["active"],
-#             location=lenum,
-#         )
-#         print("before comitting")
-#         db.session.add(newOpportunity)
-#         db.session.commit()
+    if lenum is None:
+        lenum = LocationEnum.TBD
 
-#         print("got here atleast")
+    newOpportunity = Opportunities(
+        name=newPostData["name"],
+        description=newPostData["description"],
+        recommended_experience=newPostData["recommended_experience"],
+        pay=newPostData["pay"],
+        one_credit=one,
+        two_credits=two,
+        three_credits=three,
+        four_credits=four,
+        semester=SemesterEnum[(newPostData["semester"]).upper()],
+        year=newPostData["year"],
+        application_due=datetime.datetime.strptime(
+            newPostData["application_due"], "%Y-%m-%d"
+        ),
+        active=newPostData["active"],
+        location=lenum,
+    )
+    print("before comitting")
+    db.session.add(newOpportunity)
+    db.session.commit()
 
-#         newLead = Leads(lab_manager_id=authorID, opportunity_id=newOpportunity.id)
+    print("got here atleast")
 
-#         db.session.add(newLead)
-#         db.session.commit()
+    newLead = Leads(lab_manager_id=authorID, opportunity_id=newOpportunity.id)
 
-#         for course in newPostData["courses"]:
-#             newCourse = RecommendsCourses(
-#                 opportunity_id=newOpportunity.id, course_code=course
-#             )
-#             db.session.add(newCourse)
-#             db.session.commit()
+    db.session.add(newLead)
+    db.session.commit()
 
-#         for major in newPostData["majors"]:
-#             newMajor = RecommendsMajors(
-#                 opportunity_id=newOpportunity.id, major_code=major
-#             )
-#             db.session.add(newMajor)
-#             db.session.commit()
+    for course in newPostData["courses"]:
+        newCourse = RecommendsCourses(
+            opportunity_id=newOpportunity.id, course_code=course
+        )
 
-#         for year in newPostData["years"]:
-#             newYear = RecommendsClassYears(
-#                 opportunity_id=newOpportunity.id, class_year=year
-#             )
-#             db.session.add(newYear)
-#             db.session.commit()
+        db.session.add(newCourse)
+        db.session.commit()
 
-#         # db.session.add(newOpportunity)
+    for major in newPostData["majors"]:
+        newMajor = RecommendsMajors(
+            opportunity_id=newOpportunity.id, major_code=major
+        )
+        db.session.add(newMajor)
+        db.session.commit()
 
-#         return {"data": "Opportunity Created"}
+    for year in newPostData["years"]:
+        newYear = RecommendsClassYears(
+            opportunity_id=newOpportunity.id, class_year=year
+        )
+        db.session.add(newYear)
+        db.session.commit()
 
-#     abort(500)
+    db.session.add(newOpportunity)
+
+    return {"data": "Opportunity Created"}
+
+    abort(500)
 
 
 @main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
