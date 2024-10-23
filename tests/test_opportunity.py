@@ -3,6 +3,7 @@ Test opportunity routes
 """
 
 import json
+
 from flask import json
 from flask.testing import FlaskClient
 

@@ -1,21 +1,14 @@
-from typing import Any
+from datetime import datetime
 
-from flask import Response, request, redirect, jsonify, current_app, make_response
-from flask_jwt_extended import (
-    create_access_token,
-    unset_jwt_cookies,
-)
+from flask import current_app, make_response, redirect, request
+from flask_jwt_extended import create_access_token
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 
 from labconnect import db
-from labconnect.models import (
-    User,
-)
 from labconnect.helpers import prepare_flask_request
+from labconnect.models import User
 
 from . import main_blueprint
-
-from datetime import datetime
 
 
 @main_blueprint.get("/login")
