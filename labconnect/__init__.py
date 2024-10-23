@@ -29,7 +29,6 @@ jwt = JWTManager()
 def create_app() -> Flask:
     # Create flask app object
     app = Flask(__name__)
-    CORS(app)
 
     app.config.from_object(os.environ.get("CONFIG", "config.TestingConfig"))
 
@@ -39,6 +38,8 @@ def create_app() -> Flask:
         traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"],
         profiles_sample_rate=app.config["SENTRY_PROFILES_SAMPLE_RATE"],
     )
+
+    CORS(app, supports_credentials=True, origins=[app.config["FRONTEND_URL"]])
 
     initialize_extensions(app)
     register_blueprints(app)
