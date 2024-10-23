@@ -19,7 +19,7 @@ def saml_login():
         token = create_access_token(identity=["test", datetime.now()])
 
         # Send the JWT to the frontend
-        return redirect(f"{current_app.config['FRONTEND_URL']}/?token={token}")
+        return redirect(f"{current_app.config['FRONTEND_URL']}/token/?token={token}")
 
     # Initialize SAML auth request
     req = prepare_flask_request(request)
@@ -60,7 +60,7 @@ def saml_callback():
         token = create_access_token(identity=[user_id, datetime.now()])
 
         # Send the JWT to the frontend
-        return redirect(f"{current_app.config['FRONTEND_URL']}/?token={token}")
+        return redirect(f"{current_app.config['FRONTEND_URL']}/token/?token={token}")
 
     return {"errors": errors}, 500
 
