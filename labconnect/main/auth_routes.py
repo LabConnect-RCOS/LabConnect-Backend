@@ -1,23 +1,26 @@
-from typing import Any
+from datetime import datetime
 
-from flask import Response, request, redirect, jsonify, current_app, make_response
-from flask_jwt_extended import (
-    create_access_token,
-    unset_jwt_cookies,
-)
+from flask import current_app, make_response, redirect, request
+from flask_jwt_extended import create_access_token
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 
 from labconnect import db
-from labconnect.models import (
-    User,
-)
 from labconnect.helpers import prepare_flask_request
+from labconnect.models import User
 
 from . import main_blueprint
 
 
 @main_blueprint.get("/login")
 def saml_login():
+
+    if current_app.config["TESTING"]:
+        # Generate JWT
+        token = create_access_token(identity=["test", datetime.now()])
+
+        # Send the JWT to the frontend
+        return redirect(f"{current_app.config['FRONTEND_URL']}/?token={token}")
+
     # Initialize SAML auth request
     req = prepare_flask_request(request)
     auth = OneLogin_Saml2_Auth(req, custom_base_path=current_app.config["SAML_CONFIG"])
@@ -54,7 +57,7 @@ def saml_callback():
             db.session.commit()
 
         # Generate JWT
-        token = create_access_token(identity=user_id)
+        token = create_access_token(identity=[user_id, datetime.now()])
 
         # Send the JWT to the frontend
         return redirect(f"{current_app.config['FRONTEND_URL']}/?token={token}")
@@ -63,7 +66,7 @@ def saml_callback():
 
 
 @main_blueprint.get("/metadata/")
-def metadata():
+def metadataRoute():
     req = prepare_flask_request(request)
     auth = auth = OneLogin_Saml2_Auth(
         req, custom_base_path=current_app.config["SAML_CONFIG"]
@@ -81,7 +84,9 @@ def metadata():
 
 
 @main_blueprint.get("/logout")
-def logout() -> Response:
-    response = jsonify({"msg": "logout successful"})
-    unset_jwt_cookies(response)
-    return response
+def logout():
+    if not current_app.config["TESTING"]:
+        # TODO: add token to blacklist
+        # current_app.config["TOKEN_BLACKLIST"].add()
+        pass
+    return {"msg": "logout successful"}
