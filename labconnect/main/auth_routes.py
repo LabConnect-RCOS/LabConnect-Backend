@@ -73,7 +73,7 @@ def saml_callback():
 
 
 @main_blueprint.get("/metadata/")
-def metadata():
+def metadataRoute():
     req = prepare_flask_request(request)
     auth = auth = OneLogin_Saml2_Auth(
         req, custom_base_path=current_app.config["SAML_CONFIG"]
