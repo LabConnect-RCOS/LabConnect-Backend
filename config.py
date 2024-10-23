@@ -29,6 +29,8 @@ class Config:
         "DB", "postgresql+psycopg2://postgres:root@localhost/labconnect"
     )
 
+    TOKEN_BLACKLIST = set()
+
 
 class TestingConfig(Config):
     TESTING = True
