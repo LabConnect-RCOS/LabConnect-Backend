@@ -15,9 +15,19 @@ from labconnect.helpers import prepare_flask_request
 
 from . import main_blueprint
 
+from datetime import datetime
+
 
 @main_blueprint.get("/login")
 def saml_login():
+
+    if current_app.config["TESTING"]:
+        # Generate JWT
+        token = create_access_token(identity=["test", datetime.now()])
+
+        # Send the JWT to the frontend
+        return redirect(f"{current_app.config['FRONTEND_URL']}/?token={token}")
+
     # Initialize SAML auth request
     req = prepare_flask_request(request)
     auth = OneLogin_Saml2_Auth(req, custom_base_path=current_app.config["SAML_CONFIG"])
@@ -54,7 +64,7 @@ def saml_callback():
             db.session.commit()
 
         # Generate JWT
-        token = create_access_token(identity=user_id)
+        token = create_access_token(identity=[user_id, datetime.now()])
 
         # Send the JWT to the frontend
         return redirect(f"{current_app.config['FRONTEND_URL']}/?token={token}")
@@ -81,7 +91,9 @@ def metadata():
 
 
 @main_blueprint.get("/logout")
-def logout() -> Response:
-    response = jsonify({"msg": "logout successful"})
-    unset_jwt_cookies(response)
-    return response
+def logout():
+    if not current_app.config["TESTING"]:
+        # TODO: add token to blacklist
+        # current_app.config["TOKEN_BLACKLIST"].add()
+        pass
+    return {"msg": "logout successful"}
