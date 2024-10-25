@@ -614,7 +614,7 @@ def createOpportunity():
     data = request.get_json()
     
 
-    authorID = data[0]["id"]
+    authorID = data[0]["manager_id"]
     newPostData = data[0]
 
     # query database to see if the credentials above match
@@ -663,12 +663,11 @@ def createOpportunity():
         ),
         active=newPostData["active"],
         location=lenum,
+        last_updated=datetime.datetime.now(),
     )
-    print("before comitting")
     db.session.add(newOpportunity)
     db.session.commit()
 
-    print("got here atleast")
 
     newLead = Leads(lab_manager_id=authorID, opportunity_id=newOpportunity.id)
 
@@ -704,14 +703,13 @@ def createOpportunity():
     abort(500)
 
 
-@main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
+@main_blueprint.post("/editOpportunity")
 def editOpportunity():
-    if request.method in ["DELETE", "POST"]:
-        data = request.get_json()
-        id = data["id"]
-        # authToken = data["authToken"]
-        # authorID = data["authorID"]
-        newPostData = data
+    data = request.get_json()
+    id = data["id"]
+    # authToken = data["authToken"]
+    # authorID = data["authorID"]
+    newPostData = data
 
 
 # @main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
@@ -820,52 +818,52 @@ def editOpportunity():
 #     abort(500)
 
 
-# @main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
-# def deleteOpportunity():
-#     if request.method in ["DELETE", "POST"]:
-#         data = request.get_json()
-#         id = data["id"]
+@main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
+def deleteOpportunity():
+    if request.method in ["DELETE", "POST"]:
+        data = request.get_json()
+        id = data["id"]
 
-#         query = db.session.execute(
-#             db.select(
-#                 Opportunities,
-#                 RecommendsMajors,
-#                 RecommendsCourses,
-#                 RecommendsClassYears,
-#                 Leads,
-#             )
-#             .where(Opportunities.id == id)
-#             .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-#             .join(
-#                 RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
-#             )
-#             .join(
-#                 RecommendsClassYears,
-#                 RecommendsClassYears.opportunity_id == Opportunities.id,
-#             )
-#             .join(Leads, Leads.opportunity_id == Opportunities.id)
-#         )
+        query = db.session.execute(
+            db.select(
+                Opportunities,
+                RecommendsMajors,
+                RecommendsCourses,
+                RecommendsClassYears,
+                Leads,
+            )
+            .where(Opportunities.id == id)
+            .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
+            .join(
+                RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
+            )
+            .join(
+                RecommendsClassYears,
+                RecommendsClassYears.opportunity_id == Opportunities.id,
+            )
+            .join(Leads, Leads.opportunity_id == Opportunities.id)
+        )
 
-#         data = query.all()
-#         print(data)
+        data = query.all()
+        print(data)
 
-#         if not data or len(data) == 0:
-#             abort(404)
+        if not data or len(data) == 0:
+            abort(404)
 
-#         opportunity = data[0][0]
+        opportunity = data[0][0]
 
-#         for row in data:
-#             db.session.delete(row[1])
-#             db.session.delete(row[2])
-#             db.session.delete(row[3])
-#             db.session.delete(row[4])
+        for row in data:
+            db.session.delete(row[1])
+            db.session.delete(row[2])
+            db.session.delete(row[3])
+            db.session.delete(row[4])
 
-#         leads = data[0][4]
+        leads = data[0][4]
 
-#         db.session.delete(opportunity)
+        db.session.delete(opportunity)
 
-#         db.session.commit()
+        db.session.commit()
 
-#         return "Success"
+        return "Success"
 
-#     abort(500)
+    abort(500)
