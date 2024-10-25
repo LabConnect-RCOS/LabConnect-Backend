@@ -37,11 +37,52 @@ def test_departments_route(test_client: FlaskClient) -> None:
             "space, the final frontier",
             "flying, need for speed",
         ),
+        (
+            "School of science",
+            "School of science", 
+            "School of engineering",
+            "School of science",
+            "School of engineering",
+            "School of engineering",
+            "School of engineering",
+        ),
+        (
+            "CSCI",
+            "BIOL",
+            "MTLE"
+            "MATH",
+            "ENVI",
+            "MANE",
+            "MANE",
+        ),
+        (
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+        ),
+        (
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+        ),
     )
 
     for department in json_data:
         assert department["name"] in rpi_departments_data[0]
         assert department["description"] in rpi_departments_data[1]
+        #Added 
+        assert department["school_id"] in rpi_departments_data[2]
+        assert department["id"] in rpi_departments_data[3]
+        assert department["image"] in rpi_departments_data[4]
+        assert department["webcite"] in rpi_departments_data[5]
 
 
 def test_department_route(test_client: FlaskClient) -> None:
@@ -59,6 +100,10 @@ def test_department_route(test_client: FlaskClient) -> None:
     assert json_data["name"] == "Computer Science"
     assert json_data["description"] == "DS"
     assert json_data["school_id"] == "School of Science"
+    #Added
+    assert json_data["id"] == "CSCI"
+    assert json_data["image"] == "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
+    assert json_data["webcite"] == "https://www.rpi.edu"
 
     prof_names = ["Duy Le", "Rafael", "Turner", "Kuzmin", "Goldschmidt"]
     prof_rcs_ids = ["led", "cenzar", "turner", "kuzmin", "goldd"]
