@@ -815,52 +815,24 @@ def editOpportunity():
 #     abort(500)
 
 
-@main_blueprint.route("/deleteOpportunity", methods=["DELETE", "POST"])
-def deleteOpportunity():
-    if request.method in ["DELETE", "POST"]:
-        data = request.get_json()
-        id = data["id"]
+@main_blueprint.delete("/deleteOpportunity/<int:opportunity_id>")
+def deleteOpportunity(opportunity_id):
+    opportunity = db.session.get(Opportunities, opportunity_id)
 
-        query = db.session.execute(
-            db.select(
-                Opportunities,
-                RecommendsMajors,
-                RecommendsCourses,
-                RecommendsClassYears,
-                Leads,
-            )
-            .where(Opportunities.id == id)
-            .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-            .join(
-                RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
-            )
-            .join(
-                RecommendsClassYears,
-                RecommendsClassYears.opportunity_id == Opportunities.id,
-            )
-            .join(Leads, Leads.opportunity_id == Opportunities.id)
-        )
+    if not opportunity:
+        return {"error": "Opportunity not found"}, 404
+    
+    #TODO: Add check to see if user has permission to delete opportunity
 
-        data = query.all()
-        print(data)
+    # Delete related records in other tables (e.g., Leads, RecommendsCourses, RecommendsMajors, RecommendsClassYears)
+    db.session.query(Leads).filter_by(opportunity_id=opportunity_id).delete()
+    db.session.query(RecommendsCourses).filter_by(opportunity_id=opportunity_id).delete()
+    db.session.query(RecommendsMajors).filter_by(opportunity_id=opportunity_id).delete()
+    db.session.query(RecommendsClassYears).filter_by(opportunity_id=opportunity_id).delete()
 
-        if not data or len(data) == 0:
-            abort(404)
+    # Delete the opportunity itself
+    db.session.delete(opportunity)
+    db.session.commit()
 
-        opportunity = data[0][0]
-
-        for row in data:
-            db.session.delete(row[1])
-            db.session.delete(row[2])
-            db.session.delete(row[3])
-            db.session.delete(row[4])
-
-        leads = data[0][4]
-
-        db.session.delete(opportunity)
-
-        db.session.commit()
-
-        return "Success"
-
+    return {"data": "Opportunity Deleted"}
     abort(500)
