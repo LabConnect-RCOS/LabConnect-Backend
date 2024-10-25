@@ -175,7 +175,7 @@ def packageOpportunityCard(opportunity):
 
     # get professor and department by getting Leads and LabManager
     query = db.session.execute(
-        db.select(Leads, LabManager,User.first_name, User.last_name)
+        db.select(Leads, LabManager, User.first_name, User.last_name)
         .where(Leads.opportunity_id == opportunity.id)
         .join(LabManager, Leads.lab_manager_id == LabManager.id)
         .join(User, LabManager.id == User.lab_manager_id)
@@ -184,7 +184,6 @@ def packageOpportunityCard(opportunity):
     data = query.all()
 
     professorInfo = ""
-
 
     for i, item in enumerate(data):
         professor_name = f"{item[2]} {item[3]}"
@@ -471,9 +470,7 @@ def getOpportunityCards():
     data = query.fetchall()
 
     # return data in the below format if opportunity is found
-    cards = {
-        "data": [packageOpportunityCard(opportunity[0]) for opportunity in data]
-    }
+    cards = {"data": [packageOpportunityCard(opportunity[0]) for opportunity in data]}
 
     return cards
 
@@ -609,16 +606,12 @@ def getLabManagerOpportunityCards(rcs_id: str):
 @main_blueprint.post("/createOpportunity")
 def createOpportunity():
     data = request.get_json()
-    
 
     authorID = data[0]["manager_id"]
     newPostData = data[0]
 
     # query database to see if the credentials above match
-    query = db.session.execute(
-        db.select(LabManager).where(LabManager.id == authorID)
-    )
-    
+    query = db.session.execute(db.select(LabManager).where(LabManager.id == authorID))
 
     data = query.all()[0][0]
 
@@ -665,7 +658,6 @@ def createOpportunity():
     db.session.add(newOpportunity)
     db.session.commit()
 
-
     newLead = Leads(lab_manager_id=authorID, opportunity_id=newOpportunity.id)
 
     db.session.add(newLead)
@@ -680,9 +672,7 @@ def createOpportunity():
         db.session.commit()
 
     for major in newPostData["majors"]:
-        newMajor = RecommendsMajors(
-            opportunity_id=newOpportunity.id, major_code=major
-        )
+        newMajor = RecommendsMajors(opportunity_id=newOpportunity.id, major_code=major)
         db.session.add(newMajor)
         db.session.commit()
 
@@ -700,119 +690,144 @@ def createOpportunity():
     abort(500)
 
 
-@main_blueprint.post("/editOpportunity")
-def editOpportunity():
+@main_blueprint.get("/editOpportunity/<int:opportunity_id>")
+def editOpportunity_get(opportunity_id):
+
+    opportunity = db.session.execute(
+        db.select(Opportunities).where(Opportunities.id == opportunity_id)
+    ).first()
+
+    if not opportunity:
+        return {"error": "Opportunity not found"}, 404
+
+    opportunity = opportunity[0]
+
+    # Query related courses
+    courses_data = db.session.execute(
+        db.select(RecommendsCourses.course_code).where(
+            RecommendsCourses.opportunity_id == opportunity_id
+        )
+    ).all()
+
+    # Query related majors
+    majors_data = db.session.execute(
+        db.select(RecommendsMajors.major_code).where(
+            RecommendsMajors.opportunity_id == opportunity_id
+        )
+    ).all()
+
+    # Query related class years
+    years_data = db.session.execute(
+        db.select(RecommendsClassYears.class_year).where(
+            RecommendsClassYears.opportunity_id == opportunity_id
+        )
+    ).all()
+
+    # Format opportunity data as JSON
+    opportunity_data = {
+        "id": opportunity.id,
+        "name": opportunity.name,
+        "description": opportunity.description,
+        "recommended_experience": opportunity.recommended_experience,
+        "pay": opportunity.pay,
+        "one_credit": opportunity.one_credit,
+        "two_credits": opportunity.two_credits,
+        "three_credits": opportunity.three_credits,
+        "four_credits": opportunity.four_credits,
+        "semester": opportunity.semester.name,  # Convert enum to string
+        "year": opportunity.year,
+        "application_due": opportunity.application_due.strftime("%Y-%m-%d"),
+        "active": opportunity.active,
+        "location": opportunity.location.name,  # Convert enum to string
+        "last_updated": opportunity.last_updated.strftime("%Y-%m-%d %H:%M:%S"),
+        "courses": [
+            course.course_code for course in courses_data
+        ],  # Assuming relationship setup
+        "majors": [major.major_code for major in majors_data],
+        "years": [year.class_year for year in years_data],
+    }
+
+    return opportunity_data
+
+
+@main_blueprint.put("/editOpportunity/<int:opportunity_id>")
+def editOpportunity(opportunity_id):
     data = request.get_json()
-    id = data["id"]
-    # authToken = data["authToken"]
-    # authorID = data["authorID"]
-    newPostData = data
 
+    # Check if the opportunity and author exist
+    opportunity = db.session.execute(
+        db.select(Opportunities).where(Opportunities.id == opportunity_id)
+    ).first()
 
-# @main_blueprint.route("/editOpportunity", methods=["DELETE", "POST"])
-# def editOpportunity():
-#     if True:
-#         data = request.get_json()
-#         id = data["id"]
-#         # authToken = data["authToken"]
-#         # authorID = data["authorID"]
-#         newPostData = data
+    if not opportunity:
+        return {"error": "Opportunity not found"}, 404
 
-#         # query database to see if the credentials above match
-#         query = db.session.execute(
-#             db.select(
-#                 Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
-#             )
-#             .where(Opportunities.id == id)
-#             .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-#             .join(
-#                 RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id
-#             )
-#             .join(
-#                 RecommendsClassYears,
-#                 RecommendsClassYears.opportunity_id == Opportunities.id,
-#             )
-#         )
+    opportunity = opportunity[0]
+    data = data[0]
 
-#         data = query.all()
+    # TODO: Add check to see if person has permission to edit opportunity
 
-#         if not data or len(data) == 0:
-#             abort(404)
+    # Update fields for opportunity based on the input data
+    opportunity.name = data["name"]
+    opportunity.description = data["description"]
+    opportunity.recommended_experience = data["recommended_experience"]
+    opportunity.pay = data["pay"]
+    opportunity.one_credit = data["one_credit"]
+    opportunity.two_credits = data["two_credits"]
+    opportunity.three_credits = data["three_credits"]
+    opportunity.four_credits = data["four_credits"]
+    opportunity.semester = (
+        SemesterEnum[(data["semester"]).upper()]
+        if "semester" in data
+        else opportunity.semester
+    )
+    opportunity.year = data["year"]
+    opportunity.application_due = (
+        datetime.datetime.strptime(data["application_due"], "%Y-%m-%d")
+        if "application_due" in data
+        else opportunity.application_due
+    )
+    opportunity.active = data["active"]
+    opportunity.location = (
+        convert_to_enum(data["location"])
+        if "location" in data
+        else opportunity.location
+    )
+    opportunity.last_updated = datetime.datetime.now()
 
-#         opportunity = data[0][0]
+    # Update related tables for courses, majors, and years
+    # Clear current recommendations
+    db.session.query(RecommendsCourses).filter_by(
+        opportunity_id=opportunity_id
+    ).delete()
+    db.session.query(RecommendsMajors).filter_by(opportunity_id=opportunity_id).delete()
+    db.session.query(RecommendsClassYears).filter_by(
+        opportunity_id=opportunity_id
+    ).delete()
 
-#         one = False
-#         two = False
-#         three = False
-#         four = False
+    # Re-add new recommendations
+    for course in data["courses"]:
+        newCourse = RecommendsCourses(opportunity_id=opportunity.id, course_code=course)
 
-#         if "1" in newPostData["credits"]:
-#             one = True
-#         if "2" in newPostData["credits"]:
-#             two = True
-#         if "3" in newPostData["credits"]:
-#             three = True
-#         if "4" in newPostData["credits"]:
-#             four = True
+        db.session.add(newCourse)
+        db.session.commit()
 
-#         lenum = convert_to_enum(newPostData["location"])
-#         print(newPostData["location"])
-#         print("printing lenum")
-#         print(lenum)
+    for major in data["majors"]:
+        newMajor = RecommendsMajors(opportunity_id=opportunity.id, major_code=major)
+        db.session.add(newMajor)
+        db.session.commit()
 
-#         # if match is found, edit the opportunity with the new data provided
-#         opportunity.name = newPostData["name"]
-#         opportunity.description = newPostData["description"]
-#         opportunity.recommended_experience = newPostData["recommended_experience"]
-#         opportunity.pay = newPostData["pay"]
-#         opportunity.one_credit = one
-#         opportunity.two_credits = two
-#         opportunity.three_credits = three
-#         opportunity.four_credits = four
-#         opportunity.semester = newPostData["semester"]
-#         opportunity.year = newPostData["year"]
-#         opportunity.application_due = datetime.datetime.strptime(
-#             newPostData["application_due"], "%Y-%m-%d"
-#         )
-#         opportunity.active = newPostData["active"]
+    for year in data["years"]:
+        newYear = RecommendsClassYears(opportunity_id=opportunity.id, class_year=year)
+        db.session.add(newYear)
+        db.session.commit()
 
-#         if lenum is not None:
-#             opportunity.location = lenum
+    print(opportunity)
 
-#         db.session.add(opportunity)
-#         db.session.commit()
+    # Commit all changes to the database
+    db.session.commit()
 
-#         # delete all the old data in the recommends tables
-
-#         for row in data:
-#             db.session.delete(row[1])
-#             db.session.delete(row[2])
-#             db.session.delete(row[3])
-
-#         # create new data for allow the tables
-
-#         for course in newPostData["courses"]:
-#             newCourse = RecommendsCourses(
-#                 opportunity_id=opportunity.id, course_code=course
-#             )
-#             db.session.add(newCourse)
-#             db.session.commit()
-
-#         for major in newPostData["majors"]:
-#             newMajor = RecommendsMajors(opportunity_id=opportunity.id, major_code=major)
-#             db.session.add(newMajor)
-#             db.session.commit()
-
-#         for year in newPostData["years"]:
-#             newYear = RecommendsClassYears(
-#                 opportunity_id=opportunity.id, class_year=year
-#             )
-#             db.session.add(newYear)
-#             db.session.commit()
-
-#         return "Successful"
-
-#     abort(500)
+    return {"data": "Opportunity Updated"}
 
 
 @main_blueprint.delete("/deleteOpportunity/<int:opportunity_id>")
@@ -821,14 +836,18 @@ def deleteOpportunity(opportunity_id):
 
     if not opportunity:
         return {"error": "Opportunity not found"}, 404
-    
-    #TODO: Add check to see if user has permission to delete opportunity
+
+    # TODO: Add check to see if user has permission to delete opportunity
 
     # Delete related records in other tables (e.g., Leads, RecommendsCourses, RecommendsMajors, RecommendsClassYears)
     db.session.query(Leads).filter_by(opportunity_id=opportunity_id).delete()
-    db.session.query(RecommendsCourses).filter_by(opportunity_id=opportunity_id).delete()
+    db.session.query(RecommendsCourses).filter_by(
+        opportunity_id=opportunity_id
+    ).delete()
     db.session.query(RecommendsMajors).filter_by(opportunity_id=opportunity_id).delete()
-    db.session.query(RecommendsClassYears).filter_by(opportunity_id=opportunity_id).delete()
+    db.session.query(RecommendsClassYears).filter_by(
+        opportunity_id=opportunity_id
+    ).delete()
 
     # Delete the opportunity itself
     db.session.delete(opportunity)
