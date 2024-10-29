@@ -101,7 +101,7 @@ def saml_callback():
 
 
 @main_blueprint.post("/token")
-def token():
+def tokenRoute():
     if request.json is None or request.json.get("code", None) is None:
         return {"msg": "Missing JSON body in request"}, 400
     # Validate the temporary code
