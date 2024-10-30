@@ -604,10 +604,16 @@ def getLabManagerOpportunityCards(rcs_id: str):
 
 # functions to create/edit/delete opportunities
 @main_blueprint.post("/createOpportunity")
+@jwt_required()
 def createOpportunity():
     data = request.get_json()
 
-    authorID = data[0]["manager_id"]
+    user_id = get_jwt_identity()
+    author = db.session.execute(
+        db.select(User).where(User.email == user_id)
+    ).scalar_one_or_none()
+
+    authorID = author.lab_manager_id
     newPostData = data[0]
 
     # query database to see if the credentials above match
@@ -692,7 +698,6 @@ def createOpportunity():
 
 @main_blueprint.get("/editOpportunity/<int:opportunity_id>")
 def editOpportunity_get(opportunity_id):
-
     opportunity = db.session.execute(
         db.select(Opportunities).where(Opportunities.id == opportunity_id)
     ).first()
@@ -701,6 +706,7 @@ def editOpportunity_get(opportunity_id):
         return {"error": "Opportunity not found"}, 404
 
     opportunity = opportunity[0]
+    print(opportunity)
 
     # Query related courses
     courses_data = db.session.execute(
@@ -722,6 +728,7 @@ def editOpportunity_get(opportunity_id):
             RecommendsClassYears.opportunity_id == opportunity_id
         )
     ).all()
+    print((opportunity.location))
 
     # Format opportunity data as JSON
     opportunity_data = {
@@ -734,15 +741,13 @@ def editOpportunity_get(opportunity_id):
         "two_credits": opportunity.two_credits,
         "three_credits": opportunity.three_credits,
         "four_credits": opportunity.four_credits,
-        "semester": opportunity.semester.name,  # Convert enum to string
+        "semester": SemesterEnum(opportunity.semester),  # Convert enum to string
         "year": opportunity.year,
         "application_due": opportunity.application_due.strftime("%Y-%m-%d"),
         "active": opportunity.active,
-        "location": opportunity.location.name,  # Convert enum to string
+        "location": opportunity.location,  # Convert enum to string
         "last_updated": opportunity.last_updated.strftime("%Y-%m-%d %H:%M:%S"),
-        "courses": [
-            course.course_code for course in courses_data
-        ],  # Assuming relationship setup
+        "courses": [course.course_code for course in courses_data],
         "majors": [major.major_code for major in majors_data],
         "years": [year.class_year for year in years_data],
     }
@@ -751,7 +756,9 @@ def editOpportunity_get(opportunity_id):
 
 
 @main_blueprint.put("/editOpportunity/<int:opportunity_id>")
+@jwt_required()
 def editOpportunity(opportunity_id):
+
     data = request.get_json()
 
     # Check if the opportunity and author exist
@@ -766,6 +773,25 @@ def editOpportunity(opportunity_id):
     data = data[0]
 
     # TODO: Add check to see if person has permission to edit opportunity
+    user_id = get_jwt_identity()
+
+    lab_manager = db.session.execute(
+        db.select(LabManager)
+        .join(User, User.lab_manager_id == LabManager.id)
+        .where(User.email == user_id)
+    ).scalar_one_or_none()
+
+    if lab_manager:
+        lead = db.session.execute(
+            db.select(Leads).where(
+                Leads.lab_manager_id == lab_manager.id,
+                Leads.opportunity_id == opportunity.id,
+            )
+        ).scalar_one_or_none()
+        if not lead:
+            return {"error": "Don't have permission to edit!"}, 401
+    else:
+        return {"error": "Don't have permission to edit!"}, 401
 
     # Update fields for opportunity based on the input data
     opportunity.name = data["name"]
@@ -822,15 +848,14 @@ def editOpportunity(opportunity_id):
         db.session.add(newYear)
         db.session.commit()
 
-    print(opportunity)
-
     # Commit all changes to the database
     db.session.commit()
 
-    return {"data": "Opportunity Updated"}
+    return {"data": "Opportunity Updated"}, 200
 
 
 @main_blueprint.delete("/deleteOpportunity/<int:opportunity_id>")
+@jwt_required()
 def deleteOpportunity(opportunity_id):
     opportunity = db.session.get(Opportunities, opportunity_id)
 
@@ -838,6 +863,25 @@ def deleteOpportunity(opportunity_id):
         return {"error": "Opportunity not found"}, 404
 
     # TODO: Add check to see if user has permission to delete opportunity
+    user_id = get_jwt_identity()
+
+    lab_manager = db.session.execute(
+        db.select(LabManager)
+        .join(User, User.lab_manager_id == LabManager.id)
+        .where(User.email == user_id)
+    ).scalar_one_or_none()
+
+    if lab_manager:
+        lead = db.session.execute(
+            db.select(Leads).where(
+                Leads.lab_manager_id == lab_manager.id,
+                Leads.opportunity_id == opportunity.id,
+            )
+        ).scalar_one_or_none()
+        if not lead:
+            return {"error": "Don't have permission to delete!"}, 401
+    else:
+        return {"error": "Don't have permission to delete!"}, 401
 
     # Delete related records in other tables (e.g., Leads, RecommendsCourses, RecommendsMajors, RecommendsClassYears)
     db.session.query(Leads).filter_by(opportunity_id=opportunity_id).delete()

@@ -16,7 +16,7 @@ def saml_login():
 
     if current_app.config["TESTING"]:
         # Generate JWT
-        token = create_access_token(identity=["test", datetime.now()])
+        token = create_access_token(identity="test@rpi.edu")
 
         # Send the JWT to the frontend
         return redirect(f"{current_app.config['FRONTEND_URL']}/token/?token={token}")
