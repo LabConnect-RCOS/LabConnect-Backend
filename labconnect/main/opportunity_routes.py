@@ -4,7 +4,7 @@ from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from labconnect import db
-from labconnect.helpers import LocationEnum, format_credits
+from labconnect.helpers import LocationEnum, SemesterEnum, format_credits
 from labconnect.models import (
     LabManager,
     Leads,
@@ -15,7 +15,6 @@ from labconnect.models import (
     User,
 )
 
-from labconnect.helpers import LocationEnum, SemesterEnum, format_credits
 
 from . import main_blueprint
 
@@ -474,8 +473,6 @@ def getOpportunityCards():
 
     return cards
 
-    abort(500)
-
 
 # @main_blueprint.route("/getOpportunities", methods=["GET"])
 # def getOpportunities():
@@ -693,8 +690,6 @@ def createOpportunity():
 
     return {"data": "Opportunity Created"}
 
-    abort(500)
-
 
 @main_blueprint.get("/editOpportunity/<int:opportunity_id>")
 def editOpportunity_get(opportunity_id):
@@ -728,7 +723,6 @@ def editOpportunity_get(opportunity_id):
             RecommendsClassYears.opportunity_id == opportunity_id
         )
     ).all()
-    print((opportunity.location))
 
     # Format opportunity data as JSON
     opportunity_data = {
@@ -898,4 +892,3 @@ def deleteOpportunity(opportunity_id):
     db.session.commit()
 
     return {"data": "Opportunity Deleted"}
-    abort(500)
