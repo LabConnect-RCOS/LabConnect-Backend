@@ -47,7 +47,7 @@ def saml_login():
     # In testing skip RPI login purely for local development
     if (
         current_app.config["TESTING"]
-        and current_app.config["Frontend_URL"] == "http://localhost:3000"
+        and current_app.config["FRONTEND_URL"] == "http://localhost:3000"
     ):
         # Generate JWT
         code = generate_temporary_code("test@rpi.edu")
