@@ -115,6 +115,9 @@ elif sys.argv[1] == "create":
             ("goldd", "David", "Goldschmidt", "CSCI", "VIM master"),
             ("rami", "Rami", "Rami", "MTLE", "cubes are cool"),
             ("holm", "Mark", "Holmes", "MATH", "all about that math"),
+            ("test", "RCOS", "RCOS", "CSCI", "first test"),
+            ("test2", "RCOS", "RCOS", "CSCI", "Second test"),
+            ("test3", "RCOS", "RCOS", "CSCI", "Third test"),
         )
 
         raf_test_user = (
@@ -233,6 +236,22 @@ elif sys.argv[1] == "create":
                 datetime.now(),
                 LocationEnum.JEC,
             ),
+            (
+                "Data Science Research",
+                "Work with a team of researchers to analyze large datasets and extract meaningful insights.",
+                "Python, Machine Learning, Data Analysis",
+                20.0,
+                True,
+                False,
+                True,
+                False,
+                SemesterEnum.FALL,
+                2024,
+                "2024-10-31",
+                True,
+                "2024-10-10T10:30:00",
+                LocationEnum.JROWL,
+            ),
         )
 
         for row_tuple in opportunities_rows:
@@ -290,6 +309,7 @@ elif sys.argv[1] == "create":
             (2, 2),
             (1, 3),
             (4, 4),
+            (8, 5),
         )
 
         for r in leads_rows:
@@ -315,45 +335,6 @@ elif sys.argv[1] == "create":
 
         for r in recommends_class_years_rows:
             row = RecommendsClassYears(opportunity_id=r[0], class_year=r[1])
-            db.session.add(row)
-            db.session.commit()
-
-        user_rows = (
-            (
-                "test",
-                "test@rpi.edu",
-                "RCOS",
-                "RCOS",
-                None,
-                2028,
-            ),
-            (
-                "test2",
-                "test2@rpi.edu",
-                "RCOS",
-                "RCOS",
-                None,
-                2029,
-            ),
-            (
-                "test3",
-                "test3@rpi.edu",
-                "RCOS",
-                "RCOS",
-                None,
-                2025,
-            ),
-        )
-        for r in user_rows:
-            row = User(
-                id=r[0],
-                email=r[1],
-                first_name=r[2],
-                last_name=r[3],
-                preferred_name=r[4],
-                class_year=r[5],
-                profile_picture="https://www.svgrepo.com/show/206842/professor.svg",
-            )
             db.session.add(row)
             db.session.commit()
 

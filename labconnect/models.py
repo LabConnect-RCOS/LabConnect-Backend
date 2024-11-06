@@ -1,4 +1,4 @@
-from sqlalchemy import Enum, Index, func, event
+from sqlalchemy import Enum, Index, event, func
 from sqlalchemy.dialects.postgresql import TSVECTOR
 
 from labconnect import db
