@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -603,36 +603,50 @@ def getLabManagerOpportunityCards(rcs_id: str):
 @main_blueprint.post("/createOpportunity")
 @jwt_required()
 def createOpportunity():
-    data = request.get_json()
-
     user_id = get_jwt_identity()
+    if not request.data or not user_id:
+        abort(400)
+
+    request_data = request.get_json()
+
+    if not request_data:
+        abort(400)
+
     author = db.session.execute(
         db.select(User).where(User.email == user_id)
     ).scalar_one_or_none()
 
+    if author is None or author.lab_manager_id is None:
+        abort(400)
+
     authorID = author.lab_manager_id
-    newPostData = data[0]
+    newPostData = request_data[0]
 
     # query database to see if the credentials above match
-    query = db.session.execute(db.select(LabManager).where(LabManager.id == authorID))
+    # query = db.session.execute(db.select(LabManager).where(LabManager.id == authorID))
 
-    data = query.all()[0][0]
+    # data = query.all()[0][0]
 
     # TODO: how do we get the opportunity id?
     # if match is found, create a new opportunity with the new data provided
+
+    if not newPostData["hourlyPay"].isdigit():
+        abort(400)
+
+    pay = int(newPostData["hourlyPay"])
 
     one = False
     two = False
     three = False
     four = False
 
-    if newPostData["one_credit"]:
+    if "1" in newPostData["credits"]:
         one = True
-    if newPostData["two_credits"]:
+    if "2" in newPostData["credits"]:
         two = True
-    if newPostData["three_credits"]:
+    if "3" in newPostData["credits"]:
         three = True
-    if newPostData["four_credits"]:
+    if "4" in newPostData["credits"]:
         four = True
 
     lenum = convert_to_enum(newPostData["location"])
@@ -641,22 +655,20 @@ def createOpportunity():
         lenum = LocationEnum.TBD
 
     newOpportunity = Opportunities(
-        name=newPostData["name"],
+        name=newPostData["title"],
         description=newPostData["description"],
         recommended_experience=newPostData["recommended_experience"],
-        pay=newPostData["pay"],
+        pay=pay,
         one_credit=one,
         two_credits=two,
         three_credits=three,
         four_credits=four,
-        semester=SemesterEnum[(newPostData["semester"]).upper()],
-        year=newPostData["year"],
-        application_due=datetime.datetime.strptime(
-            newPostData["application_due"], "%Y-%m-%d"
-        ),
-        active=newPostData["active"],
+        semester=SemesterEnum.FALL,
+        year=datetime.now().year,
+        application_due=datetime.strptime(newPostData["application_due"], "%Y-%m-%d"),
+        active=True,
         location=lenum,
-        last_updated=datetime.datetime.now(),
+        last_updated=datetime.now(),
     )
     db.session.add(newOpportunity)
     db.session.commit()
@@ -666,27 +678,27 @@ def createOpportunity():
     db.session.add(newLead)
     db.session.commit()
 
-    for course in newPostData["courses"]:
-        newCourse = RecommendsCourses(
-            opportunity_id=newOpportunity.id, course_code=course
-        )
+    # for course in newPostData["courses"]:
+    #     newCourse = RecommendsCourses(
+    #         opportunity_id=newOpportunity.id, course_code=course
+    #     )
 
-        db.session.add(newCourse)
-        db.session.commit()
+    #     db.session.add(newCourse)
+    #     db.session.commit()
 
-    for major in newPostData["majors"]:
-        newMajor = RecommendsMajors(opportunity_id=newOpportunity.id, major_code=major)
-        db.session.add(newMajor)
-        db.session.commit()
+    # for major in newPostData["majors"]:
+    #     newMajor = RecommendsMajors(opportunity_id=newOpportunity.id, major_code=major)
+    #     db.session.add(newMajor)
+    #     db.session.commit()
 
     for year in newPostData["years"]:
-        newYear = RecommendsClassYears(
-            opportunity_id=newOpportunity.id, class_year=year
-        )
-        db.session.add(newYear)
-        db.session.commit()
-
-    db.session.add(newOpportunity)
+        if year.isdigit():
+            recommended_year = int(year)
+            newYear = RecommendsClassYears(
+                opportunity_id=newOpportunity.id, class_year=recommended_year
+            )
+            db.session.add(newYear)
+            db.session.commit()
 
     return {"data": "Opportunity Created"}
 
@@ -701,7 +713,6 @@ def editOpportunity_get(opportunity_id):
         return {"error": "Opportunity not found"}, 404
 
     opportunity = opportunity[0]
-    print(opportunity)
 
     # Query related courses
     courses_data = db.session.execute(
@@ -753,7 +764,13 @@ def editOpportunity_get(opportunity_id):
 @jwt_required()
 def editOpportunity(opportunity_id):
 
+    if not request.data:
+        abort(400)
+
     data = request.get_json()
+
+    if not data:
+        abort(400)
 
     # Check if the opportunity and author exist
     opportunity = db.session.execute(
