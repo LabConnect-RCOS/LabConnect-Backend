@@ -599,6 +599,48 @@ def getLabManagerOpportunityCards(rcs_id: str):
 #     abort(500)
 
 
+# function to search for lab managers
+@main_blueprint.get("/searchLabManagers/<string:query>")
+def searchLabManagers(query: str):
+    # Perform a search on User table by first name, last name, or email using ILIKE for exact partial matches
+    stmt = (
+        db.select(User)
+        .join(LabManager, User.lab_manager_id == LabManager.id)
+        .where(
+            (
+                User.first_name.ilike(
+                    f"%{query}%"
+                )  # Case-insensitive partial match on first_name
+            )
+            | (
+                User.last_name.ilike(
+                    f"%{query}%"
+                )  # Case-insensitive partial match on last_name
+            )
+            | (
+                User.email.ilike(
+                    f"%{query}%"
+                )  # Case-insensitive partial match on email
+            )
+        )
+    )
+
+    results = db.session.execute(stmt).scalars().all()
+
+    # Format results as JSON
+    lab_managers = [
+        {
+            "lab_manager_id": user.lab_manager_id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+        }
+        for user in results
+    ]
+
+    return {"lab_managers": lab_managers}, 200
+
+
 # functions to create/edit/delete opportunities
 @main_blueprint.post("/createOpportunity")
 @jwt_required()
@@ -687,6 +729,16 @@ def createOpportunity():
         db.session.commit()
 
     db.session.add(newOpportunity)
+
+    # Add the selected managers to the Leads table
+    if "lab_manager_ids" in data:
+        for lab_manager_id in data["lab_manager_ids"]:
+            lead = Leads(
+                lab_manager_id=lab_manager_id, opportunity_id=newOpportunity.id
+            )
+            db.session.add(lead)
+
+    db.session.commit()  # Commit all changes
 
     return {"data": "Opportunity Created"}
 
@@ -844,6 +896,16 @@ def editOpportunity(opportunity_id):
 
     # Commit all changes to the database
     db.session.commit()
+
+    # Add the updated list of managers
+    if "lab_manager_ids" in data:
+        for lab_manager_id in data["lab_manager_ids"]:
+            new_lead = Leads(
+                lab_manager_id=lab_manager_id, opportunity_id=opportunity_id
+            )
+            db.session.add(new_lead)
+
+    db.session.commit()  # Commit all changes
 
     return {"data": "Opportunity Updated"}, 200
 

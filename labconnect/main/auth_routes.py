@@ -97,21 +97,24 @@ def saml_callback():
 @main_blueprint.post("/register")
 @jwt_required()
 def registerUser():
-    user_id = get_jwt_identity()
 
-    user = db.session.execute(db.select(User).where(User.email == user_id))
+    user_id = get_jwt_identity()
 
     # Gather the new user's information
     json_data = request.get_json()
-    user.first_name = json_data.get("first_name")
-    user.last_name = json_data.get("last_name")
-    user.preferred_name = json_data.get("preferred_name")
-    user.class_year = json_data.get("class_year")
-    user.profile_picture = json_data.get("profile_pictures")
-    user.website = json_data.get("website")
-    user.description = json_data.get("description")
-
-    return {"msg": "Information added"}
+    user = User(
+        email=user_id,
+        first_name=json_data.get("first_name"),
+        last_name=json_data.get("last_name"),
+        preferred_name=json_data.get("preferred_name"),
+        class_year=json_data.get("class_year"),
+        profile_picture=json_data.get("profile_pictures"),
+        website=json_data.get("website"),
+        description=json_data.get("description"),
+    )
+    db.session.add(user)
+    db.session.commit()
+    return {"msg": "New user added"}
 
 
 @main_blueprint.post("/token")
