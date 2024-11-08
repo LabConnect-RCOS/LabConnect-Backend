@@ -1,7 +1,4 @@
-#from flask_jwt_extended import (
-    #get_jwt_identity,
-    #jwt_required,
-#)
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from labconnect import db
 from labconnect.models import (
@@ -10,10 +7,10 @@ from labconnect.models import (
     Leads,
     Majors,
     Opportunities,
+    RecommendsClassYears,
     RecommendsMajors,
     User,
     UserMajors,
-    RecommendsClassYears,
 )
 
 from . import main_blueprint

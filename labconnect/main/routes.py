@@ -1,10 +1,7 @@
 #from typing import Any
 
 from flask import abort, request
-#from flask_jwt_extended import (
-    #get_jwt_identity,
-    #jwt_required,
-#)
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from labconnect import db
 from labconnect.models import (
@@ -38,51 +35,66 @@ def index():
 @main_blueprint.get("/departments")
 def departmentCards():
     data = db.session.execute(
-        db.select(RPIDepartments.name, RPIDepartments.school_id)
-    ).all() 
-    
-    results = []
-    for department in data:
-        results.append({
+        db.select(RPIDepartments.name, RPIDepartments.school_id, RPIDepartments.id)
+    ).all()
+    results = [
+        {
             "title": department.name,
+            "department_id": department.id,
             "school": department.school_id,
             "image": "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
-    })
+        }
+        for department in data
+    ]
     return results
 
 
 @main_blueprint.get("/departments/<string:department>")
 def departmentDetails(department: str):
 
-    if not department:
-        abort(400)
+    department_data = db.session.execute(
+        db.select(
+            RPIDepartments.id,
+            RPIDepartments.name,
+            RPIDepartments.description,
+            RPIDepartments.image,
+            RPIDepartments.website,
+        ).where(RPIDepartments.id == department)
+    ).first()
 
-    department_data = db.first_or_404(
-        db.select(RPIDepartments).where(RPIDepartments.name == department)
-    )
+    if department_data is None:
+        abort(404)
 
-    result = department_data.to_dict()
-
-    prof_data = department_data.lab_managers
-
-    professors = []
-    where_conditions = []
-
-    for prof in prof_data:
-        professors.append(
-            {
-                "name": prof.getName(),
-                "rcs_id": prof.getEmail(),
-                "image": "https://www.svgrepo.com/show/206842/professor.svg",
-            }
+    staff_data = db.session.execute(
+        db.select(
+            User.id,
+            User.first_name,
+            User.preferred_name,
+            User.last_name,
+            User.profile_picture,
         )
-        where_conditions.append(LabManager.id == prof.id)
+        .join(LabManager, User.lab_manager_id == LabManager.id)
+        .join(RPIDepartments, LabManager.department_id == RPIDepartments.id)
+        .where(RPIDepartments.id == department)
+    ).all()
 
-    result["professors"] = professors
-
-    result["image"] = (
-        "https://t4.ftcdn.net/jpg/02/77/10/87/360_F_277108701_1JAbS8jg7Gw42dU6nz7sF72bWiCm3VMv.jpg"
-    )
+    result = {
+        "id": department_data[0],
+        "name": department_data[1],
+        "description": department_data[2],
+        "image": department_data[3],
+        "website": department_data[4],
+        "staff": [
+            {
+                "name": (
+                    staff[2] + " " + staff[3] if staff[2] else staff[1] + " " + staff[3]
+                ),
+                "id": staff[0],
+                "image": staff[4],
+            }
+            for staff in staff_data
+        ],
+    }
 
     return result
 
@@ -178,20 +190,19 @@ def profile():
 @main_blueprint.get("/staff/<string:id>")
 def getProfessorProfile(id: str):
 
-    # TODO: add ways to share phone number and email
-    # TODO: ensure this fails for non labmanager users
     data = db.session.execute(
         db.select(
             User.preferred_name,
             User.first_name,
             User.last_name,
             User.profile_picture,
-            LabManager.department_id,
+            RPIDepartments.name,
             User.description,
             User.website,
         )
         .where(User.id == id)
         .join(LabManager, User.lab_manager_id == LabManager.id)
+        .join(RPIDepartments, LabManager.department_id == RPIDepartments.id)
     ).first()
 
     if not data:

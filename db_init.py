@@ -54,31 +54,37 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         rpi_departments_rows = (
-            ("Computer Science", "DS", "School of Science"),
-            ("Biology", "life", "School of Science"),
-            ("Materials Engineering", "also pretty cool", "School of Engineering"),
-            ("Environmental Engineering", "water", "School of Engineering"),
-            ("Math", "quick maths", "School of Science"),
+            ("Computer Science", "DS is rough", "School of Science", "CSCI"),
+            ("Biology", "life science", "School of Science", "BIOL"),
             (
-                "Aerospace Engineering",
+                "Materials Engineering",
+                "also pretty cool",
+                "School of Engineering",
+                "MTLE",
+            ),
+            (
+                "Environmental Engineering",
+                "water stuff",
+                "School of Engineering",
+                "ENVE",
+            ),
+            ("Math", "quick maths", "School of Science", "MATH"),
+            (
+                "Mechanical, Aerospace, and Nuclear Engineering",
                 "space, the final frontier",
                 "School of Engineering",
-            ),
-            (
-                "Aeronautical Engineering",
-                "flying, need for speed",
-                "School of Engineering",
-            ),
-            (
-                "Material Science",
-                "Creating the best materials",
-                "School of Engineering",
+                "MANE",
             ),
         )
 
         for row_tuple in rpi_departments_rows:
             row = RPIDepartments(
-                name=row_tuple[0], description=row_tuple[1], school_id=row_tuple[2]
+                name=row_tuple[0],
+                description=row_tuple[1],
+                school_id=row_tuple[2],
+                id=row_tuple[3],
+                image="https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+                website="https://www.rpi.edu",
             )
             db.session.add(row)
             db.session.commit()
@@ -91,24 +97,27 @@ elif sys.argv[1] == "create":
             db.session.commit()
 
         lab_manager_rows = (
-            ("led", "Duy", "Le", "Computer Science", "database database database"),
+            ("led", "Duy", "Le", "CSCI", "database database database"),
             (
                 "turner",
                 "Wes",
                 "Turner",
-                "Computer Science",
+                "CSCI",
                 "open source stuff is cool",
             ),
             (
                 "kuzmin",
                 "Konstantine",
                 "Kuzmin",
-                "Computer Science",
+                "CSCI",
                 "java, psoft, etc.",
             ),
-            ("goldd", "David", "Goldschmidt", "Computer Science", "VIM master"),
-            ("rami", "Rami", "Rami", "Material Science", "cubes are cool"),
-            ("holm", "Mark", "Holmes", "Math", "all about that math"),
+            ("goldd", "David", "Goldschmidt", "CSCI", "VIM master"),
+            ("rami", "Rami", "Rami", "MTLE", "cubes are cool"),
+            ("holm", "Mark", "Holmes", "MATH", "all about that math"),
+            ("test", "RCOS", "RCOS", "CSCI", "first test"),
+            ("test2", "RCOS", "RCOS", "CSCI", "Second test"),
+            ("test3", "RCOS", "RCOS", "CSCI", "Third test"),
         )
 
         raf_test_user = (
@@ -117,7 +126,7 @@ elif sys.argv[1] == "create":
             "Cenzano",
             "Raf",
             2025,
-            "Computer Science",
+            "CSCI",
             "labconnect is the best RCOS project",
             "https://rafael.sirv.com/Images/rafael.jpeg?thumbnail=350&format=webp&q=90",
             "https://rafaelcenzano.com",
@@ -227,6 +236,22 @@ elif sys.argv[1] == "create":
                 datetime.now(),
                 LocationEnum.JEC,
             ),
+            (
+                "Data Science Research",
+                "Work with a team of researchers to analyze large datasets and extract meaningful insights.",
+                "Python, Machine Learning, Data Analysis",
+                20.0,
+                True,
+                False,
+                True,
+                False,
+                SemesterEnum.FALL,
+                2024,
+                "2024-10-31",
+                True,
+                "2024-10-10T10:30:00",
+                LocationEnum.JROWL,
+            ),
         )
 
         for row_tuple in opportunities_rows:
@@ -284,6 +309,7 @@ elif sys.argv[1] == "create":
             (2, 2),
             (1, 3),
             (4, 4),
+            (8, 5),
         )
 
         for r in leads_rows:
@@ -312,45 +338,6 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        user_rows = (
-            (
-                "test",
-                "test@rpi.edu",
-                "RCOS",
-                "RCOS",
-                None,
-                2028,
-            ),
-            (
-                "test2",
-                "test2@rpi.edu",
-                "RCOS",
-                "RCOS",
-                None,
-                2029,
-            ),
-            (
-                "test3",
-                "test3@rpi.edu",
-                "RCOS",
-                "RCOS",
-                None,
-                2025,
-            ),
-        )
-        for r in user_rows:
-            row = User(
-                id=r[0],
-                email=r[1],
-                first_name=r[2],
-                last_name=r[3],
-                preferred_name=r[4],
-                class_year=r[5],
-                profile_picture="https://www.svgrepo.com/show/206842/professor.svg",
-            )
-            db.session.add(row)
-            db.session.commit()
-
         user_majors = (
             ("cenzar", "MATH"),
             ("cenzar", "CSCI"),
@@ -358,19 +345,10 @@ elif sys.argv[1] == "create":
         )
 
         for r in user_majors:
-            row = UserMajors(user_id=r[0], major_code=r[1])
-            db.session.add(row)
-            db.session.commit()
-
-        user_departments = (
-            ("cenzar", "Computer Science"),
-            ("cenzar", "Math"),
-            ("test", "Computer Science"),
-        )
-
-        for r in user_departments:
-            row = UserDepartments(user_id=r[0], department_id=r[1])
-            db.session.add(row)
+            major = UserMajors(user_id=r[0], major_code=r[1])
+            department = UserDepartments(user_id=r[0], department_id=r[1])
+            db.session.add(major)
+            db.session.add(department)
             db.session.commit()
 
         user_courses = (
