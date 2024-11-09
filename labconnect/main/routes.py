@@ -1,27 +1,29 @@
-from typing import Any
+# from typing import Any
 
 from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from labconnect import db
 from labconnect.models import (
-    ClassYears,
-    Courses,
+    # ClassYears,
+    # Courses,
     LabManager,
     Leads,
-    Majors,
+    # Majors,
     Opportunities,
-    Participates,
-    RecommendsClassYears,
-    RecommendsCourses,
-    RecommendsMajors,
+    # Participates,
+    # RecommendsClassYears,
+    # RecommendsCourses,
+    # RecommendsMajors,
     RPIDepartments,
-    RPISchools,
+    # RPISchools,
     User,
-    UserCourses,
-    UserDepartments,
-    UserMajors,
+    # UserCourses,
+    # UserDepartments,
+    # UserMajors,
 )
+
+# = not currently using
 
 from . import main_blueprint
 
@@ -45,7 +47,6 @@ def departmentCards():
         }
         for department in data
     ]
-
     return results
 
 
