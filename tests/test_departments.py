@@ -4,35 +4,9 @@ Test department routes
 
 from flask import json
 from flask.testing import FlaskClient
-import pytest
 
 
-@pytest.mark.parametrize(
-    "expected_departments",
-    [
-        (
-            (
-                "Computer Science",
-                "Biology",
-                "Materials Engineering",
-                "Math",
-                "Environmental Engineering",
-                "Aerospace Engineering",
-                "Aeronautical Engineering",
-            ),
-            (
-                "DS",
-                "life",
-                "also pretty cool",
-                "quick maths",
-                "water",
-                "space, the final frontier",
-                "flying, need for speed",
-            ),
-        )
-    ],
-)
-def test_departments_route(test_client: FlaskClient, expected_departments) -> None:
+def test_departments_route(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/departments' page is requested (GET)
@@ -44,73 +18,125 @@ def test_departments_route(test_client: FlaskClient, expected_departments) -> No
 
     json_data = json.loads(response.data)
 
-    for department in json_data:
-        assert department["name"] in expected_departments[0]
-        assert department["description"] in expected_departments[1]
-
-
-@pytest.mark.parametrize(
-    "input_data, expected_data",
-    [
+    rpi_departments_data = (
         (
-            {"department": "Computer Science"},
-            {
-                "name": "Computer Science",
-                "description": "DS",
-                "school_id": "School of Science",
-                "professors": [
-                    {"name": "Duy Le", "rcs_id": "led"},
-                    {"name": "Rafael", "rcs_id": "cenzar"},
-                    {"name": "Turner", "rcs_id": "turner"},
-                    {"name": "Kuzmin", "rcs_id": "kuzmin"},
-                    {"name": "Goldschmidt", "rcs_id": "goldd"},
-                ],
-                "opportunities": [
-                    {"id": 1, "name": "Automated Cooling System"},
-                    {"id": 2, "name": "Iphone 15 durability test"},
-                ],
-            },
-        )
-    ],
-)
-def test_department_route(test_client: FlaskClient, input_data, expected_data) -> None:
+            "Computer Science",
+            "Biology",
+            "Materials Engineering",
+            "Math",
+            "Environmental Engineering",
+            "Aerospace Engineering",
+            "Areonautical Engineering",
+        ),
+        (
+            "DS",
+            "life",
+            "also pretty cool",
+            "quick maths",
+            "water",
+            "space, the final frontier",
+            "flying, need for speed",
+        ),
+        (
+            "School of science",
+            "School of science", 
+            "School of engineering",
+            "School of science",
+            "School of engineering",
+            "School of engineering",
+            "School of engineering",
+        ),
+        (
+            "CSCI",
+            "BIOL",
+            "MTLE"
+            "MATH",
+            "ENVI",
+            "MANE",
+            "MANE",
+        ),
+        (
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
+        ),
+        (
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+            "https://www.rpi.edu",
+        ),
+    )
+
+    for department in json_data:
+        assert department["name"] in rpi_departments_data[0]
+        assert department["description"] in rpi_departments_data[1]
+        #Added 
+        assert department["school_id"] in rpi_departments_data[2]
+        assert department["id"] in rpi_departments_data[3]
+        assert department["image"] in rpi_departments_data[4]
+        assert department["webcite"] in rpi_departments_data[5]
+
+
+def test_department_route(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/department' page is requested (GET)
     THEN check that the response is valid
     """
-    response = test_client.get("/department", json=input_data)
+    response = test_client.get("/department", json={"department": "Computer Science"})
 
     assert response.status_code == 200
 
     json_data = json.loads(response.data)
 
-    assert json_data["name"] == expected_data["name"]
-    assert json_data["description"] == expected_data["description"]
-    assert json_data["school_id"] == expected_data["school_id"]
+    assert json_data["name"] == "Computer Science"
+    assert json_data["description"] == "DS"
+    assert json_data["school_id"] == "School of Science"
+    #Added
+    assert json_data["id"] == "CSCI"
+    assert json_data["image"] == "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
+    assert json_data["webcite"] == "https://www.rpi.edu"
+
+    prof_names = ["Duy Le", "Rafael", "Turner", "Kuzmin", "Goldschmidt"]
+    prof_rcs_ids = ["led", "cenzar", "turner", "kuzmin", "goldd"]
 
     for prof in json_data["professors"]:
-        assert prof["name"] in [p["name"] for p in expected_data["professors"]]
-        assert prof["rcs_id"] in [p["rcs_id"] for p in expected_data["professors"]]
+        assert prof["name"] in prof_names
+        assert prof["rcs_id"] in prof_rcs_ids
+
+    opportunity_ids = [1, 2]
+    opportunity_names = ["Automated Cooling System", "Iphone 15 durability test"]
 
     for opportunity in json_data["opportunities"]:
-        assert opportunity["id"] in [o["id"] for o in expected_data["opportunities"]]
-        assert opportunity["name"] in [o["name"] for o in expected_data["opportunities"]]
+        assert opportunity["id"] in opportunity_ids
+        assert opportunity["name"] in opportunity_names
 
 
-@pytest.mark.parametrize(
-    "input_data",
-    [
-        (None,),  # Testing with no JSON
-        ({"wrong": "wrong"},)  # Testing with incorrect JSON
-    ],
-)
-def test_department_route_invalid_json(test_client: FlaskClient, input_data) -> None:
+def test_department_route_no_json(test_client: FlaskClient) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/department' page is requested (GET)
     THEN check that the response is valid
     """
-    response = test_client.get("/department", json=input_data)
+    response = test_client.get("/department")
+
+    assert response.status_code == 400
+
+
+def test_department_route_incorrect_json(test_client: FlaskClient) -> None:
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/department' page is requested (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get("/department", json={"wrong": "wrong"})
 
     assert response.status_code == 400

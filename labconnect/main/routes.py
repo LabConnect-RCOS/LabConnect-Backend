@@ -29,7 +29,7 @@ from labconnect.models import (
 from . import main_blueprint
 
 
-@main_blueprint.route("/")
+@main_blueprint.get("/")
 def index():
     return {"Hello": "There"}
 
@@ -37,11 +37,12 @@ def index():
 @main_blueprint.get("/departments")
 def departmentCards():
     data = db.session.execute(
-        db.select(RPIDepartments.name, RPIDepartments.school_id)
+        db.select(RPIDepartments.name, RPIDepartments.school_id, RPIDepartments.id)
     ).all()
     results = [
         {
             "title": department.name,
+            "department_id": department.id,
             "school": department.school_id,
             "image": "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
         }
@@ -54,35 +55,49 @@ def departmentCards():
 @main_blueprint.get("/departments/<string:department>")
 def departmentDetails(department: str):
 
-    if not department:
-        abort(400)
+    department_data = db.session.execute(
+        db.select(
+            RPIDepartments.id,
+            RPIDepartments.name,
+            RPIDepartments.description,
+            RPIDepartments.image,
+            RPIDepartments.website,
+        ).where(RPIDepartments.id == department)
+    ).first()
 
-    department_data = db.first_or_404(
-        db.select(RPIDepartments).where(RPIDepartments.name == department)
-    )
+    if department_data is None:
+        abort(404)
 
-    result = department_data.to_dict()
-
-    prof_data = department_data.lab_managers
-
-    professors = []
-    where_conditions = []
-
-    for prof in prof_data:
-        professors.append(
-            {
-                "name": prof.getName(),
-                "rcs_id": prof.getEmail(),
-                "image": "https://www.svgrepo.com/show/206842/professor.svg",
-            }
+    staff_data = db.session.execute(
+        db.select(
+            User.id,
+            User.first_name,
+            User.preferred_name,
+            User.last_name,
+            User.profile_picture,
         )
-        where_conditions.append(LabManager.id == prof.id)
+        .join(LabManager, User.lab_manager_id == LabManager.id)
+        .join(RPIDepartments, LabManager.department_id == RPIDepartments.id)
+        .where(RPIDepartments.id == department)
+    ).all()
 
-    result["professors"] = professors
-
-    result["image"] = (
-        "https://t4.ftcdn.net/jpg/02/77/10/87/360_F_277108701_1JAbS8jg7Gw42dU6nz7sF72bWiCm3VMv.jpg"
-    )
+    result = {
+        "id": department_data[0],
+        "name": department_data[1],
+        "description": department_data[2],
+        "image": department_data[3],
+        "website": department_data[4],
+        "staff": [
+            {
+                "name": (
+                    staff[2] + " " + staff[3] if staff[2] else staff[1] + " " + staff[3]
+                ),
+                "id": staff[0],
+                "image": staff[4],
+            }
+            for staff in staff_data
+        ],
+    }
 
     return result
 
@@ -175,33 +190,36 @@ def profile():
     return result
 
 
-# @main_blueprint.get("/getProfessorProfile/<string:email>")
-# def getProfessorProfile(email: int):
-#     # test code until database code is added
-#     query = db.session.execute(db.select(User).where(User.email == email))
-#     data = query.all()
-#     user = data[0][0]
-#     lm = user.getLabManager()
+@main_blueprint.get("/staff/<string:id>")
+def getProfessorProfile(id: str):
 
-#     result = {}
+    data = db.session.execute(
+        db.select(
+            User.preferred_name,
+            User.first_name,
+            User.last_name,
+            User.profile_picture,
+            RPIDepartments.name,
+            User.description,
+            User.website,
+        )
+        .where(User.id == id)
+        .join(LabManager, User.lab_manager_id == LabManager.id)
+        .join(RPIDepartments, LabManager.department_id == RPIDepartments.id)
+    ).first()
 
-#     dictionary = user.to_dict()
+    if not data:
+        return {"error": "profile not found"}, 404
 
-#     dictionary["image"] = "https://www.svgrepo.com/show/206842/professor.svg"
-#     dictionary["department"] = lm.department_id
-#     dictionary["email"] = user.email
-#     dictionary["role"] = "admin"
-#     dictionary["description"] = (
-#         "This is the description from the backend but we need to add more fields for LabManager"
-#     )
+    result = {
+        "name": data[0] + " " + data[2] if data[0] else data[1] + " " + data[2],
+        "image": data[3],
+        "department": data[4],
+        "description": data[5],
+        "website": data[6],
+    }
 
-#     # clean data
-#     dictionary["name"] = (
-#         dictionary.pop("first_name") + " " + dictionary.pop("last_name")
-#     )
-#     dictionary.pop("class_year")
-
-#     return dictionary
+    return result
 
 
 # @main_blueprint.get("/lab_manager/opportunities")
@@ -296,7 +314,7 @@ def changeActiveStatus() -> dict[str, bool]:
 #     return {"Hello": "There"}
 
 
-@main_blueprint.route("/500")
+@main_blueprint.get("/500")
 def force_error():
     abort(500)
 

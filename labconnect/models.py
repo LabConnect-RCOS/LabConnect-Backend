@@ -19,7 +19,7 @@ class User(db.Model, CustomSerializerMixin):
         "phone_number",
         "website",
         "class_year",
-        "lab_manager_id",
+        "description",
     )
     serialize_rules = ()
 
@@ -30,6 +30,8 @@ class User(db.Model, CustomSerializerMixin):
     preferred_name = db.Column(db.String(50), nullable=True, unique=False)
     phone_number = db.Column(db.String(15), nullable=True, unique=False)
     website = db.Column(db.String(512), nullable=True, unique=False)
+    description = db.Column(db.String(4096), nullable=True, unique=False)
+    profile_picture = db.Column(db.String(512), nullable=True, unique=False)
     class_year = db.Column(
         db.Integer,
         db.ForeignKey("class_years.class_year"),
@@ -82,22 +84,13 @@ class LabManager(db.Model, CustomSerializerMixin):
     serialize_rules = ()
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    department_id = db.Column(db.String(64), db.ForeignKey("rpi_departments.name"))
+    department_id = db.Column(db.String(4), db.ForeignKey("rpi_departments.id"))
 
     user = db.relationship("User", back_populates="lab_manager")
     department = db.relationship("RPIDepartments", back_populates="lab_managers")
     opportunities = db.relationship(
         "Leads", back_populates="lab_manager", passive_deletes=True
     )
-
-    def getUser(self):
-        return User.query.filter_by(lab_manager_id=self.id).all()
-
-    def getName(self):
-        return self.user[0].first_name + " " + self.user[0].last_name
-
-    def getEmail(self):
-        return self.user[0].email
 
 
 # rpi_schools( name, description ), key: name
@@ -120,8 +113,11 @@ class RPIDepartments(db.Model, CustomSerializerMixin):
     serialize_only = ("name", "description", "school_id")
     serialize_rules = ()
 
-    name = db.Column(db.String(64), primary_key=True)
+    id = db.Column(db.String(4), primary_key=True)
+    name = db.Column(db.String(64), nullable=False, unique=False)
+    image = db.Column(db.String(512), nullable=True, unique=False)
     description = db.Column(db.String(2000), nullable=True, unique=False)
+    website = db.Column(db.String(512), nullable=True, unique=False)
     school_id = db.Column(db.String(64), db.ForeignKey("rpi_schools.name"))
 
     school = db.relationship("RPISchools", back_populates="departments")
@@ -261,7 +257,7 @@ class UserDepartments(db.Model, CustomSerializerMixin):
 
     user_id = db.Column(db.String(9), db.ForeignKey("user.id"), primary_key=True)
     department_id = db.Column(
-        db.String(64), db.ForeignKey("rpi_departments.name"), primary_key=True
+        db.String(4), db.ForeignKey("rpi_departments.id"), primary_key=True
     )
 
     user = db.relationship("User", back_populates="departments")
