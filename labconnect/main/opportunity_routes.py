@@ -88,7 +88,9 @@ def searchOpportunity(query: str):
 
 def convert_to_enum(location_string):
     try:
-        return LocationEnum[location_string.upper()]  # Use upper() for case-insensitivity
+        return LocationEnum[
+            location_string.upper()
+        ]  # Use upper() for case-insensitivity
     except KeyError:
         return None  # Or raise an exception if you prefer
 
@@ -98,6 +100,7 @@ def packageOpportunity(opportunityInfo, professorInfo):
     data["professor"] = professorInfo.name
     data["department"] = professorInfo.department_id
     return data
+
 
 def packageIndividualOpportunity(opportunityInfo):
     data = {
@@ -162,19 +165,18 @@ def packageIndividualOpportunity(opportunityInfo):
     )
 
     queryInfo = query.all()
-    #print(queryInfo)
+    # print(queryInfo)
 
     if len(queryInfo) == 0:
         return data
 
     data["department"] = queryInfo[0][1].department_id
 
-    #for i, item in enumerate(queryInfo):
-    #data["author"] += item[1].getName()
+    # for i, item in enumerate(queryInfo):
+    # data["author"] += item[1].getName()
     # data["author"] += "look at def packageIndividualOpportunity(opportunityInfo):"
-    #if i != len(queryInfo) - 1:
-    #data["author"] += ", "
-
+    # if i != len(queryInfo) - 1:
+    # data["author"] += ", "
 
     author_names = [item[1].getName() for item in queryInfo]
     data["author"] = ", ".join(author_names)
@@ -252,11 +254,10 @@ def packageOpportunityCard(opportunity):
 #     return result
 
 
-
 ##@main_blueprint.route("/opportunity/filter", methods=["POST"])
 ##def filterOpportunities():
-    # Handle POST requests for filtering opportunities
-    ##json_request_data = request.get_json()
+# Handle POST requests for filtering opportunities
+##json_request_data = request.get_json()
 
 
 #     if not json_request_data:
@@ -469,6 +470,7 @@ def packageOpportunityCard(opportunity):
 
 #     abort(500)
 
+
 # Jobs page
 @main_blueprint.get("/getOpportunityCards")
 def getOpportunityCards():
@@ -482,6 +484,7 @@ def getOpportunityCards():
     cards = {"data": [packageOpportunityCard(opportunity[0]) for opportunity in data]}
 
     return cards
+
 
 # @main_blueprint.get("/getOpportunities")
 # def getOpportunities():
@@ -559,6 +562,7 @@ def getLabManagerOpportunityCards(rcs_id: str):
     }
 
     return cards
+
 
 # @main_blueprint.get("/getProfileOpportunities/<string:rcs_id>")
 # def getProfileOpportunities(rcs_id: str):
@@ -691,6 +695,7 @@ def createOpportunity():
     db.session.add(newOpportunity)
 
     return {"data": "Opportunity Created"}
+
 
 @main_blueprint.get("/editOpportunity/<int:opportunity_id>")
 def editOpportunity_get(opportunity_id):
