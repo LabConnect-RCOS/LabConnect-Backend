@@ -55,7 +55,7 @@ def saml_login():
         and current_app.config["FRONTEND_URL"] == "http://localhost:3000"
     ):
         # Generate JWT
-        code = generate_temporary_code("test@rpi.edu")
+        code = generate_temporary_code("test@rpi.edu", True)
 
         # Send the JWT to the frontend
         return redirect(f"{current_app.config['FRONTEND_URL']}/callback/?code={code}")
