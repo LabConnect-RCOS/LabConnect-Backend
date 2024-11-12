@@ -145,7 +145,6 @@ def packageIndividualOpportunity(opportunityInfo):
     )
 
     queryInfo = query.all()
-    print(queryInfo)
 
     if len(queryInfo) == 0:
         return data
@@ -613,51 +612,31 @@ def createOpportunity():
         abort(400)
 
     author = db.session.execute(
-        db.select(User).where(User.email == user_id)
+        db.select(User).where(User.email == user_id[0])
     ).scalar_one_or_none()
 
     if author is None or author.lab_manager_id is None:
         abort(400)
 
-    authorID = author.lab_manager_id
-    newPostData = request_data[0]
+    try:
+        pay = int(request_data["hourlyPay"])
+    except:
+        pay = None
 
-    # query database to see if the credentials above match
-    # query = db.session.execute(db.select(LabManager).where(LabManager.id == authorID))
+    one = True if "1" in request_data["credits"] else False
+    two = True if "2" in request_data["credits"] else False
+    three = True if "3" in request_data["credits"] else False
+    four = True if "4" in request_data["credits"] else False
 
-    # data = query.all()[0][0]
-
-    # TODO: how do we get the opportunity id?
-    # if match is found, create a new opportunity with the new data provided
-
-    if not newPostData["hourlyPay"].isdigit():
-        abort(400)
-
-    pay = int(newPostData["hourlyPay"])
-
-    one = False
-    two = False
-    three = False
-    four = False
-
-    if "1" in newPostData["credits"]:
-        one = True
-    if "2" in newPostData["credits"]:
-        two = True
-    if "3" in newPostData["credits"]:
-        three = True
-    if "4" in newPostData["credits"]:
-        four = True
-
-    lenum = convert_to_enum(newPostData["location"])
+    lenum = convert_to_enum(request_data["location"])
 
     if lenum is None:
         lenum = LocationEnum.TBD
 
     newOpportunity = Opportunities(
-        name=newPostData["title"],
-        description=newPostData["description"],
-        recommended_experience=newPostData["recommended_experience"],
+        name=request_data["title"],
+        description=request_data["description"],
+        recommended_experience=request_data["recommended_experience"],
         pay=pay,
         one_credit=one,
         two_credits=two,
@@ -665,7 +644,7 @@ def createOpportunity():
         four_credits=four,
         semester=SemesterEnum.FALL,
         year=datetime.now().year,
-        application_due=datetime.strptime(newPostData["application_due"], "%Y-%m-%d"),
+        application_due=datetime.strptime(request_data["application_due"], "%Y-%m-%d"),
         active=True,
         location=lenum,
         last_updated=datetime.now(),
@@ -673,7 +652,9 @@ def createOpportunity():
     db.session.add(newOpportunity)
     db.session.commit()
 
-    newLead = Leads(lab_manager_id=authorID, opportunity_id=newOpportunity.id)
+    newLead = Leads(
+        lab_manager_id=author.lab_manager_id, opportunity_id=newOpportunity.id
+    )
 
     db.session.add(newLead)
     db.session.commit()
@@ -691,7 +672,7 @@ def createOpportunity():
     #     db.session.add(newMajor)
     #     db.session.commit()
 
-    for year in newPostData["years"]:
+    for year in request_data["years"]:
         if year.isdigit():
             recommended_year = int(year)
             newYear = RecommendsClassYears(
@@ -700,7 +681,7 @@ def createOpportunity():
             db.session.add(newYear)
             db.session.commit()
 
-    return {"data": "Opportunity Created"}
+    return {"data": "Opportunity Created", "id": newOpportunity.id}, 200
 
 
 @main_blueprint.get("/editOpportunity/<int:opportunity_id>")
@@ -715,18 +696,18 @@ def editOpportunity_get(opportunity_id):
     opportunity = opportunity[0]
 
     # Query related courses
-    courses_data = db.session.execute(
-        db.select(RecommendsCourses.course_code).where(
-            RecommendsCourses.opportunity_id == opportunity_id
-        )
-    ).all()
+    # courses_data = db.session.execute(
+    #     db.select(RecommendsCourses.course_code).where(
+    #         RecommendsCourses.opportunity_id == opportunity_id
+    #     )
+    # ).all()
 
     # Query related majors
-    majors_data = db.session.execute(
-        db.select(RecommendsMajors.major_code).where(
-            RecommendsMajors.opportunity_id == opportunity_id
-        )
-    ).all()
+    # majors_data = db.session.execute(
+    #     db.select(RecommendsMajors.major_code).where(
+    #         RecommendsMajors.opportunity_id == opportunity_id
+    #     )
+    # ).all()
 
     # Query related class years
     years_data = db.session.execute(
@@ -735,26 +716,42 @@ def editOpportunity_get(opportunity_id):
         )
     ).all()
 
+    credits = [
+        str(i)
+        for i, credit in enumerate(
+            [
+                opportunity.one_credit,
+                opportunity.two_credits,
+                opportunity.three_credits,
+                opportunity.four_credits,
+            ],
+            start=1,
+        )
+        if credit
+    ]
+
     # Format opportunity data as JSON
     opportunity_data = {
         "id": opportunity.id,
-        "name": opportunity.name,
+        "title": opportunity.name,
+        "application_due": opportunity.application_due.strftime("%Y-%m-%d"),
+        "type": (
+            "Any"
+            if len(credits) > 0 and opportunity.pay > 0
+            else "For Pay" if opportunity.pay > 0 else "For Credit"
+        ),
+        "hourlyPay": str(opportunity.pay),
+        "credits": credits,
         "description": opportunity.description,
         "recommended_experience": opportunity.recommended_experience,
-        "pay": opportunity.pay,
-        "one_credit": opportunity.one_credit,
-        "two_credits": opportunity.two_credits,
-        "three_credits": opportunity.three_credits,
-        "four_credits": opportunity.four_credits,
-        "semester": SemesterEnum(opportunity.semester),  # Convert enum to string
-        "year": opportunity.year,
-        "application_due": opportunity.application_due.strftime("%Y-%m-%d"),
-        "active": opportunity.active,
+        # "semester": opportunity.semester,  # Convert enum to string
+        # "year": opportunity.year,
+        # "active": opportunity.active,
         "location": opportunity.location,  # Convert enum to string
-        "last_updated": opportunity.last_updated.strftime("%Y-%m-%d %H:%M:%S"),
-        "courses": [course.course_code for course in courses_data],
-        "majors": [major.major_code for major in majors_data],
-        "years": [year.class_year for year in years_data],
+        # "last_updated": opportunity.last_updated.strftime("%Y-%m-%d %H:%M:%S"),
+        # "courses": [course.course_code for course in courses_data],
+        # "majors": [major.major_code for major in majors_data],
+        "years": [str(year.class_year) for year in years_data],
     }
 
     return opportunity_data
