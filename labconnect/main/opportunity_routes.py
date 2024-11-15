@@ -607,7 +607,7 @@ def getLabManagerOpportunityCards(rcs_id: str):
 
 
 @main_blueprint.get("/searchCourses/<string:query>")
-def searchLabManagers(query: str):
+def searchCourses(query: str):
     # Perform a search on Courses table by code and name using ILIKE for exact partial matches
     stmt = (
         db.select(Courses)
