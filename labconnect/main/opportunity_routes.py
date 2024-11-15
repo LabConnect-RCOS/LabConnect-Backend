@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
@@ -9,11 +10,8 @@ from labconnect.models import (
     Leads,
     Opportunities,
     RecommendsClassYears,
-    RecommendsCourses,
-    RecommendsMajors,
     User,
 )
-
 
 from . import main_blueprint
 
@@ -506,6 +504,7 @@ def getOpportunityCards():
 #         }
 
 #     abort(500)
+
 
 @main_blueprint.get("/staff/opportunities/<string:rcs_id>")
 def getLabManagerOpportunityCards(rcs_id: str):

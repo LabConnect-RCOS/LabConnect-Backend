@@ -5,25 +5,13 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from labconnect import db
 from labconnect.models import (
-    # ClassYears,
-    # Courses,
     LabManager,
     Leads,
-    # Majors,
     Opportunities,
-    # Participates,
-    # RecommendsClassYears,
-    # RecommendsCourses,
-    # RecommendsMajors,
     RPIDepartments,
-    # RPISchools,
     User,
-    # UserCourses,
-    # UserDepartments,
-    # UserMajors,
+    ClassYears,
 )
-
-# = not currently using
 
 from . import main_blueprint
 
