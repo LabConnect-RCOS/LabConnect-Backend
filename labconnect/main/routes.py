@@ -5,25 +5,13 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from labconnect import db
 from labconnect.models import (
-    # ClassYears,
-    # Courses,
     LabManager,
     Leads,
-    # Majors,
     Opportunities,
-    # Participates,
-    # RecommendsClassYears,
-    # RecommendsCourses,
-    # RecommendsMajors,
     RPIDepartments,
-    # RPISchools,
     User,
-    # UserCourses,
-    # UserDepartments,
-    # UserMajors,
+    ClassYears,
 )
-
-# = not currently using
 
 from . import main_blueprint
 
@@ -307,11 +295,6 @@ def changeActiveStatus() -> dict[str, bool]:
     return {"activeStatus": opportunity}
 
 
-# @main_blueprint.post("/create_post")
-# def create_post():
-#     return {"Hello": "There"}
-
-
 @main_blueprint.get("/500")
 def force_error():
     abort(500)
@@ -326,21 +309,6 @@ def force_error():
 #         abort(404)
 
 #     result = [school.to_dict() for school in data]
-
-#     return result
-
-
-# @main_blueprint.get("/departmentsList")
-# def departments() -> list[Any]:
-
-#     data = db.session.execute(
-#         db.select(RPIDepartments).order_by(RPIDepartments.name)
-#     ).scalars()
-
-#     if not data:
-#         abort(404)
-
-#     result = [department.to_dict() for department in data]
 
 #     return result
 
@@ -383,24 +351,24 @@ def force_error():
 #     return result
 
 
-# @main_blueprint.get("/years")
-# def years() -> list[Any]:
+@main_blueprint.get("/years")
+def years() -> list[int]:
 
-#     data = db.session.execute(
-#         db.select(ClassYears)
-#         .order_by(ClassYears.class_year)
-#         .where(ClassYears.active == True)
-#     ).scalars()
+    data = db.session.execute(
+        db.select(ClassYears)
+        .order_by(ClassYears.class_year)
+        .where(ClassYears.active == True)
+    ).scalars()
 
-#     if not data:
-#         abort(404)
+    if not data:
+        abort(404)
 
-#     result = [year.class_year for year in data]
+    result = [year.class_year for year in data]
 
-#     if result == []:
-#         abort(404)
+    if result == []:
+        abort(404)
 
-#     return result
+    return result
 
 
 # @main_blueprint.get("/courses")
