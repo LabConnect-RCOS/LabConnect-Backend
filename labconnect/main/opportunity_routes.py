@@ -587,6 +587,47 @@ def getLabManagerOpportunityCards(rcs_id: str):
 #     return cards
 
 
+# function to search for lab managers
+@main_blueprint.get("/searchLabManagers/<string:query>")
+def searchLabManagers(query: str):
+    # Perform a search on User table by first name, last name, or email using ILIKE for exact partial matches
+    stmt = (
+        db.select(User)
+        .join(LabManager, User.lab_manager_id == LabManager.id)
+        .where(
+            (
+                User.first_name.ilike(
+                    f"%{query}%"
+                )  # Case-insensitive partial match on first_name
+            )
+            | (
+                User.last_name.ilike(
+                    f"%{query}%"
+                )  # Case-insensitive partial match on last_name
+            )
+            | (
+                User.email.ilike(
+                    f"%{query}%"
+                )  # Case-insensitive partial match on email
+            )
+        )
+    )
+
+    results = db.session.execute(stmt).scalars().all()
+
+    lab_managers = [
+        {
+            "lab_manager_id": user.lab_manager_id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+        }
+        for user in results
+    ]
+
+    return {"lab_managers": lab_managers}, 200
+
+
 @main_blueprint.get("/searchCourses/<string:query>")
 def searchCourses(query: str):
     # Perform a search on Courses table by code and name using ILIKE for exact partial matches
@@ -870,6 +911,16 @@ def editOpportunity(opportunity_id):
         )
 
     db.session.commit()
+
+    # Add the updated list of managers
+    if "lab_manager_ids" in data:
+        for lab_manager_id in data["lab_manager_ids"]:
+            new_lead = Leads(
+                lab_manager_id=lab_manager_id, opportunity_id=opportunity_id
+            )
+            db.session.add(new_lead)
+
+    db.session.commit()  # Commit all changes
 
     return {"data": "Opportunity Updated"}, 200
 
