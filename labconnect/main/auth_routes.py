@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 
 from flask import current_app, make_response, redirect, request, abort
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import create_access_token
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 
 from labconnect import db
