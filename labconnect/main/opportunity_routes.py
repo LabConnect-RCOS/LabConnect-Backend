@@ -11,6 +11,7 @@ from labconnect.models import (
     RecommendsCourses,
     RecommendsMajors,
     User,
+    Courses,
 )
 
 
@@ -603,6 +604,41 @@ def getLabManagerOpportunityCards(rcs_id: str):
 
 #     # return data in the below format if opportunity is found
 #     return cards
+
+
+@main_blueprint.get("/searchCourses/<string:query>")
+def searchLabManagers(query: str):
+    # Perform a search on Courses table by code and name using ILIKE for exact partial matches
+    stmt = (
+        db.select(Courses)
+        .distinct()
+        .where(
+            (Courses.code.ilike(f"%{query}%"))
+            | (
+                User.last_name.ilike(
+                    f"%{query}%"
+                )  # Case-insensitive partial match on course code
+            )
+            | (
+                Courses.name.ilike(
+                    f"%{query}%"
+                )  # Case-insensitive partial match on course name
+            )
+        )
+    )
+
+    results = db.session.execute(stmt).scalars().all()
+
+    # Format results as JSON
+    courses = [
+        {
+            "code": course.code,
+            "name": course.name,
+        }
+        for course in results
+    ]
+
+    return {"courses": courses}, 200
 
 
 # functions to create/edit/delete opportunities
