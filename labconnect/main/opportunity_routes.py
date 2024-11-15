@@ -609,7 +609,13 @@ def searchLabManagers(query: str):
                 User.email.ilike(
                     f"%{query}%"
                 )  # Case-insensitive partial match on email
-   lab_managers = [
+            )
+        )
+    )
+
+    results = db.session.execute(stmt).scalars().all()
+
+    lab_managers = [
         {
             "lab_manager_id": user.lab_manager_id,
             "first_name": user.first_name,
@@ -620,6 +626,7 @@ def searchLabManagers(query: str):
     ]
 
     return {"lab_managers": lab_managers}, 200
+
 
 @main_blueprint.get("/searchCourses/<string:query>")
 def searchCourses(query: str):
@@ -726,7 +733,7 @@ def createOpportunity():
             db.session.add(newYear)
 
     db.session.commit()
-              
+
     return {"data": "Opportunity Created", "id": newOpportunity.id}, 200
 
 
