@@ -1,13 +1,19 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
 
-from flask import current_app, make_response, redirect, request
+from flask import current_app, make_response, redirect, request, abort
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 
 from labconnect import db
 from labconnect.helpers import prepare_flask_request
-from labconnect.models import User
+from labconnect.models import (
+    User,
+    UserCourses,
+    UserDepartments,
+    UserMajors,
+    ManagementPermissions,
+)
 
 from . import main_blueprint
 
@@ -95,24 +101,58 @@ def saml_callback():
 
 
 @main_blueprint.post("/register")
-@jwt_required()
 def registerUser():
-
-    user_id = get_jwt_identity()
 
     # Gather the new user's information
     json_data = request.get_json()
+    if not json_data:
+        abort(400)
+
     user = User(
-        email=user_id,
+        email=json_data.get("email"),
         first_name=json_data.get("first_name"),
         last_name=json_data.get("last_name"),
-        preferred_name=json_data.get("preferred_name"),
-        class_year=json_data.get("class_year"),
-        profile_picture=json_data.get("profile_pictures"),
-        website=json_data.get("website"),
-        description=json_data.get("description"),
+        preferred_name=json_data.get("preferred_name", ""),
+        class_year=json_data.get("class_year", ""),
+        profile_picture=json_data.get(
+            "profile_picture", "https://www.svgrepo.com/show/206842/professor.svg"
+        ),
+        website=json_data.get("website", ""),
+        description=json_data.get("description", ""),
     )
     db.session.add(user)
+    db.session.commit()
+
+    # Add UserDepartments if provided
+    if json_data.get("departments"):
+        for department_id in json_data["departments"]:
+            user_department = UserDepartments(
+                user_id=user.id, department_id=department_id
+            )
+            db.session.add(user_department)
+
+    # Additional auxiliary records (majors, courses, etc.)
+    if json_data.get("majors"):
+        for major_id in json_data["majors"]:
+            user_major = UserMajors(user_id=user.id, major_id=major_id)
+            db.session.add(user_major)
+    # Add Courses if provided
+    if json_data.get("courses"):
+        for course_id in json_data["courses"]:
+            user_course = UserCourses(user_id=user.id, course_id=course_id)
+            db.session.add(user_course)
+
+    # Add ManagementPermissions if provided
+    if json_data.get("permissions"):
+        permissions = json_data["permissions"]
+        management_permissions = ManagementPermissions(
+            user_id=user.id,
+            super_admin=permissions.get("super_admin", False),
+            admin=permissions.get("admin", False),
+            moderator=permissions.get("moderator", False),
+        )
+        db.session.add(management_permissions)
+
     db.session.commit()
     return {"msg": "New user added"}
 
