@@ -23,13 +23,16 @@ def test_user_route_with_input_id_1(test_client: FlaskClient) -> None:
     assert json_data["preferred_name"] == "Raf"
     assert json_data["last_name"] == "Cenzano"
     assert json_data["email"] == "cenzar@rpi.edu"
-    #Added
+    # Added
     assert json_data["description"] == "labconnect is the best RCOS project"
-    assert json_data["profile_picture"] == "https://rafael.sirv.com/Images/rafael.jpeg?thumbnail=350&format=webp&q=90"
+    assert (
+        json_data["profile_picture"]
+        == "https://rafael.sirv.com/Images/rafael.jpeg?thumbnail=350&format=webp&q=90"
+    )
     assert json_data["website"] == "https://rafaelcenzano.com"
-    #class year
+    # class year
     assert json_data["class_year"] == "2025"
-    #lab manager id
+    # lab manager id
     assert json_data["lab_manager_id"] == 1
 
     departments_data = [
@@ -112,10 +115,13 @@ def test_user_route_with_input_id_2(test_client: FlaskClient) -> None:
     assert json_data["last_name"] == "RCOS"
     assert json_data["preferred_name"] is None
     assert json_data["email"] == "test@rpi.edu"
-    #Added 
-    assert json_data["description"] is None  
-    assert json_data["profile_picture"] == "https://www.svgrepo.com/show/206842/professor.svg"  # Adjust based on your test data
-    assert json_data["website"] is None 
+    # Added
+    assert json_data["description"] is None
+    assert (
+        json_data["profile_picture"]
+        == "https://www.svgrepo.com/show/206842/professor.svg"
+    )  # Adjust based on your test data
+    assert json_data["website"] is None
     assert json_data["class_year"] is None
     assert json_data["lab_manager_id"] is None
 

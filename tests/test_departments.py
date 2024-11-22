@@ -39,7 +39,7 @@ def test_departments_route(test_client: FlaskClient) -> None:
         ),
         (
             "School of science",
-            "School of science", 
+            "School of science",
             "School of engineering",
             "School of science",
             "School of engineering",
@@ -49,8 +49,7 @@ def test_departments_route(test_client: FlaskClient) -> None:
         (
             "CSCI",
             "BIOL",
-            "MTLE"
-            "MATH",
+            "MTLE" "MATH",
             "ENVI",
             "MANE",
             "MANE",
@@ -78,7 +77,7 @@ def test_departments_route(test_client: FlaskClient) -> None:
     for department in json_data:
         assert department["name"] in rpi_departments_data[0]
         assert department["description"] in rpi_departments_data[1]
-        #Added 
+        # Added
         assert department["school_id"] in rpi_departments_data[2]
         assert department["id"] in rpi_departments_data[3]
         assert department["image"] in rpi_departments_data[4]
@@ -100,9 +99,11 @@ def test_department_route(test_client: FlaskClient) -> None:
     assert json_data["name"] == "Computer Science"
     assert json_data["description"] == "DS"
     assert json_data["school_id"] == "School of Science"
-    #Added
+    # Added
     assert json_data["id"] == "CSCI"
-    assert json_data["image"] == "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
+    assert (
+        json_data["image"] == "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
+    )
     assert json_data["webcite"] == "https://www.rpi.edu"
 
     prof_names = ["Duy Le", "Rafael", "Turner", "Kuzmin", "Goldschmidt"]
