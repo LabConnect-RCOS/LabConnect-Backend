@@ -2,6 +2,7 @@ from datetime import datetime
 
 from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from sqlalchemy import func
 
 from labconnect import db
 from labconnect.helpers import LocationEnum, SemesterEnum, format_credits
@@ -108,16 +109,13 @@ def packageIndividualOpportunity(opportunityInfo):
         "name": opportunityInfo.name,
         "description": opportunityInfo.description,
         "recommended_experience": opportunityInfo.recommended_experience,
-        "author": "",
+        "authors": "",
         "department": "",
-    }
-    data = {
-        "id": opportunityInfo.id,
-        "name": opportunityInfo.name,
-        "description": opportunityInfo.description,
-        "recommended_experience": opportunityInfo.recommended_experience,
-        "author": "",
-        "department": "",
+        "pay": opportunityInfo.pay,
+        "credits": None,
+        "semester": f"{opportunityInfo.semester} {opportunityInfo.year}",
+        "application_due": opportunityInfo.application_due,
+        "recommended_class_years": "",
     }
 
     opportunity_credits = ""
@@ -133,35 +131,16 @@ def packageIndividualOpportunity(opportunityInfo):
     if opportunity_credits != "":
         opportunity_credits += " credits"
 
-    data["aboutSection"] = [
-        {
-            "title": "Pay",
-            "description": f"${opportunityInfo.pay} per hour",
-        },
-        {
-            "title": "Semester",
-            "description": f"{opportunityInfo.semester} {opportunityInfo.year}",
-        },
-        {
-            "title": "Application Due",
-            "description": opportunityInfo.application_due,
-        },
-    ]
-
     if opportunity_credits != "":
-        data["aboutSection"].append(
-            {
-                "title": "Credits",
-                "description": opportunity_credits,
-            }
-        )
+        data["credits"] = opportunity_credits
 
     # get professor and department by getting Leads and LabManager
 
     query = db.session.execute(
-        db.select(Leads, LabManager)
+        db.select(Leads, LabManager, User)
         .where(Leads.opportunity_id == opportunityInfo.id)
         .join(LabManager, Leads.lab_manager_id == LabManager.id)
+        .join(User, LabManager.id == User.lab_manager_id)
     )
 
     queryInfo = query.all()
@@ -171,14 +150,11 @@ def packageIndividualOpportunity(opportunityInfo):
 
     data["department"] = queryInfo[0][1].department_id
 
-    # for i, item in enumerate(queryInfo):
-    # data["author"] += item[1].getName()
-    # data["author"] += "look at def packageIndividualOpportunity(opportunityInfo):"
-    # if i != len(queryInfo) - 1:
-    # data["author"] += ", "
+    author_info = [
+        [item[2].first_name + " " + item[2].last_name, item[2].id] for item in queryInfo
+    ]
 
-    author_names = [item[1].getName() for item in queryInfo]
-    data["author"] = ", ".join(author_names)
+    data["authors"] = author_info
 
     if len(queryInfo) > 1:
         data["authorProfile"] = (
@@ -218,24 +194,36 @@ def packageOpportunityCard(opportunity):
     return card
 
 
-# @main_blueprint.get("/getOpportunity/<int:opp_id>")
-# def getOpportunity(opp_id: int):
-#     # query database for opportunity
-#     query = db.session.execute(
-#         db.select(Opportunities).where(Opportunities.id == opp_id)
-#     )
+@main_blueprint.get("/getOpportunity/<int:opp_id>")
+def getOpportunity(opp_id: int):
+    # query database for opportunity and recommended class years
+    query = db.session.execute(
+        db.select(
+            Opportunities,
+            # Creates an array for all of the recommended class years for the opportunity labeled recommended_years
+            func.array_agg(RecommendsClassYears.class_year).label("recommended_years"),
+        )
+        .join(
+            RecommendsClassYears,
+            Opportunities.id == RecommendsClassYears.opportunity_id,
+        )
+        .where(Opportunities.id == opp_id)
+        .group_by(Opportunities.id)
+    )
 
-#     data = query.all()
+    data = query.all()
+    print(data)
 
-#     # check if opportunity exists
-#     if not data or len(data) == 0:
-#         abort(404)
+    # check if opportunity exists
+    if not data or len(data) == 0:
+        abort(404)
 
-#     data = data[0]
-#     oppData = packageIndividualOpportunity(data[0])
+    data = data[0]
+    oppData = packageIndividualOpportunity(data[0])
+    oppData["recommended_class_years"] = data[1]
 
-#     # return data in the below format if opportunity is found
-#     return {"data": oppData}
+    # return data in the below format if opportunity is found
+    return {"data": oppData}
 
 
 # @main_blueprint.get("/opportunity/filter")
@@ -636,11 +624,6 @@ def searchCourses(query: str):
         .distinct()
         .where(
             (Courses.code.ilike(f"%{query}%"))
-            | (
-                User.last_name.ilike(
-                    f"%{query}%"
-                )  # Case-insensitive partial match on course code
-            )
             | (
                 Courses.name.ilike(
                     f"%{query}%"
