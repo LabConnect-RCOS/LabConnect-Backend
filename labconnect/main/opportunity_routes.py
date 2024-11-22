@@ -12,6 +12,7 @@ from labconnect.models import (
     RecommendsClassYears,
     User,
     Courses,
+    Participates,
 )
 
 from . import main_blueprint
@@ -508,7 +509,7 @@ def getOpportunityCards():
 
 
 @main_blueprint.get("/staff/opportunities/<string:rcs_id>")
-def getLabManagerOpportunityCards(rcs_id: str):
+def getLabManagerOpportunityCards(rcs_id: str) -> list[dict[str, str]]:
 
     query = (
         db.select(
@@ -530,61 +531,54 @@ def getLabManagerOpportunityCards(rcs_id: str):
 
     data = db.session.execute(query).all()
 
-    cards = {
-        "data": [
-            {
-                "id": row[0],
-                "title": row[1],
-                "due": row[2].strftime("%-m/%-d/%y"),
-                "pay": row[3],
-                "credits": format_credits(row[4], row[5], row[6], row[7]),
-            }
-            for row in data
-        ]
-    }
+    cards = [
+        {
+            "id": row[0],
+            "title": row[1],
+            "due": row[2].strftime("%-m/%-d/%y"),
+            "pay": row[3],
+            "credits": format_credits(row[4], row[5], row[6], row[7]),
+        }
+        for row in data
+    ]
 
     return cards
 
 
-# @main_blueprint.get("/getProfileOpportunities/<string:rcs_id>")
-# def getProfileOpportunities(rcs_id: str):
-# #     # query database for opportunity
+@main_blueprint.get("/profile/opportunities/<string:rcs_id>")
+def getProfileOpportunities(rcs_id: str) -> list[dict[str, str]]:
 
-#     query = db.session.execute(
-#         db.select(Opportunities, Leads)
-#         .where(Leads.lab_manager_id == rcs_id)
-#         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-#     )
+    query = (
+        db.select(
+            Opportunities.id,
+            Opportunities.name,
+            Opportunities.application_due,
+            Opportunities.pay,
+            Opportunities.one_credit,
+            Opportunities.two_credits,
+            Opportunities.three_credits,
+            Opportunities.four_credits,
+        )
+        .join(Participates, Participates.user_id == rcs_id)
+        .join(Opportunities, Participates.opportunity_id == Opportunities.id)
+        .where(User.id == rcs_id)
+        .select_from(User)
+    )
 
-#     data = query.all()
+    data = db.session.execute(query).all()
 
-#     cards = {"data": []}
+    cards = [
+        {
+            "id": row[0],
+            "title": row[1],
+            "due": row[2].strftime("%-m/%-d/%y"),
+            "pay": row[3],
+            "credits": format_credits(row[4], row[5], row[6], row[7]),
+        }
+        for row in data
+    ]
 
-#     for row in data:
-#         opportunity = row[0]
-
-#         oppData = {
-#             "id": opportunity.id,
-#             "title": opportunity.name,
-#             "body": "Due " + str(opportunity.application_due),
-#             "attributes": [],
-#             "activeStatus": opportunity.active,
-#         }
-
-#         if opportunity.pay is not None and opportunity.pay > 0:
-#             oppData["attributes"].append("Paid")
-#         if (
-#             opportunity.one_credit
-#             or opportunity.two_credits
-#             or opportunity.three_credits
-#             or opportunity.four_credits
-#         ):
-#             oppData["attributes"].append("Credits")
-
-#         cards["data"].append(oppData)
-
-#     # return data in the below format if opportunity is found
-#     return cards
+    return cards
 
 
 # function to search for lab managers
