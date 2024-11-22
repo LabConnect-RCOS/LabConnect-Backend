@@ -13,6 +13,7 @@ from labconnect.models import (
     RecommendsClassYears,
     User,
     Courses,
+    RecommendsMajors,
 )
 
 from . import main_blueprint
@@ -226,144 +227,143 @@ def getOpportunity(opp_id: int):
     return {"data": oppData}
 
 
-# @main_blueprint.get("/opportunity/filter")
-# @main_blueprint.route("/opportunity/filter", methods=["GET"])
-# def getOpportunities():
-#     # Handle GET requests for fetching default active opportunities
-#     data = db.session.execute(
-#         db.select(Opportunities)
-#         .where(Opportunities.active == True)
-#         .limit(20)
-#         .order_by(Opportunities.last_updated.desc())
-#         .distinct()
-#     ).scalars()
-#     result = [opportunity.to_dict() for opportunity in data]
-#     return result
+@main_blueprint.get("/opportunity/filter")
+def getOpportunities():
+    # Handle GET requests for fetching default active opportunities
+    data = db.session.execute(
+        db.select(Opportunities)
+        .where(Opportunities.active == True)
+        .limit(20)
+        .order_by(Opportunities.last_updated.desc())
+        .distinct()
+    ).scalars()
+    result = [opportunity.to_dict() for opportunity in data]
+    return result
 
 
-##@main_blueprint.route("/opportunity/filter", methods=["POST"])
-##def filterOpportunities():
-# Handle POST requests for filtering opportunities
-##json_request_data = request.get_json()
+@main_blueprint.post("/opportunity/filter")
+def filterOpportunities():
+    # Handle POST requests for filtering opportunities
+    json_request_data = request.get_json()
 
+    if not json_request_data:
+        abort(400)
 
-#     if not json_request_data:
-#         abort(400)
+    filters = json_request_data.get("filters", None)
 
-#     filters = json_request_data.get("filters", None)
+    data = None
 
-#     data = None
+    if filters is None:
+        data = db.session.execute(db.select(Opportunities).limit(20)).scalars()
 
-#     if filters is None:
-#         data = db.session.execute(db.select(Opportunities).limit(20)).scalars()
+    elif not isinstance(filters, list):
+        abort(400)
 
-#     elif not isinstance(filters, list):
-#         abort(400)
+    else:
+        where_conditions = []
+        query = (
+            db.select(Opportunities)
+            .where(Opportunities.active == True)
+            .limit(20)
+            .order_by(Opportunities.last_updated)
+            .distinct()
+        )
+        for given_filter in filters:
+            field = given_filter.get("field", None)
+            value = given_filter.get("value", None)
 
-#     else:
+            if field and value:
+                field = field.lower()
 
-#         where_conditions = []
-#         query = (
-#             db.select(Opportunities)
-#             .where(Opportunities.active == True)
-#             .limit(20)
-#             .order_by(Opportunities.last_updated)
-#             .distinct()
-#         )
-#         for given_filter in filters:
-#             field = given_filter.get("field", None)
-#             value = given_filter.get("value", None)
+                # Location filter
+                if field == "location":
+                    if value.lower() == "remote":
+                        where_conditions.append(Opportunities.location == "REMOTE")
+                    else:
+                        where_conditions.append(Opportunities.location != "REMOTE")
 
-#             if field and value:
-#                 field = field.lower()
+                # Class year filter
+                elif field == "class_year":
+                    if not isinstance(value, list):
+                        abort(400)
+                    query = query.join(
+                        RecommendsClassYears,
+                        Opportunities.id == RecommendsClassYears.opportunity_id,
+                    ).where(RecommendsClassYears.class_year.in_(value))
 
-#                 # Location filter
-# if field == "location":
-# if value.lower() == "remote":
-#                         where_conditions.append(Opportunities.location == "REMOTE")
-#                 else:
-#                         where_conditions.append(Opportunities.location != "REMOTE")
+                # Credits filter
+                elif field == "credits":
+                    if not isinstance(value, list):
+                        abort(400)
+                    credit_conditions = []
+                    for credit in value:
+                        if credit == 1:
+                            credit_conditions.append(Opportunities.one_credit.is_(True))
+                        elif credit == 2:
+                            credit_conditions.append(
+                                Opportunities.two_credits.is_(True)
+                            )
+                        elif credit == 3:
+                            credit_conditions.append(
+                                Opportunities.three_credits.is_(True)
+                            )
+                        elif credit == 4:
+                            credit_conditions.append(
+                                Opportunities.four_credits.is_(True)
+                            )
+                        else:
+                            abort(400)
+                    where_conditions.append(db.or_(*credit_conditions))
 
-#                 # Class year filter
-#                 elif field == "class_year":
-# #                     if not isinstance(value, list):
-# #                         abort(400)
-# #                     query = query.join(
-# #                         RecommendsClassYears,
-# #                         Opportunities.id == RecommendsClassYears.opportunity_id,
-# #                     ).where(RecommendsClassYears.class_year.in_(value))
+                # Majors filter
+                elif field == "majors":
+                    if not isinstance(value, list):
+                        abort(400)
+                    query = query.join(
+                        RecommendsMajors,
+                        Opportunities.id == RecommendsMajors.opportunity_id,
+                    ).where(RecommendsMajors.major_code.in_(value))
 
-# #                 # Credits filter
-#                 elif field == "credits":
-#                     if not isinstance(value, list):
-#                         abort(400)
-# #                     credit_conditions = []
-# #                     for credit in value:
-# #                         if credit == 1:
-# #                             credit_conditions.append(Opportunities.one_credit.is_(True))
-# #                         elif credit == 2:
-# #                             credit_conditions.append(
-#                                 Opportunities.two_credits.is_(True)
-# #                             )
-#                         elif credit == 3:
-# #                             credit_conditions.append(
-# #                                 Opportunities.three_credits.is_(True)
-# #                             )
-# #                         elif credit == 4:
-# #                             credit_conditions.append(
-#                                 Opportunities.four_credits.is_(True)
-# #                             )
-#                         else:
-# #                             abort(400)
-#                     where_conditions.append(db.or_(*credit_conditions))
+                # Departments filter
+                elif field == "departments":
+                    if not isinstance(value, list):
+                        abort(400)
+                    query = (
+                        query.join(Leads, Opportunities.id == Leads.opportunity_id)
+                        .join(LabManager, Leads.lab_manager_id == LabManager.id)
+                        .where(LabManager.department_id.in_(value))
+                    )
 
-# #                 # Majors filter
-# #                 elif field == "majors":
-# #                     if not isinstance(value, list):
-# #                         abort(400)
-# #                     query = query.join(
-# #                         RecommendsMajors,
-# #                         Opportunities.id == RecommendsMajors.opportunity_id,
-# #                     ).where(RecommendsMajors.major_code.in_(value))
+                # Pay filter
+                elif field == "pay":
+                    if not isinstance(value, dict):
+                        abort(400)
+                    min_pay = value.get("min")
+                    max_pay = value.get("max")
+                    if min_pay is None:
+                        min_pay = 0
+                    if max_pay is None:
+                        max_pay = float("inf")
+                    where_conditions.append(Opportunities.pay.between(min_pay, max_pay))
 
-# #                 # Departments filter
-#                 elif field == "departments":
-# #                     if not isinstance(value, list):
-# #                         abort(400)
-# #                     query = (
-# #                         query.join(Leads, Opportunities.id == Leads.opportunity_id)
-# #                         .join(LabManager, Leads.lab_manager_id == LabManager.id)
-# #                         .where(LabManager.department_id.in_(value))
-# #                     )
+                # Other fields
+                else:
+                    try:
+                        where_conditions.append(
+                            getattr(Opportunities, field).ilike(f"%{value}%")
+                        )
+                    except AttributeError:
+                        abort(400)
 
-# #                 # Pay filter
-#                 elif field == "pay":
-# #                     if not isinstance(value, dict):
-# #                         abort(400)
-# #                     min_pay = value.get("min")
-# #                     max_pay = value.get("max")
-# #                     if min_pay is None or max_pay is None:
-# #                         abort(400)
-# #                     where_conditions.append(Opportunities.pay.between(min_pay, max_pay))
+        query = query.where(*where_conditions)
+        data = db.session.execute(query).scalars()
 
-# #                 # Other fields
-#                 else:
-# #                     try:
-# #                         where_conditions.append(
-# #                             getattr(Opportunities, field).ilike(f"%{value}%")
-# #                         )
-# #                     except AttributeError:
-# #                         abort(400)
+    if not data:
+        abort(404)
 
-# #         query = query.where(*where_conditions)
-# #         data = db.session.execute(query).scalars()
+    result = [opportunity.to_dict() for opportunity in data]
 
-# #     if not data:
-# #         abort(404)
-
-# #     result = [opportunity.to_dict() for opportunity in data]
-
-# #     return result
+    return result
 
 
 # @main_blueprint.put("/opportunity")
