@@ -89,7 +89,7 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        class_years_rows = (2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031)
+        class_years_rows = (2025, 2026, 2027, 2028, 2029, 2030, 2031)
 
         for row_item in class_years_rows:
             row = ClassYears(class_year=row_item, active=True)
@@ -182,7 +182,7 @@ elif sys.argv[1] == "create":
                 False,
                 True,
                 SemesterEnum.SPRING,
-                2024,
+                2025,
                 date.today(),
                 True,
                 datetime.now(),
@@ -198,7 +198,7 @@ elif sys.argv[1] == "create":
                 True,
                 True,
                 SemesterEnum.SPRING,
-                2024,
+                2025,
                 date.today(),
                 True,
                 datetime.now(),
@@ -214,7 +214,7 @@ elif sys.argv[1] == "create":
                 True,
                 True,
                 SemesterEnum.FALL,
-                2024,
+                2025,
                 date.today(),
                 True,
                 datetime.now(),
@@ -230,7 +230,7 @@ elif sys.argv[1] == "create":
                 True,
                 True,
                 SemesterEnum.SUMMER,
-                2024,
+                2025,
                 date.today(),
                 True,
                 datetime.now(),
@@ -246,10 +246,10 @@ elif sys.argv[1] == "create":
                 True,
                 False,
                 SemesterEnum.FALL,
-                2024,
-                "2024-10-31",
+                2025,
+                "2025-10-31",
                 True,
-                "2024-10-10T10:30:00",
+                "2025-10-10T10:30:00",
                 LocationEnum.JROWL,
             ),
         )
@@ -331,7 +331,7 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        recommends_class_years_rows = ((2, 2024), (2, 2025), (2, 2026), (1, 2027))
+        recommends_class_years_rows = ((3, 2025), (2, 2025), (2, 2026), (1, 2027))
 
         for r in recommends_class_years_rows:
             row = RecommendsClassYears(opportunity_id=r[0], class_year=r[1])
