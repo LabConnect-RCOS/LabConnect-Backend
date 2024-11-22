@@ -4,7 +4,6 @@ from uuid import uuid4
 from flask import current_app, make_response, redirect, request, abort
 from flask_jwt_extended import create_access_token
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
-from sqlalchemy import desc
 
 from labconnect import db
 from labconnect.helpers import prepare_flask_request
