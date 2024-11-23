@@ -49,7 +49,10 @@ elif sys.argv[1] == "create":
         )
 
         for row_tuple in rpi_schools_rows:
-            row = RPISchools(name=row_tuple[0], description=row_tuple[1])
+            row = RPISchools()
+            row.name = row_tuple[0]
+            row.description = row_tuple[1]
+
             db.session.add(row)
             db.session.commit()
 
@@ -78,21 +81,24 @@ elif sys.argv[1] == "create":
         )
 
         for row_tuple in rpi_departments_rows:
-            row = RPIDepartments(
-                name=row_tuple[0],
-                description=row_tuple[1],
-                school_id=row_tuple[2],
-                id=row_tuple[3],
-                image="https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
-                website="https://www.rpi.edu",
-            )
+            row = RPIDepartments()
+            row.name = row_tuple[0]
+            row.description = row_tuple[1]
+            row.school_id = row_tuple[2]
+            row.id = row_tuple[3]
+            row.image = "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
+            row.website = "https://www.rpi.edu"
+
             db.session.add(row)
             db.session.commit()
 
         class_years_rows = (2025, 2026, 2027, 2028, 2029, 2030, 2031)
 
         for row_item in class_years_rows:
-            row = ClassYears(class_year=row_item, active=True)
+            row = ClassYears()
+            row.class_year = row_item
+            row.active = True
+
             db.session.add(row)
             db.session.commit()
 
@@ -132,42 +138,43 @@ elif sys.argv[1] == "create":
             "https://rafaelcenzano.com",
         )
 
-        lab_manager = LabManager(department_id=raf_test_user[5])
+        lab_manager = LabManager()
+        lab_manager.department_id = raf_test_user[5]
 
         db.session.add(lab_manager)
         db.session.commit()
 
-        user = User(
-            id=raf_test_user[0],
-            email=raf_test_user[0] + "@rpi.edu",
-            first_name=raf_test_user[1],
-            last_name=raf_test_user[2],
-            preferred_name=raf_test_user[3],
-            class_year=raf_test_user[4],
-            lab_manager_id=lab_manager.id,
-            description=raf_test_user[6],
-            profile_picture=raf_test_user[7],
-            website=raf_test_user[8],
-        )
+        user = User()
+        user.id = raf_test_user[0]
+        user.email = raf_test_user[0] + "@rpi.edu"
+        user.first_name = raf_test_user[1]
+        user.last_name = raf_test_user[2]
+        user.preferred_name = raf_test_user[3]
+        user.class_year = raf_test_user[4]
+        user.lab_manager_id = lab_manager.id
+        user.description = raf_test_user[6]
+        user.profile_picture = raf_test_user[7]
+        user.website = raf_test_user[8]
 
         db.session.add(user)
         db.session.commit()
 
         for row_tuple in lab_manager_rows:
-            lab_manager = LabManager(department_id=row_tuple[3])
+            lab_manager = LabManager()
+            lab_manager.department_id = row_tuple[3]
 
             db.session.add(lab_manager)
             db.session.commit()
 
-            user = User(
-                id=row_tuple[0],
-                email=row_tuple[0] + "@rpi.edu",
-                first_name=row_tuple[1],
-                last_name=row_tuple[2],
-                lab_manager_id=lab_manager.id,
-                description=row_tuple[4],
-                profile_picture="https://www.svgrepo.com/show/206842/professor.svg",
-            )
+            user = User()
+            user.id = row_tuple[0]
+            user.email = row_tuple[0] + "@rpi.edu"
+            user.first_name = row_tuple[1]
+            user.last_name = row_tuple[2]
+            user.lab_manager_id = lab_manager.id
+            user.description = row_tuple[4]
+            user.profile_picture = "https://www.svgrepo.com/show/206842/professor.svg"
+
             db.session.add(user)
             db.session.commit()
 
@@ -255,22 +262,22 @@ elif sys.argv[1] == "create":
         )
 
         for row_tuple in opportunities_rows:
-            row = Opportunities(
-                name=row_tuple[0],
-                description=row_tuple[1],
-                recommended_experience=row_tuple[2],
-                pay=row_tuple[3],
-                one_credit=row_tuple[4],
-                two_credits=row_tuple[5],
-                three_credits=row_tuple[6],
-                four_credits=row_tuple[7],
-                semester=row_tuple[8],
-                year=row_tuple[9],
-                application_due=row_tuple[10],
-                active=row_tuple[11],
-                last_updated=row_tuple[12],
-                location=row_tuple[13],
-            )
+            row = Opportunities()
+            row.name = row_tuple[0]
+            row.description = row_tuple[1]
+            row.recommended_experience = row_tuple[2]
+            row.pay = row_tuple[3]
+            row.one_credit = row_tuple[4]
+            row.two_credits = row_tuple[5]
+            row.three_credits = row_tuple[6]
+            row.four_credits = row_tuple[7]
+            row.semester = row_tuple[8]
+            row.year = row_tuple[9]
+            row.application_due = row_tuple[10]
+            row.active = row_tuple[11]
+            row.last_updated = row_tuple[12]
+            row.location = row_tuple[13]
+
             db.session.add(row)
             db.session.commit()
 
@@ -282,7 +289,10 @@ elif sys.argv[1] == "create":
         )
 
         for row_tuple in courses_rows:
-            row = Courses(code=row_tuple[0], name=row_tuple[1])
+            row = Courses()
+            row.code = row_tuple[0]
+            row.name = row_tuple[1]
+
             db.session.add(row)
             db.session.commit()
 
@@ -296,7 +306,10 @@ elif sys.argv[1] == "create":
         )
 
         for row_tuple in majors_rows:
-            row = Majors(code=row_tuple[0], name=row_tuple[1])
+            row = Majors()
+            row.code = row_tuple[0]
+            row.name = row_tuple[1]
+
             db.session.add(row)
             db.session.commit()
 
@@ -313,28 +326,40 @@ elif sys.argv[1] == "create":
         )
 
         for r in leads_rows:
-            row = Leads(lab_manager_id=r[0], opportunity_id=r[1])
+            row = Leads()
+            row.lab_manager_id = r[0]
+            row.opportunity_id = r[1]
+
             db.session.add(row)
             db.session.commit()
 
         recommends_courses_rows = ((1, "CSCI4430"), (1, "CSCI2961"), (2, "CSCI4390"))
 
         for r in recommends_courses_rows:
-            row = RecommendsCourses(opportunity_id=r[0], course_code=r[1])
+            row = RecommendsCourses()
+            row.opportunity_id = r[0]
+            row.course_code = r[1]
+
             db.session.add(row)
             db.session.commit()
 
         recommends_majors_rows = ((1, "CSCI"), (1, "PHYS"), (2, "BIOL"))
 
         for r in recommends_majors_rows:
-            row = RecommendsMajors(opportunity_id=r[0], major_code=r[1])
+            row = RecommendsMajors()
+            row.opportunity_id = r[0]
+            row.major_code = r[1]
+
             db.session.add(row)
             db.session.commit()
 
         recommends_class_years_rows = ((3, 2025), (2, 2025), (2, 2026), (1, 2027))
 
         for r in recommends_class_years_rows:
-            row = RecommendsClassYears(opportunity_id=r[0], class_year=r[1])
+            row = RecommendsClassYears()
+            row.opportunity_id = r[0]
+            row.class_year = r[1]
+
             db.session.add(row)
             db.session.commit()
 
@@ -345,10 +370,19 @@ elif sys.argv[1] == "create":
         )
 
         for r in user_majors:
-            major = UserMajors(user_id=r[0], major_code=r[1])
-            department = UserDepartments(user_id=r[0], department_id=r[1])
-            db.session.add(major)
-            db.session.add(department)
+            row = UserMajors()
+            row.user_id = r[0]
+            row.major_code = r[1]
+
+            db.session.add(row)
+            db.session.commit()
+
+        for r in user_majors:
+            row = UserDepartments()
+            row.user_id = r[0]
+            row.department_id = r[1]
+
+            db.session.add(row)
             db.session.commit()
 
         user_courses = (
@@ -358,7 +392,11 @@ elif sys.argv[1] == "create":
         )
 
         for r in user_courses:
-            row = UserCourses(user_id=r[0], course_code=r[1], in_progress=r[2])
+            row = UserCourses()
+            row.user_id = r[0]
+            row.course_code = r[1]
+            row.in_progress = r[2]
+
             db.session.add(row)
             db.session.commit()
 
@@ -370,7 +408,10 @@ elif sys.argv[1] == "create":
         )
 
         for r in participates_rows:
-            row = Participates(user_id=r[0], opportunity_id=r[1])
+            row = Participates()
+            row.user_id = r[0]
+            row.opportunity_id = r[1]
+
             db.session.add(row)
             db.session.commit()
 

@@ -6,11 +6,12 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from labconnect import db
 from labconnect.models import (
     LabManager,
-    Leads,
     Opportunities,
     RPIDepartments,
     User,
     ClassYears,
+    UserDepartments,
+    Majors,
 )
 
 from . import main_blueprint
@@ -88,95 +89,49 @@ def departmentDetails(department: str):
     return result
 
 
-# @main_blueprint.get("/getSchoolsAndDepartments/")
-# def getSchoolsAndDepartments():
-#     data = db.session.execute(
-#         db.select(RPISchools, RPIDepartments).join(
-#             RPIDepartments, RPISchools.name == RPIDepartments.school_id
-#         )
-#     ).scalars()
-
-#     dictionary = {}
-#     for item in data:
-#         if item[0].name not in dictionary:
-#             dictionary[item[0].name] = []
-#         dictionary[item[0].name].append(item[1].name)
-
-#     return dictionary
-
-
-# @main_blueprint.get("/getOpportunitiesRaw/<int:id>")
-# def getOpportunitiesRaw(id: int):
-#     data = db.session.execute(
-#         db.select(
-#             Opportunities,
-#             Leads,
-#             LabManager,
-#             RecommendsMajors,
-#             RecommendsCourses,
-#             RecommendsClassYears,
-#         )
-#         .where(Opportunities.id == id)
-#         .join(Leads, Leads.opportunity_id == Opportunities.id)
-#         .join(LabManager, Leads.lab_manager_id == LabManager.id)
-#         .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-#         .join(RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id)
-#         .join(
-#             RecommendsClassYears,
-#             RecommendsClassYears.opportunity_id == Opportunities.id,
-#         )
-#     ).scalars()
-
-#     opportunities = [opportunity.to_dict() for opportunity in data]
-
-#     return {"data": opportunities}
-
-
-# @main_blueprint.get("/lab_manager")
-# def getLabManagers():
-#     if not request.data:
-#         abort(400)
-
-#     json_request_data = request.get_json()
-
-#     if not json_request_data:
-#         abort(400)
-
-#     rcs_id = json_request_data.get("rcs_id", None)
-
-#     if not rcs_id:
-#         abort(400)
-
-#     data = db.first_or_404(db.select(LabManager).where(LabManager.id == rcs_id))
-
-#     result = data.to_dict()
-
-#     return result
-
-
 @main_blueprint.get("/profile")
+@jwt_required()
 def profile():
-    request_data = request.get_json()
-    id = request_data.get("id", None)
 
-    # TODO: Fix to a join query
-    lab_manager = db.first_or_404(db.select(LabManager).where(LabManager.id == id))
-    user = db.first_or_404(db.select(User).where(User.lab_manager_id == id))
-
-    result = lab_manager.to_dict() | user.to_dict()
+    user_id = get_jwt_identity()
 
     data = db.session.execute(
-        db.select(Opportunities, Leads)
-        .where(Leads.lab_manager_id == lab_manager.id)
-        .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-    ).scalars()
+        db.select(
+            User.preferred_name,
+            User.first_name,
+            User.last_name,
+            User.profile_picture,
+            RPIDepartments.name,
+            User.description,
+            User.website,
+            User.lab_manager_id,
+            User.id,
+        )
+        .where(User.email == user_id[0])
+        .join(UserDepartments, UserDepartments.user_id == User.id)
+        .join(RPIDepartments, UserDepartments.department_id == RPIDepartments.id)
+    ).first()
 
-    result["opportunities"] = [opportunity.to_dict() for opportunity in data]
+    if not data:
+        return {"error": "profile not found"}, 404
+
+    # if data[7]:
+    #     return {"lab_manager": True, "id": data[7]}
+
+    result = {
+        "id": data[8],
+        "name": data[0] + " " + data[2] if data[0] else data[1] + " " + data[2],
+        "image": data[3],
+        "department": data[4],
+        "description": data[5],
+        "website": data[6],
+    }
 
     return result
 
 
 @main_blueprint.get("/staff/<string:id>")
+@jwt_required()
 def getProfessorProfile(id: str):
 
     data = db.session.execute(
@@ -206,68 +161,6 @@ def getProfessorProfile(id: str):
     }
 
     return result
-
-
-# @main_blueprint.get("/lab_manager/opportunities")
-# def getLabManagerOpportunityCards() -> dict[Any, list[Any]]:
-#     if not request.data:
-#         abort(400)
-
-#     rcs_id = request.get_json().get("rcs_id", None)
-
-#     if not rcs_id:
-#         abort(400)
-
-#     data = db.session.execute(
-#         db.select(Opportunities, LabManager)
-#         .where(LabManager.id == rcs_id)
-#         .join(Leads, LabManager.id == Leads.lab_manager_id)
-#         .join(Opportunities, Leads.opportunity_id == Opportunities.id)
-#         .order_by(Opportunities.id)
-#     ).scalars()
-
-#     if not data:
-#         abort(404)
-
-#     result = {rcs_id: [opportunity.to_dict() for opportunity in data]}
-
-#     return result
-
-
-# _______________________________________________________________________________________________#
-
-
-# Editing Opportunities in Profile Page
-# @main_blueprint.get("/getProfessorCookies/<string:id>")
-# def getProfessorCookies(id: str):
-
-#     # this is already restricted to "GET" requests
-
-#     # TODO: Use JOIN query
-#     lab_manager = db.first_or_404(db.select(LabManager).where(LabManager.id == id))
-#     user = db.first_or_404(db.select(User).where(User.lab_manager_id == id))
-
-#     dictionary = lab_manager.to_dict() | user.to_dict()
-
-#     dictionary["role"] = "admin"
-#     dictionary["researchCenter"] = "AI"
-#     dictionary["loggedIn"] = True
-
-#     return dictionary
-
-
-# @main_blueprint.get("/getStaff/<string:department>")
-# def getStaff(department: str):
-#     query = db.session.execute(
-#         db.select(LabManager).filter(LabManager.department_id == department)
-#     )
-#     data = query.all()
-#     dictionary = {}
-#     for item in data:
-#         dictionary[item[0].rcs_id] = item[0].to_dict()
-#         dictionary[item[0].rcs_id].pop("rcs_id")
-
-# return dictionary
 
 
 @main_blueprint.post("/changeActiveStatus")
@@ -313,42 +206,20 @@ def force_error():
 #     return result
 
 
-# @main_blueprint.get("/majors")
-# def majors() -> list[Any]:
+@main_blueprint.get("/majors")
+def majors() -> list[dict[str, str]]:
 
-#     if request.data:
+    data = db.session.execute(db.select(Majors).order_by(Majors.code)).scalars()
 
-#         json_request_data = request.get_json()
+    if not data:
+        abort(404)
 
-#         if not json_request_data:
-#             abort(400)
+    result = [{"code": major.code, "name": major.name} for major in data]
 
-#         partial_key = json_request_data.get("input", None)
+    if result == []:
+        abort(404)
 
-#         data = db.session.execute(
-#             db.select(Majors)
-#             .order_by(Majors.code)
-#             .where(
-#                 (Majors.code.ilike(f"%{partial_key}%"))
-#                 | (Majors.name.ilike(f"%{partial_key}%"))
-#             )
-#         ).scalars()
-
-#         if not data:
-#             abort(404)
-
-#         result = [major.to_dict() for major in data]
-
-#         return result
-
-#     data = db.session.execute(db.select(Majors).order_by(Majors.code)).scalars()
-
-#     if not data:
-#         abort(404)
-
-#     result = [major.to_dict() for major in data]
-
-#     return result
+    return result
 
 
 @main_blueprint.get("/years")

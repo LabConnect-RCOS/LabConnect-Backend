@@ -35,11 +35,11 @@ def generate_temporary_code(user_email: str, registered: bool) -> str:
 def validate_code_and_get_user_email(code: str) -> tuple[str | None, bool | None]:
     token_data = temp_codes.get(code, {})
     if not token_data:
-        return None
+        return None, None
 
     user_email = token_data.get("email", None)
     expire = token_data.get("expires_at", None)
-    registered = token_data.get("registered", None)
+    registered = token_data.get("registered", False)
 
     if user_email and expire and expire > datetime.now():
         # If found, delete the code to prevent reuse
@@ -108,49 +108,51 @@ def registerUser():
     if not json_data:
         abort(400)
 
-    user = User(
-        email=json_data.get("email"),
-        first_name=json_data.get("first_name"),
-        last_name=json_data.get("last_name"),
-        preferred_name=json_data.get("preferred_name", ""),
-        class_year=json_data.get("class_year", ""),
-        profile_picture=json_data.get(
-            "profile_picture", "https://www.svgrepo.com/show/206842/professor.svg"
-        ),
-        website=json_data.get("website", ""),
-        description=json_data.get("description", ""),
+    user = User()
+    user.email = json_data.get("email")
+    user.first_name = json_data.get("first_name")
+    user.last_name = json_data.get("last_name")
+    user.preferred_name = json_data.get("preferred_name", "")
+    user.class_year = json_data.get("class_year", "")
+    user.profile_picture = json_data.get(
+        "profile_picture", "https://www.svgrepo.com/show/206842/professor.svg"
     )
+    user.website = json_data.get("website", "")
+    user.description = json_data.get("description", "")
     db.session.add(user)
     db.session.commit()
 
     # Add UserDepartments if provided
     if json_data.get("departments"):
         for department_id in json_data["departments"]:
-            user_department = UserDepartments(
-                user_id=user.id, department_id=department_id
-            )
+            user_department = UserDepartments()
+            user_department.department_id = department_id
+            user_department.user_id = user.id
             db.session.add(user_department)
 
     # Additional auxiliary records (majors, courses, etc.)
     if json_data.get("majors"):
-        for major_id in json_data["majors"]:
-            user_major = UserMajors(user_id=user.id, major_id=major_id)
+        for major_code in json_data["majors"]:
+            user_major = UserMajors()
+            user_major.user_id = user.id
+            user_major.major_code = major_code
             db.session.add(user_major)
     # Add Courses if provided
     if json_data.get("courses"):
-        for course_id in json_data["courses"]:
-            user_course = UserCourses(user_id=user.id, course_id=course_id)
+        for course_code in json_data["courses"]:
+            user_course = UserCourses()
+            user_course.user_id = user.id
+            user_course.course_code = course_code
             db.session.add(user_course)
 
     # Add ManagementPermissions if provided
     if json_data.get("permissions"):
         permissions = json_data["permissions"]
-        management_permissions = ManagementPermissions(
-            user_id=user.id,
-            super_admin=permissions.get("super_admin", False),
-            admin=permissions.get("admin", False),
-            moderator=permissions.get("moderator", False),
-        )
+        management_permissions = ManagementPermissions()
+        management_permissions.user_id = user.id
+        management_permissions.super_admin = permissions.get("super_admin", False)
+        management_permissions.admin = permissions.get("admin", False)
+        management_permissions.moderator = permissions.get("moderator", False)
         db.session.add(management_permissions)
 
     db.session.commit()
@@ -194,8 +196,5 @@ def metadataRoute():
 
 @main_blueprint.get("/logout")
 def logout():
-    if not current_app.config["TESTING"]:
-        # TODO: add token to blacklist
-        # current_app.config["TOKEN_BLACKLIST"].add()
-        pass
+    # TODO: add token to blacklist
     return {"msg": "logout successful"}
