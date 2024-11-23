@@ -14,7 +14,6 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_db
         ports:
           - 5432:5432
@@ -44,11 +43,11 @@ jobs:
           done
       - name: Set up the Database
         env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+          DATABASE_URL: postgres://postgres@localhost:5432/test_db
         run: |
           python db_init.py create
       - name: Running pytest
         env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+          DATABASE_URL: postgres://postgres@localhost:5432/test_db
         run: |
           python -m pytest tests/
