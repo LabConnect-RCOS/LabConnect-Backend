@@ -14,11 +14,12 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_DB: test_db
+          POSTGRES_PASSWORD: postgres_password
+          POSTGRES_DB: labconnect
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U postgres -d test_db"
+          --health-cmd="pg_isready -U postgres -d labconnect"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
@@ -37,17 +38,17 @@ jobs:
           pip install -r requirements.txt
       - name: Wait for PostgreSQL to be ready
         run: |
-          while ! pg_isready -h localhost -p 5432 -U postgres -d test_db; do
+          while ! pg_isready -h localhost -p 5432 -U postgres -d labconnect; do
             echo "Waiting for PostgreSQL..."
             sleep 2
           done
       - name: Set up the Database
         env:
-          DATABASE_URL: postgres://postgres@localhost:5432/test_db
+          DATABASE_URL: postgresql+psycopg2://postgres:postgres_password@localhost/labconnect
         run: |
           python db_init.py create
       - name: Running pytest
         env:
-          DATABASE_URL: postgres://postgres@localhost:5432/test_db
+          DATABASE_URL: postgresql+psycopg2://postgres:postgres_password@localhost/labconnect
         run: |
           python -m pytest tests/
