@@ -14,7 +14,7 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres_password
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: labconnect
         ports:
           - 5432:5432
@@ -44,11 +44,11 @@ jobs:
           done
       - name: Set up the Database
         env:
-          DATABASE_URL: postgresql+psycopg2://postgres:postgres_password@localhost/labconnect
+          DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/labconnect
         run: |
           python db_init.py create
       - name: Running pytest
         env:
-          DATABASE_URL: postgresql+psycopg2://postgres:postgres_password@localhost/labconnect
+          DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/labconnect
         run: |
           python -m pytest tests/
