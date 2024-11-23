@@ -13,13 +13,13 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_db
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U test_user -d test_db"
+          --health-cmd="pg_isready -U postgres -d test_db"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
@@ -38,20 +38,17 @@ jobs:
           pip install -r requirements.txt
       - name: Wait for PostgreSQL to be ready
         run: |
-          while ! pg_isready -h localhost -p 5432 -U test_user -d test_db; do
+          while ! pg_isready -h localhost -p 5432 -U postgres -d test_db; do
             echo "Waiting for PostgreSQL..."
             sleep 2
           done
-      - name: Test Database Connection
-        run: |
-          PGPASSWORD="test_password" psql -h localhost -p 5432 -U test_user -d test_db -c '\conninfo'
       - name: Set up the Database
         env:
-          DATABASE_URL: postgres://test_user:test_password@localhost:5432/test_db
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
         run: |
           python db_init.py create
       - name: Running pytest
         env:
-          DATABASE_URL: postgres://test_user:test_password@localhost:5432/test_db
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
         run: |
           python -m pytest tests/
