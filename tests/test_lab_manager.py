@@ -25,6 +25,7 @@ def test_lab_manager_route_with_input_id(test_client: FlaskClient) -> None:
         "alt_email": None,
         "phone_number": None,
         "email": None,
+        "description": None,
     }
 
     assert json_data == cenzar_data

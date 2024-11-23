@@ -9,6 +9,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres_password
+          POSTGRES_DB: labconnect
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d labconnect"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
     strategy:
       matrix:
         python-version: ["3.12.4"]
@@ -22,9 +36,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Setup the Database
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          while ! pg_isready -h localhost -p 5432 -U postgres -d labconnect; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+      - name: Set up the Database
+        env:
+          DATABASE_URL: postgresql+psycopg2://postgres:postgres_password@localhost/labconnect
         run: |
           python db_init.py create
       - name: Running pytest
+        env:
+          DATABASE_URL: postgresql+psycopg2://postgres:postgres_password@localhost/labconnect
         run: |
           python -m pytest tests/
