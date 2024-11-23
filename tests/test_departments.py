@@ -4,140 +4,150 @@ Test department routes
 
 from flask import json
 from flask.testing import FlaskClient
+import pytest
 
 
-def test_departments_route(test_client: FlaskClient) -> None:
+@pytest.mark.parametrize(
+    "endpoint, request_json, expected_status, expected_response_checks",
+    [
+        (
+            "/departments",
+            None,
+            200,
+            [
+                {
+                    "field": "name",
+                    "values": [
+                        "Computer Science",
+                        "Biology",
+                        "Materials Engineering",
+                        "Math",
+                        "Environmental Engineering",
+                        "Aerospace Engineering",
+                        "Areonautical Engineering",
+                    ],
+                },
+                {
+                    "field": "description",
+                    "values": [
+                        "DS",
+                        "life",
+                        "also pretty cool",
+                        "quick maths",
+                        "water",
+                        "space, the final frontier",
+                        "flying, need for speed",
+                    ],
+                },
+                {
+                    "field": "school_id",
+                    "values": [
+                        "School of science",
+                        "School of science",
+                        "School of engineering",
+                        "School of science",
+                        "School of engineering",
+                        "School of engineering",
+                        "School of engineering",
+                    ],
+                },
+                {
+                    "field": "id",
+                    "values": ["CSCI", "BIOL", "MTLE", "MATH", "ENVI", "MANE", "MANE"],
+                },
+                {
+                    "field": "image",
+                    "values": [
+                        "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
+                    ]
+                    * 7,
+                },
+                {"field": "webcite", "values": ["https://www.rpi.edu"] * 7},
+            ],
+        ),
+        (
+            "/department",
+            {"department": "Computer Science"},
+            200,
+            [
+                {"field": "name", "values": ["Computer Science"]},
+                {"field": "description", "values": ["DS"]},
+                {"field": "school_id", "values": ["School of Science"]},
+                {"field": "id", "values": ["CSCI"]},
+                {
+                    "field": "image",
+                    "values": [
+                        "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
+                    ],
+                },
+                {"field": "webcite", "values": ["https://www.rpi.edu"]},
+                {
+                    "field": "professors",
+                    "subfields": [
+                        {
+                            "subfield": "name",
+                            "values": [
+                                "Duy Le",
+                                "Rafael",
+                                "Turner",
+                                "Kuzmin",
+                                "Goldschmidt",
+                            ],
+                        },
+                        {
+                            "subfield": "rcs_id",
+                            "values": ["led", "cenzar", "turner", "kuzmin", "goldd"],
+                        },
+                    ],
+                },
+                {
+                    "field": "opportunities",
+                    "subfields": [
+                        {"subfield": "id", "values": [1, 2]},
+                        {
+                            "subfield": "name",
+                            "values": [
+                                "Automated Cooling System",
+                                "Iphone 15 durability test",
+                            ],
+                        },
+                    ],
+                },
+            ],
+        ),
+        ("/department", None, 400, None),
+        ("/department", {"wrong": "wrong"}, 400, None),
+    ],
+)
+def test_department_routes(
+    test_client: FlaskClient,
+    endpoint,
+    request_json,
+    expected_status,
+    expected_response_checks,
+) -> None:
     """
     GIVEN a Flask application configured for testing
-    WHEN the '/departments' page is requested (GET)
-    THEN check that the response is valid
+    WHEN various '/departments' or '/department' routes are requested (GET)
+    THEN check that the response status and data are as expected
     """
-    response = test_client.get("/departments")
-
-    assert response.status_code == 200
-
-    json_data = json.loads(response.data)
-
-    rpi_departments_data = (
-        (
-            "Computer Science",
-            "Biology",
-            "Materials Engineering",
-            "Math",
-            "Environmental Engineering",
-            "Aerospace Engineering",
-            "Areonautical Engineering",
-        ),
-        (
-            "DS",
-            "life",
-            "also pretty cool",
-            "quick maths",
-            "water",
-            "space, the final frontier",
-            "flying, need for speed",
-        ),
-        (
-            "School of science",
-            "School of science",
-            "School of engineering",
-            "School of science",
-            "School of engineering",
-            "School of engineering",
-            "School of engineering",
-        ),
-        (
-            "CSCI",
-            "BIOL",
-            "MTLE" "MATH",
-            "ENVI",
-            "MANE",
-            "MANE",
-        ),
-        (
-            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
-            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
-            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
-            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
-            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
-            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
-            "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
-        ),
-        (
-            "https://www.rpi.edu",
-            "https://www.rpi.edu",
-            "https://www.rpi.edu",
-            "https://www.rpi.edu",
-            "https://www.rpi.edu",
-            "https://www.rpi.edu",
-            "https://www.rpi.edu",
-        ),
+    response = (
+        test_client.get(endpoint, json=request_json)
+        if request_json
+        else test_client.get(endpoint)
     )
+    assert response.status_code == expected_status
 
-    for department in json_data:
-        assert department["name"] in rpi_departments_data[0]
-        assert department["description"] in rpi_departments_data[1]
-        # Added
-        assert department["school_id"] in rpi_departments_data[2]
-        assert department["id"] in rpi_departments_data[3]
-        assert department["image"] in rpi_departments_data[4]
-        assert department["webcite"] in rpi_departments_data[5]
+    if expected_response_checks:
+        json_data = json.loads(response.data)
 
-
-def test_department_route(test_client: FlaskClient) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/department' page is requested (GET)
-    THEN check that the response is valid
-    """
-    response = test_client.get("/department", json={"department": "Computer Science"})
-
-    assert response.status_code == 200
-
-    json_data = json.loads(response.data)
-
-    assert json_data["name"] == "Computer Science"
-    assert json_data["description"] == "DS"
-    assert json_data["school_id"] == "School of Science"
-    # Added
-    assert json_data["id"] == "CSCI"
-    assert (
-        json_data["image"] == "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
-    )
-    assert json_data["webcite"] == "https://www.rpi.edu"
-
-    prof_names = ["Duy Le", "Rafael", "Turner", "Kuzmin", "Goldschmidt"]
-    prof_rcs_ids = ["led", "cenzar", "turner", "kuzmin", "goldd"]
-
-    for prof in json_data["professors"]:
-        assert prof["name"] in prof_names
-        assert prof["rcs_id"] in prof_rcs_ids
-
-    opportunity_ids = [1, 2]
-    opportunity_names = ["Automated Cooling System", "Iphone 15 durability test"]
-
-    for opportunity in json_data["opportunities"]:
-        assert opportunity["id"] in opportunity_ids
-        assert opportunity["name"] in opportunity_names
-
-
-def test_department_route_no_json(test_client: FlaskClient) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/department' page is requested (GET)
-    THEN check that the response is valid
-    """
-    response = test_client.get("/department")
-
-    assert response.status_code == 400
-
-
-def test_department_route_incorrect_json(test_client: FlaskClient) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/department' page is requested (GET)
-    THEN check that the response is valid
-    """
-    response = test_client.get("/department", json={"wrong": "wrong"})
-
-    assert response.status_code == 400
+        for check in expected_response_checks:
+            if "subfields" not in check:
+                for item in json_data:
+                    assert item[check["field"]] in check["values"]
+            else:
+                for item in json_data.get(check["field"], []):
+                    for subfield_check in check["subfields"]:
+                        assert (
+                            item[subfield_check["subfield"]] in subfield_check["values"]
+                        )
