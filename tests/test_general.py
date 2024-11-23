@@ -41,11 +41,14 @@ def test_discover_route(test_client: FlaskClient) -> None:
 @pytest.mark.parametrize(
     "input_id, expected_profile",
     [
-        (1, {
-            "id": "cenzar",
-            "first_name": "Rafael",
-            "opportunities": [ ... ]  # Replace with expected opportunities data
-        })
+        (
+            1,
+            {
+                "id": "cenzar",
+                "first_name": "Rafael",
+                "opportunities": [...],  # Replace with expected opportunities data
+            },
+        )
     ],
 )
 def test_profile_page(test_client: FlaskClient, input_id, expected_profile) -> None:
@@ -115,7 +118,7 @@ def test_professor_profile(test_client: FlaskClient) -> None:
     THEN check that the response is valid
     """
     response = test_client.get("/getProfessorProfile/1")
-    
+
     assert response.status_code == 200
 
     # Load the response data as JSON

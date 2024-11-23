@@ -54,7 +54,9 @@ def test_majors_route(test_client: FlaskClient, expected_majors) -> None:
         ),
     ],
 )
-def test_majors_route_with_input_name(test_client: FlaskClient, input_data, expected_majors) -> None:
+def test_majors_route_with_input_name(
+    test_client: FlaskClient, input_data, expected_majors
+) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/majors' page is requested (GET)
@@ -87,7 +89,9 @@ def test_majors_route_with_input_name(test_client: FlaskClient, input_data, expe
         ),
     ],
 )
-def test_majors_route_with_input_code(test_client: FlaskClient, input_data, expected_majors) -> None:
+def test_majors_route_with_input_code(
+    test_client: FlaskClient, input_data, expected_majors
+) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/majors' page is requested (GET)

@@ -2,6 +2,7 @@ import json
 import pytest
 from flask.testing import FlaskClient
 
+
 def test_get_opportunity_parametrized(test_client: FlaskClient):
     """
     GIVEN a Flask application configured for testing
@@ -9,32 +10,38 @@ def test_get_opportunity_parametrized(test_client: FlaskClient):
     THEN check that the responses are valid
     """
     test_cases = [
-        (1, {
-            "name": "Automated Cooling System",
-            "description": "Energy efficient AC system",
-            "recommended_experience": "Thermodynamics",
-            "pay": 15.0,
-            "one_credit": False,
-            "two_credits": False,
-            "three_credits": False,
-            "four_credits": True,
-            "semester": "Spring",
-            "year": 2024,
-            "active": True,
-        }),
-        (2, {
-            "name": "Iphone 15 durability test",
-            "description": "Scratching the Iphone, drop testing etc.",
-            "recommended_experience": "Experienced in getting angry and throwing temper tantrum",
-            "pay": None,
-            "one_credit": True,
-            "two_credits": True,
-            "three_credits": True,
-            "four_credits": True,
-            "semester": "Spring",
-            "year": 2024,
-            "active": True,
-        }),
+        (
+            1,
+            {
+                "name": "Automated Cooling System",
+                "description": "Energy efficient AC system",
+                "recommended_experience": "Thermodynamics",
+                "pay": 15.0,
+                "one_credit": False,
+                "two_credits": False,
+                "three_credits": False,
+                "four_credits": True,
+                "semester": "Spring",
+                "year": 2024,
+                "active": True,
+            },
+        ),
+        (
+            2,
+            {
+                "name": "Iphone 15 durability test",
+                "description": "Scratching the Iphone, drop testing etc.",
+                "recommended_experience": "Experienced in getting angry and throwing temper tantrum",
+                "pay": None,
+                "one_credit": True,
+                "two_credits": True,
+                "three_credits": True,
+                "four_credits": True,
+                "semester": "Spring",
+                "year": 2024,
+                "active": True,
+            },
+        ),
     ]
 
     for opportunity_id, expected_data in test_cases:
@@ -69,32 +76,40 @@ def test_opportunity_incorrect_json(test_client: FlaskClient):
 @pytest.mark.parametrize(
     "endpoint, expected_keys",
     [
-        ("/getOpportunityMeta/1", [
-            "name",
-            "description",
-            "recommended_experience",
-            "pay",
-            "credits",
-            "semester",
-            "year",
-            "application_due",
-            "active",
-            "courses",
-            "majors",
-            "years",
-        ]),
-        ("/getOpportunity/2", [
-            "id",
-            "name",
-            "description",
-            "recommended_experience",
-            "author",
-            "department",
-            "aboutSection",
-        ]),
+        (
+            "/getOpportunityMeta/1",
+            [
+                "name",
+                "description",
+                "recommended_experience",
+                "pay",
+                "credits",
+                "semester",
+                "year",
+                "application_due",
+                "active",
+                "courses",
+                "majors",
+                "years",
+            ],
+        ),
+        (
+            "/getOpportunity/2",
+            [
+                "id",
+                "name",
+                "description",
+                "recommended_experience",
+                "author",
+                "department",
+                "aboutSection",
+            ],
+        ),
     ],
 )
-def test_opportunity_meta_parametrized(test_client: FlaskClient, endpoint, expected_keys):
+def test_opportunity_meta_parametrized(
+    test_client: FlaskClient, endpoint, expected_keys
+):
     """
     GIVEN a Flask application configured for testing
     WHEN specific opportunity endpoints are requested
@@ -116,11 +131,12 @@ def test_opportunity_meta_parametrized(test_client: FlaskClient, endpoint, expec
 
 
 @pytest.mark.parametrize(
-    "endpoint", [
+    "endpoint",
+    [
         "/getOpportunityByProfessor/led",
         "/getProfessorOpportunityCards/led",
         "/getProfileOpportunities/led",
-    ]
+    ],
 )
 def test_professor_related_opportunities(test_client: FlaskClient, endpoint):
     """

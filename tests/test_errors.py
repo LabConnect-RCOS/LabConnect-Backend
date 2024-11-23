@@ -20,7 +20,9 @@ import pytest
         ),
     ],
 )
-def test_error_pages(test_client: FlaskClient, route, expected_status, expected_response) -> None:
+def test_error_pages(
+    test_client: FlaskClient, route, expected_status, expected_response
+) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the specified error route is requested (GET)

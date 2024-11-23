@@ -10,20 +10,26 @@ from flask.testing import FlaskClient
 @pytest.mark.parametrize(
     "input_json, expected_status, expected_response",
     [
-        ({"rcs_id": "cenzar"}, 200, {
-            "website": None,
-            "rcs_id": "cenzar",
-            "name": "Rafael",
-            "alt_email": None,
-            "phone_number": None,
-            "email": None,
-            "description": None,
-        }),
+        (
+            {"rcs_id": "cenzar"},
+            200,
+            {
+                "website": None,
+                "rcs_id": "cenzar",
+                "name": "Rafael",
+                "alt_email": None,
+                "phone_number": None,
+                "email": None,
+                "description": None,
+            },
+        ),
         (None, 400, None),  # No input JSON case
-        ({"wrong": "wrong"}, 400, None)  # Incorrect JSON structure case
-    ]
+        ({"wrong": "wrong"}, 400, None),  # Incorrect JSON structure case
+    ],
 )
-def test_lab_manager_route(test_client: FlaskClient, input_json, expected_status, expected_response) -> None:
+def test_lab_manager_route(
+    test_client: FlaskClient, input_json, expected_status, expected_response
+) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/lab_manager' page is requested (GET) with different JSON inputs
@@ -42,10 +48,12 @@ def test_lab_manager_route(test_client: FlaskClient, input_json, expected_status
     [
         ({"rcs_id": "cenzar"}, 200),
         (None, 400),  # No input JSON case
-        ({"wrong": "wrong"}, 400)  # Incorrect JSON structure case
-    ]
+        ({"wrong": "wrong"}, 400),  # Incorrect JSON structure case
+    ],
 )
-def test_lab_manager_opportunity_cards(test_client: FlaskClient, input_json, expected_status) -> None:
+def test_lab_manager_opportunity_cards(
+    test_client: FlaskClient, input_json, expected_status
+) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/lab_manager/opportunities' page is requested (GET) with different JSON inputs
@@ -79,8 +87,13 @@ def test_lab_manager_opportunity_cards(test_client: FlaskClient, input_json, exp
 
         for i, item in enumerate(json_data["cenzar"]):
             assert item["name"] == lab_manager_opportunities_data[i]["name"]
-            assert item["description"] == lab_manager_opportunities_data[i]["description"]
-            assert item["recommended_experience"] == lab_manager_opportunities_data[i]["recommended_experience"]
+            assert (
+                item["description"] == lab_manager_opportunities_data[i]["description"]
+            )
+            assert (
+                item["recommended_experience"]
+                == lab_manager_opportunities_data[i]["recommended_experience"]
+            )
             assert item["pay"] == lab_manager_opportunities_data[i]["pay"]
             assert item["semester"] == lab_manager_opportunities_data[i]["semester"]
             assert item["year"] == lab_manager_opportunities_data[i]["year"]

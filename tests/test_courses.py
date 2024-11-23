@@ -30,14 +30,20 @@ import pytest
         ({"input": "not found"}, 404, None),
     ],
 )
-def test_courses_route(test_client: FlaskClient, request_json, expected_status, expected_response) -> None:
+def test_courses_route(
+    test_client: FlaskClient, request_json, expected_status, expected_response
+) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/courses' page is requested (GET) with various inputs
     THEN check that the response status and data are as expected
     """
-    response = test_client.get("/courses", json=request_json) if request_json else test_client.get("/courses")
-    
+    response = (
+        test_client.get("/courses", json=request_json)
+        if request_json
+        else test_client.get("/courses")
+    )
+
     assert response.status_code == expected_status
 
     if expected_response is not None:
@@ -65,7 +71,9 @@ def test_courses_route(test_client: FlaskClient, request_json, expected_status, 
         )
     ],
 )
-def test_courses_route_with_specific_input(test_client: FlaskClient, input_name, course_data) -> None:
+def test_courses_route_with_specific_input(
+    test_client: FlaskClient, input_name, course_data
+) -> None:
     """
     GIVEN a Flask application configured for testing
     WHEN the '/courses' page is requested (GET) with specific course input names
