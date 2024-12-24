@@ -1,0 +1,22 @@
+{
+    "strict": false,
+    "debug": true,
+    "sp": {
+        "entityId": "https://api.labconnect.cs.rpi.edu/metadata/",
+        "assertionConsumerService": {
+            "url": "https://api.labconnect.cs.rpi.edu/?acs",
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+        },
+        "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+        "x509cert": "",
+        "privateKey": ""
+    },
+    "idp": {
+        "entityId": "https://shib-idp.rpi.edu/idp/shibboleth",
+        "singleSignOnService": {
+            "url": "https://shib.auth.rpi.edu/idp/profile/SAML2/Redirect/SSO",
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+        },
+        "x509cert": "<onelogin_connector_cert>"
+    }
+}

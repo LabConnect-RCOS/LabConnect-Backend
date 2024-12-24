@@ -53,6 +53,9 @@
 [![JS][JS]][JS-url]
 [![Flask][Flask]][Flask-url]
 [![Bootstrap][Bootstrap]][Bootstrap-url]
+[![React][React]][React-url]
+[![Node.js][Node.js]][Node.js-url]
+[![Tailwind CSS][TailwindCSS]][TailwindCSS-url]
 
 
 <!-- Getting Started -->
@@ -64,7 +67,7 @@
     $ git clone https://github.com/LabConnect-RCOS/LabConnect-Backend.git
     ```
     * To fork, press the fork button on the top right of the repo, or [here](https://github.com/LabConnect-RCOS/LabConnect-Backend/fork)
- * Install Python 3.12.2 [here](https://www.python.org/downloads/release/python-3122/)
+ * Install Python 3.12.4 [here]([https://www.python.org/downloads/release/python-3122/](https://www.python.org/downloads/release/python-3124/))
  * Install Libraries 
     * Download through the command line
     ```sh
@@ -100,16 +103,22 @@
    ```
 
 ## Deployment
-* TBD, planning to use an RPI VM
+Create PRs to release branch, upon merge a new docker container will be created and pushed. This will be planned for weekly pushes on Tuesdays.
 
 ## Production
- * Run gunicorn
+Use the docker container in the packages tab. You can set these environment variables:
+- SECRET_KEY
+- JWT_SECRET_KEY
+- FRONTEND_URL
+- DB
+
+ * Run gunicorn to test how the service runs in production
    ```sh
    $ make run
    ```
    or with Makefile
     ```sh
-   $ gunicorn run:app -w 6 --preload --max-requests-jitter 300
+   $ gunicorn run:app -w 6 --preload --max-requests-jitter 300 --bind 0.0.0.0:8000
    ```
 
 ## Project Contributors
@@ -122,19 +131,22 @@ Running list of contributors to the LabConnect project:
 
 ### Rensselaer Center for Open Source Development Team
 
-- **Siddhi W** [UI / UX]
+- **Siddhi W** [Frontend / Backend]
 - **Mrunal A** [Frontend / Backend]
-- **Abid T** [Frontend / Backend]
-- **Sarah** [Backend]
-- **Ramzey** [Backend]
-- **Will** [Frontend]
-- **Nelson** [Backend]
+- **Sarah W** [Backend]
+- **Ramzey Y** [Backend]
+- **Will B** [Frontend]
+- - **Sidarth E** [Frontend]
+
 
 ### Past Rensselaer Center for Open Source Development Team
 
+- **Abid T** [Frontend / Backend]
+- **Nelson** [Backend]
 - **Duy L** [Database Systems]
 - **Yash K** [Frontend]
 - **Sam B** [Scraping / Integration]
+
 
 ### Special Thanks
 
@@ -158,7 +170,7 @@ Distributed under the Apache License. See [LICENSE](https://github.com/RafaelCen
 [pr-shield]: https://img.shields.io/github/issues-pr/LabConnect-RCOS/LabConnect-Backend.svg?style=for-the-badge
 [pr-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/pulls
 [license-shield]: https://img.shields.io/github/license/LabConnect-RCOS/LabConnect-Backendt.svg?style=for-the-badge
-[license-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/blob/master/LICENSE
+[license-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/blob/main/LICENSE
 
 [activity-shield]: https://img.shields.io/github/last-commit/LabConnect-RCOS/LabConnect-Backend?style=for-the-badge
 [activity-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/activity
@@ -175,3 +187,9 @@ Distributed under the Apache License. See [LICENSE](https://github.com/RafaelCen
 [Flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 [Bootstrap]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
 [Bootstrap-url]: https://getbootstrap.com/
+[React]: https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black
+[React-url]: https://reactjs.org/
+[Node.js]: https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white
+[Node.js-url]: https://nodejs.org/
+[TailwindCSS]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
+[TailwindCSS-url]: https://tailwindcss.com/

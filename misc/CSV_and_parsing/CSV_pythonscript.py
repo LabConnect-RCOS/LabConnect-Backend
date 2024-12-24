@@ -1,6 +1,7 @@
 import csv
+import os
 
-csv_file_name = "Documents\GitHub\LabConnect\docs\CSV_and_parsing\CSVtest.csv"
+csv_file_name = os.path.join("docs", "CSV_and_parsing", "CSVtest.csv")
 
 
 data = []  # List to store rows of data
