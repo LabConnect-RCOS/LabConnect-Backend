@@ -20,5 +20,4 @@ HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
 
 EXPOSE 9000
 
-# CMD ["/app/run.sh"]
-CMD ["python", "app.py"]
+CMD ["/app/run.sh"]
