@@ -77,7 +77,7 @@ def saml_callback():
     # Process SAML response
     req = prepare_flask_request(request)
     auth = OneLogin_Saml2_Auth(req, custom_base_path=current_app.config["SAML_CONFIG"])
-    auth.process_response()
+    auth.process_response(req)
     errors = auth.get_errors()
 
     if not errors:
