@@ -75,15 +75,10 @@ def saml_login():
 @main_blueprint.post("/callback")
 def saml_callback():
     # Process SAML response
-    print("HERE")
     req = prepare_flask_request(request)
-    print("req", req)
     auth = OneLogin_Saml2_Auth(req, custom_base_path=current_app.config["SAML_CONFIG"])
-    print("auth", auth)
     auth.process_response()
-    print("auth", auth)
     errors = auth.get_errors()
-    print("errors", errors)
 
     if not errors:
         registered = True
@@ -102,7 +97,8 @@ def saml_callback():
         # Send the JWT to the frontend
         return redirect(f"{current_app.config['FRONTEND_URL']}/callback/?code={code}")
 
-    return {"errors": errors}, 500
+    error_reason = auth.get_last_error_reason()
+    return {"errors": errors, "error_reason": error_reason}, 500
 
 
 @main_blueprint.post("/register")
