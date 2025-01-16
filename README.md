@@ -132,20 +132,21 @@ Running list of contributors to the LabConnect project:
 ### Rensselaer Center for Open Source Development Team
 
 - **Siddhi W** [Frontend / Backend]
-- **Mrunal A** [Frontend / Backend]
+
 - **Sarah W** [Backend]
 - **Ramzey Y** [Backend]
 - **Will B** [Frontend]
-- - **Sidarth E** [Frontend]
+- **Sidarth E** [Frontend]
 
 
 ### Past Rensselaer Center for Open Source Development Team
 
-- **Abid T** [Frontend / Backend]
-- **Nelson** [Backend]
-- **Duy L** [Database Systems]
-- **Yash K** [Frontend]
-- **Sam B** [Scraping / Integration]
+- **Mrunal A** [Frontend / Backend] (F'23,S'24,F'24)
+- **Abid T** [Frontend / Backend] (F'23,S'24)
+- **Nelson** [Backend] (S'24)
+- **Duy L** [Database Systems] (F'23)
+- **Yash K** [Frontend] (F'23)
+- **Sam B** [Scraping / Integration] (F'23)
 
 
 ### Special Thanks
