@@ -75,10 +75,15 @@ def saml_login():
 @main_blueprint.post("/callback")
 def saml_callback():
     # Process SAML response
+    print("HERE")
     req = prepare_flask_request(request)
+    print("req", req)
     auth = OneLogin_Saml2_Auth(req, custom_base_path=current_app.config["SAML_CONFIG"])
+    print("auth", auth)
     auth.process_response()
+    print("auth", auth)
     errors = auth.get_errors()
+    print("errors", errors)
 
     if not errors:
         registered = True
