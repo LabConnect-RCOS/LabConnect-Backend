@@ -54,7 +54,6 @@ def validate_code_and_get_user_email(code: str) -> tuple[str | None, bool | None
 
 @main_blueprint.get("/login")
 def saml_login():
-
     # In testing skip RPI login purely for local development
     if current_app.config["TESTING"] and (
         current_app.config["FRONTEND_URL"] == "http://localhost:3000"
@@ -103,7 +102,6 @@ def saml_callback():
 
 @main_blueprint.post("/register")
 def registerUser():
-
     # Gather the new user's information
     json_data = request.get_json()
     if not json_data:

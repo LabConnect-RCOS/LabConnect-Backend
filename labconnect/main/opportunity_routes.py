@@ -171,7 +171,6 @@ def packageIndividualOpportunity(opportunityInfo):
 
 
 def packageOpportunityCard(opportunity):
-
     # get professor and department by getting Leads and LabManager
     query = db.session.execute(
         db.select(Leads, LabManager, User.first_name, User.last_name)
@@ -498,7 +497,6 @@ def getOpportunityCards():
 
 @main_blueprint.get("/staff/opportunities/<string:rcs_id>")
 def getLabManagerOpportunityCards(rcs_id: str) -> list[dict[str, str]]:
-
     query = (
         db.select(
             Opportunities.id,
@@ -535,7 +533,6 @@ def getLabManagerOpportunityCards(rcs_id: str) -> list[dict[str, str]]:
 
 @main_blueprint.get("/profile/opportunities/<string:rcs_id>")
 def getProfileOpportunities(rcs_id: str) -> list[dict[str, str]]:
-
     query = (
         db.select(
             Opportunities.id,
@@ -770,7 +767,9 @@ def editOpportunity_get(opportunity_id):
         "type": (
             "Any"
             if len(credits) > 0 and opportunity.pay and opportunity.pay > 0
-            else "For Pay" if opportunity.pay and opportunity.pay > 0 else "For Credit"
+            else "For Pay"
+            if opportunity.pay and opportunity.pay > 0
+            else "For Credit"
         ),
         "hourlyPay": str(opportunity.pay),
         "credits": credits,
@@ -792,7 +791,6 @@ def editOpportunity_get(opportunity_id):
 @main_blueprint.put("/editOpportunity/<int:opportunity_id>")
 @jwt_required()
 def editOpportunity(opportunity_id):
-
     user_id = get_jwt_identity()
     if not request.data or not user_id:
         abort(400)
