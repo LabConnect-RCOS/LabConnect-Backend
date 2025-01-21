@@ -41,7 +41,6 @@ def departmentCards():
 
 @main_blueprint.get("/departments/<string:department>")
 def departmentDetails(department: str):
-
     department_data = db.session.execute(
         db.select(
             RPIDepartments.id,
@@ -92,7 +91,6 @@ def departmentDetails(department: str):
 @main_blueprint.get("/profile")
 @jwt_required()
 def profile():
-
     user_id = get_jwt_identity()
 
     data = db.session.execute(
@@ -133,7 +131,6 @@ def profile():
 @main_blueprint.get("/staff/<string:id>")
 @jwt_required()
 def getProfessorProfile(id: str):
-
     data = db.session.execute(
         db.select(
             User.preferred_name,
@@ -208,7 +205,6 @@ def force_error():
 
 @main_blueprint.get("/majors")
 def majors() -> list[dict[str, str]]:
-
     data = db.session.execute(db.select(Majors).order_by(Majors.code)).scalars()
 
     if not data:
@@ -224,7 +220,6 @@ def majors() -> list[dict[str, str]]:
 
 @main_blueprint.get("/years")
 def years() -> list[int]:
-
     data = db.session.execute(
         db.select(ClassYears)
         .order_by(ClassYears.class_year)
