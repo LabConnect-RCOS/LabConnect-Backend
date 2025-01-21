@@ -97,7 +97,8 @@ def saml_callback():
         # Send the JWT to the frontend
         return redirect(f"{current_app.config['FRONTEND_URL']}/callback/?code={code}")
 
-    return {"errors": errors}, 500
+    error_reason = auth.get_last_error_reason()
+    return {"errors": errors, "error_reason": error_reason}, 500
 
 
 @main_blueprint.post("/register")
