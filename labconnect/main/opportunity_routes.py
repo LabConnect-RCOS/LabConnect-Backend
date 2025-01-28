@@ -15,6 +15,7 @@ from labconnect.models import (
     Courses,
     Participates,
     RecommendsMajors,
+    UserSavedOpportunities,
 )
 
 from . import main_blueprint
@@ -935,3 +936,47 @@ def deleteOpportunity(opportunity_id):
     db.session.commit()
 
     return {"data": "Opportunity Deleted"}
+
+# User Save opportunities
+# user_saved_opportunities 
+# from user -id = user_id
+# from opportunidies -id = opportunity_id
+# Save and delete opportunities
+
+# Try 1
+@main_blueprint.get("/saveOpportunity/<string:query>")
+def getOpportunity(opp_id: int):
+    # query database for opportunity
+    query = db.session.execute(
+        db.select(
+            Opportunities,
+            func.array_agg(UserSavedOpportunities.id).label("saved_opportunity"),
+        )
+        .join(
+            UserSavedOpportunities,
+            Opportunities.id == UserSavedOpportunities.opportunity_id,
+        )
+        .where(Opportunities.id == opp_id)
+        .group_by(Opportunities.id)
+    )
+    data = query.all()
+    print(data)
+    # check if opportunity exists
+    if not data or len(data) == 0:
+        abort(404)
+    data = data[0]
+    oppData = packageIndividualOpportunity(data[0])
+    oppData["User_saved_opportunities"] = data[1]
+    # return data in the below format if opportunity is found
+    return {"data": oppData}
+
+@main_blueprint.get("/saveOpportunity/something")
+# Table opp_id and user_id and have them all saved slay
+# Table name --> user_saved_opportunities
+# from user -id = user_id
+user_id = User.id
+# from opportunidies -id = opportunity_id
+opportunity_id = Opportunities.id
+# Add entry to table
+
+@main_blueprint.get("/deleteOpportunity/<string:query>")
