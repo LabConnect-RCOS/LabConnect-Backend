@@ -40,7 +40,7 @@ def upgrade():
         "opportunities",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("name", sa.String(length=64), nullable=True),
-        sa.Column("description", sa.String(length=2000), nullable=True),
+        sa.Column("description", sa.String(length=4096), nullable=True),
         sa.Column("recommended_experience", sa.String(length=500), nullable=True),
         sa.Column("pay", sa.Float(), nullable=True),
         sa.Column("one_credit", sa.Boolean(), nullable=True),
@@ -91,7 +91,7 @@ def upgrade():
     op.create_table(
         "rpi_schools",
         sa.Column("name", sa.String(length=64), nullable=False),
-        sa.Column("description", sa.String(length=2000), nullable=True),
+        sa.Column("description", sa.String(length=4096), nullable=True),
         sa.PrimaryKeyConstraint("name"),
     )
     op.create_table(
@@ -129,7 +129,7 @@ def upgrade():
     op.create_table(
         "rpi_departments",
         sa.Column("name", sa.String(length=64), nullable=False),
-        sa.Column("description", sa.String(length=2000), nullable=True),
+        sa.Column("description", sa.String(length=4096), nullable=True),
         sa.Column("school_id", sa.String(length=64), nullable=True),
         sa.ForeignKeyConstraint(
             ["school_id"],

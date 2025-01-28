@@ -214,7 +214,6 @@ def getOpportunity(opp_id: int):
     )
 
     data = query.all()
-    print(data)
 
     # check if opportunity exists
     if not data or len(data) == 0:
