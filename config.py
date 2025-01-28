@@ -17,7 +17,7 @@ class Config:
     PREFERRED_URL_SCHEME = "https"
 
     SAML_CONFIG = os.path.join(basedir, "config/saml/")
-    FRONTEND_URL = os.environ.get("FRONTEND_URL", "https://labconnect.cs.rpi.edu")
+    FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
 
     SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
     SENTRY_TRACES_SAMPLE_RATE = float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", 1.0))
