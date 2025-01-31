@@ -390,4 +390,3 @@ class RecommendsClassYears(db.Model):
     )
     year = db.relationship("ClassYears", back_populates="opportunities")
 
-db.create_all()
