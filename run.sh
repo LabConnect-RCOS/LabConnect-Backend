@@ -1,8 +1,6 @@
 #! /bin/sh
 set -e  # Fail on any error
 
-python db_init.py start || exit 1
-
 # Migrate DB
 flask db upgrade
 
