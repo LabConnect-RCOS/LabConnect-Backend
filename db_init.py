@@ -37,6 +37,9 @@ if len(sys.argv) < 2:
 
 if sys.argv[1] == "start":
     with app.app_context():
+        if db.inspect(db.engine).get_table_names():
+            print("Tables already exist.")
+            sys.exit()
         db.create_all()
 
 elif sys.argv[1] == "clear":
