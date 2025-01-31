@@ -35,7 +35,11 @@ app = create_app()
 if len(sys.argv) < 2:
     sys.exit("No argument or exsisting argument found")
 
-if sys.argv[1] == "clear":
+if sys.argv[1] == "start":
+    with app.app_context():
+        db.create_all()
+
+elif sys.argv[1] == "clear":
     with app.app_context():
         db.drop_all()
 
