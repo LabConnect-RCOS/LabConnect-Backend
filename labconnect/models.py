@@ -389,3 +389,5 @@ class RecommendsClassYears(db.Model):
         "Opportunities", back_populates="recommends_class_years"
     )
     year = db.relationship("ClassYears", back_populates="opportunities")
+
+db.create_all()
