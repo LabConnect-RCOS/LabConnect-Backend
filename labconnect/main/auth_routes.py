@@ -83,16 +83,16 @@ def saml_callback():
     if not errors:
         registered = True
         user_info = auth.get_attributes()
-        # user_id = auth.get_nameid()
+        user_id = next(iter(user_info.values()))[0] + "@rpi.edu"
 
-        data = db.session.execute(db.select(User).where(User.email == "email")).scalar()
+        data = db.session.execute(db.select(User).where(User.email == user_id)).scalar()
 
         # User doesn't exist, create a new user
         if data is None:
             registered = False
         # Generate JWT
         # token = create_access_token(identity=[user_id, datetime.now()])
-        code = generate_temporary_code(user_info["email"][0], registered)
+        code = generate_temporary_code(user_id, registered)
 
         # Send the JWT to the frontend
         return redirect(f"{current_app.config['FRONTEND_URL']}/callback/?code={code}")
