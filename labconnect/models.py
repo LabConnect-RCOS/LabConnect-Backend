@@ -1,3 +1,4 @@
+from atexit import register
 from sqlalchemy import Enum, Index, event, func
 from sqlalchemy.dialects.postgresql import TSVECTOR
 
@@ -390,3 +391,11 @@ class RecommendsClassYears(db.Model):
     )
     year = db.relationship("ClassYears", back_populates="opportunities")
 
+
+class Codes(db.Model):
+    __tablename__ = "codes"
+
+    code = db.Column(db.String(64), primary_key=True)
+    email = db.Column(db.String(64), nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    registered = db.Column(db.Boolean, nullable=False)
