@@ -55,6 +55,7 @@ def initialize_extensions(app) -> None:
     # Since the application instance is now created, pass it to each Flask
     # extension instance to bind it to the Flask application instance (app)
     db.init_app(app)
+    db.create_all()
     migrate.init_app(app, db)
     jwt.init_app(app)
     app.json = OrJSONProvider(app)
