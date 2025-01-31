@@ -28,6 +28,7 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
+    Codes
 )
 
 app = create_app()
@@ -39,6 +40,9 @@ if sys.argv[1] == "start":
     with app.app_context():
         if db.inspect(db.engine).get_table_names():
             print("Tables already exist.")
+            # clear the codes table
+            db.session.delete(Codes)
+            db.session.commit()
             sys.exit()
         db.create_all()
 
