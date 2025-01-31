@@ -28,6 +28,7 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
+    UserSavedOpportunities,
 )
 
 app = create_app()

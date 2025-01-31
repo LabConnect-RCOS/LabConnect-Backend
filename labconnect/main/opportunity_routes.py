@@ -761,7 +761,8 @@ def editOpportunity_get(opportunity_id):
         if credit
     ]
 
-    years = [str(year.class_year) for year in years_data] if years_data else []
+    years = [str(year.class_year) for year in years_data] 
+    #if years_data else []
 
     # Format opportunity data as JSON
     opportunity_data = {
@@ -890,9 +891,19 @@ def editOpportunity(opportunity_id):
 
     db.session.commit()
 
+    # data is causing errors
     # Add the updated list of managers
-    if "lab_manager_ids" in data:
-        for lab_manager_id in data["lab_manager_ids"]:
+    # if "lab_manager_ids" in data:
+    #     for lab_manager_id in data["lab_manager_ids"]:
+    #         new_lead = Leads(
+    #             lab_manager_id=lab_manager_id, opportunity_id=opportunity_id
+    #         )
+    #         db.session.add(new_lead)
+    
+    # Atttempt to fix by replacing data with request_data
+    # Add the updated list of managers
+    if "lab_manager_ids" in request_data:
+        for lab_manager_id in request_data["lab_manager_ids"]:
             new_lead = Leads(
                 lab_manager_id=lab_manager_id, opportunity_id=opportunity_id
             )
@@ -937,46 +948,130 @@ def deleteOpportunity(opportunity_id):
 
     return {"data": "Opportunity Deleted"}
 
-# User Save opportunities
-# user_saved_opportunities 
+# User Save opportunities --> user_saved_opportunities 
 # from user -id = user_id
 # from opportunidies -id = opportunity_id
 # Save and delete opportunities
 
 # Try 1
-@main_blueprint.get("/saveOpportunity/<string:query>")
-def getOpportunity(opp_id: int):
-    # query database for opportunity
+# @main_blueprint.get("/saveOpportunity/<string:query>")
+# def getOpportunity(opp_id: int):
+#     # query database for opportunity
+#     query = db.session.execute(
+#         db.select(
+#             Opportunities,
+#             func.array_agg(UserSavedOpportunities.id).label("saved_opportunity"),
+#         )
+#         .join(
+#             UserSavedOpportunities,
+#             Opportunities.id == UserSavedOpportunities.opportunity_id,
+#         )
+#         .where(Opportunities.id == opp_id)
+#         .group_by(Opportunities.id)
+#     )
+#     data = query.all()
+#     print(data)
+#     # check if opportunity exists
+#     if not data or len(data) == 0:
+#         abort(404)
+#     data = data[0]
+#     oppData = packageIndividualOpportunity(data[0])
+#     oppData["User_saved_opportunities"] = data[1]
+#     # return data in the below format if opportunity is found
+#     return {"data": oppData}
+
+# @main_blueprint.get("/saveOpportunity/something")
+# # Table opp_id and user_id and have them all saved slay
+# # Table name --> user_saved_opportunities
+# # from user -id = user_id
+# user_id = User.id
+# # from opportunidies -id = opportunity_id
+# opportunity_id = Opportunities.id
+# # Add entry to table
+
+# @main_blueprint.get("/deleteOpportunity/<string:query>")
+
+# NEW try 1/31
+@main_blueprint.get("/saveOpportunity/<int:opp_id>")
+def getOpportunity(opp_id):
     query = db.session.execute(
         db.select(
             Opportunities,
-            func.array_agg(UserSavedOpportunities.id).label("saved_opportunity"),
+            func.array_agg(UserSavedOpportunities.user_id).label("saved_by_user"),
         )
         .join(
             UserSavedOpportunities,
             Opportunities.id == UserSavedOpportunities.opportunity_id,
+            isouter=True,
         )
         .where(Opportunities.id == opp_id)
         .group_by(Opportunities.id)
+        
     )
-    data = query.all()
-    print(data)
-    # check if opportunity exists
-    if not data or len(data) == 0:
+
+    data = query.first()
+    
+    if not data:
         abort(404)
-    data = data[0]
+
     oppData = packageIndividualOpportunity(data[0])
-    oppData["User_saved_opportunities"] = data[1]
-    # return data in the below format if opportunity is found
+    oppData["saved_by_user"] = data[1] 
+    #if data[1] else []
+
     return {"data": oppData}
 
-@main_blueprint.get("/saveOpportunity/something")
-# Table opp_id and user_id and have them all saved slay
-# Table name --> user_saved_opportunities
-# from user -id = user_id
-user_id = User.id
-# from opportunidies -id = opportunity_id
-opportunity_id = Opportunities.id
-# Add entry to table
+@main_blueprint.post("/saveOpportunity")
+def saveOpportunity():
+    data = request.get_json()
+    
+    # Get data
+    user_id = data.get("user_id")
+    opportunity_id = data.get("opportunity_id")
 
-@main_blueprint.get("/deleteOpportunity/<string:query>")
+    if not user_id or not opportunity_id:
+        return {"error": "user_id and opportunity_id are required"}, 400
+
+    #Find existing
+    existing_entry = db.session.execute(
+        db.select(UserSavedOpportunities).where(
+            (UserSavedOpportunities.user_id == user_id) &
+            (UserSavedOpportunities.opportunity_id == opportunity_id)
+        )
+    ).scalar_one_or_none()
+    #Remeber to look at scalar_one_or_none()
+
+    if existing_entry:
+        return {"message": "Opportunity already saved"}, 200
+
+    #Add entry
+    new_entry = UserSavedOpportunities(user_id=user_id, opportunity_id=opportunity_id)
+    db.session.add(new_entry)
+    db.session.commit()
+
+    return {"message": "Opportunity saved"}, 201
+
+@main_blueprint.delete("/deleteOpportunity")
+def deleteOpportunitu():
+    data = request.get_json()
+
+    user_id = data.get("user_id")
+    opportunity_id = data.get("opportunity_id")
+
+    if not user_id or not opportunity_id:
+        return {"error": "user_id and opportunity_id are required"}, 400
+
+    get_info = db.session.execute(
+        db.select(UserSavedOpportunities).where(
+            (UserSavedOpportunities.user_id == user_id) &
+            (UserSavedOpportunities.opportunity_id == opportunity_id)
+        )
+    ).scalar_one_or_none()
+
+    if not get_info:
+        return {"error": "Saved opportunity not found"}, 404
+
+    db.session.delete(get_info)
+    db.session.commit()
+
+    return {"message": "Opportunity deleted"}, 200
+
