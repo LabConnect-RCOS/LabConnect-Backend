@@ -41,7 +41,7 @@ if sys.argv[1] == "start":
         if db.inspect(db.engine).get_table_names():
             print("Tables already exist.")
             # clear the codes table
-            db.session.delete(Codes)
+            db.session.query(Codes).delete()
             db.session.commit()
             sys.exit()
         db.create_all()
