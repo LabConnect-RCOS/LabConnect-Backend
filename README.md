@@ -4,7 +4,6 @@
 [![Forks][forks-shield]][forks-url]
 [![Issues][issues-shield]][issues-url]
 [![Pull Requst][pr-shield]][pr-url]
-[![Apache 2.0 License][license-shield]][license-url]
 [![Activity][activity-shield]][activity-url]
 [![Stargazers][stars-shield]][stars-url]
 
@@ -24,9 +23,6 @@
         </li>
         <li>
             <a href="#installation"> Installation</a>
-        </li>
-        <li>
-            <a href="#license"> License</a>
         </li>
     </ol>
 </details>
@@ -170,8 +166,6 @@ Distributed under the Apache License. See [LICENSE](https://github.com/RafaelCen
 [issues-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/issues
 [pr-shield]: https://img.shields.io/github/issues-pr/LabConnect-RCOS/LabConnect-Backend.svg?style=for-the-badge
 [pr-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/pulls
-[license-shield]: https://img.shields.io/github/license/LabConnect-RCOS/LabConnect-Backendt.svg?style=for-the-badge
-[license-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/blob/main/LICENSE
 
 [activity-shield]: https://img.shields.io/github/last-commit/LabConnect-RCOS/LabConnect-Backend?style=for-the-badge
 [activity-url]: https://github.com/LabConnect-RCOS/LabConnect-Backend/activity
