@@ -6,7 +6,7 @@ coverage==7.6.1
 Flask==3.1.0
 Flask-Cors==5.0.0
 Flask-JWT-Extended==4.7.1
-Flask-Migrate==4.0.7
+Flask-Migrate==4.1.0
 Flask-SQLAlchemy==3.1.1
 gunicorn==23.0.0
 iniconfig==2.0.0
