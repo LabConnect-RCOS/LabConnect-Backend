@@ -171,7 +171,6 @@ def packageIndividualOpportunity(opportunityInfo):
 
 
 def packageOpportunityCard(opportunity):
-
     # get professor and department by getting Leads and LabManager
     query = db.session.execute(
         db.select(Leads, LabManager, User.first_name, User.last_name)
@@ -232,7 +231,7 @@ def getOpportunities():
     # Handle GET requests for fetching default active opportunities
     data = db.session.execute(
         db.select(Opportunities)
-        .where(Opportunities.active == True)
+        .where(Opportunities.active)
         .limit(20)
         .order_by(Opportunities.last_updated.desc())
         .distinct()
@@ -263,7 +262,7 @@ def filterOpportunities():
         where_conditions = []
         query = (
             db.select(Opportunities)
-            .where(Opportunities.active == True)
+            .where(Opportunities.active)
             .limit(20)
             .order_by(Opportunities.last_updated)
             .distinct()
@@ -462,9 +461,7 @@ def filterOpportunities():
 @main_blueprint.get("/getOpportunityCards")
 def getOpportunityCards():
     # query database for opportunity
-    query = db.session.execute(
-        db.select(Opportunities).where(Opportunities.active == True)
-    )
+    query = db.session.execute(db.select(Opportunities).where(Opportunities.active))
 
     data = query.fetchall()
     # return data in the below format if opportunity is found
@@ -497,7 +494,6 @@ def getOpportunityCards():
 
 @main_blueprint.get("/staff/opportunities/<string:rcs_id>")
 def getLabManagerOpportunityCards(rcs_id: str) -> list[dict[str, str]]:
-
     query = (
         db.select(
             Opportunities.id,
@@ -534,7 +530,6 @@ def getLabManagerOpportunityCards(rcs_id: str) -> list[dict[str, str]]:
 
 @main_blueprint.get("/profile/opportunities/<string:rcs_id>")
 def getProfileOpportunities(rcs_id: str) -> list[dict[str, str]]:
-
     query = (
         db.select(
             Opportunities.id,
@@ -661,7 +656,7 @@ def createOpportunity():
 
     try:
         pay = int(request_data["hourlyPay"])
-    except:
+    except ValueError:
         pay = None
 
     one = True if "1" in request_data["credits"] else False
@@ -769,7 +764,9 @@ def editOpportunity_get(opportunity_id):
         "type": (
             "Any"
             if len(credits) > 0 and opportunity.pay and opportunity.pay > 0
-            else "For Pay" if opportunity.pay and opportunity.pay > 0 else "For Credit"
+            else "For Pay"
+            if opportunity.pay and opportunity.pay > 0
+            else "For Credit"
         ),
         "hourlyPay": str(opportunity.pay),
         "credits": credits,
@@ -791,7 +788,6 @@ def editOpportunity_get(opportunity_id):
 @main_blueprint.put("/editOpportunity/<int:opportunity_id>")
 @jwt_required()
 def editOpportunity(opportunity_id):
-
     user_id = get_jwt_identity()
     if not request.data or not user_id:
         abort(400)
@@ -827,7 +823,7 @@ def editOpportunity(opportunity_id):
 
     try:
         pay = int(request_data["hourlyPay"])
-    except:
+    except ValueError:
         pay = None
 
     one = True if "1" in request_data["credits"] else False
@@ -889,14 +885,14 @@ def editOpportunity(opportunity_id):
     db.session.commit()
 
     # Add the updated list of managers
-    if "lab_manager_ids" in data:
-        for lab_manager_id in data["lab_manager_ids"]:
-            new_lead = Leads(
-                lab_manager_id=lab_manager_id, opportunity_id=opportunity_id
-            )
-            db.session.add(new_lead)
+    # if "lab_manager_ids" in data:
+    #     for lab_manager_id in data["lab_manager_ids"]:
+    #         new_lead = Leads(
+    #             lab_manager_id=lab_manager_id, opportunity_id=opportunity_id
+    #         )
+    #         db.session.add(new_lead)
 
-    db.session.commit()  # Commit all changes
+    # db.session.commit()  # Commit all changes
 
     return {"data": "Opportunity Updated"}, 200
 

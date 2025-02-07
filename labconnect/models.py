@@ -1,4 +1,3 @@
-from atexit import register
 from sqlalchemy import Enum, Index, event, func
 from sqlalchemy.dialects.postgresql import TSVECTOR
 
