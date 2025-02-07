@@ -953,33 +953,6 @@ def deleteOpportunity(opportunity_id):
 # from opportunidies -id = opportunity_id
 # Save and delete opportunities
 
-# Try 1
-# @main_blueprint.get("/saveOpportunity/<string:query>")
-# def getOpportunity(opp_id: int):
-#     # query database for opportunity
-#     query = db.session.execute(
-#         db.select(
-#             Opportunities,
-#             func.array_agg(UserSavedOpportunities.id).label("saved_opportunity"),
-#         )
-#         .join(
-#             UserSavedOpportunities,
-#             Opportunities.id == UserSavedOpportunities.opportunity_id,
-#         )
-#         .where(Opportunities.id == opp_id)
-#         .group_by(Opportunities.id)
-#     )
-#     data = query.all()
-#     print(data)
-#     # check if opportunity exists
-#     if not data or len(data) == 0:
-#         abort(404)
-#     data = data[0]
-#     oppData = packageIndividualOpportunity(data[0])
-#     oppData["User_saved_opportunities"] = data[1]
-#     # return data in the below format if opportunity is found
-#     return {"data": oppData}
-
 # @main_blueprint.get("/saveOpportunity/something")
 # # Table opp_id and user_id and have them all saved slay
 # # Table name --> user_saved_opportunities
@@ -993,7 +966,7 @@ def deleteOpportunity(opportunity_id):
 
 # NEW try 1/31
 @main_blueprint.get("/saveOpportunity/<int:opp_id>")
-def getOpportunity(opp_id):
+def saveOpportunity2(opp_id):
     query = db.session.execute(
         db.select(
             Opportunities,
@@ -1031,8 +1004,8 @@ def saveOpportunity():
     if not user_id or not opportunity_id:
         return {"error": "user_id and opportunity_id are required"}, 400
 
-    #Find existing
-    existing_entry = db.session.execute(
+    #Find existing opportunity 
+    existing_opp = db.session.execute(
         db.select(UserSavedOpportunities).where(
             (UserSavedOpportunities.user_id == user_id) &
             (UserSavedOpportunities.opportunity_id == opportunity_id)
@@ -1040,12 +1013,12 @@ def saveOpportunity():
     ).scalar_one_or_none()
     #Remeber to look at scalar_one_or_none()
 
-    if existing_entry:
-        return {"message": "Opportunity already saved"}, 200
+    if existing_opp:
+        return {"message": "Opportunity previously saved"}, 200
 
     #Add entry
-    new_entry = UserSavedOpportunities(user_id=user_id, opportunity_id=opportunity_id)
-    db.session.add(new_entry)
+    new_opp = UserSavedOpportunities(user_id = user_id, opportunity_id=opportunity_id)
+    db.session.add(new_opp)
     db.session.commit()
 
     return {"message": "Opportunity saved"}, 201
@@ -1058,7 +1031,7 @@ def deleteOpportunitu():
     opportunity_id = data.get("opportunity_id")
 
     if not user_id or not opportunity_id:
-        return {"error": "user_id and opportunity_id are required"}, 400
+        return {"error": "user_id and opportunity_id required"}, 400
 
     get_info = db.session.execute(
         db.select(UserSavedOpportunities).where(

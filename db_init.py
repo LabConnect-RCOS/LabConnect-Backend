@@ -416,6 +416,16 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
+        # Want to add saved opportunities table
+        saved_opp_rows = (("cenzar", 1), ("cenzar", 1), ("test", 2), ("test", 2))
+        for r in saved_opp_rows:
+            row = UserSavedOpportunities()
+            row.user_id = r[0]
+            row.opportunity_id = r[1]
+
+            db.session.add(row)
+            db.session.commit()
+
         tables = [
             ClassYears,
             Courses,
@@ -432,6 +442,7 @@ elif sys.argv[1] == "create":
             UserCourses,
             UserDepartments,
             UserMajors,
+            UserSavedOpportunities
         ]
 
         for table in tables:
