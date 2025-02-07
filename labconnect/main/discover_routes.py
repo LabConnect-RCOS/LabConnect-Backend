@@ -1,5 +1,3 @@
-from flask_jwt_extended import get_jwt_identity, jwt_required
-
 from labconnect import db
 from labconnect.models import (
     ClassYears,
@@ -35,7 +33,7 @@ def discover_data(jwt_identity, limit):
                 Opportunities.location,
                 LabManager.id.label("lab_manager_id"),
             )
-            .where(Opportunities.active == True)
+            .where(Opportunities.active)
             .join(
                 RecommendsClassYears,
                 Opportunities.id == RecommendsClassYears.class_year,
@@ -61,7 +59,7 @@ def discover_data(jwt_identity, limit):
     if jwt_identity is None or data is None:
         data = db.session.execute(
             db.select(Opportunities)
-            .where(Opportunities.active == True)
+            .where(Opportunities.active)
             .limit(limit)
             .order_by(Opportunities.last_updated.desc())
         ).scalars()
