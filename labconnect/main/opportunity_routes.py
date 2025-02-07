@@ -1024,11 +1024,35 @@ def saveOpportunity():
     return {"message": "Opportunity saved"}, 201
 
 @main_blueprint.delete("/deleteOpportunity")
-def deleteOpportunitu():
+def deleteOpportunituy():
     data = request.get_json()
 
     user_id = data.get("user_id")
     opportunity_id = data.get("opportunity_id")
+
+    if not user_id or not opportunity_id:
+        return {"error": "user_id and opportunity_id required"}, 400
+
+    get_info = db.session.execute(
+        db.select(UserSavedOpportunities).where(
+            (UserSavedOpportunities.user_id == user_id) &
+            (UserSavedOpportunities.opportunity_id == opportunity_id)
+        )
+    ).scalar_one_or_none()
+
+    if not get_info:
+        return {"error": "Saved opportunity not found"}, 404
+
+    db.session.delete(get_info)
+    db.session.commit()
+
+    return {"message": "Opportunity deleted"}, 200
+
+@main_blueprint.delete("/deleteOpportunity2")
+def deleteOpportunituy2():
+    data = request.get_json()
+    opportunity_id = data.get("opportunity_id")
+    user_id = data.get("user_id")
 
     if not user_id or not opportunity_id:
         return {"error": "user_id and opportunity_id required"}, 400
