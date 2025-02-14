@@ -2,7 +2,12 @@ from sqlalchemy import Enum, Index, event, func
 from sqlalchemy.dialects.postgresql import TSVECTOR
 
 from labconnect import db
-from labconnect.helpers import CustomSerializerMixin, LocationEnum, SemesterEnum
+from labconnect.helpers import (
+    CustomSerializerMixin,
+    LocationEnum,
+    SemesterEnum,
+    LabManagerTypeEnum,
+)
 
 # DD - Entities
 
@@ -28,6 +33,7 @@ class User(db.Model, CustomSerializerMixin):
     first_name = db.Column(db.String(50), nullable=False, unique=False)
     last_name = db.Column(db.String(200), nullable=False, unique=False)
     preferred_name = db.Column(db.String(50), nullable=True, unique=False)
+    pronouns = db.Column(db.String(25), nullable=True, unique=False)
     phone_number = db.Column(db.String(15), nullable=True, unique=False)
     website = db.Column(db.String(512), nullable=True, unique=False)
     description = db.Column(db.String(4096), nullable=True, unique=False)
@@ -84,6 +90,7 @@ class LabManager(db.Model, CustomSerializerMixin):
     serialize_rules = ()
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    manager_type = db.Column(Enum(LabManagerTypeEnum), nullable=True, unique=False)
     department_id = db.Column(db.String(4), db.ForeignKey("rpi_departments.id"))
 
     user = db.relationship("User", back_populates="lab_manager")
