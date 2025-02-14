@@ -389,40 +389,15 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        #participates_rows = (("cenzar", 1),("cenzar", 2),("test", 3),("test", 4),)
+        participates_rows = (("cenzar", 1),("cenzar", 2),("test", 3),("test", 4),)
 
-        #for r in participates_rows:
-            #row = Participates()
-            #row.user_id = r[0]
-            #row.opportunity_id = r[1]
-
-            #db.session.add(row)
-            #db.session.commit()
-        
-        overlap_rows = (("cenzar", 1),("cenzar", 2),("test", 3),("test", 4),)
-
-        for r in overlap_rows:
+        for r in participates_rows:
             row = Participates()
-            #row = UserSavedOpportunities()
             row.user_id = r[0]
             row.opportunity_id = r[1]
 
             db.session.add(row)
             db.session.commit()
-
-        # Want to add saved opportunities table
-        #saved_opp_rows = (("cenzar", 1, 1), ("cenzar", 1, 1), ("test", 2, 2), ("test", 2, 2))
-        
-        saved_opp_rows = (("cenzar", 1), ("cenzar", 1), ("test", 2), ("test", 2))
-        for r in saved_opp_rows:
-            #row = UserSavedOpportunities()
-            row = Participates()
-            row.user_id = r[0]
-            row.opportunity_id = r[1]
-            #row.opportunity_id2 = r[2]
-
-            #db.session.add(row)
-            #db.session.commit()
 
         tables = [
             ClassYears,

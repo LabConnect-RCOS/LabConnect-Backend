@@ -948,127 +948,58 @@ def deleteOpportunity(opportunity_id):
 
     return {"data": "Opportunity Deleted"}
 
-# User Save opportunities --> user_saved_opportunities 
-# from user -id = user_id
-# from opportunidies -id = opportunity_id
-# Save and delete opportunities
 
-# @main_blueprint.get("/saveOpportunity/something")
-# # Table opp_id and user_id and have them all saved slay
-# # Table name --> user_saved_opportunities
-# # from user -id = user_id
-# user_id = User.id
-# # from opportunidies -id = opportunity_id
-# opportunity_id = Opportunities.id
-# # Add entry to table
 
-# @main_blueprint.get("/deleteOpportunity/<string:query>")
+# Store opportunities saved by a user
+# ***Specificaly storing a iindividual users saved opportunities***
 
-# NEW try 1/31
-@main_blueprint.get("/saveOpportunity/<int:opp_id>")
-def saveOpportunity2(opp_id):
-    query = db.session.execute(
-        db.select(
-            Opportunities,
-            func.array_agg(UserSavedOpportunities.user_id).label("saved_by_user"),
-        )
-        .join(
-            UserSavedOpportunities,
-            Opportunities.id == UserSavedOpportunities.opportunity_id,
-            isouter=True,
-        )
-        .where(Opportunities.id == opp_id)
-        .group_by(Opportunities.id)
-        
-    )
-
-    data = query.first()
-    
-    if not data:
-        abort(404)
-
-    oppData = packageIndividualOpportunity(data[0])
-    oppData["saved_by_user"] = data[1] 
-    #if data[1] else []
-
-    return {"data": oppData}
-
-@main_blueprint.post("/saveOpportunity")
-def saveOpportunity():
+main_blueprint.post("/saveUserOpportunity")
+#def saveUserOpportunity():
+def saveUserOpportunity(a_opp_id):
     data = request.get_json()
+    # opportunity = db.session.get(Opportunities, opportunity_id)
+    # user_id = get_jwt_identity()
     
     # Get data
-    user_id = data.get("user_id")
-    opportunity_id = data.get("opportunity_id")
+    save_user_opp_user_id = data.get("user_id")
+    save_user_opp_opportunity_id = data.get("opportunity_id")
+    #Opportunities.id == UserSavedOpportunities.opportunity_id,
+    save_user_opp_user_id = Opportunities.id
+    save_user_opp_opportunity_id = User.id
 
-    if not user_id or not opportunity_id:
-        return {"error": "user_id and opportunity_id are required"}, 400
-
-    #Find existing opportunity 
-    existing_opp = db.session.execute(
+    # Find existing opp first 
+    find_opp = db.sesion.execute(
         db.select(UserSavedOpportunities).where(
-            (UserSavedOpportunities.user_id == user_id) &
-            (UserSavedOpportunities.opportunity_id == opportunity_id)
+            (UserSavedOpportunities.user_id == save_user_opp_user_id) &
+            (UserSavedOpportunities.opportunity_id == save_user_opp_opportunity_id)
         )
     ).scalar_one_or_none()
-    #Remeber to look at scalar_one_or_none()
 
-    if existing_opp:
-        return {"message": "Opportunity previously saved"}, 200
+    if find_opp:
+        return {"message": "Opportunity already saved"}, 200
 
-    #Add entry
-    new_opp = UserSavedOpportunities(user_id = user_id, opportunity_id=opportunity_id)
+    #Add opportunity to table
+    new_opp = UserSavedOpportunities(user_id = save_user_opp_user_id, opportunity_id = save_user_opp_opportunity_id)
     db.session.add(new_opp)
     db.session.commit()
 
-    return {"message": "Opportunity saved"}, 201
-
-@main_blueprint.delete("/deleteOpportunity")
-def deleteOpportunituy():
+# Delete opportunities saved by a user
+@main_blueprint.delete("/deleteUserOpportunity")
+def deleteUserOpportunity():
     data = request.get_json()
 
-    user_id = data.get("user_id")
-    opportunity_id = data.get("opportunity_id")
+    save_user_opp_user_id = data.get("user_id")
+    save_user_opp_opportunity_id = data.get("opportunity_id")
 
-    if not user_id or not opportunity_id:
-        return {"error": "user_id and opportunity_id required"}, 400
-
-    get_info = db.session.execute(
+    # Find Opportunity to delete
+    get_opp_info = db.session.execute(
         db.select(UserSavedOpportunities).where(
-            (UserSavedOpportunities.user_id == user_id) &
-            (UserSavedOpportunities.opportunity_id == opportunity_id)
+            (UserSavedOpportunities.user_id == save_user_opp_user_id) &
+            (UserSavedOpportunities.opportunity_id == save_user_opp_opportunity_id)
         )
     ).scalar_one_or_none()
 
-    if not get_info:
-        return {"error": "Saved opportunity not found"}, 404
-
-    db.session.delete(get_info)
+    db.session.delete(get_opp_info)
     db.session.commit()
 
     return {"message": "Opportunity deleted"}, 200
-
-@main_blueprint.delete("/deleteOpportunity2")
-def deleteOpportunituy2():
-    data = request.get_json()
-    opportunity_id = data.get("opportunity_id")
-    user_id = data.get("user_id")
-
-    if not user_id or not opportunity_id:
-        return {"error": "user_id and opportunity_id required"}, 400
-
-    get_info = db.session.execute(
-        db.select(UserSavedOpportunities).where(
-            (UserSavedOpportunities.user_id == user_id) &
-            (UserSavedOpportunities.opportunity_id == opportunity_id)
-        )
-    ).scalar_one_or_none()
-
-    if not get_info:
-        return {"error": "Saved opportunity not found"}, 404
-
-    db.session.delete(get_info)
-    db.session.commit()
-
-    return {"message": "Opportunity deleted"}, 200
-
