@@ -104,6 +104,7 @@ def profile():
             User.website,
             User.lab_manager_id,
             User.id,
+            User.pronouns,
         )
         .where(User.email == user_id[0])
         .join(UserDepartments, UserDepartments.user_id == User.id)
@@ -123,6 +124,7 @@ def profile():
         "department": data[4],
         "description": data[5],
         "website": data[6],
+        "pronouns": data[9],
     }
 
     return result
@@ -140,6 +142,7 @@ def getProfessorProfile(id: str):
             RPIDepartments.name,
             User.description,
             User.website,
+            User.pronouns,
         )
         .where(User.id == id)
         .join(LabManager, User.lab_manager_id == LabManager.id)
@@ -155,6 +158,7 @@ def getProfessorProfile(id: str):
         "department": data[4],
         "description": data[5],
         "website": data[6],
+        "pronouns": data[7],
     }
 
     return result
