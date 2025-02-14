@@ -1,8 +1,16 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
 
-from flask import current_app, make_response, redirect, request, abort
-from flask_jwt_extended import create_access_token
+from flask import current_app, make_response, redirect, request, abort, Response
+from flask_jwt_extended import (
+    get_jwt_identity,
+    create_access_token,
+    create_refresh_token,
+    set_access_cookies,
+    set_refresh_cookies,
+    unset_jwt_cookies,
+    jwt_required,
+)
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 
 from labconnect import db
@@ -57,7 +65,6 @@ def validate_code_and_get_user_email(code: str) -> tuple[str | None, bool | None
 
 @main_blueprint.get("/login")
 def saml_login():
-
     # In testing skip RPI login purely for local development
     if current_app.config["TESTING"] and (
         current_app.config["FRONTEND_URL"] == "http://localhost:3000"
@@ -105,7 +112,6 @@ def saml_callback():
 
 @main_blueprint.post("/register")
 def registerUser():
-
     # Gather the new user's information
     json_data = request.get_json()
     if not json_data:
@@ -166,24 +172,29 @@ def registerUser():
 
 
 @main_blueprint.post("/token")
-def tokenRoute():
+def tokenRoute() -> Response:
     if request.json is None or request.json.get("code", None) is None:
-        return {"msg": "Missing JSON body in request"}, 400
+        return make_response({"msg": "Missing JSON body in request"}, 400)
+
     # Validate the temporary code
     code = request.json["code"]
     if code is None:
-        return {"msg": "Missing code in request"}, 400
+        return make_response({"msg": "Missing code in request"}, 400)
     user_email, registered = validate_code_and_get_user_email(code)
 
     if user_email is None:
-        return {"msg": "Invalid code"}, 400
+        return make_response({"msg": "Invalid code"}, 400)
 
-    token = create_access_token(identity=[user_email, datetime.now()])
-    return {"token": token, "registered": registered}
+    access_token = create_access_token(identity=[user_email, datetime.now()])
+    refresh_token = create_refresh_token(identity=[user_email, datetime.now()])
+    resp = make_response({"registered": registered})
+    set_access_cookies(resp, access_token)
+    set_refresh_cookies(resp, refresh_token)
+    return resp
 
 
 @main_blueprint.get("/metadata/")
-def metadataRoute():
+def metadataRoute() -> Response:
     req = prepare_flask_request(request)
     auth = auth = OneLogin_Saml2_Auth(
         req, custom_base_path=current_app.config["SAML_CONFIG"]
@@ -200,7 +211,19 @@ def metadataRoute():
     return resp
 
 
+@main_blueprint.route("/token/refresh", methods=["GET"])
+@jwt_required(refresh=True)
+def refresh() -> Response:
+    # Refreshing expired Access token
+    user_id = get_jwt_identity()
+    access_token = create_access_token(identity=str(user_id))
+    resp = make_response({"msg": "refresh successful"})
+    set_access_cookies(resp, access_token)
+    return resp
+
+
 @main_blueprint.get("/logout")
-def logout():
-    # TODO: add token to blacklist
-    return {"msg": "logout successful"}
+def logout() -> Response:
+    resp = make_response({"msg": "logout successful"})
+    unset_jwt_cookies(resp)
+    return resp
