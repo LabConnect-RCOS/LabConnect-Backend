@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
 
-from flask import current_app, make_response, redirect, request, abort, Response
+from flask import current_app, make_response, redirect, request, abort
 from flask_jwt_extended import (
     get_jwt_identity,
     create_access_token,
@@ -12,6 +12,7 @@ from flask_jwt_extended import (
     jwt_required,
 )
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
+from werkzeug.wrappers.response import Response
 
 from labconnect import db
 from labconnect.helpers import prepare_flask_request
@@ -43,7 +44,7 @@ def generate_temporary_code(user_email: str, registered: bool) -> str:
     return code
 
 
-def validate_code_and_get_user_email(code: str) -> tuple[str | None, bool | None]:
+def validate_code_and_get_user_email(code: str) -> tuple[str, bool] | tuple[None, None]:
     code_data = db.session.execute(db.select(Codes).where(Codes.code == code)).scalar()
     if not code_data:
         return None, None
@@ -52,19 +53,20 @@ def validate_code_and_get_user_email(code: str) -> tuple[str | None, bool | None
     expire = code_data.expires_at
     registered = code_data.registered
 
-    if user_email and expire and expire > datetime.now():
-        # If found, delete the code to prevent reuse
-        db.session.delete(code_data)
-        return user_email, registered
-    elif expire:
-        # If the code has expired, delete it
-        db.session.delete(code_data)
+    if user_email and expire:
+        if expire > datetime.now():
+            # If found, delete the code to prevent reuse
+            db.session.delete(code_data)
+            return user_email, registered
+        else:
+            # If the code has expired, delete it
+            db.session.delete(code_data)
 
     return None, None
 
 
 @main_blueprint.get("/login")
-def saml_login():
+def saml_login() -> Response:
     # In testing skip RPI login purely for local development
     if current_app.config["TESTING"] and (
         current_app.config["FRONTEND_URL"] == "http://localhost:3000"
@@ -83,7 +85,7 @@ def saml_login():
 
 
 @main_blueprint.post("/callback")
-def saml_callback():
+def saml_callback() -> Response:
     # Process SAML response
     req = prepare_flask_request(request)
     auth = OneLogin_Saml2_Auth(req, custom_base_path=current_app.config["SAML_CONFIG"])
@@ -107,11 +109,33 @@ def saml_callback():
         return redirect(f"{current_app.config['FRONTEND_URL']}/callback/?code={code}")
 
     error_reason = auth.get_last_error_reason()
-    return {"errors": errors, "error_reason": error_reason}, 500
+    return make_response({"errors": errors, "error_reason": error_reason}, 500)
+
+
+@main_blueprint.post("/token")
+def tokenRoute() -> Response:
+    if request.json is None or request.json.get("code", None) is None:
+        return make_response({"msg": "Missing JSON body in request"}, 400)
+
+    # Validate the temporary code
+    code = request.json["code"]
+    if code is None:
+        return make_response({"msg": "Missing code in request"}, 400)
+
+    user_email, registered = validate_code_and_get_user_email(code)
+    if user_email is None:
+        return make_response({"msg": "Invalid code"}, 400)
+
+    access_token = create_access_token(identity=user_email)
+    refresh_token = create_refresh_token(identity=user_email)
+    resp = make_response({"registered": registered})
+    set_access_cookies(resp, access_token)
+    set_refresh_cookies(resp, refresh_token)
+    return resp
 
 
 @main_blueprint.post("/register")
-def registerUser():
+def registerUser() -> Response:
     # Gather the new user's information
     json_data = request.get_json()
     if not json_data:
@@ -168,29 +192,7 @@ def registerUser():
         db.session.add(management_permissions)
 
     db.session.commit()
-    return {"msg": "New user added"}
-
-
-@main_blueprint.post("/token")
-def tokenRoute() -> Response:
-    if request.json is None or request.json.get("code", None) is None:
-        return make_response({"msg": "Missing JSON body in request"}, 400)
-
-    # Validate the temporary code
-    code = request.json["code"]
-    if code is None:
-        return make_response({"msg": "Missing code in request"}, 400)
-    user_email, registered = validate_code_and_get_user_email(code)
-
-    if user_email is None:
-        return make_response({"msg": "Invalid code"}, 400)
-
-    access_token = create_access_token(identity=[user_email, datetime.now()])
-    refresh_token = create_refresh_token(identity=[user_email, datetime.now()])
-    resp = make_response({"registered": registered})
-    set_access_cookies(resp, access_token)
-    set_refresh_cookies(resp, refresh_token)
-    return resp
+    return make_response({"msg": "New user added"})
 
 
 @main_blueprint.get("/metadata/")
@@ -211,7 +213,13 @@ def metadataRoute() -> Response:
     return resp
 
 
-@main_blueprint.route("/token/refresh", methods=["GET"])
+@main_blueprint.get("/authcheck")
+@jwt_required()
+def authcheck() -> Response:
+    return make_response({"msg": "authenticated"})
+
+
+@main_blueprint.get("/token/refresh")
 @jwt_required(refresh=True)
 def refresh() -> Response:
     # Refreshing expired Access token
