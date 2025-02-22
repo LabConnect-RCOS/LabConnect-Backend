@@ -399,7 +399,7 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        tables = [
+        tables = [ 
             ClassYears,
             Courses,
             Leads,

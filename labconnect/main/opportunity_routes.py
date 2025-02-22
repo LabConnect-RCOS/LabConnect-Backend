@@ -953,22 +953,22 @@ def deleteOpportunity(opportunity_id):
 # Store opportunities saved by a user
 # ***Specificaly storing a iindividual users saved opportunities***
 
-main_blueprint.post("/saveUserOpportunity")
-#def saveUserOpportunity():
-def saveUserOpportunity(a_opp_id):
+# Save User Opportunity
+@main_blueprint.post("/saveUserOpportunity")
+@jwt_required()
+def saveUserOpportunity():
     data = request.get_json()
-    # opportunity = db.session.get(Opportunities, opportunity_id)
-    # user_id = get_jwt_identity()
-    
-    # Get data
-    save_user_opp_user_id = data.get("user_id")
-    save_user_opp_opportunity_id = data.get("opportunity_id")
-    #Opportunities.id == UserSavedOpportunities.opportunity_id,
-    save_user_opp_user_id = Opportunities.id
-    save_user_opp_opportunity_id = User.id
+    if not data:
+        abort(400, "Missing JSON data")
 
-    # Find existing opp first 
-    find_opp = db.sesion.execute(
+    save_user_opp_opportunity_id = data.get("opportunity_id")
+    save_user_opp_user_id = get_jwt_identity()
+
+    if not save_user_opp_opportunity_id or not save_user_opp_user_id:
+        abort(400, "Missing required fields")
+
+    # Check if the opportunity already exists in saved opportunities
+    find_opp = db.session.execute(
         db.select(UserSavedOpportunities).where(
             (UserSavedOpportunities.user_id == save_user_opp_user_id) &
             (UserSavedOpportunities.opportunity_id == save_user_opp_opportunity_id)
@@ -978,20 +978,63 @@ def saveUserOpportunity(a_opp_id):
     if find_opp:
         return {"message": "Opportunity already saved"}, 200
 
-    #Add opportunity to table
-    new_opp = UserSavedOpportunities(user_id = save_user_opp_user_id, opportunity_id = save_user_opp_opportunity_id)
+    # Save the new opportunity
+    new_opp = UserSavedOpportunities(
+        user_id=save_user_opp_user_id, 
+        opportunity_id=save_user_opp_opportunity_id
+    )
     db.session.add(new_opp)
     db.session.commit()
 
+    return {"message": "Opportunity saved successfully"}, 201
+
+
+#Try
+@main_blueprint.post("/saveUserOpportunity")
+@jwt_required()
+def saveUserOpportunity():
+    jwt_identity = get_jwt_identity()
+    if jwt_identity is not None:
+        user = db.select(User).where(User.email == jwt_identity).first()
+        query = (
+            db.select(
+                Opportunities.id,
+            )
+            .where(Opportunities.active == True)
+            .join(
+                RecommendsClassYears,
+                Opportunities.id == RecommendsClassYears.class_year,
+            )
+            .join(UserSavedOpportunities.user_id == User.id) 
+            .join(UserSavedOpportunities.opportunity_id == Opportunities.id)
+        )
+    
+    new_opp = UserSavedOpportunities(
+        user_id=User.id, 
+        opportunity_id=Opportunities.id
+    )
+    db.session.add(new_opp)
+    db.session.commit()
+
+    return {"message": "Opportunity saved successfully"}, 201
+
+
+
 # Delete opportunities saved by a user
 @main_blueprint.delete("/deleteUserOpportunity")
+@jwt_required()
 def deleteUserOpportunity():
     data = request.get_json()
+    if not data:
+        abort(400, "Missing JSON data")
 
-    save_user_opp_user_id = data.get("user_id")
+    save_user_opp_user_id = get_jwt_identity()
     save_user_opp_opportunity_id = data.get("opportunity_id")
 
-    # Find Opportunity to delete
+    if not save_user_opp_opportunity_id or not save_user_opp_user_id:
+        abort(400, "Missing required fields")
+
+    # Find the saved opportunity
     get_opp_info = db.session.execute(
         db.select(UserSavedOpportunities).where(
             (UserSavedOpportunities.user_id == save_user_opp_user_id) &
@@ -999,6 +1042,10 @@ def deleteUserOpportunity():
         )
     ).scalar_one_or_none()
 
+    if not get_opp_info:
+        return {"message": "Opportunity not found"}, 404
+
+    # Delete the record
     db.session.delete(get_opp_info)
     db.session.commit()
 
