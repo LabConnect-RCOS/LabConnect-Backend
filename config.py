@@ -31,14 +31,21 @@ class Config:
 
     JWT_SECRET_KEY = getenv("JWT_SECRET_KEY", "jwt-secret")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
+    JWT_SESSION_COOKIE = timedelta(hours=1)
     JWT_TOKEN_LOCATION = ["cookies"]
     JWT_COOKIE_CSRF_PROTECT = True
     JWT_CSRF_CHECK_FORM = True
+    JWT_COOKIE_SECURE = True
+    JWT_COOKIE_SAMESITE = "Strict"
+    JWT_ACCESS_COOKIE_NAME = "access_token"
+    JWT_REFRESH_COOKIE_NAME = "refresh_token"
 
 
 class TestingConfig(Config):
     TESTING = True
     DEBUG = True
+    JWT_COOKIE_SECURE = False
 
 
 class ProductionConfig(Config):
