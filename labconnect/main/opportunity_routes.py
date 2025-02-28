@@ -949,7 +949,6 @@ def deleteOpportunity(opportunity_id):
 
     return {"data": "Opportunity Deleted"}
 
-#////////////////////////////////////////////////
 # Store opportunities saved by a user
 # ***Specificaly storing a individual users saved opportunities***
 
@@ -1017,3 +1016,35 @@ def deleteUserOpportunity(opportunity_id):
     db.session.commit()
 
     return {"message": "Opportunity deleted"}, 200
+
+#Create route to return a list saved opportunities
+@main_blueprint.post("/AllSavedUserOpportunites/")
+@jwt_required()
+def AllSavedUserOpportunites():
+    user_id = get_jwt_identity()
+    #create list of saved opportunites 
+    data = db.session.execute(
+        db.select(UserSavedOpportunities)
+    ).scalars()
+    if not data:
+        abort(404)
+    
+    listOfSavedOppIds = [UserSavedOpportunities.opportunity_id for UserSavedOpportunities in data]
+
+    if listOfSavedOppIds == []:
+        abort(404)
+
+    #data = db.session.execute(ADD).scalars().all()
+    results = []
+    for opportunity in listOfSavedOppIds:
+        results.append(opportunity.to_dict())
+    
+    data_try = db.session.execute(
+        db.select(Opportunities.id).where(
+            UserSavedOpportunities.opportunity_id == opportunity[0]
+         )
+     ).all()
+
+    return listOfSavedOppIds
+
+#TODO Next Create route to allow for multiple pages to be unsaved
