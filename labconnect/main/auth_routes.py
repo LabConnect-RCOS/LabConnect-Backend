@@ -13,6 +13,7 @@ from labconnect.models import (
     UserDepartments,
     UserMajors,
     ManagementPermissions,
+    Codes,
 )
 
 from . import main_blueprint
@@ -23,31 +24,33 @@ temp_codes = {}
 def generate_temporary_code(user_email: str, registered: bool) -> str:
     # Generate a unique temporary code
     code = str(uuid4())
-    expires_at = datetime.now() + timedelta(seconds=5)  # expires in 5 seconds
-    temp_codes[code] = {
-        "email": user_email,
-        "expires_at": expires_at,
-        "registered": registered,
-    }
+    expires_at = datetime.now() + timedelta(seconds=10)  # expires in 10 seconds
+    new_code = Codes()
+    new_code.code = code
+    new_code.email = user_email
+    new_code.registered = registered
+    new_code.expires_at = expires_at
+    db.session.add(new_code)
+    db.session.commit()
     return code
 
 
 def validate_code_and_get_user_email(code: str) -> tuple[str | None, bool | None]:
-    token_data = temp_codes.get(code, {})
-    if not token_data:
+    code_data = db.session.execute(db.select(Codes).where(Codes.code == code)).scalar()
+    if not code_data:
         return None, None
 
-    user_email = token_data.get("email", None)
-    expire = token_data.get("expires_at", None)
-    registered = token_data.get("registered", False)
+    user_email = code_data.email
+    expire = code_data.expires_at
+    registered = code_data.registered
 
     if user_email and expire and expire > datetime.now():
         # If found, delete the code to prevent reuse
-        del temp_codes[code]
+        db.session.delete(code_data)
         return user_email, registered
     elif expire:
         # If the code has expired, delete it
-        del temp_codes[code]
+        db.session.delete(code_data)
 
     return None, None
 
@@ -83,16 +86,15 @@ def saml_callback():
     if not errors:
         registered = True
         user_info = auth.get_attributes()
-        # user_id = auth.get_nameid()
+        user_id = next(iter(user_info.values()))[0] + "@rpi.edu"
 
-        data = db.session.execute(db.select(User).where(User.email == "email")).scalar()
+        data = db.session.execute(db.select(User).where(User.email == user_id)).scalar()
 
         # User doesn't exist, create a new user
         if data is None:
             registered = False
         # Generate JWT
-        # token = create_access_token(identity=[user_id, datetime.now()])
-        code = generate_temporary_code(user_info["email"][0], registered)
+        code = generate_temporary_code(user_id, registered)
 
         # Send the JWT to the frontend
         return redirect(f"{current_app.config['FRONTEND_URL']}/callback/?code={code}")
@@ -148,12 +150,15 @@ def registerUser():
 
     # Add ManagementPermissions if provided
     if json_data.get("permissions"):
-        permissions = json_data["permissions"]
+        # permissions = json_data["permissions"]
         management_permissions = ManagementPermissions()
         management_permissions.user_id = user.id
-        management_permissions.super_admin = permissions.get("super_admin", False)
-        management_permissions.admin = permissions.get("admin", False)
-        management_permissions.moderator = permissions.get("moderator", False)
+        # management_permissions.super_admin = permissions.get("super_admin", False)
+        # management_permissions.admin = permissions.get("admin", False)
+        # management_permissions.moderator = permissions.get("moderator", False)
+        management_permissions.super_admin = False
+        management_permissions.admin = False
+        management_permissions.moderator = False
         db.session.add(management_permissions)
 
     db.session.commit()

@@ -59,6 +59,9 @@ def initialize_extensions(app) -> None:
     jwt.init_app(app)
     app.json = OrJSONProvider(app)
 
+    with app.app_context():
+        db.create_all()
+
     @app.after_request
     def refresh_expiring_jwts(response):
         try:
