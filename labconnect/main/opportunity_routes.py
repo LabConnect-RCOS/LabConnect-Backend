@@ -15,6 +15,7 @@ from labconnect.models import (
     Courses,
     Participates,
     RecommendsMajors,
+    UserSavedOpportunities,
 )
 
 from . import main_blueprint
@@ -209,7 +210,8 @@ def getOpportunity(opp_id: int):
             Opportunities.id == RecommendsClassYears.opportunity_id,
         )
         .where(Opportunities.id == opp_id)
-        .group_by(Opportunities.id)
+        .group_by(Opportunities.id) 
+        
     )
 
     data = query.all()
@@ -754,7 +756,8 @@ def editOpportunity_get(opportunity_id):
         if credit
     ]
 
-    years = [str(year.class_year) for year in years_data] if years_data else []
+    years = [str(year.class_year) for year in years_data] 
+    #if years_data else []
 
     # Format opportunity data as JSON
     opportunity_data = {
@@ -884,6 +887,7 @@ def editOpportunity(opportunity_id):
 
     db.session.commit()
 
+    # data is causing errors
     # Add the updated list of managers
     # if "lab_manager_ids" in data:
     #     for lab_manager_id in data["lab_manager_ids"]:
@@ -892,7 +896,21 @@ def editOpportunity(opportunity_id):
     #         )
     #         db.session.add(new_lead)
 
+    
+    # Atttempt to fix by replacing data with request_data
+    # Add the updated list of managers
+    if "lab_manager_ids" in request_data:
+        for lab_manager_id in request_data["lab_manager_ids"]:
+            new_lead = Leads(
+                lab_manager_id=lab_manager_id, opportunity_id=opportunity_id
+            )
+            db.session.add(new_lead)
+
+    db.session.commit()  # Commit all changes
+
+
     # db.session.commit()  # Commit all changes
+
 
     return {"data": "Opportunity Updated"}, 200
 
@@ -930,3 +948,72 @@ def deleteOpportunity(opportunity_id):
     db.session.commit()
 
     return {"data": "Opportunity Deleted"}
+
+#////////////////////////////////////////////////
+# Store opportunities saved by a user
+# ***Specificaly storing a individual users saved opportunities***
+
+# Save User Opportunity
+@main_blueprint.post("/saveUserOpportunity/<int:opportunity_id>")
+@jwt_required()
+def saveUserOpportunity(opportunity_id):
+    data = request.get_json()
+    if not data:
+        abort(400, "Missing JSON data")
+
+    save_opp_opportunity_id = db.session.get(Opportunities, opportunity_id)
+    if not save_opp_opportunity_id:
+        return {"error": "Opportunity not found"}, 404
+    
+    save_opp_user_id = get_jwt_identity()
+
+    # Check if the opportunity already exists in saved opportunities
+    find_opp = db.session.execute(
+        db.select(UserSavedOpportunities).where(
+            (UserSavedOpportunities.user_id == save_opp_user_id) &
+            (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
+        )
+    ).scalar_one_or_none()
+
+    if find_opp:
+        return {"message": "Opportunity already saved"}, 200
+
+    # Save the new opportunity
+    new_opp = UserSavedOpportunities(
+        user_id = save_opp_user_id, 
+        opportunity_id = save_opp_opportunity_id
+    )
+    db.session.add(new_opp)
+    db.session.commit()
+
+    return {"message": "Opportunity saved successfully"}, 201
+
+# Delete an opportunitiy saved by a user
+@main_blueprint.delete("/deleteUserOpportunity/<int:opportunity_id>")
+@jwt_required()
+def deleteUserOpportunity(opportunity_id):
+    data = request.get_json()
+    if not data:
+        abort(400, "Missing JSON data")
+
+    save_opp_user_id = get_jwt_identity()
+    save_opp_opportunity_id = db.session.get(Opportunities, opportunity_id)
+    if not save_opp_opportunity_id:
+        return {"error": "Opportunity not found"}, 404
+
+    # Find the saved opportunity
+    get_saved_opp_info = db.session.execute(
+        db.select(UserSavedOpportunities).where(
+            (UserSavedOpportunities.user_id == save_opp_user_id) &
+            (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
+        )
+    ).scalar_one_or_none()
+
+    if not get_saved_opp_info:
+        return {"message": "Opportunity not found"}, 404
+
+    # Delete the opportunity 
+    db.session.delete(get_saved_opp_info)
+    db.session.commit()
+
+    return {"message": "Opportunity deleted"}, 200
