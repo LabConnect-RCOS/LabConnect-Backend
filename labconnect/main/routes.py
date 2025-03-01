@@ -107,7 +107,7 @@ def profile():
             User.id,
             User.pronouns,
         )
-        .where(User.email == user_id[0])
+        .where(User.email == user_id)
         .join(UserDepartments, UserDepartments.user_id == User.id)
         .join(RPIDepartments, UserDepartments.department_id == RPIDepartments.id)
     ).first()
