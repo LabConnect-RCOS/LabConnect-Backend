@@ -12,13 +12,14 @@ from labconnect.models import (
     ClassYears,
     UserDepartments,
     Majors,
+    Courses,
 )
 
 from . import main_blueprint
 
 
 @main_blueprint.get("/")
-def index():
+def index() -> dict[str, str]:
     return {"Hello": "There"}
 
 
@@ -104,8 +105,9 @@ def profile():
             User.website,
             User.lab_manager_id,
             User.id,
+            User.pronouns,
         )
-        .where(User.email == user_id[0])
+        .where(User.email == user_id)
         .join(UserDepartments, UserDepartments.user_id == User.id)
         .join(RPIDepartments, UserDepartments.department_id == RPIDepartments.id)
     ).first()
@@ -123,6 +125,7 @@ def profile():
         "department": data[4],
         "description": data[5],
         "website": data[6],
+        "pronouns": data[9],
     }
 
     return result
@@ -140,6 +143,7 @@ def getProfessorProfile(id: str):
             RPIDepartments.name,
             User.description,
             User.website,
+            User.pronouns,
         )
         .where(User.id == id)
         .join(LabManager, User.lab_manager_id == LabManager.id)
@@ -155,6 +159,7 @@ def getProfessorProfile(id: str):
         "department": data[4],
         "description": data[5],
         "website": data[6],
+        "pronouns": data[7],
     }
 
     return result
@@ -235,84 +240,36 @@ def years() -> list[int]:
     return result
 
 
-# @main_blueprint.get("/courses")
-# def courses() -> list[Any]:
-#     if not request.data:
-#         abort(400)
+@main_blueprint.get("/courses")
+def courses() -> list[str]:
+    if not request.data:
+        abort(400)
 
-#     json_request_data = request.get_json()
+    json_request_data = request.get_json()
 
-#     if not json_request_data:
-#         abort(400)
+    if not json_request_data:
+        abort(400)
 
-#     partial_key = json_request_data.get("input", None)
+    partial_key = json_request_data.get("input", None)
 
-#     if not partial_key or not isinstance(partial_key, str):
-#         abort(400)
+    if not partial_key or not isinstance(partial_key, str):
+        abort(400)
 
-#     data = db.session.execute(
-#         db.select(Courses)
-#         .order_by(Courses.code)
-#         .where(
-#             (Courses.code.ilike(f"%{partial_key}%"))
-#             | (Courses.name.ilike(f"%{partial_key}%"))
-#         )
-#     ).scalars()
+    data = db.session.execute(
+        db.select(Courses)
+        .order_by(Courses.code)
+        .where(
+            (Courses.code.ilike(f"%{partial_key}%"))
+            | (Courses.name.ilike(f"%{partial_key}%"))
+        )
+    ).scalars()
 
-#     if not data:
-#         abort(404)
+    if not data:
+        abort(404)
 
-#     result = [course.to_dict() for course in data]
+    result = [course.to_dict() for course in data]
 
-#     if result == []:
-#         abort(404)
+    if result == []:
+        abort(404)
 
-#     return result
-
-
-# @main_blueprint.get("/user")
-# def user():
-#     if not request.data:
-#         abort(400)
-
-#     id = request.get_json().get("id", None)
-
-#     if not id:
-#         abort(400)
-
-#     # Query for user
-#     user = db.first_or_404(db.select(User).where(User.id == id))
-#     result = user.to_dict()
-
-#     # Query for user's department(s)
-#     user_departments = db.session.execute(
-#         db.select(UserDepartments).where(UserDepartments.user_id == id)
-#     ).scalars()
-#     result["departments"] = [dept.to_dict() for dept in user_departments]
-
-#     # Query for user's major(s)
-#     user_majors = db.session.execute(
-#         db.select(UserMajors).where(UserMajors.user_id == id)
-#     ).scalars()
-#     result["majors"] = [major.to_dict() for major in user_majors]
-
-#     # Query for user's courses
-#     user_courses = db.session.execute(
-#         db.select(UserCourses)
-#         .order_by(UserCourses.in_progress)
-#         .where(UserCourses.user_id == id)
-#     ).scalars()
-#     result["courses"] = [course.to_dict() for course in user_courses]
-
-#     # Query for user's opportunities
-#     user_opportunities = db.session.execute(
-#         db.select(Opportunities, Participates)
-#         .where(Participates.user_id == id)
-#         .join(Opportunities, Participates.opportunity_id == Opportunities.id)
-#         .order_by(Opportunities.active.desc())
-#     ).scalars()
-#     result["opportunities"] = [
-#         opportunity.to_dict() for opportunity in user_opportunities
-#     ]
-
-#     return result
+    return result

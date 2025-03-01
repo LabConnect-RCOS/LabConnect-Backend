@@ -37,8 +37,15 @@ class LocationEnum(EnumPython):
     REMOTE = "Remote"
 
 
-class OrJSONProvider(JSONProvider):
+class LabManagerTypeEnum(EnumPython):
+    PI = "Principal Investigator"
+    CO_PI = "Co-Principal Investigator"
+    LAB_MANAGER = "Lab Manager"
+    POST_DOC = "Post Doctoral Researcher"
+    GRAD_STUDENT = "Graduate Student"
 
+
+class OrJSONProvider(JSONProvider):
     @staticmethod
     def dumps(obj, *, option=None, **kwargs):
         if option is None:
