@@ -27,7 +27,7 @@ pytest-cov==6.0.0
 python-dotenv==1.0.1
 python3-saml==1.16.0
 pytz==2024.2
-ruff==0.9.5
+ruff==0.9.9
 sentry-sdk==2.19.2
 setuptools==70.3.0
 six==1.17.0
