@@ -791,11 +791,9 @@ def deleteOpportunity(opportunity_id):
 
 
 # Save User Opportunity
-
-
-@main_blueprint.post("/saveUserOpportunity/<int:opportunity_id>")
+@main_blueprint.post("/saveOpportunity/<int:opportunity_id>")
 @jwt_required()
-def saveUserOpportunity(opportunity_id):
+def saveUserOpportunity(opportunity_id: int):
     data = request.get_json()
     if not data:
         abort(400, "Missing JSON data")
@@ -821,7 +819,6 @@ def saveUserOpportunity(opportunity_id):
     new_opp = UserSavedOpportunities()
     new_opp.user_id = save_opp_user_id
     new_opp.opportunity_id = save_opp_opportunity_id
-
     db.session.add(new_opp)
     db.session.commit()
 
@@ -829,9 +826,9 @@ def saveUserOpportunity(opportunity_id):
 
 
 # Delete an opportunitiy saved by a user
-@main_blueprint.delete("/deleteUserOpportunity/<int:opportunity_id>")
+@main_blueprint.delete("/deleteSaveOpportunity/<int:opportunity_id>")
 @jwt_required()
-def deleteUserOpportunity(opportunity_id):
+def deleteUserOpportunity(opportunity_id: int):
     data = request.get_json()
     if not data:
         abort(400, "Missing JSON data")
