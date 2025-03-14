@@ -1015,36 +1015,79 @@ def deleteUserOpportunity(opportunity_id):
     db.session.delete(get_saved_opp_info)
     db.session.commit()
 
-    return {"message": "Opportunity deleted"}, 200
+    return {"message": "Opportunity deleted"}, 200 
 
 #Create route to return a list saved opportunities
 @main_blueprint.post("/AllSavedUserOpportunites/")
 @jwt_required()
 def AllSavedUserOpportunites():
-    user_id = get_jwt_identity()
-    #create list of saved opportunites 
+    #create list of all saved opportunites 
+    data = db.session.execute(
+        db.select(UserSavedOpportunities)
+    ).scalars()
+    if not data:
+        abort(404)
+
+    json_request_data = request.get_json()
+    if not json_request_data:
+        abort(400)
+    data_test = db.session.execute(
+        db.select(UserSavedOpportunities)
+        ).scalars()
+    result_test = [UserSavedOpportunities.to_dict() for opportunity in data_test]
+
+    #Route to opportunities 
+    #make a list
+    listOfSavedOppIds = [UserSavedOpportunities.opportunity_id for UserSavedOpportunities in data]
+    if listOfSavedOppIds == []:
+        abort(404)
+    
+
+    #data = db.session.execute(ADD).scalars().all()
+    results = []
+    for opportunity in listOfSavedOppIds:
+        results.append(opportunity.to_dict())
+
+    return listOfSavedOppIds
+    #return results
+
+#TODO Next Create route to allow for multiple pages to be unsaved
+#Pages of opportunites?????
+@main_blueprint.delete("/UnsaveMultiplePages/")
+@jwt_required()
+def UnsaveMultiplePages():
     data = db.session.execute(
         db.select(UserSavedOpportunities)
     ).scalars()
     if not data:
         abort(404)
     
-    listOfSavedOppIds = [UserSavedOpportunities.opportunity_id for UserSavedOpportunities in data]
+    for opportunity in data:
+        db.session.delete(opportunity)
+        db.session.commit()
 
-    if listOfSavedOppIds == []:
+#Try with selecting specific pages
+@main_blueprint.delete2("/UnsaveMultiplePages/")
+@jwt_required()
+def UnsaveMultiplePages(opportunity_id):
+    data = db.session.execute(
+        db.select(UserSavedOpportunities)
+    ).scalars()
+    if not data:
         abort(404)
-
-    #data = db.session.execute(ADD).scalars().all()
-    results = []
-    for opportunity in listOfSavedOppIds:
-        results.append(opportunity.to_dict())
     
-    data_try = db.session.execute(
-        db.select(Opportunities.id).where(
-            UserSavedOpportunities.opportunity_id == opportunity[0]
-         )
-     ).all()
-
-    return listOfSavedOppIds
-
-#TODO Next Create route to allow for multiple pages to be unsaved
+    db.session.delete(UserSavedOpportunities)
+    db.session.commit()
+    
+    delete_user_id = get_jwt_identity()
+    delete_opp_id = db.session.get(Opportunities, opportunity_id)
+    
+    delete_opp_info = db.session.execute(
+        db.select(UserSavedOpportunities).where(
+            (UserSavedOpportunities.user_id == delete_user_id) &
+            (UserSavedOpportunities.opportunity_id == delete_opp_id)
+        )
+    ).scalar_one_or_none()
+     
+    db.session.delete(delete_opp_info)
+    db.session.commit()
