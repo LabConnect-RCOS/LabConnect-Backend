@@ -1027,49 +1027,54 @@ def AllSavedUserOpportunites():
     ).scalars()
     if not data:
         abort(404)
+    #***
+    all_saved_opps = db.session.execute(
+        db.select(UserSavedOpportunities)
+    ).scalar_one_or_none()
+    #return all_saved_opps
 
     json_request_data = request.get_json()
     if not json_request_data:
         abort(400)
-    data_test = db.session.execute(
-        db.select(UserSavedOpportunities)
-        ).scalars()
-    result_test = [UserSavedOpportunities.to_dict() for opportunity in data_test]
+
+    result_test = (UserSavedOpportunities.to_dict() for opportunity in data)
 
     #Route to opportunities 
     #make a list
-    listOfSavedOppIds = [UserSavedOpportunities.opportunity_id for UserSavedOpportunities in data]
-    if listOfSavedOppIds == []:
+    listOfSavedOppIds = (UserSavedOpportunities.opportunity_id for UserSavedOpportunities in data)
+    listOfSavedOppIds = (UserSavedOpportunities.to_dict() for opportunity in data)
+    #listOfSavedOppIds = [UserSavedOpportunities.to_dict() for UserSavedOpportunities in data]
+    if listOfSavedOppIds == ():
         abort(404)
     
-
-    #data = db.session.execute(ADD).scalars().all()
-    results = []
+    results = ()
     for opportunity in listOfSavedOppIds:
-        results.append(opportunity.to_dict())
+        results.append(opportunity.to_list())
 
     return listOfSavedOppIds
     #return results
 
 #TODO Next Create route to allow for multiple pages to be unsaved
-#Pages of opportunites?????
+#Pages of opportunites pos
 @main_blueprint.delete("/UnsaveMultiplePages/")
 @jwt_required()
+#This would possibly delete all user saved opportunites 
 def UnsaveMultiplePages():
     data = db.session.execute(
         db.select(UserSavedOpportunities)
     ).scalars()
     if not data:
         abort(404)
-    
-    for opportunity in data:
-        db.session.delete(opportunity)
+
+    #Delete all  
+    for U_S_opportunity in data:
+        db.session.delete(U_S_opportunity)
         db.session.commit()
 
-#Try with selecting specific pages
-@main_blueprint.delete2("/UnsaveMultiplePages/")
+#Try with selecting two specific pages(opps)
+@main_blueprint.delete2("/UnsaveMultiplePages_2/")
 @jwt_required()
-def UnsaveMultiplePages(opportunity_id):
+def UnsaveMultiplePages(opportunity_id_1, opportunity_id_2):
     data = db.session.execute(
         db.select(UserSavedOpportunities)
     ).scalars()
@@ -1078,16 +1083,37 @@ def UnsaveMultiplePages(opportunity_id):
     
     db.session.delete(UserSavedOpportunities)
     db.session.commit()
+    delete_info = db.sesion.execute(
+        db.select(Opportunities).where(
+            (UserSavedOpportunities.user_id == data.user_id) & 
+            (UserSavedOpportunities.opportunity_id == data.opportunity_id)
+        )
+    ).scalar_one_or_none()
+    if not delete_info:
+        return {"error": "Opportunity not found"}, 404
     
     delete_user_id = get_jwt_identity()
-    delete_opp_id = db.session.get(Opportunities, opportunity_id)
+    delete_opp_id_1 = db.session.get(Opportunities, opportunity_id_1)
+    delete_opp_id_2 = db.session.get(Opportunities, opportunity_id_2)
     
-    delete_opp_info = db.session.execute(
+    #Fist opp
+    delete_opp_info_1 = db.session.execute(
         db.select(UserSavedOpportunities).where(
             (UserSavedOpportunities.user_id == delete_user_id) &
-            (UserSavedOpportunities.opportunity_id == delete_opp_id)
+            (UserSavedOpportunities.opportunity_id == delete_opp_id_1)
+        )
+    ).scalar_one_or_none()
+
+    #Second opp
+    delete_opp_info_2 = db.session.execute(
+        db.select(UserSavedOpportunities).where(
+            (UserSavedOpportunities.user_id == delete_user_id) &
+            (UserSavedOpportunities.opportunity_id == delete_opp_id_2)
         )
     ).scalar_one_or_none()
      
-    db.session.delete(delete_opp_info)
+    db.session.delete(delete_opp_info_1)
+    db.session.commit()
+
+    db.session.delete(delete_opp_info_2)
     db.session.commit()
