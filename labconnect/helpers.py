@@ -2,7 +2,6 @@ from enum import Enum as EnumPython
 
 import orjson
 from flask.json.provider import JSONProvider
-from sqlalchemy_serializer import SerializerMixin
 
 
 class SemesterEnum(EnumPython):
@@ -59,30 +58,6 @@ class OrJSONProvider(JSONProvider):
         return orjson.loads(s)
 
 
-class LeadsCustomSerializerMixin(SerializerMixin):
-    # date_format = "%s"  # Unixtimestamp (seconds)
-    # datetime_format = "%Y %b %d %H:%M:%S.%f"
-    # time_format = "%H:%M.%f"
-    professor = "lab_manager.name"
-    pass
-
-
-class CustomSerializerMixin(SerializerMixin):
-    # date_format = "%s"  # Unixtimestamp (seconds)
-    # datetime_format = "%Y %b %d %H:%M:%S.%f"
-    # time_format = "%H:%M.%f"
-    decimal_format = "{:0>10.3}"
-
-
-# pass in a tuple of opportunity, lead, labmanager
-def serializeOpportunity(data):
-    oppData = data[0].to_dict()
-    oppData["professor"] = data[2].name
-    oppData["department"] = data[2].department_id
-
-    return oppData
-
-
 def prepare_flask_request(request):
     # If server is behind proxys or balancers use the HTTP_X_FORWARDED fields
     url_data = request.host_url + request.script_root
@@ -124,3 +99,12 @@ def format_credits(credit_1, credit_2, credit_3, credit_4):
         return "1-4 Credits"
     else:
         return f"{','.join(credits_output)} Credits"
+
+
+def convert_to_enum(location_string) -> LocationEnum | None:
+    try:
+        return LocationEnum[
+            location_string.upper()
+        ]  # Use upper() for case-insensitivity
+    except KeyError:
+        return None  # Or raise an exception if you prefer
