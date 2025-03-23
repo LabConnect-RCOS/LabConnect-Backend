@@ -13,7 +13,6 @@ import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-# from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import inspect
 
@@ -48,19 +47,13 @@ Base = declarative_base()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-# from sqlalchemy.inspect import inspect
-
-# inspector = inspect(engine)
-# if 'courses' not in inspector.get_table_names():
-#     print("Error: 'courses' table does not exist. Make sure metadata is created.")
-
 
 def fetch_json_data(json_url):
     response = requests.get(json_url)
     
-    print("Response Status Code:", response.status_code)
-    print("Response Headers:", response.headers)
-    print("Response Content (first 500 chars):", response.text[:500])  # Prevent flooding output
+    # print("Response Status Code:", response.status_code)
+    # print("Response Headers:", response.headers)
+    # print("Response Content (first 500 chars):", response.text[:500])  # Prevent flooding output
     
     if response.status_code != 200:
         raise ValueError(f"Error: Received status code {response.status_code}")
@@ -83,8 +76,10 @@ def fetch_json_data(json_url):
 
 
 def insert_courses_from_json(session, courses_data):
-    for course_code, course_info in courses_data.items():
+    for course, course_info in courses_data.items():
         course_name = course_info.get("name")
+        course_code = course_info.get('subj') + course_info.get('crse')
+        
 
         existing_course = session.query(Courses).filter_by(code=course_code).first()
         if existing_course:
@@ -93,12 +88,18 @@ def insert_courses_from_json(session, courses_data):
                 session.commit()
                 print(f"Course '{course_code}' name updated.")
         else:
+            # if (len(course_code)>8):
+            #     print(course_code)
+            # else:
             new_course = Courses()
             new_course.code = course_code
             new_course.name = course_name
             session.add(new_course)
             session.commit()
             print(f"Course '{course_code}' inserted into the database.")
+            
+            # Change length requiremetn from 8 to 10
+            #[parameters: {'code': 'USNA29401', 'name': 'Indep Study Naval Science'}] 
 
 
 
