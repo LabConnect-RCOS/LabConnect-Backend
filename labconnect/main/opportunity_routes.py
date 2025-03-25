@@ -1024,7 +1024,7 @@ def deleteUserOpportunity(opportunity_id):
     return {"message": "Opportunity deleted"}, 200 
 
 #Create route to return a list saved opportunities
-@main_blueprint.post("/AllSavedUserOpportunites/")
+@main_blueprint.get("/AllSavedUserOpportunites/")
 @jwt_required()
 def AllSavedUserOpportunites():
     #create list of all saved opportunites 
@@ -1034,27 +1034,27 @@ def AllSavedUserOpportunites():
     if not data:
         abort(404)
 
-    json_request_data = request.get_json()
-    if not json_request_data:
-        abort(400)
+    #json_request_data = request.get_json()
+    #if not json_request_data:
+        #abort(400)
 
-    #result_test = (UserSavedOpportunities.to_dict() for opportunity in data)
-    #Route to opportunities 
-    #make a list
     listOfSavedOppIds = (UserSavedOpportunities.opportunity_id for UserSavedOpportunities in data)
-    listOfSavedOppIds = (UserSavedOpportunities.to_dict() for opportunity in data)
+    #listOfSavedOppIds = (UserSavedOpportunities.to_dict() for opportunity in data)
     #listOfSavedOppIds = (UserSavedOpportunities.to_dict() for UserSavedOpportunities in data)
-    #listOfSavedOppIds = [UserSavedOpportunities.to_dict() for UserSavedOpportunities in data]
     
     if listOfSavedOppIds == ():
         abort(404)
     
+    #Results may be better
     results = ()
     for opportunity in listOfSavedOppIds:
         results.append(opportunity.to_list())
 
-    return listOfSavedOppIds
-    #return results
+    if results == ():
+        abort(404)
+
+    #return listOfSavedOppIds
+    return results
 
 #Try 2 fix
 @main_blueprint.get("/AllSavedUserOpportunities/")
@@ -1072,13 +1072,13 @@ def all_saved_user_opportunities():
     if not saved_opps:
         return {"message": "No saved opportunities found"}, 404
 
-    #=saved opportunities --> list of dictionaries
+    #saved opportunities --> list of dictionaries
     saved_opportunities_list = [opp.to_dict() for opp in saved_opps]
 
-    return jsonify(saved_opportunities_list), 200
-    #return saved_opportunities_list
+    #return jsonify(saved_opportunities_list), 200
+    return saved_opportunities_list
 
-#TODO Next Create route to allow for multiple pages to be unsaved
+#Create route to allow for multiple pages to be unsaved ask q's 
 #Pages of opportunites pos
 @main_blueprint.delete("/UnsaveMultiplePages/")
 @jwt_required()
@@ -1087,22 +1087,28 @@ def UnsaveMultiplePages():
     data = db.session.execute(
         db.select(UserSavedOpportunities)
     ).scalars()
+    poss_data = request.get_json()
+    #if not data:
+        #abort(404)
     if not data:
-        abort(404)
+        return {"message": "You have no saved opportunities"}, 404
+    
 
     #Delete all  
-    for U_S_opportunity in data:
-        db.session.delete(U_S_opportunity)
+    for opportunity in data:
+        db.session.delete(opportunity)
         db.session.commit()
 
 @main_blueprint.delete("/UnsaveMultipleOpps/")
 @jwt_required()
 def unsave_multiple_opps():
     user_id = get_jwt_identity()
-    data = request.get_json()
-
-    if not data or "opportunity_ids" not in data:
-        return {"error": "Missing opportunity IDs"}, 400
+    #data = request.get_json()
+    
+    #Data I normaly use
+    data = db.session.execute(
+        db.select(UserSavedOpportunities)
+    ).scalars()
 
     opportunity_ids = data["opportunity_ids"]
 
@@ -1112,19 +1118,14 @@ def unsave_multiple_opps():
     # Find saved opportunities that match the given IDs
     saved_opps = db.session.execute(
         db.select(UserSavedOpportunities).where(
-            (UserSavedOpportunities.user_id == user_id) &
+            #(UserSavedOpportunities.user_id == user_id) &
             (UserSavedOpportunities.opportunity_id.in_(opportunity_ids))
         )
     ).scalars().all()
 
     if not saved_opps:
-        return {"message": "No saved opportunities found"}, 404
+        return {"message": "You have no saved opportunities"}, 404
 
     # Delete the opps
     for opp in saved_opps:
         db.session.delete(opp)
-
-    db.session.commit()
-
-    #return {"message": f"Successfully unsaved {len(saved_opps)} opportunities"}, 200
-    return {"message": "Successfully unsaved {len(saved_opps)} opportunities"}, 200
