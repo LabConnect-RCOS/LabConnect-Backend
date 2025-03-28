@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import abort, request, jsonify
+from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import func
 
@@ -1034,10 +1034,6 @@ def AllSavedUserOpportunites():
     if not data:
         abort(404)
 
-    #json_request_data = request.get_json()
-    #if not json_request_data:
-        #abort(400)
-
     listOfSavedOppIds = (UserSavedOpportunities.opportunity_id for UserSavedOpportunities in data)
     #listOfSavedOppIds = (UserSavedOpportunities.to_dict() for opportunity in data)
     #listOfSavedOppIds = (UserSavedOpportunities.to_dict() for UserSavedOpportunities in data)
@@ -1078,54 +1074,37 @@ def all_saved_user_opportunities():
     #return jsonify(saved_opportunities_list), 200
     return saved_opportunities_list
 
-#Create route to allow for multiple pages to be unsaved ask q's 
-#Pages of opportunites pos
+#Create route to allow for multiple pages to be unsaved 
 @main_blueprint.delete("/UnsaveMultiplePages/")
 @jwt_required()
-#This would possibly delete all user saved opportunites 
-def UnsaveMultiplePages():
+#Delete id that appear on delete_ids list
+def UnsaveMultipleOpps(delete_ids : list[str]):
     data = db.session.execute(
         db.select(UserSavedOpportunities)
     ).scalars()
-    poss_data = request.get_json()
-    #if not data:
-        #abort(404)
+
     if not data:
-        return {"message": "You have no saved opportunities"}, 404
-    
+        return {"message": "There are no saved opportunities"}, 404
 
-    #Delete all  
-    for opportunity in data:
-        db.session.delete(opportunity)
-        db.session.commit()
-
-@main_blueprint.delete("/UnsaveMultipleOpps/")
-@jwt_required()
-def unsave_multiple_opps():
+    #Maybe dont need   
     user_id = get_jwt_identity()
-    #data = request.get_json()
-    
-    #Data I normaly use
-    data = db.session.execute(
-        db.select(UserSavedOpportunities)
-    ).scalars()
 
-    opportunity_ids = data["opportunity_ids"]
+    #Delete matching ids
+    for opportunity in data:
+        for id in delete_ids:
+            if(opportunity.opportunity_id == id):
+                db.session.delete(opportunity)
+                db.session.commit()
 
-    if not isinstance(opportunity_ids, list) or not all(isinstance(id, int) for id in opportunity_ids):
-        return {"error": "Invalid opportunity ID format."}, 400
-
-    # Find saved opportunities that match the given IDs
+    #Annother way 
     saved_opps = db.session.execute(
         db.select(UserSavedOpportunities).where(
-            #(UserSavedOpportunities.user_id == user_id) &
-            (UserSavedOpportunities.opportunity_id.in_(opportunity_ids))
+            (UserSavedOpportunities.opportunity_id.in_(delete_ids))
         )
+
     ).scalars().all()
-
     if not saved_opps:
-        return {"message": "You have no saved opportunities"}, 404
+        return {"message": "There are no saved opportunities"}, 404
 
-    # Delete the opps
     for opp in saved_opps:
         db.session.delete(opp)
