@@ -1,4 +1,3 @@
-# db_init.py
 """
 https://docs.sqlalchemy.org/en/20/orm/queryguide/select.html
 https://docs.sqlalchemy.org/en/20/core/selectable.html#sqlalchemy.sql.expression.Executable
@@ -9,13 +8,8 @@ Then pass an Executable into Session.execute()
 
 import sys
 import requests
-import os
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import inspect
-
 
 from datetime import date, datetime
 
@@ -41,69 +35,44 @@ from labconnect.models import (
     Codes
 )
 
-from labconnect.models import Courses
-
-Base = declarative_base()
-
-basedir = os.path.abspath(os.path.dirname(__file__))
-
 
 def fetch_json_data(json_url):
     response = requests.get(json_url)
     
-    # print("Response Status Code:", response.status_code)
-    # print("Response Headers:", response.headers)
-    # print("Response Content (first 500 chars):", response.text[:500])  # Prevent flooding output
-    
     if response.status_code != 200:
         raise ValueError(f"Error: Received status code {response.status_code}")
-
     try:
         return response.json()
     except requests.exceptions.JSONDecodeError:
         raise ValueError("Error: Received invalid JSON response")
-    
-    # if response.status_code == 200:
-    #     # print("Response Status Code:", response.status_code)
-    #     # print("Response Content:", response.text)  # Add this line
-    #     data = response.json()
-    #     return data
-    # else:
-    #     print(
-    #         f"Failed to fetch JSON data from {json_url}. Status code: {response.status_code}"
-    #     )
-    #     return None
 
 
 def insert_courses_from_json(session, courses_data):
+    # Fetch existing courses to avoid multiple queries
+    existing_courses = {course.code: course for course in session.query(Courses).all()}
+    new_courses = []
+    
     for course, course_info in courses_data.items():
         course_name = course_info.get("name")
         course_code = course_info.get('subj') + course_info.get('crse')
-        
 
-        existing_course = session.query(Courses).filter_by(code=course_code).first()
-        if existing_course:
+        if len(course_code) != 8:
+            continue
+        if course_code in existing_courses:
+            # Update name if changed
+            existing_course = existing_courses[course_code]
             if existing_course.name != course_name:
                 existing_course.name = course_name
-                session.commit()
-                print(f"Course '{course_code}' name updated.")
         else:
-            # if (len(course_code)>8):
-            #     print(course_code)
-            # else:
-            new_course = Courses()
-            new_course.code = course_code
-            new_course.name = course_name
-            session.add(new_course)
-            session.commit()
-            print(f"Course '{course_code}' inserted into the database.")
-            
-            # Change length requiremetn from 8 to 10
-            #[parameters: {'code': 'USNA29401', 'name': 'Indep Study Naval Science'}] 
+            new_courses.append(Courses(code=course_code, name=course_name))
 
+    if new_courses:
+        session.add_all(new_courses)
+    session.commit()
 
 
 app = create_app()
+
 
 if len(sys.argv) < 2:
     sys.exit("No argument or exsisting argument found")
@@ -126,38 +95,6 @@ elif sys.argv[1] == "addCourses":
     with app.app_context():
         db.create_all()
 
-        # data = db.session.execute.select(db.select(Courses)).scalars().all()
-        data = db.session.execute(db.select(Courses)).scalars().all()
-        existing_course_codes = [courses.code for courses in data] # fill this up
-        
-        
-        # get the json data from the internet
-        json_data = []
-        
-        # for each json data item if the course code is NOT in existing_course_codes list then just add to the database
-        for course in json_data:
-            row = Courses()
-            course.code = ''
-            course.name = ''
-            db.session.add(row)
-            db.session.commit()
-        
-        
-        # engine = create_engine(f"sqlite:///{os.path.join(basedir, 'database.db')}")
-        # # TODO: fix this
-        # print("Creating tables...")
-        # # Base.metadata.create_all(engine)
-        
-        # # Verify table creation
-        # inspector = inspect(engine)
-        # tables = inspector.get_table_names()
-        # print("Tables in database:", tables)  # This should list ['courses']
-
-        # Session = sessionmaker(bind=engine)
-        # session = Session()
-        # # Base = declarative_base(metadata=metadata_obj)
-
-        # json_url = "https://github.com/quacs/quacs-data/blob/master/semester_data/202409/catalog.json"
         json_url = "https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/202409/catalog.json"
 
         courses_data = fetch_json_data(json_url)
@@ -165,6 +102,7 @@ elif sys.argv[1] == "addCourses":
             sys.exit("Failed to fetch courses data. Exiting...")
 
         insert_courses_from_json(db.session, courses_data)
+        
         db.session.close()
 
 elif sys.argv[1] == "create":
