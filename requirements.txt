@@ -29,7 +29,6 @@ python3-saml==1.16.0
 pytz==2024.2
 ruff==0.9.9
 sentry-sdk==2.19.2
-setuptools==70.3.0
 six==1.17.0
 SQLAlchemy==2.0.29
 typing_extensions==4.12.2
