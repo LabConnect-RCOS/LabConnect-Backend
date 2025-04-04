@@ -7,6 +7,10 @@ Then pass an Executable into Session.execute()
 """
 
 import sys
+import requests
+
+from sqlalchemy import create_engine
+
 from datetime import date, datetime
 
 from labconnect import create_app, db
@@ -28,11 +32,47 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
-    UserSavedOpportunities,
-    Codes,
+    Codes
 )
 
+
+def fetch_json_data(json_url):
+    response = requests.get(json_url)
+    
+    if response.status_code != 200:
+        raise ValueError(f"Error: Received status code {response.status_code}")
+    try:
+        return response.json()
+    except requests.exceptions.JSONDecodeError:
+        raise ValueError("Error: Received invalid JSON response")
+
+
+def insert_courses_from_json(session, courses_data):
+    # Fetch existing courses to avoid multiple queries
+    existing_courses = {course.code: course for course in session.query(Courses).all()}
+    new_courses = []
+    
+    for course, course_info in courses_data.items():
+        course_name = course_info.get("name")
+        course_code = course_info.get('subj') + course_info.get('crse')
+
+        if len(course_code) != 8:
+            continue
+        if course_code in existing_courses:
+            # Update name if changed
+            existing_course = existing_courses[course_code]
+            if existing_course.name != course_name:
+                existing_course.name = course_name
+        else:
+            new_courses.append(Courses(code=course_code, name=course_name))
+
+    if new_courses:
+        session.add_all(new_courses)
+    session.commit()
+
+
 app = create_app()
+
 
 if len(sys.argv) < 2:
     sys.exit("No argument or exsisting argument found")
@@ -42,7 +82,7 @@ if sys.argv[1] == "start":
         if db.inspect(db.engine).get_table_names():
             print("Tables already exist.")
             # clear the codes table
-            db.session.query(Codes).delete()
+            db.session.delete(Codes)
             db.session.commit()
             sys.exit()
         db.create_all()
@@ -50,6 +90,20 @@ if sys.argv[1] == "start":
 elif sys.argv[1] == "clear":
     with app.app_context():
         db.drop_all()
+        
+elif sys.argv[1] == "addCourses":
+    with app.app_context():
+        db.create_all()
+
+        json_url = "https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/202409/catalog.json"
+
+        courses_data = fetch_json_data(json_url)
+        if not courses_data:
+            sys.exit("Failed to fetch courses data. Exiting...")
+
+        insert_courses_from_json(db.session, courses_data)
+        
+        db.session.close()
 
 elif sys.argv[1] == "create":
     with app.app_context():
@@ -443,10 +497,10 @@ elif sys.argv[1] == "create":
             UserCourses,
             UserDepartments,
             UserMajors,
-            UserSavedOpportunities,
         ]
 
         for table in tables:
+            
             stmt = db.select(table)
             result = db.session.execute(stmt).scalars()
 
