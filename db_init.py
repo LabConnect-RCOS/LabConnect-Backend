@@ -29,6 +29,7 @@ from labconnect.models import (
     UserDepartments,
     UserMajors,
     UserSavedOpportunities,
+    Codes,
 )
 
 app = create_app()
@@ -425,7 +426,7 @@ elif sys.argv[1] == "create":
             UserCourses,
             UserDepartments,
             UserMajors,
-            UserSavedOpportunities
+            UserSavedOpportunities,
         ]
 
         for table in tables:

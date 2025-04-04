@@ -5,7 +5,12 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import func
 
 from labconnect import db
-from labconnect.helpers import LocationEnum, SemesterEnum, format_credits
+from labconnect.helpers import (
+    LocationEnum,
+    SemesterEnum,
+    format_credits,
+    convert_to_enum,
+)
 from labconnect.models import (
     LabManager,
     Leads,
@@ -17,6 +22,7 @@ from labconnect.models import (
     RecommendsMajors,
     UserSavedOpportunities,
 )
+from labconnect.serializers import serialize_opportunity
 
 from . import main_blueprint
 
@@ -67,43 +73,9 @@ def searchOpportunity(query: str):
 
     data = db.session.execute(stmt).scalars().all()
 
-    results = []
-
-    for opportunity in data:
-        results.append(opportunity.to_dict())
+    results = [serialize_opportunity(opportunity) for opportunity in data]
 
     return results
-
-
-# @main_blueprint.get("/opportunity")
-# def getOpportunity2():
-#     if not request.data:
-#         abort(400)
-#     json_request_data = request.get_json()
-#     if not json_request_data:
-#         abort(400)
-#     id = json_request_data.get("id", None)
-#     if not id:
-#         abort(400)
-#     data = db.first_or_404(db.select(Opportunities).where(Opportunities.id == id))
-#     result = data.to_dict()
-#     return result
-
-
-def convert_to_enum(location_string):
-    try:
-        return LocationEnum[
-            location_string.upper()
-        ]  # Use upper() for case-insensitivity
-    except KeyError:
-        return None  # Or raise an exception if you prefer
-
-
-def packageOpportunity(opportunityInfo, professorInfo):
-    data = opportunityInfo.to_dict()
-    data["professor"] = professorInfo.name
-    data["department"] = professorInfo.department_id
-    return data
 
 
 def packageIndividualOpportunity(opportunityInfo):
@@ -238,7 +210,7 @@ def getOpportunities():
         .order_by(Opportunities.last_updated.desc())
         .distinct()
     ).scalars()
-    result = [opportunity.to_dict() for opportunity in data]
+    result = [serialize_opportunity(opportunity) for opportunity in data]
     return result
 
 
@@ -362,101 +334,9 @@ def filterOpportunities():
     if not data:
         abort(404)
 
-    result = [opportunity.to_dict() for opportunity in data]
+    result = [serialize_opportunity(opportunity) for opportunity in data]
 
     return result
-
-
-# @main_blueprint.put("/opportunity")
-# def changeActiveStatus2():
-
-#     if not request.data:
-#         abort(400)
-
-#     json_request_data = request.get_json()
-
-#     if not json_request_data:
-#         abort(400)
-
-#     postID = json_request_data.get("id", None)
-#     status = json_request_data.get("status", None)
-
-#     if (
-#         postID is None
-#         or status is None
-#         or not isinstance(postID, int)
-#         or not isinstance(status, bool)
-#     ):
-#         abort(400)
-
-#     opportunity = db.first_or_404(
-#         db.select(Opportunities).where(Opportunities.id == postID)
-#     )
-#     opportunity.active = status
-#     db.session.commit()
-#     return {"msg": "Opportunity updated successfully"}, 200
-
-
-# @main_blueprint.get("/getOpportunityMeta/<int:id>")
-# def getOpportunityMeta(id: int):
-#     query = db.session.execute(
-#         db.select(
-#             Opportunities, RecommendsMajors, RecommendsCourses, RecommendsClassYears
-#         )
-#         .where(Opportunities.id == id)
-#         .join(RecommendsMajors, RecommendsMajors.opportunity_id == Opportunities.id)
-#         .join(RecommendsCourses, RecommendsCourses.opportunity_id == Opportunities.id)
-#         .join(
-#             RecommendsClassYears,
-#             RecommendsClassYears.opportunity_id == Opportunities.id,
-#         )
-#     )
-#     data = query.all()
-#     print(data)
-
-
-#     if not data or len(data) == 0:
-#         abort(404)
-
-#     dictionary = data[0][0].to_dict()
-#     dictionary["semester"] = dictionary["semester"].upper()
-#     dictionary["courses"] = set()
-#     dictionary["majors"] = set()
-#     dictionary["years"] = set()
-
-#     for row in data:
-#         dictionary["courses"].add(row[2].course_code)
-#         dictionary["majors"].add(row[1].major_code)
-#         dictionary["years"].add(row[3].class_year)
-
-#     dictionary["courses"] = list(dictionary["courses"])
-#     dictionary["majors"] = list(dictionary["majors"])
-#     dictionary["years"] = list(dictionary["years"])
-
-#     for i in range(len(dictionary["years"])):
-#         dictionary["years"][i] = str(dictionary["years"][i])
-
-#     dictionary["credits"] = []
-#     if dictionary["one_credit"]:
-#         dictionary["credits"].append("1")
-
-#     if dictionary["two_credits"]:
-#         dictionary["credits"].append("2")
-
-#     if dictionary["three_credits"]:
-#         dictionary["credits"].append("3")
-
-#     if dictionary["four_credits"]:
-#         dictionary["credits"].append("4")
-
-#     dictionary.pop("one_credit")
-#     dictionary.pop("two_credits")
-#     dictionary.pop("three_credits")
-#     dictionary.pop("four_credits")
-
-#     return {"data": dictionary}
-
-#     abort(500)
 
 
 # Jobs page
@@ -470,28 +350,6 @@ def getOpportunityCards():
     cards = {"data": [packageOpportunityCard(opportunity[0]) for opportunity in data]}
 
     return cards
-
-
-# @main_blueprint.get("/getOpportunities")
-# def getOpportunities():
-# #     # query database for opportunity
-#     query = db.session.execute(
-#         db.select(Opportunities, Leads, LabManager)
-#         .join(Leads, Leads.opportunity_id == Opportunities.id)
-#         .join(LabManager, Leads.lab_manager_id == LabManager.id)
-#     )
-#     data = query.all()
-#     print(data[0])
-
-#         # return data in the below format if opportunity is found
-#         return {
-#             "data": [
-#                 packageOpportunity(opportunity[0], opportunity[2])
-#                 for opportunity in data
-#             ]
-#         }
-
-#     abort(500)
 
 
 @main_blueprint.get("/staff/opportunities/<string:rcs_id>")
@@ -756,8 +614,9 @@ def editOpportunity_get(opportunity_id):
         if credit
     ]
 
-    years = [str(year.class_year) for year in years_data] 
-    #if years_data else []
+
+    years = [str(year.class_year) for year in years_data]
+    # if years_data else []
 
     # Format opportunity data as JSON
     opportunity_data = {
@@ -896,15 +755,22 @@ def editOpportunity(opportunity_id):
     #         )
     #         db.session.add(new_lead)
 
-    
+
+
     # Atttempt to fix by replacing data with request_data
     # Add the updated list of managers
     if "lab_manager_ids" in request_data:
         for lab_manager_id in request_data["lab_manager_ids"]:
-            new_lead = Leads(
-                lab_manager_id=lab_manager_id, opportunity_id=opportunity_id
-            )
+
+            new_lead = Leads()
+            new_lead.lab_manager_id = lab_manager_id
+            new_lead.opportunity_id = opportunity_id
             db.session.add(new_lead)
+
+    db.session.commit()  # Commit all changes
+
+    # db.session.commit()  # Commit all changes
+
 
     db.session.commit() 
     return {"data": "Opportunity Updated"}, 200
@@ -944,50 +810,43 @@ def deleteOpportunity(opportunity_id):
 
     return {"data": "Opportunity Deleted"}
 
+# ////////////////////////////////////////////////
 # Store opportunities saved by a user
 # ***Specificaly storing a individual users saved opportunities***
-"""
-Info based off of(delete later):
-saved_opportunities = db.relationship(
-        "UserSavedOpportunities", back_populates="user"
-    )
-    lab_manager = db.relationship("LabManager", back_populates="user")
-    opportunities = db.relationship("Participates", back_populates="user")
-    year = db.relationship("ClassYears", back_populates="users")
-    departments = db.relationship("UserDepartments", back_populates="user")
-    majors = db.relationship("UserMajors", back_populates="user")
-    courses = db.relationship("UserCourses", back_populates="user")
-"""
-# Save User Saved Opportunity
+
+
+# Save User Opportunity
+
 @main_blueprint.post("/saveUserOpportunity/<int:opportunity_id>")
 @jwt_required()
 def saveUserOpportunity(opportunity_id):
     data = request.get_json()
     if not data:
-        abort(400, "Missing data")
+        abort(400, "Missing JSON data")
+
 
     save_opp_opportunity_id = db.session.get(Opportunities, opportunity_id)
     if not save_opp_opportunity_id:
         return {"error": "Opportunity not found"}, 404
-    
+
     save_opp_user_id = get_jwt_identity()
 
     # Check if the opportunity already exists in saved opportunities
     find_opp = db.session.execute(
         db.select(UserSavedOpportunities).where(
-            (UserSavedOpportunities.user_id == save_opp_user_id) &
-            (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
+            (UserSavedOpportunities.user_id == save_opp_user_id)
+            & (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
         )
     ).scalar_one_or_none()
 
     if find_opp:
-        return {"message": "Opportunity previously saved"}, 200
+        return {"message": "Opportunity already saved"}, 200
 
     # Save the new opportunity
-    new_opp = UserSavedOpportunities(
-        user_id = save_opp_user_id, 
-        opportunity_id = save_opp_opportunity_id
-    )
+    new_opp = UserSavedOpportunities()
+    new_opp.user_id = save_opp_user_id
+    new_opp.opportunity_id = save_opp_opportunity_id
+
     db.session.add(new_opp)
     db.session.commit()
 
@@ -999,7 +858,8 @@ def saveUserOpportunity(opportunity_id):
 def deleteUserOpportunity(opportunity_id):
     data = request.get_json()
     if not data:
-        abort(400, "No data found")
+        abort(400, "Missing JSON data")
+
 
     save_opp_user_id = get_jwt_identity()
     save_opp_opportunity_id = db.session.get(Opportunities, opportunity_id)
@@ -1009,8 +869,8 @@ def deleteUserOpportunity(opportunity_id):
     # Find the saved opportunity
     get_saved_opp_info = db.session.execute(
         db.select(UserSavedOpportunities).where(
-            (UserSavedOpportunities.user_id == save_opp_user_id) &
-            (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
+            (UserSavedOpportunities.user_id == save_opp_user_id)
+            & (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
         )
     ).scalar_one_or_none()
 

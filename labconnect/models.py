@@ -2,32 +2,24 @@ from sqlalchemy import Enum, Index, event, func
 from sqlalchemy.dialects.postgresql import TSVECTOR
 
 from labconnect import db
-from labconnect.helpers import CustomSerializerMixin, LocationEnum, SemesterEnum
+from labconnect.helpers import (
+    LocationEnum,
+    SemesterEnum,
+    LabManagerTypeEnum,
+)
 
 # DD - Entities
 
 
-class User(db.Model, CustomSerializerMixin):
+class User(db.Model):
     __tablename__ = "user"
-
-    serialize_only = (
-        "id",
-        "email",
-        "first_name",
-        "last_name",
-        "preferred_name",
-        "phone_number",
-        "website",
-        "class_year",
-        "description",
-    )
-    serialize_rules = ()
 
     id = db.Column(db.String(9), primary_key=True, unique=True, nullable=False)
     email = db.Column(db.String(150), nullable=False, unique=True)
     first_name = db.Column(db.String(50), nullable=False, unique=False)
     last_name = db.Column(db.String(200), nullable=False, unique=False)
     preferred_name = db.Column(db.String(50), nullable=True, unique=False)
+    pronouns = db.Column(db.String(25), nullable=True, unique=False)
     phone_number = db.Column(db.String(15), nullable=True, unique=False)
     website = db.Column(db.String(512), nullable=True, unique=False)
     description = db.Column(db.String(4096), nullable=True, unique=False)
@@ -77,13 +69,11 @@ class ManagementPermissions(db.Model):
 
 
 # lab_manager( id, name ), key: id
-class LabManager(db.Model, CustomSerializerMixin):
+class LabManager(db.Model):
     __tablename__ = "lab_manager"
 
-    serialize_only = ("id", "department_id")
-    serialize_rules = ()
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    manager_type = db.Column(Enum(LabManagerTypeEnum), nullable=True, unique=False)
     department_id = db.Column(db.String(4), db.ForeignKey("rpi_departments.id"))
 
     user = db.relationship("User", back_populates="lab_manager")
@@ -94,11 +84,8 @@ class LabManager(db.Model, CustomSerializerMixin):
 
 
 # rpi_schools( name, description ), key: name
-class RPISchools(db.Model, CustomSerializerMixin):
+class RPISchools(db.Model):
     __tablename__ = "rpi_schools"
-
-    serialize_only = ("name", "description")
-    serialize_rules = ()
 
     name = db.Column(db.String(64), primary_key=True)
     description = db.Column(db.String(2000), nullable=True, unique=False)
@@ -107,11 +94,8 @@ class RPISchools(db.Model, CustomSerializerMixin):
 
 
 # rpi_departments( name, description ), key: name
-class RPIDepartments(db.Model, CustomSerializerMixin):
+class RPIDepartments(db.Model):
     __tablename__ = "rpi_departments"
-
-    serialize_only = ("name", "description", "school_id")
-    serialize_rules = ()
 
     id = db.Column(db.String(4), primary_key=True)
     name = db.Column(db.String(64), nullable=False, unique=False)
@@ -126,27 +110,8 @@ class RPIDepartments(db.Model, CustomSerializerMixin):
 
 
 # opportunities( id, name, description, active_status, recommended_experience ), key: id
-class Opportunities(db.Model, CustomSerializerMixin):
+class Opportunities(db.Model):
     __tablename__ = "opportunities"
-
-    serialize_only = (
-        "id",
-        "name",
-        "description",
-        "recommended_experience",
-        "pay",
-        "one_credit",
-        "two_credits",
-        "three_credits",
-        "four_credits",
-        "semester",
-        "year",
-        "application_due",
-        "active",
-        "last_updated",
-        "location",
-    )
-    serialize_rules = ()
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), nullable=True, unique=False)
@@ -200,11 +165,8 @@ def update_search_vector(_unusedmapper, _unusedconnection, target):
 
 
 # courses( course_code, course_name ), key: course_code
-class Courses(db.Model, CustomSerializerMixin):
+class Courses(db.Model):
     __tablename__ = "courses"
-
-    serialize_only = ("code", "name")
-    serialize_rules = ()
 
     code = db.Column(db.String(8), primary_key=True)
     name = db.Column(db.String(128), nullable=True, unique=False)
@@ -218,11 +180,8 @@ class Courses(db.Model, CustomSerializerMixin):
 
 
 # majors( code, name ), key: code
-class Majors(db.Model, CustomSerializerMixin):
+class Majors(db.Model):
     __tablename__ = "majors"
-
-    serialize_only = ("code", "name")
-    serialize_rules = ()
 
     code = db.Column(db.String(4), primary_key=True)
     name = db.Column(db.String(64), nullable=True, unique=False)
@@ -234,11 +193,8 @@ class Majors(db.Model, CustomSerializerMixin):
 
 
 # class_years( class_year ), key: class_year
-class ClassYears(db.Model, CustomSerializerMixin):
+class ClassYears(db.Model):
     __tablename__ = "class_years"
-
-    serialize_only = ("class_year",)
-    serialize_rules = ()
 
     class_year = db.Column(db.Integer, primary_key=True)
     active = db.Column(db.Boolean)
@@ -252,7 +208,7 @@ class ClassYears(db.Model, CustomSerializerMixin):
 # DD - Relationships
 
 
-class UserDepartments(db.Model, CustomSerializerMixin):
+class UserDepartments(db.Model):
     __tablename__ = "user_departments"
 
     user_id = db.Column(db.String(9), db.ForeignKey("user.id"), primary_key=True)
@@ -264,7 +220,7 @@ class UserDepartments(db.Model, CustomSerializerMixin):
     department = db.relationship("RPIDepartments", back_populates="users")
 
 
-class UserMajors(db.Model, CustomSerializerMixin):
+class UserMajors(db.Model):
     __tablename__ = "user_majors"
 
     user_id = db.Column(db.String(9), db.ForeignKey("user.id"), primary_key=True)
@@ -274,7 +230,7 @@ class UserMajors(db.Model, CustomSerializerMixin):
     major = db.relationship("Majors", back_populates="users")
 
 
-class UserCourses(db.Model, CustomSerializerMixin):
+class UserCourses(db.Model):
     __tablename__ = "user_courses"
 
     user_id = db.Column(db.String(9), db.ForeignKey("user.id"), primary_key=True)
@@ -311,9 +267,6 @@ class UserSavedOpportunities(db.Model):
 
 class Leads(db.Model):
     __tablename__ = "leads"
-
-    serialize_only = ("lab_manager_id", "opportunity_id")
-    serialize_rules = ()
 
     lab_manager_id = db.Column(
         db.Integer,
