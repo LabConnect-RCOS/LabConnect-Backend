@@ -116,8 +116,20 @@ elif sys.argv[1] == "create":
 
         lab_manager_rows = (
             ("led", "Duy", "Le", "CSCI", "database database database"),
-            ("turner", "Wes","Turner","CSCI","open source stuff is cool",),
-            ("kuzmin","Konstantine","Kuzmin","CSCI","java, psoft, etc.",),
+            (
+                "turner",
+                "Wes",
+                "Turner",
+                "CSCI",
+                "open source stuff is cool",
+            ),
+            (
+                "kuzmin",
+                "Konstantine",
+                "Kuzmin",
+                "CSCI",
+                "java, psoft, etc.",
+            ),
             ("goldd", "David", "Goldschmidt", "CSCI", "VIM master"),
             ("rami", "Rami", "Rami", "MTLE", "cubes are cool"),
             ("holm", "Mark", "Holmes", "MATH", "all about that math"),
@@ -400,7 +412,12 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        participates_rows = (("cenzar", 1),("cenzar", 2),("test", 3),("test", 4),)
+        participates_rows = (
+            ("cenzar", 1),
+            ("cenzar", 2),
+            ("test", 3),
+            ("test", 4),
+        )
 
         for r in participates_rows:
             row = Participates()
@@ -410,7 +427,7 @@ elif sys.argv[1] == "create":
             db.session.add(row)
             db.session.commit()
 
-        tables = [ 
+        tables = [
             ClassYears,
             Courses,
             Leads,

@@ -252,18 +252,8 @@ class UserSavedOpportunities(db.Model):
     )
 
     user = db.relationship("User", back_populates="saved_opportunities")
-    #user = db.relationship("User", back_populates="opportunities")
     opportunity = db.relationship("Opportunities", back_populates="saved_opportunities")
 
-    #__tablename__ = "participates"
-
-    #user_id = db.Column(db.String(9), db.ForeignKey("user.id"), primary_key=True)
-    #opportunity_id = db.Column(
-        #db.Integer, db.ForeignKey("opportunities.id"), primary_key=True
-    #)
-
-    #user = db.relationship("User", back_populates="opportunities")
-    #opportunity = db.relationship("Opportunities", back_populates="users")
 
 class Leads(db.Model):
     __tablename__ = "leads"
