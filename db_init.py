@@ -7,6 +7,9 @@ Then pass an Executable into Session.execute()
 """
 
 import sys
+import requests
+import validators
+
 from datetime import date, datetime
 
 from labconnect import create_app, db
@@ -28,21 +31,84 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
-    UserSavedOpportunities,
     Codes,
 )
 
+
+def fetch_json_data(json_url):
+    response = requests.get(json_url)
+
+    if response.status_code != 200:
+        raise ValueError(f"Error: Received status code {response.status_code}")
+    try:
+        return response.json()
+    except requests.exceptions.JSONDecodeError:
+        raise ValueError("Error: Received invalid JSON response")
+
+
+def insert_courses_from_json(session, courses_data):
+    # Fetch existing courses to avoid multiple queries
+    existing_courses = {course.code: course for course in session.query(Courses).all()}
+    new_courses = []
+
+    for course, course_info in courses_data.items():
+        course_name = course_info.get("name")
+        course_code = course_info.get("subj") + course_info.get("crse")
+
+        if len(course_code) != 8:
+            continue
+        if course_code in existing_courses:
+            # Update name if changed
+            existing_course = existing_courses[course_code]
+            if existing_course.name != course_name:
+                existing_course.name = course_name
+        else:
+            new_courses.append(Courses(code=course_code, name=course_name))
+
+    if new_courses:
+        session.add_all(new_courses)
+        session.commit()
+    
+
+def insert_schools_and_departments(session, schools_data):
+    for school_data in schools_data:
+        school_name = school_data.get("name")
+        school_description = ""
+
+        school = RPISchools()
+        school.name = school_name
+        school.description = school_description
+        session.add(school)
+        session.commit()
+        print(f"School '{school_name}' inserted into the database.")
+
+        for department_data in school_data.get("depts", []):
+            department_id = department_data.get("code")
+            department_name = department_data.get("name")
+            department_description = ""
+
+            department = RPIDepartments()
+            department.id = department_id
+            department.name = department_name
+            department.description = department_description
+            department.school_id = school_name
+            session.add(department)
+            session.commit()
+            print(f"Department '{department_name}' inserted into the database.")
+
+    
 app = create_app()
 
+
 if len(sys.argv) < 2:
-    sys.exit("No argument or exsisting argument found")
+    sys.exit("No argument or existing argument found")
 
 if sys.argv[1] == "start":
     with app.app_context():
         if db.inspect(db.engine).get_table_names():
             print("Tables already exist.")
             # clear the codes table
-            db.session.query(Codes).delete()
+            db.session.delete(Codes)
             db.session.commit()
             sys.exit()
         db.create_all()
@@ -50,6 +116,58 @@ if sys.argv[1] == "start":
 elif sys.argv[1] == "clear":
     with app.app_context():
         db.drop_all()
+
+elif sys.argv[1] == "addCourses":
+    if len(sys.argv) < 3:
+        sys.exit("Error: No URL argument provided.")
+
+    json_url = sys.argv[2]
+
+    # Validate that json_url is a valid URL
+    if not validators.url(json_url):
+        sys.exit("Error: Invalid URL provided.")
+
+    with app.app_context():
+        db.create_all()
+
+        courses_data = fetch_json_data(json_url)
+        if not courses_data:
+            sys.exit("Failed to fetch courses data. Exiting...")
+
+        insert_courses_from_json(db.session, courses_data)
+
+        db.session.close()
+
+elif sys.argv[1] == "addDept":
+
+    json_url = "https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/202409/schools.json"
+    
+    with app.app_context():
+        db.create_all()
+
+        schools_data = fetch_json_data(json_url)
+        if not schools_data:
+            sys.exit("Failed to fetch schools data. Exiting...")
+
+        insert_schools_and_departments(db.session, schools_data)
+
+        db.session.close()
+
+    ### PREVIOUS
+    # engine = create_engine(f"sqlite:///{os.path.join(basedir, 'database.db')}")
+    # Base.metadata.create_all(engine)
+    # Session = sessionmaker(bind=engine)
+    # session = Session()
+
+    # schools_data = load_json_data(JSON_FILE_PATH)
+    # if not schools_data:
+    #     print("Failed to load JSON data. Exiting...")
+    #     return
+
+    # insert_schools_and_departments(session, schools_data)
+
+    # session.close()
+
 
 elif sys.argv[1] == "create":
     with app.app_context():
@@ -443,7 +561,6 @@ elif sys.argv[1] == "create":
             UserCourses,
             UserDepartments,
             UserMajors,
-            UserSavedOpportunities,
         ]
 
         for table in tables:

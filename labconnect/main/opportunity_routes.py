@@ -763,10 +763,6 @@ def editOpportunity(opportunity_id):
             db.session.add(new_lead)
 
     db.session.commit()  # Commit all changes
-
-    # db.session.commit()  # Commit all changes
-
-    db.session.commit()
     return {"data": "Opportunity Updated"}, 200
 
 
