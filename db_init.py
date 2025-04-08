@@ -8,8 +8,7 @@ Then pass an Executable into Session.execute()
 
 import sys
 import requests
-
-from sqlalchemy import create_engine
+import validators
 
 from datetime import date, datetime
 
@@ -32,13 +31,13 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
-    Codes
+    Codes,
 )
 
 
 def fetch_json_data(json_url):
     response = requests.get(json_url)
-    
+
     if response.status_code != 200:
         raise ValueError(f"Error: Received status code {response.status_code}")
     try:
@@ -51,10 +50,10 @@ def insert_courses_from_json(session, courses_data):
     # Fetch existing courses to avoid multiple queries
     existing_courses = {course.code: course for course in session.query(Courses).all()}
     new_courses = []
-    
+
     for course, course_info in courses_data.items():
         course_name = course_info.get("name")
-        course_code = course_info.get('subj') + course_info.get('crse')
+        course_code = course_info.get("subj") + course_info.get("crse")
 
         if len(course_code) != 8:
             continue
@@ -68,14 +67,14 @@ def insert_courses_from_json(session, courses_data):
 
     if new_courses:
         session.add_all(new_courses)
-    session.commit()
+        session.commit()
 
 
 app = create_app()
 
 
 if len(sys.argv) < 2:
-    sys.exit("No argument or exsisting argument found")
+    sys.exit("No argument or existing argument found")
 
 if sys.argv[1] == "start":
     with app.app_context():
@@ -90,19 +89,26 @@ if sys.argv[1] == "start":
 elif sys.argv[1] == "clear":
     with app.app_context():
         db.drop_all()
-        
+
 elif sys.argv[1] == "addCourses":
+    if len(sys.argv) < 3:
+        sys.exit("Error: No URL argument provided.")
+
+    json_url = sys.argv[2]
+
+    # Validate that json_url is a valid URL
+    if not validators.url(json_url):
+        sys.exit("Error: Invalid URL provided.")
+
     with app.app_context():
         db.create_all()
-
-        json_url = "https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/202409/catalog.json"
 
         courses_data = fetch_json_data(json_url)
         if not courses_data:
             sys.exit("Failed to fetch courses data. Exiting...")
 
         insert_courses_from_json(db.session, courses_data)
-        
+
         db.session.close()
 
 elif sys.argv[1] == "create":
@@ -500,7 +506,6 @@ elif sys.argv[1] == "create":
         ]
 
         for table in tables:
-            
             stmt = db.select(table)
             result = db.session.execute(stmt).scalars()
 

@@ -36,28 +36,27 @@ def create_app() -> Flask:
     app.config.from_object(os.environ.get("CONFIG", "config.TestingConfig"))
 
     # Logging configuration
-    dictConfig({
-        'version': 1,
-        'formatters': {
-            'default': {
-                'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-            }
-        },
-        'handlers': {
-            'wsgi': {
-                'class': 'logging.StreamHandler',
-                'stream': 'ext://flask.logging.wsgi_errors_stream',
-                'formatter': 'default'
-            }
-        },
-        'root': {
-            'level': 'INFO',
-            'handlers': ['wsgi']
+    dictConfig(
+        {
+            "version": 1,
+            "formatters": {
+                "default": {
+                    "format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
+                }
+            },
+            "handlers": {
+                "wsgi": {
+                    "class": "logging.StreamHandler",
+                    "stream": "ext://flask.logging.wsgi_errors_stream",
+                    "formatter": "default",
+                }
+            },
+            "root": {"level": "INFO", "handlers": ["wsgi"]},
         }
-    })
+    )
 
     app.logger.info("App logger initialized.")
-    
+
     # Sentry
     sentry_sdk.init(
         dsn=app.config["SENTRY_DSN"],
@@ -72,7 +71,7 @@ def create_app() -> Flask:
     register_blueprints(app)
 
     app.logger.info("Returning App")
-    
+
     return app
 
 
@@ -123,6 +122,6 @@ def register_blueprints(app) -> None:
 
     app.register_blueprint(main_blueprint)
     app.logger.info("Main blueprint registered.")
-    
+
     app.register_blueprint(error_blueprint)
     app.logger.info("Error blueprint registered.")
