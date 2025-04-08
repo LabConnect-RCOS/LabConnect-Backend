@@ -68,8 +68,35 @@ def insert_courses_from_json(session, courses_data):
     if new_courses:
         session.add_all(new_courses)
         session.commit()
+    
 
+def insert_schools_and_departments(session, schools_data):
+    for school_data in schools_data:
+        school_name = school_data.get("name")
+        school_description = ""
 
+        school = RPISchools()
+        school.name = school_name
+        school.description = school_description
+        session.add(school)
+        session.commit()
+        print(f"School '{school_name}' inserted into the database.")
+
+        for department_data in school_data.get("depts", []):
+            department_id = department_data.get("code")
+            department_name = department_data.get("name")
+            department_description = ""
+
+            department = RPIDepartments()
+            department.id = department_id
+            department.name = department_name
+            department.description = department_description
+            department.school_id = school_name
+            session.add(department)
+            session.commit()
+            print(f"Department '{department_name}' inserted into the database.")
+
+    
 app = create_app()
 
 
@@ -110,6 +137,37 @@ elif sys.argv[1] == "addCourses":
         insert_courses_from_json(db.session, courses_data)
 
         db.session.close()
+
+elif sys.argv[1] == "addDept":
+
+    json_url = "https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/202409/schools.json"
+    
+    with app.app_context():
+        db.create_all()
+
+        schools_data = fetch_json_data(json_url)
+        if not schools_data:
+            sys.exit("Failed to fetch schools data. Exiting...")
+
+        insert_schools_and_departments(db.session, schools_data)
+
+        db.session.close()
+
+    ### PREVIOUS
+    # engine = create_engine(f"sqlite:///{os.path.join(basedir, 'database.db')}")
+    # Base.metadata.create_all(engine)
+    # Session = sessionmaker(bind=engine)
+    # session = Session()
+
+    # schools_data = load_json_data(JSON_FILE_PATH)
+    # if not schools_data:
+    #     print("Failed to load JSON data. Exiting...")
+    #     return
+
+    # insert_schools_and_departments(session, schools_data)
+
+    # session.close()
+
 
 elif sys.argv[1] == "create":
     with app.app_context():
