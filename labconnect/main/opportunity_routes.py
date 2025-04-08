@@ -143,31 +143,6 @@ def packageIndividualOpportunity(opportunityInfo):
     return data
 
 
-def packageOpportunityCard(opportunity):
-    # get professor and department by getting Leads and LabManager
-    query = db.session.execute(
-        db.select(Leads, LabManager, User.first_name, User.last_name)
-        .where(Leads.opportunity_id == opportunity.id)
-        .join(LabManager, Leads.lab_manager_id == LabManager.id)
-        .join(User, LabManager.id == User.lab_manager_id)
-    )
-
-    data = query.all()
-
-    professorInfo = ", ".join(item[1].getName() for item in data)
-
-    card = {
-        "id": opportunity.id,
-        "title": opportunity.name,
-        "professor": professorInfo,
-        "season": opportunity.semester,
-        "location": "TBA",
-        "year": opportunity.year,
-    }
-
-    return card
-
-
 @main_blueprint.get("/getOpportunity/<int:opp_id>")
 def getOpportunity(opp_id: int):
     # query database for opportunity and recommended class years
@@ -214,19 +189,28 @@ def getOpportunities():
 
 
 @main_blueprint.post("/opportunity/filter")
+@jwt_required()
 def filterOpportunities():
     # Handle POST requests for filtering opportunities
-    json_request_data = request.get_json()
+    filters = request.get_json()
+    user_id = get_jwt_identity()
 
-    if not json_request_data:
-        abort(400)
-
-    filters = json_request_data.get("filters", None)
-
+    print(filters)
     data = None
 
-    if filters is None:
-        data = db.session.execute(db.select(Opportunities).limit(20)).scalars()
+    if filters is None or filters == {}:
+        data = db.session.execute(
+            db.select(
+                Opportunities, User.preferred_name, User.first_name, User.last_name
+            )
+            .where(Opportunities.active)
+            .join(Leads, Opportunities.id == Leads.opportunity_id)
+            .join(LabManager, Leads.lab_manager_id == LabManager.id)
+            .join(User, LabManager.id == User.lab_manager_id)
+            .limit(20)
+            .order_by(Opportunities.last_updated)
+            .distinct()
+        ).all()
 
     elif not isinstance(filters, list):
         abort(400)
@@ -234,8 +218,13 @@ def filterOpportunities():
     else:
         where_conditions = []
         query = (
-            db.select(Opportunities)
+            db.select(
+                Opportunities, User.preferred_name, User.first_name, User.last_name
+            )
             .where(Opportunities.active)
+            .join(Leads, Opportunities.id == Leads.opportunity_id)
+            .join(LabManager, Leads.lab_manager_id == LabManager.id)
+            .join(User, LabManager.id == User.lab_manager_id)
             .limit(20)
             .order_by(Opportunities.last_updated)
             .distinct()
@@ -255,7 +244,7 @@ def filterOpportunities():
                         where_conditions.append(Opportunities.location != "REMOTE")
 
                 # Class year filter
-                elif field == "class_year":
+                elif field == "years":
                     if not isinstance(value, list):
                         abort(400)
                     query = query.join(
@@ -307,16 +296,10 @@ def filterOpportunities():
                     )
 
                 # Pay filter
-                elif field == "pay":
-                    if not isinstance(value, dict):
+                elif field == "hourlyPay":
+                    if not isinstance(value, float) or not isinstance(value, int):
                         abort(400)
-                    min_pay = value.get("min")
-                    max_pay = value.get("max")
-                    if min_pay is None:
-                        min_pay = 0
-                    if max_pay is None:
-                        max_pay = float("inf")
-                    where_conditions.append(Opportunities.pay.between(min_pay, max_pay))
+                    where_conditions.append(Opportunities.pay.gte(value))
 
                 # Other fields
                 else:
@@ -328,27 +311,28 @@ def filterOpportunities():
                         abort(400)
 
         query = query.where(*where_conditions)
-        data = db.session.execute(query).scalars()
+        data = db.session.execute(query).all()
 
     if not data:
         abort(404)
 
-    result = [serialize_opportunity(opportunity) for opportunity in data]
+    saved_opportunity = db.session.execute(
+        db.select(UserSavedOpportunities.opportunity_id).where(
+            UserSavedOpportunities.user_id == user_id
+        )
+    )
+
+    result = [
+        serialize_opportunity(
+            opportunity[0],
+            professor=f"{opportunity[1] or opportunity[2]} {opportunity[3]}",
+            saved=opportunity[0].id in saved_opportunity,
+        )
+        for opportunity in data
+    ]
+    print("Results: ", result)
 
     return result
-
-
-# Jobs page
-@main_blueprint.get("/getOpportunityCards")
-def getOpportunityCards():
-    # query database for opportunity
-    query = db.session.execute(db.select(Opportunities).where(Opportunities.active))
-
-    data = query.fetchall()
-    # return data in the below format if opportunity is found
-    cards = {"data": [packageOpportunityCard(opportunity[0]) for opportunity in data]}
-
-    return cards
 
 
 @main_blueprint.get("/staff/opportunities/<string:rcs_id>")
