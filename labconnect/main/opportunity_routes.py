@@ -16,6 +16,7 @@ from labconnect.models import (
     Leads,
     Opportunities,
     RecommendsClassYears,
+    RecommendsCourses,
     User,
     Courses,
     Participates,
@@ -584,6 +585,18 @@ def editOpportunity_get(opportunity_id):
     #         RecommendsCourses.opportunity_id == opportunity_id
     #     )
     # ).all()
+    
+    courses_data = db.session.execute(
+         db.select(RecommendsCourses.course_code).where(
+             RecommendsCourses.opportunity_id == opportunity_id
+         )
+     ).all()
+    
+    majors_data = db.session.execute(
+         db.select(RecommendsMajors.major_code).where(
+             RecommendsMajors.opportunity_id == opportunity_id
+         )
+     ).all()
 
     # Query related majors
     # majors_data = db.session.execute(
@@ -803,11 +816,90 @@ def deleteOpportunity(opportunity_id):
 
     return {"data": "Opportunity Deleted"}
 
+#Return opportunity data
+@main_blueprint.get("/OpportunityRoute/")
+@jwt_required()
+def saveUserOpportunity(a_opportunity_id):
+    data = request.get_json()
+    if not data:
+        abort(400, "Missing JSON data")
 
-# ////////////////////////////////////////////////
+    opportunity_id = db.session.get(Opportunities, opportunity_id)
+    if not opportunity_id:
+        return {"error": "Opportunity not found"}, 404
+
+    user_id = get_jwt_identity()
+    #opp_id --> opp --> name
+    
+    data = db.session.execute(
+        db.select(Opportunities)
+        .where(Opportunities.opportunity_id == a_opportunity_id)
+    ).scalars()
+    name = data.name
+
+    opportunity = db.session.execute(
+        db.select(Opportunities).where(Opportunities.id == opportunity_id)
+    ).scalar_one_or_none()
+
+    if opportunity is None:
+        abort(400)
+
+    author = db.session.execute(
+        db.select(User).where(User.email == user_id[0])
+    ).scalar_one_or_none()
+
+    leads = db.session.execute(
+        db.select(Leads)
+        .where(Leads.opportunity_id == opportunity_id)
+        .where(Leads.lab_manager_id == author.lab_manager_id)
+    ).scalar_one_or_none()
+    try:
+        pay = int(data["hourlyPay"])
+    except ValueError:
+        pay = None
+
+    one = True if "1" in data["credits"] else False
+    two = True if "2" in data["credits"] else False
+    three = True if "3" in data["credits"] else False
+    four = True if "4" in data["credits"] else False
+    
+    lenum = convert_to_enum(data["location"])
+
+    if lenum is None:
+        lenum = LocationEnum.TBD
+
+    #hold = [a_opportunity_id, opportunity, description, recomeded_experience, pay, one, two, three, four,
+            #semester, year, aplication_due, active, location, last_updated, author, leads]
+    hold = [a_opportunity_id, opportunity, pay, one, two, three, four, author, leads]
+    return hold
+
+
+    #for opps in db.session.execute(
+            #db.select(opportunity_id).where(
+                #Opportunities.opportunity_id == opportunity_id
+            #)
+        #).scalars()
+    
+
+    '''
+    opportunity.name = request_data["title"]
+    opportunity.description = request_data["description"]
+    opportunity.recommended_experience = request_data["recommended_experience"]
+    opportunity.pay = pay
+    opportunity.one_credit = one
+    opportunity.two_credits = two
+    opportunity.three_credits = three
+    opportunity.four_credits = four
+    opportunity.application_due = datetime.strptime(
+        request_data["application_due"], "%Y-%m-%d"
+    )
+    # opportunity.active = data["active"]
+    opportunity.location = lenum
+    opportunity.last_updated = datetime.now()'
+    '''
+
 # Store opportunities saved by a user
 # ***Specificaly storing a individual users saved opportunities***
-
 
 # Save User Opportunity
 @main_blueprint.post("/saveUserOpportunity/<int:opportunity_id>")
