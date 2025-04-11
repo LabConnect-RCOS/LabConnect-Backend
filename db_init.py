@@ -68,7 +68,7 @@ def insert_courses_from_json(session, courses_data):
     if new_courses:
         session.add_all(new_courses)
         session.commit()
-
+    
 
 def insert_schools_and_departments(session, schools_data):
     for school_data in schools_data:
@@ -139,8 +139,9 @@ def main():
             db.session.close()
 
     elif sys.argv[1] == "addDept":
-        j_url = "https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/202409/schools.json"
 
+        j_url = "https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/202409/schools.json"
+        
         with app.app_context():
             db.create_all()
 
@@ -151,21 +152,6 @@ def main():
             insert_schools_and_departments(db.session, data)
 
             db.session.close()
-
-        ### PREVIOUS
-        # engine = create_engine(f"sqlite:///{os.path.join(basedir, 'database.db')}")
-        # Base.metadata.create_all(engine)
-        # Session = sessionmaker(bind=engine)
-        # session = Session()
-
-        # schools_data = load_json_data(JSON_FILE_PATH)
-        # if not schools_data:
-        #     print("Failed to load JSON data. Exiting...")
-        #     return
-
-        # insert_schools_and_departments(session, schools_data)
-
-        # session.close()
 
     elif sys.argv[1] == "create":
         with app.app_context():
@@ -301,9 +287,7 @@ def main():
                 user.last_name = row_tuple[2]
                 user.lab_manager_id = lab_manager.id
                 user.description = row_tuple[4]
-                user.profile_picture = (
-                    "https://www.svgrepo.com/show/206842/professor.svg"
-                )
+                user.profile_picture = "https://www.svgrepo.com/show/206842/professor.svg"
 
                 db.session.add(user)
                 db.session.commit()
@@ -463,11 +447,7 @@ def main():
                 db.session.add(row)
                 db.session.commit()
 
-            recommends_courses_rows = (
-                (1, "CSCI4430"),
-                (1, "CSCI2961"),
-                (2, "CSCI4390"),
-            )
+            recommends_courses_rows = ((1, "CSCI4430"), (1, "CSCI2961"), (2, "CSCI4390"))
 
             for r in recommends_courses_rows:
                 row = RecommendsCourses()
@@ -583,5 +563,5 @@ def main():
             print("Number of tables:", len(tables))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
