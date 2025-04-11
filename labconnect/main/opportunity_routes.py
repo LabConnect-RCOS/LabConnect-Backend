@@ -867,7 +867,7 @@ def saveUserOpportunity(a_opportunity_id):
 
     if lenum is None:
         lenum = LocationEnum.TBD
-
+    #reformatted
     #hold = [a_opportunity_id, opportunity, description, recomeded_experience, pay, one, two, three, four,
             #semester, year, aplication_due, active, location, last_updated, author, leads]
     hold = [a_opportunity_id, opportunity, pay, one, two, three, four, author, leads]
@@ -882,6 +882,7 @@ def saveUserOpportunity(a_opportunity_id):
     
 
     '''
+    Data in opportunity 
     opportunity.name = request_data["title"]
     opportunity.description = request_data["description"]
     opportunity.recommended_experience = request_data["recommended_experience"]
@@ -897,6 +898,82 @@ def saveUserOpportunity(a_opportunity_id):
     opportunity.location = lenum
     opportunity.last_updated = datetime.now()'
     '''
+
+# Return opportunity data
+@main_blueprint.get("/OpportunityRoute/<int:opportunity_id>")
+@jwt_required()
+def get_opportunity(opportunity_id):
+    # Get current user ID from JWT
+    user_id = get_jwt_identity()
+
+    # Fetch the opportunity
+    opportunity = db.session.execute(
+        db.select(Opportunities).where(Opportunities.id == opportunity_id)
+    ).scalar_one_or_none()
+
+    if opportunity is None:
+        return {"error": "Opportunity not found"}, 404
+
+    # Get the user
+    user = db.session.execute(
+        db.select(User).where(User.id == user_id)
+    ).scalar_one_or_none()
+
+    if user is None:
+        return {"error": "User not found"}, 404
+
+    # Get the lab manager
+    leads = db.session.execute(
+        db.select(Leads)
+        .where(Leads.opportunity_id == opportunity_id)
+        .where(Leads.lab_manager_id == user.lab_manager_id)
+    ).scalar_one_or_none()
+
+    # Might need
+    author = db.session.execute(
+        db.select(User).where(User.email == user_id[0])
+    ).scalar_one_or_none()
+
+    rec_major = db.session.execute(
+        db.select(RecommendsMajors).where(RecommendsMajors.opportunity_id == opportunity_id)
+    ).scalar_one_or_none()
+
+    rec_course = db.session.execute(
+        db.select(RecommendsCourses).where(RecommendsCourses.opportunity_id == opportunity_id)
+    ).scalar_one_or_none()
+
+    rec_class_years = db.session.execute(
+        db.select(RecommendsClassYears).where(RecommendsClassYears.opportunity_id == opportunity_id)
+    ).scalar_one_or_none()
+
+    # Structure the opportunity data to return
+    information = {
+        "id": opportunity.id,
+        "name": opportunity.name,
+        "description": opportunity.description,
+        "recommended_experience": opportunity.recommended_experience,
+        "pay": opportunity.pay,
+        "credits": {
+            "one_credit": opportunity.one_credit,
+            "two_credits": opportunity.two_credits, 
+            "three_credits": opportunity.three_credits,
+            "four_credits": opportunity.four_credits,
+        },
+        "semester": opportunity.semester,
+        "year": opportunity.year,
+        "application_due": opportunity.application_due.isoformat() if opportunity.application_due else None,
+        "active": opportunity.active,
+        "location": opportunity.location.name if opportunity.location else None,
+        "last_updated": opportunity.last_updated.isoformat() if opportunity.last_updated else None,
+        "leads_by_user_lab": leads is not None,
+        "author": author.id,
+        "rec_major": rec_major.major_code,
+        "rec_course": rec_course.course_code,
+        "rec_class_years": rec_class_years.class_years
+    }
+
+    #return jsonify(information), 200
+    return information, 200
 
 # Store opportunities saved by a user
 # ***Specificaly storing a individual users saved opportunities***
