@@ -68,15 +68,19 @@ def insert_courses_from_json(session, courses_data):
     if new_courses:
         session.add_all(new_courses)
         session.commit()
-    
+
 
 def insert_schools_and_departments(session, schools_data):
     # Fetch existing schools and departments once
-    existing_schools = {school.name: school for school in session.query(RPISchools).all()}
-    existing_departments = {dept.id: dept for dept in session.query(RPIDepartments).all()}
+    existing_schools = {
+        school.name: school for school in session.query(RPISchools).all()
+    }
+    existing_departments = {
+        dept.id: dept for dept in session.query(RPIDepartments).all()
+    }
     new_schools = []
     new_depts = []
-    
+
     for school_data in schools_data:
         school_name = school_data.get("name")
         school_description = ""
@@ -87,13 +91,9 @@ def insert_schools_and_departments(session, schools_data):
             if school.description != school_description:
                 school.description = school_description
         else:
-            # school = RPISchools(name=school_name, description=school_description)
-            # session.add(school)
-            # session.flush()  # Get ID if needed
-            new_schools.append(RPISchools(name=school_name, description=school_description))
-            print(f"School '{school_name}' added.")
-
-        print(f"School '{school_name}' processed.")
+            new_schools.append(
+                RPISchools(name=school_name, description=school_description)
+            )
 
         for department_data in school_data.get("depts", []):
             department_id = department_data.get("code")
@@ -110,50 +110,18 @@ def insert_schools_and_departments(session, schools_data):
                 if department.school_id != school_name:
                     department.school_id = school_name
             else:
-                # department = RPIDepartments(
-                #     id=department_id,
-                #     name=department_name,
-                #     description=department_description,
-                #     school_id=school.name
-                # )
-                # new_depts.append(department)
-                
-                new_depts.append(RPIDepartments(id=department_id, name=department_name, 
-                    description=department_description, school_id=school_name))
-                print(f"Department '{department_name}' added.")
-
-            print(f"Department '{department_name}' processed.")
+                new_depts.append(
+                    RPIDepartments(
+                        id=department_id,
+                        name=department_name,
+                        description=department_description,
+                        school_id=school_name,
+                    )
+                )
 
     if new_schools or new_depts:
         session.add_all(new_schools + new_depts)
         session.commit()
-
-
-# def insert_schools_and_departments(session, schools_data):
-#     for school_data in schools_data:
-#         school_name = school_data.get("name")
-#         school_description = ""
-
-#         school = RPISchools()
-#         school.name = school_name
-#         school.description = school_description
-#         session.add(school)
-#         session.commit()
-#         print(f"School '{school_name}' inserted into the database.")
-
-#         for department_data in school_data.get("depts", []):
-#             department_id = department_data.get("code")
-#             department_name = department_data.get("name")
-#             department_description = ""
-
-#             department = RPIDepartments()
-#             department.id = department_id
-#             department.name = department_name
-#             department.description = department_description
-#             department.school_id = school_name
-#             session.add(department)
-#             session.commit()
-#             print(f"Department '{department_name}' inserted into the database.")
 
 
 def main():
@@ -198,9 +166,15 @@ def main():
             db.session.close()
 
     elif sys.argv[1] == "addDept":
+        if len(sys.argv) < 3:
+            sys.exit("Error: No URL argument provided.")
 
-        j_url = "https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/202409/schools.json"
-        
+        j_url = sys.argv[2]
+
+        # Validate that j_url is a valid URL
+        if not validators.url(j_url):
+            sys.exit("Error: Invalid URL provided.")
+
         with app.app_context():
             db.create_all()
 
@@ -346,7 +320,9 @@ def main():
                 user.last_name = row_tuple[2]
                 user.lab_manager_id = lab_manager.id
                 user.description = row_tuple[4]
-                user.profile_picture = "https://www.svgrepo.com/show/206842/professor.svg"
+                user.profile_picture = (
+                    "https://www.svgrepo.com/show/206842/professor.svg"
+                )
 
                 db.session.add(user)
                 db.session.commit()
@@ -506,7 +482,11 @@ def main():
                 db.session.add(row)
                 db.session.commit()
 
-            recommends_courses_rows = ((1, "CSCI4430"), (1, "CSCI2961"), (2, "CSCI4390"))
+            recommends_courses_rows = (
+                (1, "CSCI4430"),
+                (1, "CSCI2961"),
+                (2, "CSCI4390"),
+            )
 
             for r in recommends_courses_rows:
                 row = RecommendsCourses()
@@ -622,5 +602,5 @@ def main():
             print("Number of tables:", len(tables))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

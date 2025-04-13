@@ -254,6 +254,7 @@ class UserSavedOpportunities(db.Model):
     user = db.relationship("User", back_populates="saved_opportunities")
     opportunity = db.relationship("Opportunities", back_populates="saved_opportunities")
 
+
 class Leads(db.Model):
     __tablename__ = "leads"
 
