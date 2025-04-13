@@ -58,8 +58,8 @@ def insert_courses_from_json(session, courses_data):
         if len(course_code) != 8:
             continue
         if course_code in existing_courses:
-            # Update name if changed
             existing_course = existing_courses[course_code]
+            # Update name if changed
             if existing_course.name != course_name:
                 existing_course.name = course_name
         else:
@@ -71,30 +71,89 @@ def insert_courses_from_json(session, courses_data):
     
 
 def insert_schools_and_departments(session, schools_data):
+    # Fetch existing schools and departments once
+    existing_schools = {school.name: school for school in session.query(RPISchools).all()}
+    existing_departments = {dept.id: dept for dept in session.query(RPIDepartments).all()}
+    new_schools = []
+    new_depts = []
+    
     for school_data in schools_data:
         school_name = school_data.get("name")
         school_description = ""
 
-        school = RPISchools()
-        school.name = school_name
-        school.description = school_description
-        session.add(school)
-        session.commit()
-        print(f"School '{school_name}' inserted into the database.")
+        if school_name in existing_schools:
+            school = existing_schools[school_name]
+            # Update description if changed
+            if school.description != school_description:
+                school.description = school_description
+        else:
+            # school = RPISchools(name=school_name, description=school_description)
+            # session.add(school)
+            # session.flush()  # Get ID if needed
+            new_schools.append(RPISchools(name=school_name, description=school_description))
+            print(f"School '{school_name}' added.")
+
+        print(f"School '{school_name}' processed.")
 
         for department_data in school_data.get("depts", []):
             department_id = department_data.get("code")
             department_name = department_data.get("name")
             department_description = ""
 
-            department = RPIDepartments()
-            department.id = department_id
-            department.name = department_name
-            department.description = department_description
-            department.school_id = school_name
-            session.add(department)
-            session.commit()
-            print(f"Department '{department_name}' inserted into the database.")
+            if department_id in existing_departments:
+                department = existing_departments[department_id]
+                # Update name or description if changed
+                if department.name != department_name:
+                    department.name = department_name
+                if department.description != department_description:
+                    department.description = department_description
+                if department.school_id != school_name:
+                    department.school_id = school_name
+            else:
+                # department = RPIDepartments(
+                #     id=department_id,
+                #     name=department_name,
+                #     description=department_description,
+                #     school_id=school.name
+                # )
+                # new_depts.append(department)
+                
+                new_depts.append(RPIDepartments(id=department_id, name=department_name, 
+                    description=department_description, school_id=school_name))
+                print(f"Department '{department_name}' added.")
+
+            print(f"Department '{department_name}' processed.")
+
+    if new_schools or new_depts:
+        session.add_all(new_schools + new_depts)
+        session.commit()
+
+
+# def insert_schools_and_departments(session, schools_data):
+#     for school_data in schools_data:
+#         school_name = school_data.get("name")
+#         school_description = ""
+
+#         school = RPISchools()
+#         school.name = school_name
+#         school.description = school_description
+#         session.add(school)
+#         session.commit()
+#         print(f"School '{school_name}' inserted into the database.")
+
+#         for department_data in school_data.get("depts", []):
+#             department_id = department_data.get("code")
+#             department_name = department_data.get("name")
+#             department_description = ""
+
+#             department = RPIDepartments()
+#             department.id = department_id
+#             department.name = department_name
+#             department.description = department_description
+#             department.school_id = school_name
+#             session.add(department)
+#             session.commit()
+#             print(f"Department '{department_name}' inserted into the database.")
 
 
 def main():
