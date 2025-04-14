@@ -747,9 +747,6 @@ def editOpportunity(opportunity_id):
             db.session.add(new_lead)
 
     db.session.commit()  # Commit all changes
-
-    # db.session.commit()  # Commit all changes
-
     return {"data": "Opportunity Updated"}, 200
 
 
@@ -794,6 +791,8 @@ def deleteOpportunity(opportunity_id):
 
 
 # Save User Opportunity
+
+
 @main_blueprint.post("/saveUserOpportunity/<int:opportunity_id>")
 @jwt_required()
 def saveUserOpportunity(opportunity_id):
@@ -822,6 +821,7 @@ def saveUserOpportunity(opportunity_id):
     new_opp = UserSavedOpportunities()
     new_opp.user_id = save_opp_user_id
     new_opp.opportunity_id = save_opp_opportunity_id
+
     db.session.add(new_opp)
     db.session.commit()
 
@@ -857,3 +857,63 @@ def deleteUserOpportunity(opportunity_id):
     db.session.commit()
 
     return {"message": "Opportunity deleted"}, 200
+
+
+# Create route to return a list saved opportunities
+@main_blueprint.get("/AllSavedUserOpportunities/")
+@jwt_required()
+def allSavedUserOportunities():
+    # Get current users ID
+    user_id = get_jwt_identity()
+
+    # Get all saved opportunities for the user
+    saved_opps = (
+        db.session.execute(
+            db.select(UserSavedOpportunities).where(
+                UserSavedOpportunities.user_id == user_id
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not saved_opps:
+        return {"message": "No saved opportunities found"}, 404
+
+    # Put opportunities into a dictionary
+    saved_opportunities_list = [opp.to_dict() for opp in saved_opps]
+
+    return saved_opportunities_list, 200
+
+
+# Create route to allow for multiple pages to be unsaved given a list of opp_ids delete them
+@main_blueprint.delete("/UnsaveMultiplePages/")
+@jwt_required()
+# Delete id that appear on delete_ids list
+def UnsaveMultipleOpps():
+    # Get a list of opportunity IDs
+    data = request.get_json()
+    delete_ids = data.get("delete_ids")
+    if not delete_ids or not isinstance(delete_ids, list):
+        return {"message": "Invalid or missing delete_ids"}, 400
+
+    # Get opportunities to delete for current user
+    user_id = get_jwt_identity()
+    saved_opps = (
+        db.session.execute(
+            db.select(UserSavedOpportunities).where(
+                UserSavedOpportunities.user_id == user_id,
+                UserSavedOpportunities.opportunity_id.in_(delete_ids),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not saved_opps:
+        return {"message": "User has no saved opportunities"}, 404
+
+    # Delete the opportinities
+    for opp in saved_opps:
+        db.session.delete(opp)
+
+    db.session.commit()
+    return {"message": f"Deleted {len(saved_opps)} saved opportunities"}, 200
