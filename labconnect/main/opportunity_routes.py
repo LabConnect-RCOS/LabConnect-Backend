@@ -290,7 +290,9 @@ def filterOpportunities():
                 # Pay filter
                 elif field == "hourlypay":
                     pay = value[0]
-                    if not pay.isnumeric():
+                    try:
+                        pay = float(pay)
+                    except ValueError:
                         abort(400)
                     where_conditions.append(Opportunities.pay >= float(pay))
 
