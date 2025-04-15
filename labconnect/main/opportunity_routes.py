@@ -175,82 +175,89 @@ def getOpportunity(opp_id: int):
 
 
 @main_blueprint.get("/opportunity/filter")
-def getOpportunities():
-    # Handle GET requests for fetching default active opportunities
-    data = db.session.execute(
-        db.select(Opportunities)
-        .where(Opportunities.active)
-        .limit(20)
-        .order_by(Opportunities.last_updated.desc())
-        .distinct()
-    ).scalars()
-    result = [serialize_opportunity(opportunity) for opportunity in data]
-    return result
-
-
-@main_blueprint.post("/opportunity/filter")
 @jwt_required()
 def filterOpportunities():
-    # Handle POST requests for filtering opportunities
-    filters = request.get_json()
+    # Handle GET requests for filtering opportunities using query parameters
+    filters = request.args.to_dict(flat=False)
     user_id = get_jwt_identity()
-
-    print(filters)
     data = None
 
     if filters is None or filters == {}:
         data = db.session.execute(
             db.select(
-                Opportunities, User.preferred_name, User.first_name, User.last_name
+                Opportunities,
+                func.json_agg(
+                    func.json_build_object(
+                        "first_name",
+                        User.first_name,
+                        "last_name",
+                        User.last_name,
+                        "preferred_name",
+                        User.preferred_name,
+                    )
+                ).label("lab_managers"),
             )
-            .where(Opportunities.active)
             .join(Leads, Opportunities.id == Leads.opportunity_id)
             .join(LabManager, Leads.lab_manager_id == LabManager.id)
             .join(User, LabManager.id == User.lab_manager_id)
-            .limit(20)
+            .where(Opportunities.active)
+            .group_by(Opportunities.id)
             .order_by(Opportunities.last_updated)
-            .distinct()
+            .limit(20)
         ).all()
-
-    elif not isinstance(filters, list):
-        abort(400)
 
     else:
         where_conditions = []
         query = (
             db.select(
-                Opportunities, User.preferred_name, User.first_name, User.last_name
+                Opportunities,
+                func.json_agg(
+                    func.json_build_object(
+                        "first_name",
+                        User.first_name,
+                        "last_name",
+                        User.last_name,
+                        "preferred_name",
+                        User.preferred_name,
+                    )
+                ).label("lab_managers"),
             )
-            .where(Opportunities.active)
             .join(Leads, Opportunities.id == Leads.opportunity_id)
             .join(LabManager, Leads.lab_manager_id == LabManager.id)
             .join(User, LabManager.id == User.lab_manager_id)
-            .limit(20)
+            .outerjoin(
+                RecommendsMajors, Opportunities.id == RecommendsMajors.opportunity_id
+            )
+            .where(Opportunities.active)
+            .group_by(Opportunities.id)
             .order_by(Opportunities.last_updated)
-            .distinct()
+            .limit(20)
         )
-        for given_filter in filters:
-            field = given_filter.get("field", None)
-            value = given_filter.get("value", None)
-
+        for field, value in filters.items():
             if field and value:
                 field = field.lower()
+                value = value[0].split(",")
 
                 # Location filter
+                # not in use yet
                 if field == "location":
-                    if value.lower() == "remote":
-                        where_conditions.append(Opportunities.location == "REMOTE")
-                    else:
-                        where_conditions.append(Opportunities.location != "REMOTE")
+                    for location in value:
+                        if location.lower() == "remote":
+                            where_conditions.append(Opportunities.location == "REMOTE")
+                        else:
+                            where_conditions.append(Opportunities.location != "REMOTE")
 
                 # Class year filter
                 elif field == "years":
                     if not isinstance(value, list):
                         abort(400)
+                    years = list(map(int, filter(str.isdigit, value)))
+                    if len(years) == 0:
+                        abort(400)
                     query = query.join(
                         RecommendsClassYears,
                         Opportunities.id == RecommendsClassYears.opportunity_id,
-                    ).where(RecommendsClassYears.class_year.in_(value))
+                    ).where(RecommendsClassYears.class_year.in_(years))
 
                 # Credits filter
                 elif field == "credits":
@@ -258,17 +265,17 @@ def filterOpportunities():
                         abort(400)
                     credit_conditions = []
                     for credit in value:
-                        if credit == 1:
+                        if credit == "1":
                             credit_conditions.append(Opportunities.one_credit.is_(True))
-                        elif credit == 2:
+                        elif credit == "2":
                             credit_conditions.append(
                                 Opportunities.two_credits.is_(True)
                             )
-                        elif credit == 3:
+                        elif credit == "3":
                             credit_conditions.append(
                                 Opportunities.three_credits.is_(True)
                             )
-                        elif credit == 4:
+                        elif credit == "4":
                             credit_conditions.append(
                                 Opportunities.four_credits.is_(True)
                             )
@@ -280,12 +287,10 @@ def filterOpportunities():
                 elif field == "majors":
                     if not isinstance(value, list):
                         abort(400)
-                    query = query.join(
-                        RecommendsMajors,
-                        Opportunities.id == RecommendsMajors.opportunity_id,
-                    ).where(RecommendsMajors.major_code.in_(value))
+                    where_conditions.append(RecommendsMajors.major_code.in_(value))
 
                 # Departments filter
+                # not currently in use
                 elif field == "departments":
                     if not isinstance(value, list):
                         abort(400)
@@ -296,10 +301,11 @@ def filterOpportunities():
                     )
 
                 # Pay filter
-                elif field == "hourlyPay":
-                    if not isinstance(value, float) or not isinstance(value, int):
+                elif field == "hourlypay":
+                    pay = value[0]
+                    if not pay.isnumeric():
                         abort(400)
-                    where_conditions.append(Opportunities.pay.gte(value))
+                    where_conditions.append(Opportunities.pay >= float(pay))
 
                 # Other fields
                 else:
@@ -317,20 +323,28 @@ def filterOpportunities():
         abort(404)
 
     saved_opportunity = db.session.execute(
-        db.select(UserSavedOpportunities.opportunity_id).where(
-            UserSavedOpportunities.user_id == user_id
+        db.select(UserSavedOpportunities.opportunity_id)
+        .where(UserSavedOpportunities.user_id == user_id)
+        .where(
+            UserSavedOpportunities.opportunity_id.in_(
+                [opportunity[0].id for opportunity in data]
+            )
         )
     )
 
     result = [
         serialize_opportunity(
             opportunity[0],
-            professor=f"{opportunity[1] or opportunity[2]} {opportunity[3]}",
+            lab_managers=", ".join(
+                [
+                    f"{name.get('preferred_name', None) or name.get('first_name')} {name.get('last_name')}"
+                    for name in opportunity[1]
+                ]
+            ),
             saved=opportunity[0].id in saved_opportunity,
         )
         for opportunity in data
     ]
-    print("Results: ", result)
 
     return result
 
@@ -372,6 +386,7 @@ def getLabManagerOpportunityCards(rcs_id: str) -> list[dict[str, str]]:
 
 
 @main_blueprint.get("/profile/opportunities/<string:rcs_id>")
+@jwt_required()
 def getProfileOpportunities(rcs_id: str) -> list[dict[str, str]]:
     query = (
         db.select(
