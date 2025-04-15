@@ -1,5 +1,3 @@
-# from typing import Any
-
 from typing import NoReturn
 from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
