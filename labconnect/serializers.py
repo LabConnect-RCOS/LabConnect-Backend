@@ -7,7 +7,7 @@ def serialize_course(course: Courses) -> str:
 
 
 def serialize_opportunity(
-    opportunity: Opportunities, professor: str = "", saved: bool = False
+    opportunity: Opportunities, lab_managers: str = "", saved: bool = False
 ) -> dict:
     return {
         "id": opportunity.id,
@@ -27,6 +27,6 @@ def serialize_opportunity(
         "active": opportunity.active,
         "last_updated": opportunity.last_updated,
         "location": opportunity.location,
-        "professor": professor,
+        "lab_managers": lab_managers,
         "saved": saved,
     }
