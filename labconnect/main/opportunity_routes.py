@@ -304,7 +304,6 @@ def filterOpportunities():
                         abort(400)
 
         query = query.where(*where_conditions)
-        # data = db.session.execute(query).all()
 
     data = db.session.execute(query).all()
 
