@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from sqlalchemy import func
+from sqlalchemy import func, case
 
 from labconnect import db
 from labconnect.helpers import (
@@ -182,57 +182,44 @@ def filterOpportunities():
     user_id = get_jwt_identity()
     data = None
 
-    if filters is None or filters == {}:
-        data = db.session.execute(
-            db.select(
-                Opportunities,
-                func.json_agg(
-                    func.json_build_object(
-                        "first_name",
-                        User.first_name,
-                        "last_name",
-                        User.last_name,
-                        "preferred_name",
-                        User.preferred_name,
-                    )
-                ).label("lab_managers"),
-            )
-            .join(Leads, Opportunities.id == Leads.opportunity_id)
-            .join(LabManager, Leads.lab_manager_id == LabManager.id)
-            .join(User, LabManager.id == User.lab_manager_id)
-            .where(Opportunities.active)
-            .group_by(Opportunities.id)
-            .order_by(Opportunities.last_updated)
-            .limit(20)
-        ).all()
-
-    else:
-        where_conditions = []
-        query = (
-            db.select(
-                Opportunities,
-                func.json_agg(
-                    func.json_build_object(
-                        "first_name",
-                        User.first_name,
-                        "last_name",
-                        User.last_name,
-                        "preferred_name",
-                        User.preferred_name,
-                    )
-                ).label("lab_managers"),
-            )
-            .join(Leads, Opportunities.id == Leads.opportunity_id)
-            .join(LabManager, Leads.lab_manager_id == LabManager.id)
-            .join(User, LabManager.id == User.lab_manager_id)
-            .outerjoin(
-                RecommendsMajors, Opportunities.id == RecommendsMajors.opportunity_id
-            )
-            .where(Opportunities.active)
-            .group_by(Opportunities.id)
-            .order_by(Opportunities.last_updated)
-            .limit(20)
+    query = (
+        db.select(
+            Opportunities,
+            func.json_agg(
+                func.json_build_object(
+                    "first_name",
+                    User.first_name,
+                    "last_name",
+                    User.last_name,
+                    "preferred_name",
+                    User.preferred_name,
+                )
+            ).label("lab_managers"),
+            case((UserSavedOpportunities.user_id.isnot(None), True), else_=False).label(
+                "is_saved"
+            ),
         )
+        .join(Leads, Opportunities.id == Leads.opportunity_id)
+        .join(LabManager, Leads.lab_manager_id == LabManager.id)
+        .join(User, LabManager.id == User.lab_manager_id)
+        .outerjoin(
+            RecommendsMajors, Opportunities.id == RecommendsMajors.opportunity_id
+        )
+        .outerjoin(
+            UserSavedOpportunities,
+            db.and_(
+                Opportunities.id == UserSavedOpportunities.opportunity_id,
+                UserSavedOpportunities.user_id == user_id,  # filter for current user
+            ),
+        )
+        .where(Opportunities.active)
+        .group_by(Opportunities.id, UserSavedOpportunities.user_id)
+        .order_by(Opportunities.last_updated)
+        .limit(20)
+    )
+
+    if filters is not None or filters != {}:
+        where_conditions = []
         for field, value in filters.items():
             if field and value:
                 field = field.lower()
@@ -317,20 +304,12 @@ def filterOpportunities():
                         abort(400)
 
         query = query.where(*where_conditions)
-        data = db.session.execute(query).all()
+        # data = db.session.execute(query).all()
+
+    data = db.session.execute(query).all()
 
     if not data:
         abort(404)
-
-    saved_opportunity = db.session.execute(
-        db.select(UserSavedOpportunities.opportunity_id)
-        .where(UserSavedOpportunities.user_id == user_id)
-        .where(
-            UserSavedOpportunities.opportunity_id.in_(
-                [opportunity[0].id for opportunity in data]
-            )
-        )
-    )
 
     result = [
         serialize_opportunity(
@@ -341,7 +320,7 @@ def filterOpportunities():
                     for name in opportunity[1]
                 ]
             ),
-            saved=opportunity[0].id in saved_opportunity,
+            saved=opportunity[2],
         )
         for opportunity in data
     ]
