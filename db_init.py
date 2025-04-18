@@ -31,7 +31,6 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
-    Codes,
 )
 
 url_regex = re.compile(r"^(https?|ftp)://[^\s/$.?#].[^\s]*$")
