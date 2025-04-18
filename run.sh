@@ -1,6 +1,9 @@
 #! /bin/sh
 set -e  # Fail on any error
 
+echo "Starting labconenct backend..."
+
+echo 
 python db_init.py start || exit 1
 
 # Migrate DB
