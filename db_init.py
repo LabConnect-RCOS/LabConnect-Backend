@@ -135,13 +135,8 @@ def main() -> None:
     if sys.argv[1] == "start":
         app = create_app()
         with app.app_context():
-            if db.inspect(db.engine).get_table_names():
-                print("Tables already exist.")
-                # clear the codes table
-                db.session.query(Codes).delete()
-                db.session.commit()
-                sys.exit()
-            db.create_all()
+            if not db.inspect(db.engine).get_table_names():
+                db.create_all()
 
     elif sys.argv[1] == "clear":
         app = create_app()
