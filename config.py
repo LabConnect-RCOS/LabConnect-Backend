@@ -1,6 +1,6 @@
 # Import os
-from os import getenv, path
 from datetime import timedelta
+from os import getenv, path
 
 from dotenv import load_dotenv
 

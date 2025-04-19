@@ -2,24 +2,24 @@ from datetime import datetime
 
 from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from sqlalchemy import func, case
+from sqlalchemy import case, func
 
 from labconnect import db
 from labconnect.helpers import (
     LocationEnum,
     SemesterEnum,
-    format_credits,
     convert_to_enum,
+    format_credits,
 )
 from labconnect.models import (
+    Courses,
     LabManager,
     Leads,
     Opportunities,
-    RecommendsClassYears,
-    User,
-    Courses,
     Participates,
+    RecommendsClassYears,
     RecommendsMajors,
+    User,
     UserSavedOpportunities,
 )
 from labconnect.serializers import serialize_opportunity
@@ -149,7 +149,8 @@ def getOpportunity(opp_id: int):
     query = db.session.execute(
         db.select(
             Opportunities,
-            # Creates an array for all of the recommended class years for the opportunity labeled recommended_years
+            # Creates an array for all of the recommended class years for the
+            # opportunity labeled recommended_years
             func.array_agg(RecommendsClassYears.class_year).label("recommended_years"),
         )
         .join(
@@ -317,7 +318,8 @@ def filterOpportunities():
             opportunity[0],
             lab_managers=", ".join(
                 [
-                    f"{name.get('preferred_name', None) or name.get('first_name')} {name.get('last_name')}"
+                    f"{name.get('preferred_name', None) or name.get('first_name')} "
+                    f"{name.get('last_name')}"
                     for name in opportunity[1]
                 ]
             ),
@@ -404,7 +406,8 @@ def getProfileOpportunities(rcs_id: str) -> list[dict[str, str]]:
 # function to search for lab managers
 @main_blueprint.get("/searchLabManagers/<string:query>")
 def searchLabManagers(query: str):
-    # Perform a search on User table by first name, last name, or email using ILIKE for exact partial matches
+    # Perform a search on User table by first name, last name, or email using ILIKE
+    # for exact partial matches
     stmt = (
         db.select(User)
         .join(LabManager, User.lab_manager_id == LabManager.id)
@@ -444,7 +447,9 @@ def searchLabManagers(query: str):
 
 @main_blueprint.get("/searchCourses/<string:query>")
 def searchCourses(query: str):
-    # Perform a search on Courses table by code and name using ILIKE for exact partial matches
+    # Perform a search on Courses table by code and
+    # name using ILIKE for exact partial matches
+    # TODO: merge into filtering
     stmt = (
         db.select(Courses)
         .distinct()
@@ -880,7 +885,7 @@ def allSavedUserOportunities():
     return saved_opportunities_list, 200
 
 
-# Create route to allow for multiple pages to be unsaved given a list of opp_ids delete them
+# Create route to allow for multiple pages to be unsaved given a list of opp_ids
 @main_blueprint.delete("/UnsaveMultiplePages/")
 @jwt_required()
 # Delete id that appear on delete_ids list

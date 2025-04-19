@@ -6,9 +6,8 @@ Create Date: 2025-02-14 16:31:55.909541
 
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "0e1d1657b500"
@@ -23,8 +22,18 @@ def upgrade():
         op.execute("""
         DO $$
         BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'labmanagertypeenum') THEN
-                CREATE TYPE labmanagertypeenum AS ENUM ('PI', 'CO_PI', 'LAB_MANAGER', 'POST_DOC', 'GRAD_STUDENT');
+            IF NOT EXISTS (
+                SELECT 1 
+                FROM pg_type 
+                WHERE typname = 'labmanagertypeenum'
+            ) THEN
+                CREATE TYPE labmanagertypeenum AS ENUM (
+                    'PI',
+                    'CO_PI',
+                    'LAB_MANAGER',
+                    'POST_DOC',
+                    'GRAD_STUDENT'
+                );
             END IF;
         END$$;
         """)
