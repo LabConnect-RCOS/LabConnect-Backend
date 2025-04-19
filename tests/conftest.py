@@ -63,7 +63,10 @@ def test_client():
 # @pytest.fixture(scope="function")
 # def log_in_default_user(test_client):
 #     test_client.post(
-#         "/login", data={"email": "patkennedy79@gmail.com", "password": "FlaskIsAwesome"}
+#         "/login", data={
+#           "email": "patkennedy79@gmail.com",
+#           "password": "FlaskIsAwesome"
+#         }
 #     )
 
 #     yield  # this is where the testing happens!

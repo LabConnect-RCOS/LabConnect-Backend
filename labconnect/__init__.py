@@ -1,13 +1,9 @@
 import json
 import os
 from datetime import datetime, timedelta, timezone
-
-import sentry_sdk
-
-# Import logging
 from logging.config import dictConfig
 
-# Import Flask modules
+import sentry_sdk
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import (

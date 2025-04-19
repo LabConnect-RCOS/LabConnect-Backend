@@ -56,7 +56,7 @@ def test_lab_manager_opportunity_cards(
 ) -> None:
     """
     GIVEN a Flask application configured for testing
-    WHEN the '/lab_manager/opportunities' page is requested (GET) with different JSON inputs
+    WHEN the '/lab_manager/opportunities' page is requested (GET) with different inputs
     THEN check that the response matches the expected status code
     """
     response = test_client.get("/lab_manager/opportunities", json=input_json)
@@ -77,7 +77,8 @@ def test_lab_manager_opportunity_cards(
             {
                 "name": "Iphone 15 durability test",
                 "description": "Scratching the Iphone, drop testing etc.",
-                "recommended_experience": "Experienced in getting angry and throwing temper tantrum",
+                "recommended_experience": "Experienced in getting angry and throwing"
+                " temper tantrum",
                 "pay": None,
                 "semester": "Spring",
                 "year": 2024,

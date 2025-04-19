@@ -6,18 +6,18 @@ In sqlalchemy, build queries with the Executable class. (Builder design pattern)
 Then pass an Executable into Session.execute()
 """
 
-import sys
-import requests
 import re
-
+import sys
 from datetime import date, datetime
+
+import requests
 
 from labconnect import create_app, db
 from labconnect.helpers import LocationEnum, SemesterEnum
-from labconnect.models import LabManager  # Professors and Grad students
 from labconnect.models import (
     ClassYears,
     Courses,
+    LabManager,  # Professors and Grad students
     Leads,
     Majors,
     Opportunities,
@@ -395,7 +395,8 @@ def main() -> None:
                 ),
                 (
                     "Data Science Research",
-                    "Work with a team of researchers to analyze large datasets and extract meaningful insights.",
+                    "Work with a team of researchers to analyze large datasets and "
+                    "extract meaningful insights.",
                     "Python, Machine Learning, Data Analysis",
                     20.0,
                     True,

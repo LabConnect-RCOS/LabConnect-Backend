@@ -1,5 +1,5 @@
-from labconnect.models import Courses, Opportunities
 from labconnect.helpers import format_credits
+from labconnect.models import Courses, Opportunities
 
 
 def serialize_course(course: Courses) -> str:
