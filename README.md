@@ -56,33 +56,31 @@
 
 <!-- Getting Started -->
 ## Prerequisites
- * Clone or fork the repo
-    * GitHub Desktop: download [here](https://desktop.github.com/)
-    * Clone repo through with git
-    ```sh
+ * Clone
+    * Clone repo through CLI
+    ```bash
     $ git clone https://github.com/LabConnect-RCOS/LabConnect-Backend.git
     ```
-    * To fork, press the fork button on the top right of the repo, or [here](https://github.com/LabConnect-RCOS/LabConnect-Backend/fork)
+    * or through [Github Desktop](https://desktop.github.com/)
  * Install Python 3.12.4 [here]([https://www.python.org/downloads/release/python-3122/](https://www.python.org/downloads/release/python-3124/))
  * Install Libraries 
-    * Download through the command line
-    ```sh
+    ```bash
     $ python3 -m pip install -r requirements.txt
     ```
 
 ## Testing
  * Run pytest
-   * Run all the test files and generate a coverage report. Coverage reports are setup to output to the terminal and provide an HTML file that can be viewed to show what branches or statements are not covered. It is in the project's best interest to have high coverage to ensure all statements and branches work as expected.
+   * Run all the test files and generate a coverage report. Coverage reports are set up to output to the terminal and provide an HTML file that can be viewed to show what branches or statements are not covered. It is in the project's best interest to have high coverage to ensure all statements and branches work as expected.
 
-   ```sh
+   ```bash
    $ make test
    ```
    or manually
-   ```sh
+   ```bash
    $ python3 -m pytest
    ```
    or manually with a coverage report generated
-   ```sh
+   ```bash
    $ python3 -m pytest --cov
    ```
 
@@ -90,30 +88,30 @@
  * Run flask with python directly
    * Run all the test files
 
-   ```sh
+   ```bash
    $ make develop
    ```
-   or with Makefile
-   ```sh
+   or
+   ```bash
    $ python run.py
    ```
 
 ## Deployment
-Create PRs to release branch, upon merge a new docker container will be created and pushed. This will be planned for weekly pushes on Tuesdays.
+Create PRs to the main branch. Upon merging, a new Docker container will be created and pushed to the [packages for this repo](https://github.com/LabConnect-RCOS/LabConnect-Backend/pkgs/container/labconnect-backend).
 
 ## Production
-Use the docker container in the packages tab. You can set these environment variables:
+Use the Docker container in the [packages tab](https://github.com/LabConnect-RCOS/LabConnect-Backend/pkgs/container/labconnect-backend). You can set these environment variables:
 - SECRET_KEY
 - JWT_SECRET_KEY
 - FRONTEND_URL
 - DB
 
  * Run gunicorn to test how the service runs in production
-   ```sh
+   ```bash
    $ make run
    ```
    or with Makefile
-    ```sh
+    ```bash
    $ gunicorn run:app -w 6 --preload --max-requests-jitter 300 --bind 0.0.0.0:8000
    ```
 

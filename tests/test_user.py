@@ -93,7 +93,8 @@ def test_user_route(
                 {
                     "name": "Iphone 15 durability test",
                     "description": "Scratching the Iphone, drop testing etc.",
-                    "recommended_experience": "Experienced in getting angry and throwing temper tantrum",
+                    "recommended_experience": "Experienced in getting angry and "
+                    "throwing temper tantrum",
                     "pay": None,
                     "semester": "Spring",
                     "year": 2024,

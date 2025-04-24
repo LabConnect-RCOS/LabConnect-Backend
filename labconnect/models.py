@@ -3,9 +3,9 @@ from sqlalchemy.dialects.postgresql import TSVECTOR
 
 from labconnect import db
 from labconnect.helpers import (
+    LabManagerTypeEnum,
     LocationEnum,
     SemesterEnum,
-    LabManagerTypeEnum,
 )
 
 # DD - Entities

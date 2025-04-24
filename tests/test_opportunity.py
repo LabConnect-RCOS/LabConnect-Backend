@@ -1,4 +1,5 @@
 import json
+
 import pytest
 from flask.testing import FlaskClient
 
@@ -31,7 +32,8 @@ def test_get_opportunity_parametrized(test_client: FlaskClient):
             {
                 "name": "Iphone 15 durability test",
                 "description": "Scratching the Iphone, drop testing etc.",
-                "recommended_experience": "Experienced in getting angry and throwing temper tantrum",
+                "recommended_experience": "Experienced in getting angry and throwing"
+                " temper tantrum",
                 "pay": None,
                 "one_credit": True,
                 "two_credits": True,
