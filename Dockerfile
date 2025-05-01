@@ -2,13 +2,21 @@ FROM python:3.13-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache postgresql-dev \
+RUN apk add --no-cache \
+    postgresql-dev \
     gcc \
     musl-dev \
     libxml2-dev \
-    libxmlsec1-dev \
-    libxmlsec1-openssl \
-    pkg-config
+    libxslt-dev \
+    xmlsec-dev \
+    pkgconfig \
+    libtool \
+    autoconf \
+    automake \
+    make \
+    libffi-dev \
+    openssl-dev \
+    python3-dev
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
