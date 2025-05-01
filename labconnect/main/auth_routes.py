@@ -69,7 +69,7 @@ def validate_code_and_get_user_email(code: str) -> tuple[str, bool] | tuple[None
 def saml_login() -> Response:
     # In testing skip RPI login purely for local development
     if current_app.config["TESTING"] and (
-        current_app.config["FRONTEND_URL"] == "http://localhost:3000"
+        current_app.config["FRONTEND_URL"] == "http://localhost:5173"
         or current_app.config["FRONTEND_URL"] == "http://127.0.0.1:3000"
     ):
         # Generate JWT
