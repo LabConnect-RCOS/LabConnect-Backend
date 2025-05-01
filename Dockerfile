@@ -1,22 +1,16 @@
-FROM python:3.13-alpine
+FROM python:3.13-slim-bookworm
 
 WORKDIR /app
 
-RUN apk add --no-cache \
-    postgresql-dev \
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
     gcc \
-    musl-dev \
+    build-essential \
     libxml2-dev \
-    libxslt-dev \
-    xmlsec-dev \
-    pkgconfig \
-    libtool \
-    autoconf \
-    automake \
-    make \
-    libffi-dev \
-    openssl-dev \
-    python3-dev
+    libxmlsec1-dev \
+    libxmlsec1-openssl \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
