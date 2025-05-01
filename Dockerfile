@@ -1,8 +1,14 @@
-FROM --platform=linux/amd64 python:3.12.4-alpine3.20
+FROM python:3.13-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache postgresql-dev gcc python3-dev musl-dev
+RUN apk add --no-cache postgresql-dev \
+    gcc \
+    musl-dev \
+    libxml2-dev \
+    libxmlsec1-dev \
+    libxmlsec1-openssl \
+    pkg-config
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
