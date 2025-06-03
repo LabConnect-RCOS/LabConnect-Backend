@@ -2,9 +2,9 @@
 Test courses routes
 """
 
+import pytest
 from flask import json
 from flask.testing import FlaskClient
-import pytest
 
 
 @pytest.mark.parametrize(

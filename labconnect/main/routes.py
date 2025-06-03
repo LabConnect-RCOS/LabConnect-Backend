@@ -1,19 +1,18 @@
-# from typing import Any
-
 from typing import NoReturn
+
 from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from labconnect import db
 from labconnect.models import (
+    ClassYears,
+    Courses,
     LabManager,
+    Majors,
     Opportunities,
     RPIDepartments,
     User,
-    ClassYears,
     UserDepartments,
-    Majors,
-    Courses,
 )
 from labconnect.serializers import serialize_course
 
@@ -188,7 +187,6 @@ def changeActiveStatus() -> dict[str, bool]:
     if opportunity.active != setStatus:
         abort(500)
 
-    # if match is found, change the opportunities active status to true or false based on setStatus
     return {"activeStatus": opportunity}
 
 

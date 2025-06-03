@@ -1,15 +1,15 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
 
-from flask import current_app, make_response, redirect, request, abort
+from flask import abort, current_app, make_response, redirect, request
 from flask_jwt_extended import (
-    get_jwt_identity,
     create_access_token,
     create_refresh_token,
+    get_jwt_identity,
+    jwt_required,
     set_access_cookies,
     set_refresh_cookies,
     unset_jwt_cookies,
-    jwt_required,
 )
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from werkzeug.wrappers.response import Response
@@ -17,12 +17,12 @@ from werkzeug.wrappers.response import Response
 from labconnect import db
 from labconnect.helpers import prepare_flask_request
 from labconnect.models import (
+    Codes,
+    ManagementPermissions,
     User,
     UserCourses,
     UserDepartments,
     UserMajors,
-    ManagementPermissions,
-    Codes,
 )
 
 from . import main_blueprint
@@ -69,7 +69,7 @@ def validate_code_and_get_user_email(code: str) -> tuple[str, bool] | tuple[None
 def saml_login() -> Response:
     # In testing skip RPI login purely for local development
     if current_app.config["TESTING"] and (
-        current_app.config["FRONTEND_URL"] == "http://localhost:3000"
+        current_app.config["FRONTEND_URL"] == "http://localhost:5173"
         or current_app.config["FRONTEND_URL"] == "http://127.0.0.1:3000"
     ):
         # Generate JWT

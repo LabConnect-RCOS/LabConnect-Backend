@@ -87,16 +87,20 @@ def format_credits(credit_1, credit_2, credit_3, credit_4):
         credits_output.append("4")
 
     # Handle different cases
-    if len(credits_output) == 0:
-        return None
+    if len(credits_output) == 4:
+        return "1-4 Credits"
     elif len(credits_output) == 1:
         return (
             f"{credits_output[0]} Credit"
             if credit_1
             else f"{credits_output[0]} Credits"
         )
-    elif len(credits_output) == 4:
-        return "1-4 Credits"
+    elif credits_output == ["1", "2", "3"]:
+        return "1-3 Credits"
+    elif credits_output == ["2", "3", "4"]:
+        return "2-4 Credits"
+    elif len(credits_output) == 0:
+        return None
     else:
         return f"{','.join(credits_output)} Credits"
 

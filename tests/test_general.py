@@ -2,9 +2,9 @@
 Test general routes
 """
 
+import pytest
 from flask import json
 from flask.testing import FlaskClient
-import pytest
 
 
 def test_home_page(test_client: FlaskClient) -> None:

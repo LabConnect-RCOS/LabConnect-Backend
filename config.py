@@ -1,6 +1,6 @@
 # Import os
-from os import getenv, path
 from datetime import timedelta
+from os import getenv, path
 
 from dotenv import load_dotenv
 
@@ -19,7 +19,7 @@ class Config:
     PREFERRED_URL_SCHEME = "https"
 
     SAML_CONFIG = path.join(basedir, "config/saml/")
-    FRONTEND_URL = getenv("FRONTEND_URL", "http://localhost:3000")
+    FRONTEND_URL = getenv("FRONTEND_URL", "http://localhost:5173")
 
     SENTRY_DSN = getenv("SENTRY_DSN", "")
     SENTRY_TRACES_SAMPLE_RATE = float(getenv("SENTRY_TRACES_SAMPLE_RATE", 1.0))

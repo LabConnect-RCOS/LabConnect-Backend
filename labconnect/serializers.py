@@ -1,12 +1,14 @@
-from labconnect.models import Courses, Opportunities
 from labconnect.helpers import format_credits
+from labconnect.models import Courses, Opportunities
 
 
 def serialize_course(course: Courses) -> str:
     return f"{course.code} {course.name}"
 
 
-def serialize_opportunity(opportunity: Opportunities) -> dict:
+def serialize_opportunity(
+    opportunity: Opportunities, lab_managers: str = "", saved: bool = False
+) -> dict:
     return {
         "id": opportunity.id,
         "name": opportunity.name,
@@ -25,4 +27,6 @@ def serialize_opportunity(opportunity: Opportunities) -> dict:
         "active": opportunity.active,
         "last_updated": opportunity.last_updated,
         "location": opportunity.location,
+        "lab_managers": lab_managers,
+        "saved": saved,
     }

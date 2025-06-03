@@ -2,25 +2,24 @@ from datetime import datetime
 
 from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from sqlalchemy import func
+from sqlalchemy import case, func
 
 from labconnect import db
 from labconnect.helpers import (
     LocationEnum,
     SemesterEnum,
-    format_credits,
     convert_to_enum,
+    format_credits,
 )
 from labconnect.models import (
+    Courses,
     LabManager,
     Leads,
     Opportunities,
-    RecommendsClassYears,
-    RecommendsCourses,
-    User,
-    Courses,
     Participates,
+    RecommendsClassYears,
     RecommendsMajors,
+    User,
     UserSavedOpportunities,
 )
 from labconnect.serializers import serialize_opportunity
@@ -145,38 +144,14 @@ def packageIndividualOpportunity(opportunityInfo):
     return data
 
 
-def packageOpportunityCard(opportunity):
-    # get professor and department by getting Leads and LabManager
-    query = db.session.execute(
-        db.select(Leads, LabManager, User.first_name, User.last_name)
-        .where(Leads.opportunity_id == opportunity.id)
-        .join(LabManager, Leads.lab_manager_id == LabManager.id)
-        .join(User, LabManager.id == User.lab_manager_id)
-    )
-
-    data = query.all()
-
-    professorInfo = ", ".join(item[1].getName() for item in data)
-
-    card = {
-        "id": opportunity.id,
-        "title": opportunity.name,
-        "professor": professorInfo,
-        "season": opportunity.semester,
-        "location": "TBA",
-        "year": opportunity.year,
-    }
-
-    return card
-
-
 @main_blueprint.get("/getOpportunity/<int:opp_id>")
 def getOpportunity(opp_id: int):
     # query database for opportunity and recommended class years
     query = db.session.execute(
         db.select(
             Opportunities,
-            # Creates an array for all of the recommended class years for the opportunity labeled recommended_years
+            # Creates an array for all of the recommended class years for the
+            # opportunity labeled recommended_years
             func.array_agg(RecommendsClassYears.class_year).label("recommended_years"),
         )
         .join(
@@ -202,68 +177,76 @@ def getOpportunity(opp_id: int):
 
 
 @main_blueprint.get("/opportunity/filter")
-def getOpportunities():
-    # Handle GET requests for fetching default active opportunities
-    data = db.session.execute(
-        db.select(Opportunities)
-        .where(Opportunities.active)
-        .limit(20)
-        .order_by(Opportunities.last_updated.desc())
-        .distinct()
-    ).scalars()
-    result = [serialize_opportunity(opportunity) for opportunity in data]
-    return result
-
-
-@main_blueprint.post("/opportunity/filter")
+@jwt_required()
 def filterOpportunities():
-    # Handle POST requests for filtering opportunities
-    json_request_data = request.get_json()
-
-    if not json_request_data:
-        abort(400)
-
-    filters = json_request_data.get("filters", None)
-
+    # Handle GET requests for filtering opportunities using query parameters
+    filters = request.args.to_dict(flat=False)
+    user_id = get_jwt_identity()
     data = None
 
-    if filters is None:
-        data = db.session.execute(db.select(Opportunities).limit(20)).scalars()
-
-    elif not isinstance(filters, list):
-        abort(400)
-
-    else:
-        where_conditions = []
-        query = (
-            db.select(Opportunities)
-            .where(Opportunities.active)
-            .limit(20)
-            .order_by(Opportunities.last_updated)
-            .distinct()
+    query = (
+        db.select(
+            Opportunities,
+            func.json_agg(
+                func.json_build_object(
+                    "first_name",
+                    User.first_name,
+                    "last_name",
+                    User.last_name,
+                    "preferred_name",
+                    User.preferred_name,
+                )
+            ).label("lab_managers"),
+            case((UserSavedOpportunities.user_id.isnot(None), True), else_=False).label(
+                "is_saved"
+            ),
         )
-        for given_filter in filters:
-            field = given_filter.get("field", None)
-            value = given_filter.get("value", None)
+        .join(Leads, Opportunities.id == Leads.opportunity_id)
+        .join(LabManager, Leads.lab_manager_id == LabManager.id)
+        .join(User, LabManager.id == User.lab_manager_id)
+        .outerjoin(
+            RecommendsMajors, Opportunities.id == RecommendsMajors.opportunity_id
+        )
+        .outerjoin(
+            UserSavedOpportunities,
+            db.and_(
+                Opportunities.id == UserSavedOpportunities.opportunity_id,
+                UserSavedOpportunities.user_id == user_id,  # filter for current user
+            ),
+        )
+        .where(Opportunities.active)
+        .group_by(Opportunities.id, UserSavedOpportunities.user_id)
+        .order_by(Opportunities.last_updated)
+        .limit(20)
+    )
 
+    if filters is not None or filters != {}:
+        where_conditions = []
+        for field, value in filters.items():
             if field and value:
                 field = field.lower()
+                value = value[0].split(",")
 
                 # Location filter
+                # not in use yet
                 if field == "location":
-                    if value.lower() == "remote":
-                        where_conditions.append(Opportunities.location == "REMOTE")
-                    else:
-                        where_conditions.append(Opportunities.location != "REMOTE")
+                    for location in value:
+                        if location.lower() == "remote":
+                            where_conditions.append(Opportunities.location == "REMOTE")
+                        else:
+                            where_conditions.append(Opportunities.location != "REMOTE")
 
                 # Class year filter
-                elif field == "class_year":
+                elif field == "years":
                     if not isinstance(value, list):
+                        abort(400)
+                    years = list(map(int, filter(str.isdigit, value)))
+                    if len(years) == 0:
                         abort(400)
                     query = query.join(
                         RecommendsClassYears,
                         Opportunities.id == RecommendsClassYears.opportunity_id,
-                    ).where(RecommendsClassYears.class_year.in_(value))
+                    ).where(RecommendsClassYears.class_year.in_(years))
 
                 # Credits filter
                 elif field == "credits":
@@ -271,17 +254,17 @@ def filterOpportunities():
                         abort(400)
                     credit_conditions = []
                     for credit in value:
-                        if credit == 1:
+                        if credit == "1":
                             credit_conditions.append(Opportunities.one_credit.is_(True))
-                        elif credit == 2:
+                        elif credit == "2":
                             credit_conditions.append(
                                 Opportunities.two_credits.is_(True)
                             )
-                        elif credit == 3:
+                        elif credit == "3":
                             credit_conditions.append(
                                 Opportunities.three_credits.is_(True)
                             )
-                        elif credit == 4:
+                        elif credit == "4":
                             credit_conditions.append(
                                 Opportunities.four_credits.is_(True)
                             )
@@ -293,12 +276,10 @@ def filterOpportunities():
                 elif field == "majors":
                     if not isinstance(value, list):
                         abort(400)
-                    query = query.join(
-                        RecommendsMajors,
-                        Opportunities.id == RecommendsMajors.opportunity_id,
-                    ).where(RecommendsMajors.major_code.in_(value))
+                    where_conditions.append(RecommendsMajors.major_code.in_(value))
 
                 # Departments filter
+                # not currently in use
                 elif field == "departments":
                     if not isinstance(value, list):
                         abort(400)
@@ -309,16 +290,13 @@ def filterOpportunities():
                     )
 
                 # Pay filter
-                elif field == "pay":
-                    if not isinstance(value, dict):
+                elif field == "hourlypay":
+                    pay = value[0]
+                    try:
+                        pay = float(pay)
+                    except ValueError:
                         abort(400)
-                    min_pay = value.get("min")
-                    max_pay = value.get("max")
-                    if min_pay is None:
-                        min_pay = 0
-                    if max_pay is None:
-                        max_pay = float("inf")
-                    where_conditions.append(Opportunities.pay.between(min_pay, max_pay))
+                    where_conditions.append(Opportunities.pay >= float(pay))
 
                 # Other fields
                 else:
@@ -330,27 +308,28 @@ def filterOpportunities():
                         abort(400)
 
         query = query.where(*where_conditions)
-        data = db.session.execute(query).scalars()
+
+    data = db.session.execute(query).all()
 
     if not data:
         abort(404)
 
-    result = [serialize_opportunity(opportunity) for opportunity in data]
+    result = [
+        serialize_opportunity(
+            opportunity[0],
+            lab_managers=", ".join(
+                [
+                    f"{name.get('preferred_name', None) or name.get('first_name')} "
+                    f"{name.get('last_name')}"
+                    for name in opportunity[1]
+                ]
+            ),
+            saved=opportunity[2],
+        )
+        for opportunity in data
+    ]
 
     return result
-
-
-# Jobs page
-@main_blueprint.get("/getOpportunityCards")
-def getOpportunityCards():
-    # query database for opportunity
-    query = db.session.execute(db.select(Opportunities).where(Opportunities.active))
-
-    data = query.fetchall()
-    # return data in the below format if opportunity is found
-    cards = {"data": [packageOpportunityCard(opportunity[0]) for opportunity in data]}
-
-    return cards
 
 
 @main_blueprint.get("/staff/opportunities/<string:rcs_id>")
@@ -390,6 +369,7 @@ def getLabManagerOpportunityCards(rcs_id: str) -> list[dict[str, str]]:
 
 
 @main_blueprint.get("/profile/opportunities/<string:rcs_id>")
+@jwt_required()
 def getProfileOpportunities(rcs_id: str) -> list[dict[str, str]]:
     query = (
         db.select(
@@ -427,7 +407,8 @@ def getProfileOpportunities(rcs_id: str) -> list[dict[str, str]]:
 # function to search for lab managers
 @main_blueprint.get("/searchLabManagers/<string:query>")
 def searchLabManagers(query: str):
-    # Perform a search on User table by first name, last name, or email using ILIKE for exact partial matches
+    # Perform a search on User table by first name, last name, or email using ILIKE
+    # for exact partial matches
     stmt = (
         db.select(User)
         .join(LabManager, User.lab_manager_id == LabManager.id)
@@ -467,7 +448,9 @@ def searchLabManagers(query: str):
 
 @main_blueprint.get("/searchCourses/<string:query>")
 def searchCourses(query: str):
-    # Perform a search on Courses table by code and name using ILIKE for exact partial matches
+    # Perform a search on Courses table by code and
+    # name using ILIKE for exact partial matches
+    # TODO: merge into filtering
     stmt = (
         db.select(Courses)
         .distinct()
@@ -765,9 +748,6 @@ def editOpportunity(opportunity_id):
             db.session.add(new_lead)
 
     db.session.commit()  # Commit all changes
-
-    # db.session.commit()  # Commit all changes
-
     return {"data": "Opportunity Updated"}, 200
 
 
@@ -883,6 +863,8 @@ def get_opportunity(opportunity_id):
 # ***Specificaly storing a individual users saved opportunities***
 
 # Save User Opportunity
+
+
 @main_blueprint.post("/saveUserOpportunity/<int:opportunity_id>")
 @jwt_required()
 def saveUserOpportunity(opportunity_id):
@@ -911,6 +893,7 @@ def saveUserOpportunity(opportunity_id):
     new_opp = UserSavedOpportunities()
     new_opp.user_id = save_opp_user_id
     new_opp.opportunity_id = save_opp_opportunity_id
+
     db.session.add(new_opp)
     db.session.commit()
 
@@ -945,4 +928,66 @@ def deleteUserOpportunity(opportunity_id):
     db.session.delete(get_saved_opp_info)
     db.session.commit()
 
+
     return {"message": "Opportunity deleted"}, 200
+
+
+# Create route to return a list saved opportunities
+@main_blueprint.get("/AllSavedUserOpportunities/")
+@jwt_required()
+def allSavedUserOportunities():
+    # Get current users ID
+    user_id = get_jwt_identity()
+
+    # Get all saved opportunities for the user
+    saved_opps = (
+        db.session.execute(
+            db.select(UserSavedOpportunities).where(
+                UserSavedOpportunities.user_id == user_id
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not saved_opps:
+        return {"message": "No saved opportunities found"}, 404
+
+    # Put opportunities into a dictionary
+    saved_opportunities_list = [opp.to_dict() for opp in saved_opps]
+
+    return saved_opportunities_list, 200
+
+
+# Create route to allow for multiple pages to be unsaved given a list of opp_ids
+@main_blueprint.delete("/UnsaveMultiplePages/")
+@jwt_required()
+# Delete id that appear on delete_ids list
+def UnsaveMultipleOpps():
+    # Get a list of opportunity IDs
+    data = request.get_json()
+    delete_ids = data.get("delete_ids")
+    if not delete_ids or not isinstance(delete_ids, list):
+        return {"message": "Invalid or missing delete_ids"}, 400
+
+    # Get opportunities to delete for current user
+    user_id = get_jwt_identity()
+    saved_opps = (
+        db.session.execute(
+            db.select(UserSavedOpportunities).where(
+                UserSavedOpportunities.user_id == user_id,
+                UserSavedOpportunities.opportunity_id.in_(delete_ids),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not saved_opps:
+        return {"message": "User has no saved opportunities"}, 404
+
+    # Delete the opportinities
+    for opp in saved_opps:
+        db.session.delete(opp)
+
+    db.session.commit()
+    return {"message": f"Deleted {len(saved_opps)} saved opportunities"}, 200
+
