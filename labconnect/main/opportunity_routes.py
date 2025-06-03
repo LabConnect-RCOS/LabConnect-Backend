@@ -805,8 +805,8 @@ def deleteOpportunity(opportunity_id):
 
     return {"data": "Opportunity Deleted"}
 
-# Return opportunity data
-@main_blueprint.get("/OpportunityRoute/<int:opportunity_id>")
+# Return all opportunity data
+@main_blueprint.get("/OpportunityRoute/<int:opportunity_id>") 
 @jwt_required()
 def get_opportunity(opportunity_id):
     # Get current user ID from JWT
@@ -835,11 +835,7 @@ def get_opportunity(opportunity_id):
         .where(Leads.lab_manager_id == user.lab_manager_id)
     ).scalar_one_or_none()
 
-    # Might need
-    author = db.session.execute(
-        db.select(User).where(User.email == user_id[0])
-    ).scalar_one_or_none()
-
+    #red_major, rec_courses, rec_class_years
     rec_major = db.session.execute(
         db.select(RecommendsMajors).where(RecommendsMajors.opportunity_id == opportunity_id)
     ).scalar_one_or_none()
@@ -867,12 +863,15 @@ def get_opportunity(opportunity_id):
         },
         "semester": opportunity.semester,
         "year": opportunity.year,
-        "application_due": opportunity.application_due.isoformat() if opportunity.application_due else None,
+        "application_due" : 
+        (opportunity.application_due.isoformat() if opportunity.application_due else None),
         "active": opportunity.active,
-        "location": opportunity.location.name if opportunity.location else None,
-        "last_updated": opportunity.last_updated.isoformat() if opportunity.last_updated else None,
-        "lab_managers": labManager is not None,
-        "author": author.id,
+        "location": 
+        (opportunity.location.name if opportunity.location else None),
+        "last_updated": 
+        (opportunity.last_updated.isoformat() if opportunity.last_updated else None),
+        "is_there_lab_managers": labManager is not None,
+        "lab_managers_id" : labManager.id,
         "rec_major": rec_major.major_code,
         "rec_course": rec_course.course_code,
         "rec_class_years": rec_class_years.class_years
