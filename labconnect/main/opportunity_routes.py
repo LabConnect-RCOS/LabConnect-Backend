@@ -86,6 +86,7 @@ def packageIndividualOpportunity(opportunityInfo):
         "recommended_experience": opportunityInfo.recommended_experience,
         "authors": "",
         "department": "",
+        "authorProfile": "",
         "pay": opportunityInfo.pay,
         "credits": None,
         "semester": f"{opportunityInfo.semester} {opportunityInfo.year}",
@@ -784,11 +785,82 @@ def deleteOpportunity(opportunity_id):
 
     return {"data": "Opportunity Deleted"}
 
+# Return all opportunity data
+@main_blueprint.get("/OpportunityRoute/<int:opportunity_id>") 
+@jwt_required()
+def get_opportunity(opportunity_id):
+    # Get current user ID from JWT
+    user_id = get_jwt_identity()
 
-# ////////////////////////////////////////////////
+    #Get the opportunity
+    opportunity = db.session.execute(
+        db.select(Opportunities).where(Opportunities.id == opportunity_id)
+    ).scalar_one_or_none()
+
+    if opportunity is None:
+        return {"error": "Opportunity not found"}, 404
+
+    # Get the user
+    user = db.session.execute(
+        db.select(User).where(User.id == user_id)
+    ).scalar_one_or_none()
+
+    if user is None:
+        return {"error": "User not found"}, 404
+
+    # Get the lab manager
+    labManager = db.session.execute(
+        db.select(Leads)
+        .where(Leads.opportunity_id == opportunity_id)
+        .where(Leads.lab_manager_id == user.lab_manager_id)
+    ).scalar_one_or_none()
+
+    #red_major, rec_courses, rec_class_years
+    rec_major = db.session.execute(
+        db.select(RecommendsMajors).where(RecommendsMajors.opportunity_id == opportunity_id)
+    ).scalar_one_or_none()
+
+    rec_course = db.session.execute(
+        db.select(RecommendsCourses).where(RecommendsCourses.opportunity_id == opportunity_id)
+    ).scalar_one_or_none()
+
+    rec_class_years = db.session.execute(
+        db.select(RecommendsClassYears).where(RecommendsClassYears.opportunity_id == opportunity_id)
+    ).scalar_one_or_none()
+
+    # Structure the opportunity data to return
+    allData = {
+        "id": opportunity.id,
+        "name": opportunity.name,
+        "description": opportunity.description,
+        "recommended_experience": opportunity.recommended_experience,
+        "pay": opportunity.pay,
+        "credits": {
+            "one_credit": opportunity.one_credit,
+            "two_credits": opportunity.two_credits, 
+            "three_credits": opportunity.three_credits,
+            "four_credits": opportunity.four_credits,
+        },
+        "semester": opportunity.semester,
+        "year": opportunity.year,
+        "application_due" : 
+        (opportunity.application_due.isoformat() if opportunity.application_due else None),
+        "active": opportunity.active,
+        "location": 
+        (opportunity.location.name if opportunity.location else None),
+        "last_updated": 
+        (opportunity.last_updated.isoformat() if opportunity.last_updated else None),
+        "is_there_lab_managers": labManager is not None,
+        "lab_managers_id" : labManager.id,
+        "rec_major": rec_major.major_code,
+        "rec_course": rec_course.course_code,
+        "rec_class_years": rec_class_years.class_years
+    }
+    
+    return allData, 200
+
 # Store opportunities saved by a user
 # ***Specificaly storing a individual users saved opportunities***
-
 
 # Save User Opportunity
 
@@ -856,6 +928,7 @@ def deleteUserOpportunity(opportunity_id):
     db.session.delete(get_saved_opp_info)
     db.session.commit()
 
+
     return {"message": "Opportunity deleted"}, 200
 
 
@@ -917,3 +990,4 @@ def UnsaveMultipleOpps():
 
     db.session.commit()
     return {"message": f"Deleted {len(saved_opps)} saved opportunities"}, 200
+
