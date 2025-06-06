@@ -133,7 +133,7 @@ def tokenRoute() -> Response:
     set_refresh_cookies(resp, refresh_token)
     return resp
 
-
+#New user
 @main_blueprint.post("/register")
 def registerUser() -> Response:
     # Gather the new user's information
@@ -147,6 +147,8 @@ def registerUser() -> Response:
     user.last_name = json_data.get("last_name")
     user.preferred_name = json_data.get("preferred_name", "")
     user.class_year = json_data.get("class_year", "")
+    user.majors = json_data.get("majors", "")
+    user.courses = json_data.get("course", "")
     user.profile_picture = json_data.get(
         "profile_picture", "https://www.svgrepo.com/show/206842/professor.svg"
     )
@@ -194,6 +196,71 @@ def registerUser() -> Response:
     db.session.commit()
     return make_response({"msg": "New user added"})
 
+#This could possibly be done here
+#Create a way to invite people  (end 7/25)
+#Current plan: a system that can create an invite link, hash the email (or something else) and then get a special link
+
+#some possible ideas
+@main_blueprint.post("/invite")
+def invite_user() -> Response:
+    json_data = request.get_json()
+    if not json_data:
+        abort(400)
+
+    #user = User()
+    recipient_email = json_data.get("email")
+
+class InviteToken(db.Model):
+    __tablename__ = "invite_tokens"
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), nullable=False)
+    token_hash = db.Column(db.String(128), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.timezone.et).now
+    #(datetime.timezone.utc)
+    expires_at = db.Column(db.DateTime, nullable=False)
+
+import hashlib
+from datetime import datetime, timedelta
+
+@main_blueprint.post("/invite")
+@jwt_required()  # Make sure only logged-in users can invite
+def invite_user() -> Response:
+    json_data = request.get_json()
+    if not json_data or "email" not in json_data:
+        return make_response({"msg": "Missing email"}, 400)
+
+    recipient_email = json_data["email"].strip().lower()
+
+    # Create secure token
+    raw_token = str(uuid4())
+    token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+    expires_at = datetime.timezone.et() + timedelta(days=1)  # Token valid for 24 hrs
+
+    # Save to DB
+    invite = InviteToken(
+        email=recipient_email,
+        token_hash=token_hash,
+        expires_at=expires_at
+    )
+    db.session.add(invite)
+    db.session.commit()
+
+    # Construct invite link (send this to frontend for email distribution)
+    invite_link = f"{current_app.config['FRONTEND_URL']}/invite/?token={raw_token}"
+
+    return make_response({"invite_link": invite_link}, 200)
+
+def validate_invite_token(raw_token: str) -> str | None:
+    token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+    invite = db.session.execute(
+        db.select(InviteToken).where(InviteToken.token_hash == token_hash)
+    ).scalar()
+
+    if invite and invite.expires_at > datetime.datetime.timezone.et():
+        return invite.email
+    return None
+
+
 
 @main_blueprint.get("/metadata/")
 def metadataRoute() -> Response:
@@ -235,3 +302,8 @@ def logout() -> Response:
     resp = make_response({"msg": "logout successful"})
     unset_jwt_cookies(resp)
     return resp
+
+#registration routes 
+#Create/fix the registration backend routes. When someone logs in for the first time we need information about the user  (end of 6/25 to mid 7/25)
+#Name, class year, major, RPI email, ect
+#Need to ask how to check my work
