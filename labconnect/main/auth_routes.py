@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
+import hashlib
 
 from flask import abort, current_app, make_response, redirect, request
 from flask_jwt_extended import (
@@ -210,6 +211,7 @@ def invite_user() -> Response:
     #user = User()
     recipient_email = json_data.get("email")
 
+#Make token
 class InviteToken(db.Model):
     __tablename__ = "invite_tokens"
     id = db.Column(db.Integer, primary_key=True)
@@ -219,22 +221,21 @@ class InviteToken(db.Model):
     #(datetime.timezone.utc)
     expires_at = db.Column(db.DateTime, nullable=False)
 
-import hashlib
-from datetime import datetime, timedelta
-
 @main_blueprint.post("/invite")
-@jwt_required()  # Make sure only logged-in users can invite
+@jwt_required()  
+# only logged in users should be able to invite
 def invite_user() -> Response:
     json_data = request.get_json()
     if not json_data or "email" not in json_data:
-        return make_response({"msg": "Missing email"}, 400)
+        return make_response({"msg": "Missing email"}, 400) 
 
     recipient_email = json_data["email"].strip().lower()
 
-    # Create secure token
-    raw_token = str(uuid4())
-    token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
-    expires_at = datetime.timezone.et() + timedelta(days=1)  # Token valid for 24 hrs
+    # Create  token
+    token = str(uuid4())
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    # Token valid for 24 hrs (can change)
+    expires_at = datetime.timezone.et() + timedelta(days=1)  
 
     # Save to DB
     invite = InviteToken(
@@ -246,10 +247,12 @@ def invite_user() -> Response:
     db.session.commit()
 
     # Construct invite link (send this to frontend for email distribution)
+    #would need more work
     invite_link = f"{current_app.config['FRONTEND_URL']}/invite/?token={raw_token}"
 
     return make_response({"invite_link": invite_link}, 200)
 
+#Validate token
 def validate_invite_token(raw_token: str) -> str | None:
     token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
     invite = db.session.execute(
@@ -260,6 +263,7 @@ def validate_invite_token(raw_token: str) -> str | None:
         return invite.email
     return None
 
+#//////////////////////////////////////////////////////////////////
 
 
 @main_blueprint.get("/metadata/")
