@@ -96,6 +96,7 @@ def saml_callback() -> Response:
     if not errors:
         registered = True
         user_info = auth.get_attributes()
+        #Assuming RPI email
         user_id = next(iter(user_info.values()))[0] + "@rpi.edu"
 
         data = db.session.execute(db.select(User).where(User.email == user_id)).scalar()
@@ -211,6 +212,24 @@ def invite_user() -> Response:
     #user = User()
     recipient_email = json_data.get("email")
 
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), nullable=False)
+
+    #need later?
+    token_hash = db.Column(db.String(128), nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    invite = InviteToken(
+        email=recipient_email,
+        token_hash=token_hash,
+        expires_at=expires_at
+    )
+
+    invite_link = f"{current_app.config['FRONTEND_URL']}/invite/?token={token}"
+
+    return make_response({"invite_link": invite_link}, 200)
+
+    return invite
+
 #Make token
 class InviteToken(db.Model):
     __tablename__ = "invite_tokens"
@@ -231,6 +250,7 @@ def invite_user() -> Response:
 
     recipient_email = json_data["email"].strip().lower()
 
+
     # Create  token
     token = str(uuid4())
     token_hash = hashlib.sha256(token.encode()).hexdigest()
@@ -248,13 +268,13 @@ def invite_user() -> Response:
 
     # Construct invite link (send this to frontend for email distribution)
     #would need more work
-    invite_link = f"{current_app.config['FRONTEND_URL']}/invite/?token={raw_token}"
+    invite_link = f"{current_app.config['FRONTEND_URL']}/invite/?token={token}"
 
     return make_response({"invite_link": invite_link}, 200)
 
 #Validate token
-def validate_invite_token(raw_token: str) -> str | None:
-    token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+def validate_invite_token(token: str) -> str | None:
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
     invite = db.session.execute(
         db.select(InviteToken).where(InviteToken.token_hash == token_hash)
     ).scalar()
@@ -264,6 +284,19 @@ def validate_invite_token(raw_token: str) -> str | None:
     return None
 
 #//////////////////////////////////////////////////////////////////
+
+
+
+#Validate token
+def validate_Tk(token: str) -> str | None:
+    tk_hash = hashlib.sha256(token.encode()).hexdigest()
+    invite = db.session.execute(
+        db.select(InviteToken).where(InviteToken.tk_hash == tk_hash)
+    ).scalar()
+    #Proper time zone
+    if invite and invite.expires_at > datetime.datetime.timezone.et():
+        return invite.email
+    return None
 
 
 @main_blueprint.get("/metadata/")
