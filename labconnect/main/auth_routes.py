@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
 from uuid import uuid4
 import hashlib
 
@@ -224,9 +225,14 @@ def invite_user() -> Response:
         expires_at=expires_at
     )
 
-    invite_link = f"{current_app.config['FRONTEND_URL']}/invite/?token={token}"
+    invite_link = f"{current_app.config['FRONTEND_URL']}/invite/?token={invite}"
+    #Need to confirm whitch one works better
+    invite_link = f"{current_app.config['FRONTEND_URL']}/invite/?token={InviteToken}"
 
-    return make_response({"invite_link": invite_link}, 200)
+    #return make_response({"invite_link": invite_link}, 200)
+
+    holdId = id
+    holdEmail = email
 
     return invite
 
@@ -236,7 +242,8 @@ class InviteToken(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), nullable=False)
     token_hash = db.Column(db.String(128), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.timezone.et).now
+    #created_at = db.Column(db.DateTime, default=datetime.timezone.et).now
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     #(datetime.timezone.utc)
     expires_at = db.Column(db.DateTime, nullable=False)
 
@@ -255,7 +262,8 @@ def invite_user() -> Response:
     token = str(uuid4())
     token_hash = hashlib.sha256(token.encode()).hexdigest()
     # Token valid for 24 hrs (can change)
-    expires_at = datetime.timezone.et() + timedelta(days=1)  
+    #expires_at = datetime.timezone.et() + timedelta(days=1)  
+    expires_at = datetime.now(timezone.utc) + timedelta(days=1)
 
     # Save to DB
     invite = InviteToken(
@@ -277,6 +285,40 @@ def validate_invite_token(token: str) -> str | None:
     token_hash = hashlib.sha256(token.encode()).hexdigest()
     invite = db.session.execute(
         db.select(InviteToken).where(InviteToken.token_hash == token_hash)
+    ).scalar()
+
+    #if invite and invite.expires_at > datetime.datetime.timezone.et():
+        #return invite.email
+    
+    if invite and invite.expires_at > datetime.now(timezone.utc) and not invite.used:
+        return invite.email
+
+    return None
+
+def cleanup_expired_invites():
+    now = datetime.now(timezone.utc)
+    db.session.execute(
+        db.delete(InviteToken).where(InviteToken.expires_at < now)
+    )
+    db.session.commit()
+
+def check_token(token: str):
+    token_hold
+
+    # Convert the token string to bytes
+    token_bytes = token.encode('utf-8')
+
+    # Create a SHA-256 hash object
+    sha256_hash = hashlib.sha256()
+
+    # Update the hash object with the token bytes
+    sha256_hash.update(token_bytes)
+
+    # Get the hexadecimal digest
+    token_hold = sha256_hash.hexdigest()
+
+    invite = db.session.execute(
+        db.select(InviteToken).where(InviteToken.token_hash == token_hold)
     ).scalar()
 
     if invite and invite.expires_at > datetime.datetime.timezone.et():
