@@ -386,3 +386,77 @@ def logout() -> Response:
 #Create/fix the registration backend routes. When someone logs in for the first time we need information about the user  (end of 6/25 to mid 7/25)
 #Name, class year, major, RPI email, ect
 #Need to ask how to check my work
+
+@main_blueprint.post("/register")
+def register_user() -> Response:
+    # parse data
+    json_data = request.get_json()
+    if not json_data:
+        return make_response({"msg": "Missing user data"}, 400)
+
+    # Required fields (may need more)
+    if "email" not in json_data:
+        return make_response({"msg": "Missing required field: email"}, 400)
+
+    # Create new User 
+    user = User(
+        email=json_data.get("email"),
+        first_name=json_data.get("first_name"),
+        last_name=json_data.get("last_name"),
+        preferred_name=json_data.get("preferred_name", ""),
+        class_year=json_data.get("class_year", ""),
+        majors=json_data.get("majors", ""),  # stored as string now may make list
+        courses=json_data.get("course", ""),  # stored as string now may make list too
+        profile_picture=json_data.get(
+            "profile_picture",
+            "https://www.svgrepo.com/show/206842/professor.svg"
+        ),
+        website=json_data.get("website", ""),
+        description=json_data.get("description", "")
+    )
+    db.session.add(user)
+    db.session.commit()  # commit so user.id is available
+
+    # Add departments (if given)
+    departments = json_data.get("departments", [])
+    for department_id in departments:
+        db.session.add(UserDepartments(
+            user_id=user.id,
+            department_id=department_id
+        ))
+
+    #Add majors (if given as a list)
+    majors = json_data.get("majors", [])
+    for major_code in majors:
+        db.session.add(UserMajors(
+            user_id=user.id,
+            major_code=major_code
+        ))
+
+    # Add courses (if given as a list)
+    courses = json_data.get("courses", [])
+    for course_code in courses:
+        db.session.add(UserCourses(
+            user_id=user.id,
+            course_code=course_code
+        ))
+
+    # Set permissions 
+    db.session.add(ManagementPermissions(
+        user_id=user.id,
+        super_admin=False,
+        admin=False,
+        moderator=False
+    ))
+
+   
+    db.session.commit()
+
+    return make_response({"msg": "New user added successfully"}, 201)
+
+
+@main_blueprint.get("/register")
+def register() -> Response:
+    resp = make_response({"msg": "Start registration"})
+    unset_jwt_cookies(resp)
+    return resp
