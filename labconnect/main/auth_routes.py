@@ -3,6 +3,9 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 import hashlib
 
+import logging
+from sqlalchemy.exc import SQLAlchemyError
+
 from flask import abort, current_app, make_response, redirect, request
 from flask_jwt_extended import (
     create_access_token,
@@ -188,10 +191,10 @@ def registerUser() -> Response:
         # permissions = json_data["permissions"]
         management_permissions = ManagementPermissions()
         management_permissions.user_id = user.id
-        # management_permissions.super_admin = permissions.get("super_admin", False)
+        # management_permissions.all_admin = permissions.get("all_admin", False)
         # management_permissions.admin = permissions.get("admin", False)
         # management_permissions.moderator = permissions.get("moderator", False)
-        management_permissions.super_admin = False
+        management_permissions.all_admin = False
         management_permissions.admin = False
         management_permissions.moderator = False
         db.session.add(management_permissions)
@@ -242,9 +245,7 @@ class InviteToken(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), nullable=False)
     token_hash = db.Column(db.String(128), nullable=False)
-    #created_at = db.Column(db.DateTime, default=datetime.timezone.et).now
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    #(datetime.timezone.utc)
     expires_at = db.Column(db.DateTime, nullable=False)
 
 @main_blueprint.post("/invite")
@@ -262,7 +263,6 @@ def invite_user() -> Response:
     token = str(uuid4())
     token_hash = hashlib.sha256(token.encode()).hexdigest()
     # Token valid for 24 hrs (can change)
-    #expires_at = datetime.timezone.et() + timedelta(days=1)  
     expires_at = datetime.now(timezone.utc) + timedelta(days=1)
 
     # Save to DB
@@ -286,9 +286,6 @@ def validate_invite_token(token: str) -> str | None:
     invite = db.session.execute(
         db.select(InviteToken).where(InviteToken.token_hash == token_hash)
     ).scalar()
-
-    #if invite and invite.expires_at > datetime.datetime.timezone.et():
-        #return invite.email
     
     if invite and invite.expires_at > datetime.now(timezone.utc) and not invite.used:
         return invite.email
@@ -396,7 +393,91 @@ def register_user() -> Response:
 
     # Required fields (may need more)
     if "email" not in json_data:
-        return make_response({"msg": "Missing required field: email"}, 400)
+        return make_response({"msg": "Missing required field: email"}, 400)\
+        
+    existing_user = User.query.filter_by(email=json_data["email"]).first()
+    if existing_user:
+        return make_response({"msg": "User already registered"}, 409)
+    
+    if not json_data["email"].endswith("@rpi.edu"):
+        return make_response({"msg": "Must use RPI email address"}, 400)
+    
+    # majors, courses, departments need to always be lists
+    majors = json_data.get("majors", [])
+    if isinstance(majors, str):
+        majors = [majors]
+
+    courses = json_data.get("courses", [])
+    if isinstance(courses, str):
+        courses = [courses]
+
+    departments = json_data.get("departments", [])
+    if isinstance(departments, str):
+        departments = [departments]
+
+    try:
+        # Create new User object
+        user = User(
+            email=json_data.get("email"),
+            first_name=json_data.get("first_name"),
+            last_name=json_data.get("last_name"),
+            preferred_name=json_data.get("preferred_name", ""),
+            class_year=json_data.get("class_year", ""),
+            majors=",".join(majors),  # If storing as comma string
+            courses=",".join(courses),  # If storing as comma string
+            profile_picture=json_data.get(
+                "profile_picture",
+                "https://www.svgrepo.com/show/206842/professor.svg"
+            ),
+            website=json_data.get("website", ""),
+            description=json_data.get("description", "")
+        )
+        db.session.add(user)
+        db.session.flush()  # to get user.id before adding relationships
+
+        # Add departments
+        for department_id in departments:
+            db.session.add(UserDepartments(
+                user_id=user.id,
+                department_id=department_id
+            ))
+
+        # Add majors 
+        for major_code in majors:
+            db.session.add(UserMajors(
+                user_id=user.id,
+                major_code=major_code
+            ))
+
+        # Add courses
+        for course_code in courses:
+            db.session.add(UserCourses(
+                user_id=user.id,
+                course_code=course_code
+            ))
+
+        # Add default permissions
+        # Possibly auto-assign moderator/admin based on department or role
+        db.session.add(ManagementPermissions(
+            user_id=user.id,
+            all_admin=False,
+            admin=False,
+            moderator=False
+        ))
+
+        # 5. Commit transaction
+        db.session.commit()
+
+        # 6. Log registration
+        logging.info(f"New user registered: {user.email}")
+
+        return make_response({"msg": "New user added successfully"}, 201)
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return make_response({"msg": "Registration failed", "error": str(e)}, 500)
+
+
 
     # Create new User 
     user = User(
@@ -435,16 +516,16 @@ def register_user() -> Response:
 
     # Add courses (if given as a list)
     courses = json_data.get("courses", [])
-    for course_code in courses:
+    for course_codes in courses:
         db.session.add(UserCourses(
             user_id=user.id,
-            course_code=course_code
+            course_code=course_codes
         ))
 
     # Set permissions 
     db.session.add(ManagementPermissions(
         user_id=user.id,
-        super_admin=False,
+        all_admin=False,
         admin=False,
         moderator=False
     ))
@@ -453,10 +534,3 @@ def register_user() -> Response:
     db.session.commit()
 
     return make_response({"msg": "New user added successfully"}, 201)
-
-
-@main_blueprint.get("/register")
-def register() -> Response:
-    resp = make_response({"msg": "Start registration"})
-    unset_jwt_cookies(resp)
-    return resp
