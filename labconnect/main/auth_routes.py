@@ -476,9 +476,7 @@ def register_user() -> Response:
     except SQLAlchemyError as e:
         db.session.rollback()
         return make_response({"msg": "Registration failed", "error": str(e)}, 500)
-
-
-
+    
     # Create new User 
     user = User(
         email=json_data.get("email"),
@@ -492,8 +490,8 @@ def register_user() -> Response:
             "profile_picture",
             "https://www.svgrepo.com/show/206842/professor.svg"
         ),
-        website=json_data.get("website", ""),
-        description=json_data.get("description", "")
+        website = json_data.get("website", ""),
+        description = json_data.get("description", "")
     )
     db.session.add(user)
     db.session.commit()  # commit so user.id is available
@@ -534,3 +532,77 @@ def register_user() -> Response:
     db.session.commit()
 
     return make_response({"msg": "New user added successfully"}, 201)
+#//////////////////////////////////////
+#Not exactly sure where this should go but its going here for now
+
+from labconnect import db
+from datetime import datetime
+
+class LabGroup(db.Model):
+    __tablename__ = "lab_groups"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    course_code = db.Column(db.String(20), nullable=False)  # relates to course
+    creator_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    creator = db.relationship("User", backref="created_lab_groups")
+    members = db.relationship(
+        "User",
+        secondary="lab_group_members",
+        back_populates="lab_groups"
+    )
+
+class LabGroupMembers(db.Model):
+    __tablename__ = "lab_group_members"
+    lab_group_id = db.Column(db.Integer, db.ForeignKey("lab_groups.id"), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
+    joined_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# Add back-populate on User model if not present:
+User.lab_groups = db.relationship(
+    "LabGroup",
+    secondary="lab_group_members",
+    back_populates="members"
+)
+
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask import request, jsonify
+
+@main_blueprint.post("/labgroups/create")
+@jwt_required()
+def create_lab_group():
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    # Only professors (or users with admin/moderator perms) can create lab groups
+    perms = ManagementPermissions.query.filter_by(user_id=user.id).first()
+    if not perms or not (perms.admin or perms.moderator):
+        return jsonify({"msg": "Permission denied"}), 403
+
+    data = request.get_json()
+    name = data.get("name")
+    course_code = data.get("course_code")
+
+    if not name or not course_code:
+        return jsonify({"msg": "Missing lab group name or course_code"}), 400
+
+    # Optional: Check if course_code is valid for this professor
+
+    lab_group = LabGroup(
+        name=name,
+        course_code=course_code,
+        creator_id=user.id
+    )
+    db.session.add(lab_group)
+    db.session.commit()
+
+    return jsonify({
+        "msg": "Lab group created",
+        "lab_group_id": lab_group.id,
+        "name": lab_group.name,
+        "course_code": lab_group.course_code
+    }), 201
