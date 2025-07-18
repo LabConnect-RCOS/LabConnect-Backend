@@ -606,3 +606,62 @@ def create_lab_group():
         "name": lab_group.name,
         "course_code": lab_group.course_code
     }), 201
+
+@main_blueprint.post("/labgroups/<int:lab_group_id>/add_member")
+@jwt_required()
+def add_member_to_lab_group(lab_group_id):
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    lab_group = LabGroup.query.get(lab_group_id)
+    if not lab_group:
+        return jsonify({"msg": "Lab group not found"}), 404
+
+    # Only creator or admin/moderator can add members
+    perms = ManagementPermissions.query.filter_by(user_id=user.id).first()
+    if user.id != lab_group.creator_id and not (perms and (perms.admin or perms.moderator)):
+        return jsonify({"msg": "Permission denied"}), 403
+
+    data = request.get_json()
+    member_email = data.get("email")
+    if not member_email:
+        return jsonify({"msg": "Missing member email"}), 400
+
+    member = User.query.filter_by(email=member_email).first()
+    if not member:
+        return jsonify({"msg": "Member user not found"}), 404
+
+    if member in lab_group.members:
+        return jsonify({"msg": "User already a member"}), 400
+
+    lab_group.members.append(member)
+    db.session.commit()
+
+    return jsonify({"msg": f"Added {member_email} to lab group {lab_group.name}"}), 200
+
+
+@main_blueprint.get("/labgroups")
+@jwt_required()
+def list_lab_groups():
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    # Return all lab groups user is member of or created
+    lab_groups = user.lab_groups + user.created_lab_groups
+    lab_groups = list({lg.id: lg for lg in lab_groups}.values())  # remove duplicates
+
+    response = [
+        {
+            "id": lg.id,
+            "name": lg.name,
+            "course_code": lg.course_code,
+            "creator_id": lg.creator_id,
+            "member_count": len(lg.members)
+        }
+        for lg in lab_groups
+    ]
+    return jsonify(response), 200
