@@ -532,6 +532,7 @@ def register_user() -> Response:
     db.session.commit()
 
     return make_response({"msg": "New user added successfully"}, 201)
+
 #//////////////////////////////////////
 #Not exactly sure where this should go but its going here for now
 
@@ -546,6 +547,9 @@ class LabGroup(db.Model):
     creator_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    def repr(self):
+        return f"<LabGroup id={self.id} name='{self.name}'>"
+
     # Relationships
     creator = db.relationship("User", backref="created_lab_groups")
     members = db.relationship(
@@ -558,7 +562,9 @@ class LabGroupMembers(db.Model):
     __tablename__ = "lab_group_members"
     lab_group_id = db.Column(db.Integer, db.ForeignKey("lab_groups.id"), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
-    joined_at = db.Column(db.DateTime, default=datetime.utcnow)
+    joined_at = db.Column(db.DateTime, default=datetime.utcnow) 
+    def __repr__(self):
+        return f"<LabGroupMembers lab_group_id={self.lab_group_id} user_id={self.user_id}>"
 
 # Add back-populate on User model if not present:
 User.lab_groups = db.relationship(
@@ -578,7 +584,7 @@ def create_lab_group():
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
-    # Only professors (or users with admin/moderator perms) can create lab groups
+    # Only professors (or users with admin/moderator permison so like a project lead) can create lab groups
     perms = ManagementPermissions.query.filter_by(user_id=user.id).first()
     if not perms or not (perms.admin or perms.moderator):
         return jsonify({"msg": "Permission denied"}), 403
@@ -598,7 +604,11 @@ def create_lab_group():
         creator_id=user.id
     )
     db.session.add(lab_group)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": "Database error", "error": str(e)}), 500
 
     return jsonify({
         "msg": "Lab group created",
@@ -636,8 +646,19 @@ def add_member_to_lab_group(lab_group_id):
     if member in lab_group.members:
         return jsonify({"msg": "User already a member"}), 400
 
+    existing = LabGroupMembers.query.filter_by(
+        lab_group_id=lab_group.id,
+        user_id=member.id
+    ) .first()
+
+    if existing:
+        return jsonify({"msg": "User already a member"}), 400
     lab_group.members.append(member)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": "Database error", "error": str(e)}), 500
 
     return jsonify({"msg": f"Added {member_email} to lab group {lab_group.name}"}), 200
 
@@ -660,7 +681,7 @@ def list_lab_groups():
             "name": lg.name,
             "course_code": lg.course_code,
             "creator_id": lg.creator_id,
-            "member_count": len(lg.members)
+            "member_count": LabGroupMembers.query.filter_by(lab_group_id=lg.id).count()
         }
         for lg in lab_groups
     ]
