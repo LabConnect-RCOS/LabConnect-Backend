@@ -2,6 +2,7 @@ from typing import NoReturn
 
 from flask import abort, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
+import datetime
 
 from labconnect import db
 from labconnect.models import (
@@ -344,6 +345,20 @@ def apply_to_lab_group(lab_group_id):
 
     return jsonify({"msg": "Application submitted"}), 201
 
+class LabGroupApplication(db.Model):
+    __tablename__ = "lab_group_applications"
+    id = db.Column(db.Integer, primary_key=True)
+    lab_group_id = db.Column(db.Integer, db.ForeignKey("lab_groups.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    statement = db.Column(db.Text, default="")
+    approved = db.Column(db.Boolean, default=False)
+    reviewed = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    applicant = db.relationship("User", backref="lab_applications")
+    lab_group = db.relationship("LabGroup", backref="applications")
+
+
 @main_blueprint.get("/labgroups/<int:lab_group_id>/applications")
 @jwt_required()
 def list_applications(lab_group_id):
@@ -371,3 +386,32 @@ def list_applications(lab_group_id):
     } for app in applications]
 
     return jsonify(response), 200
+
+@main_blueprint.post("/labgroups/applications/<int:application_id>/review")
+@jwt_required()
+def review_application(application_id):
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+
+    application = LabGroupApplication.query.get(application_id)
+    if not application:
+        return jsonify({"msg": "Application not found"}), 404
+
+    lab_group = application.lab_group
+    perms = ManagementPermissions.query.filter_by(user_id=user.id).first()
+    if user.id != lab_group.creator_id and not (perms and (perms.admin or perms.moderator)):
+        return jsonify({"msg": "Permission denied"}), 403
+
+    data = request.get_json()
+    approve = data.get("approve")
+    if approve not in [True, False]:
+        return jsonify({"msg": "Invalid approval status"}), 400
+
+    application.approved = approve
+    application.reviewed = True
+
+    if approve:
+        lab_group.members.append(application.applicant)
+
+    db.session.commit()
+    return jsonify({"msg": "Application reviewed"}), 200
