@@ -1,6 +1,6 @@
 from typing import NoReturn
 
-from flask import abort, request
+from flask import abort, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from labconnect import db
@@ -13,7 +13,11 @@ from labconnect.models import (
     RPIDepartments,
     User,
     UserDepartments,
+    LabGroup,  # Added missing model imports
+    LabGroupApplication,
+    ManagementPermissions
 )
+
 from labconnect.serializers import serialize_course
 
 from . import main_blueprint
@@ -309,3 +313,61 @@ def courses() -> list[str]:
 # - Analytics on applicant interest per project/ what school have more projects
 # - Lab profile pages with “Open for Applications” badge
 
+@main_blueprint.post("/labgroups/<int:lab_group_id>/apply")
+@jwt_required()
+def apply_to_lab_group(lab_group_id):
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    lab_group = LabGroup.query.get(lab_group_id)
+    if not lab_group:
+        return jsonify({"msg": "Lab group not found"}), 404
+
+    existing_application = LabGroupApplication.query.filter_by(
+        lab_group_id=lab_group_id, user_id=user.id).first()
+    
+    if existing_application:
+        return jsonify({"msg": "Already applied"}), 409
+
+    data = request.get_json() or {}
+    statement = data.get("statement", "")
+
+    application = LabGroupApplication(
+        lab_group_id=lab_group_id,
+        user_id=user.id,
+        statement=statement
+    )
+    db.session.add(application)
+    db.session.commit()
+
+    return jsonify({"msg": "Application submitted"}), 201
+
+@main_blueprint.get("/labgroups/<int:lab_group_id>/applications")
+@jwt_required()
+def list_applications(lab_group_id):
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    lab_group = LabGroup.query.get(lab_group_id)
+    if not lab_group:
+        return jsonify({"msg": "Lab group not found"}), 404
+
+    perms = ManagementPermissions.query.filter_by(user_id=user.id).first()
+    if user.id != lab_group.creator_id and not (perms and (perms.admin or perms.moderator)):
+        return jsonify({"msg": "Permission denied"}), 403
+
+    applications = LabGroupApplication.query.filter_by(lab_group_id=lab_group_id).all()
+    response = [{
+        "id": app.id,
+        "applicant": app.applicant.email,
+        "statement": app.statement,
+        "approved": app.approved,
+        "reviewed": app.reviewed,
+        "created_at": app.created_at.isoformat()
+    } for app in applications]
+
+    return jsonify(response), 200
