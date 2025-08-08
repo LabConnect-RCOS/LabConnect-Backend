@@ -260,3 +260,52 @@ def courses() -> list[str]:
         abort(404)
 
     return result
+
+#_______________________________________________
+#Add an application process  (8/25 and later)
+# Maybe in new file will stay in here for now
+# note/ideas 
+# Start with CS Professors 
+# Automated(code) or do we want to approve induvidual applications(send to email?????)
+# Overall need to first start with a way to apply from our web cite  
+#_______________________________________________
+# Application Process Notes:
+
+# Goal: Allow students to apply to join lab groups via LabConnect
+# Allow professors/ Ta's/ Mentors to apply for project to put on webcite
+# Target: Fall semester launch
+
+# 1
+# - application form (professors)
+# - (name, email, major/majors they teach, classes they teach/ major of studnets they want for reaserch)
+# - (about the project title, skills, classes needed)
+# - application form (students???) maybe needed
+# - (name, email, year, major, interest area, maybe resume upload?)
+# - Form links to specific lab pages or general list
+# - Submissions go to a Google Sheet or DB (PostgreSQL?)
+# - Email notification to lab admin (professor or TA)
+
+# 2
+# - Login access to view applicants per lab
+# - Approve / deny / waitlist applicants
+# - Auto-email response with custom message
+
+# Other
+# - Auth integration (RPI CAS login or just emails?)
+# - require @rpi.edu
+# - Rate limiting for submission abuse
+# - Store timestamp of application
+# - Export function (CSV for professors)
+
+# Ideas
+# Frontend stuff would need more work
+# /apply -> lab application overview
+# /apply/csci4250 -> direct application to lab
+# /labs/{lab_id}/apply -> canonical version?
+# May want `/labs` route to have "Apply to This Lab" CTA button
+
+# Future Thought:
+# - block join requests for full labs
+# - Analytics on applicant interest per project/ what school have more projects
+# - Lab profile pages with “Open for Applications” badge
+
