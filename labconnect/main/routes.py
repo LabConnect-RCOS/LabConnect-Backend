@@ -547,3 +547,32 @@ def export_applications_csv(lab_group_id):
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment;filename=lab_{lab_group_id}_applications.csv"}
     )
+
+@main_blueprint.post("/labs/applications/<int:application_id>/review")
+@jwt_required()
+def review_application(application_id):
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+
+    application = LabGroupApplication.query.get(application_id)
+    if not application:
+        return jsonify({"msg": "Application not found"}), 404
+
+    lab_group = application.lab_group
+    perms = ManagementPermissions.query.filter_by(user_id=user.id).first()
+    if user.id != lab_group.creator_id and not (perms and (perms.admin or perms.moderator)):
+        return jsonify({"msg": "Permission denied"}), 403
+
+    data = request.get_json()
+    approve = data.get("approve")
+    if approve not in [True, False]:
+        return jsonify({"msg": "Invalid approval status"}), 400
+
+    application.approved = approve
+    application.reviewed = True
+
+    if approve:
+        lab_group.members.append(application.applicant)
+
+    db.session.commit()
+    return jsonify({"msg": "Application reviewed"}), 200
