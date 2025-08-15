@@ -1,8 +1,10 @@
 from typing import NoReturn
 
-from flask import abort, request, jsonify, Blueprint
+from flask import abort, request, jsonify, Blueprint, Response
 from flask_jwt_extended import get_jwt_identity, jwt_required
 import datetime
+from io import StringIO
+import csv
 
 from labconnect import db
 from labconnect.models import (
@@ -508,3 +510,40 @@ def list_applications(lab_group_id):
     } for app in applications]
 
     return jsonify(response), 200
+
+@main_blueprint.get("/labs/<int:lab_group_id>/applications/export")
+@jwt_required()
+def export_applications_csv(lab_group_id):
+    """Allow professors to export applications as CSV."""
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    lab_group = LabGroup.query.get(lab_group_id)
+    if not lab_group:
+        return jsonify({"msg": "Lab group not found"}), 404
+
+    perms = ManagementPermissions.query.filter_by(user_id=user.id).first()
+    if user.id != lab_group.creator_id and not (perms and (perms.admin or perms.moderator)):
+        return jsonify({"msg": "Permission denied"}), 403
+
+    applications = LabGroupApplication.query.filter_by(lab_group_id=lab_group_id).all()
+    si = StringIO()
+    writer = csv.writer(si)
+    writer.writerow(["ID", "Applicant", "Statement", "Approved", "Reviewed", "Created_At"])
+    for app in applications:
+        writer.writerow([
+            app.id,
+            app.applicant.email,
+            app.statement,
+            app.approved,
+            app.reviewed,
+            app.created_at.isoformat()
+        ])
+    output = si.getvalue()
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment;filename=lab_{lab_group_id}_applications.csv"}
+    )
