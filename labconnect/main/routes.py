@@ -1,6 +1,6 @@
 from typing import NoReturn
 
-from flask import abort, request, jsonify
+from flask import abort, request, jsonify, Blueprint
 from flask_jwt_extended import get_jwt_identity, jwt_required
 import datetime
 
@@ -414,4 +414,97 @@ def review_application(application_id):
         lab_group.members.append(application.applicant)
 
     db.session.commit()
-    return jsonify({"msg": "Application reviewed"}), 200
+    return jsonify({"msg": "Application reviewed"}), 200 
+
+#Other ideas: 
+
+main_blueprint = Blueprint("main", __name__)
+
+recent_applications = {}  # {user_id: datetime_of_last_application}
+
+RATE_LIMIT_SECONDS = 30  # block if applying again too soon
+
+@main_blueprint.post("/labs/<int:lab_group_id>/apply")
+@jwt_required()
+def apply_to_lab_group(lab_group_id):
+    current_user_email = get_jwt_identity()
+    if not current_user_email.endswith("@rpi.edu"):
+        return jsonify({"msg": "Must use an @rpi.edu email"}), 403
+
+    user = User.query.filter_by(email=current_user_email).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    # Rate limiting
+    now = datetime.utcnow()
+    if user.id in recent_applications:
+        last_time = recent_applications[user.id]
+        if (now - last_time).total_seconds() < RATE_LIMIT_SECONDS:
+            return jsonify({"msg": "Too many applications, try again later"}), 429
+
+    lab_group = LabGroup.query.get(lab_group_id)
+    if not lab_group:
+        return jsonify({"msg": "Lab group not found"}), 404
+
+    existing_application = LabGroupApplication.query.filter_by(
+        lab_group_id=lab_group_id, user_id=user.id
+    ).first()
+    if existing_application:
+        return jsonify({"msg": "Already applied"}), 409
+
+    data = request.get_json() or {}
+    statement = data.get("statement", "")
+
+    application = LabGroupApplication(
+        lab_group_id=lab_group_id,
+        user_id=user.id,
+        statement=statement
+    )
+    db.session.add(application)
+    db.session.commit()
+
+    recent_applications[user.id] = now
+    return jsonify({"msg": "Application submitted"}), 201
+
+
+class LabGroupApplication(db.Model):
+    __tablename__ = "lab_group_applications"
+    id = db.Column(db.Integer, primary_key=True)
+    lab_group_id = db.Column(db.Integer, db.ForeignKey("lab_groups.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    statement = db.Column(db.Text, default="")
+    approved = db.Column(db.Boolean, default=False)
+    reviewed = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    applicant = db.relationship("User", backref="lab_applications")
+    lab_group = db.relationship("LabGroup", backref="applications")
+
+
+@main_blueprint.get("/labs/<int:lab_group_id>/applications")
+@jwt_required()
+def list_applications(lab_group_id):
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    lab_group = LabGroup.query.get(lab_group_id)
+    if not lab_group:
+        return jsonify({"msg": "Lab group not found"}), 404
+
+    perms = ManagementPermissions.query.filter_by(user_id=user.id).first()
+    if user.id != lab_group.creator_id and not (perms and (perms.admin or perms.moderator)):
+        return jsonify({"msg": "Permission denied"}), 403
+
+    applications = LabGroupApplication.query.filter_by(lab_group_id=lab_group_id).all()
+    response = [{
+        "id": app.id,
+        "applicant": app.applicant.email,
+        "statement": app.statement,
+        "approved": app.approved,
+        "reviewed": app.reviewed,
+        "created_at": app.created_at.isoformat()
+    } for app in applications]
+
+    return jsonify(response), 200
