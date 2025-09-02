@@ -30,7 +30,7 @@ python-dotenv==1.1.1
 python3-saml==1.16.0
 pytz==2025.2
 requests==2.32.4
-ruff==0.12.7
+ruff==0.12.11
 sentry-sdk==2.35.2
 six==1.17.0
 SQLAlchemy==2.0.41
