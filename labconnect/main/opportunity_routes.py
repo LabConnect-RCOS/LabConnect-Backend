@@ -826,17 +826,18 @@ def saveUserOpportunity(opportunity_id: int):
 
 
 # Delete an opportunitiy saved by a user
-@main_blueprint.delete("/deleteSaveOpportunity/<int:opportunity_id>")
+@main_blueprint.delete("/unsaveOpportunity/<int:opportunity_id>")
 @jwt_required()
 def deleteUserOpportunity(opportunity_id: int):
     data = request.get_json()
     if not data:
         abort(400, "Missing JSON data")
 
-    save_opp_user_id = get_jwt_identity()
     save_opp_opportunity_id = db.session.get(Opportunities, opportunity_id)
     if not save_opp_opportunity_id:
         return {"error": "Opportunity not found"}, 404
+
+    save_opp_user_id = get_jwt_identity()
 
     # Find the saved opportunity
     get_saved_opp_info = db.session.execute(
@@ -847,17 +848,17 @@ def deleteUserOpportunity(opportunity_id: int):
     ).scalar_one_or_none()
 
     if not get_saved_opp_info:
-        return {"message": "Opportunity not found"}, 404
+        return {"message": "Opportunity not saved by user"}
 
     # Delete the opportunity
     db.session.delete(get_saved_opp_info)
     db.session.commit()
 
-    return {"message": "Opportunity deleted"}, 200
+    return {"message": "Opportunity deleted"}
 
 
 # Create route to return a list saved opportunities
-@main_blueprint.get("/AllSavedUserOpportunities/")
+@main_blueprint.get("/savedOpportunities/")
 @jwt_required()
 def allSavedUserOportunities():
     # Get current users ID
@@ -874,21 +875,24 @@ def allSavedUserOportunities():
         .all()
     )
     if not saved_opps:
-        return {"message": "No saved opportunities found"}, 404
+        return []
 
     # Put opportunities into a dictionary
     saved_opportunities_list = [opp.to_dict() for opp in saved_opps]
 
-    return saved_opportunities_list, 200
+    return saved_opportunities_list
 
 
 # Create route to allow for multiple pages to be unsaved given a list of opp_ids
-@main_blueprint.delete("/UnsaveMultiplePages/")
+@main_blueprint.delete("/unsaveOpportunities/")
 @jwt_required()
 # Delete id that appear on delete_ids list
 def UnsaveMultipleOpps():
     # Get a list of opportunity IDs
     data = request.get_json()
+    if not data:
+        abort(400)
+
     delete_ids = data.get("delete_ids")
     if not delete_ids or not isinstance(delete_ids, list):
         return {"message": "Invalid or missing delete_ids"}, 400
@@ -906,7 +910,7 @@ def UnsaveMultipleOpps():
         .all()
     )
     if not saved_opps:
-        return {"message": "User has no saved opportunities"}, 404
+        return {"message": "User did not have these opportunities saved"}
 
     # Delete the opportinities
     for opp in saved_opps:
