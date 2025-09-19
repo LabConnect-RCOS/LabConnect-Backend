@@ -1,3 +1,4 @@
+Ubuntu
 1. Install python and dependencies
 
     Run this line by line:
@@ -6,6 +7,29 @@
     ALTER USER postgres WITH PASSWORD 'root';
     \q
     exit
+
+    Copy Paste and Run:
+    python3 -m pip install -r requirements.txt
+    sudo -u postgres createdb labconnect
+
+
+
+
+2. Test installation
+
+Run:
+    make test
+
+    Testing isnt working great so you should get 48 failed, 7 passed, this is just
+    to check that the db is working for make develop
+
+Windows
+1. Install python and dependencies
+
+    Run this line by line:
+    psql -U postgres -d postgres - Windows
+    ALTER USER postgres WITH PASSWORD 'root';
+    \q
 
     Copy Paste and Run:
     python3 -m pip install -r requirements.txt
