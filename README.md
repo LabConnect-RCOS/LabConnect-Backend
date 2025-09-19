@@ -34,7 +34,7 @@
     <a href="https://github.com/LabConnect-RCOS/LabConnect-Backend">
 <!-- <img src="https://github.com/RafaelCenzano/LabConnect/blob/main/bargeLogo.png" alt="Barge Logo" width="360" height="216"> -->
 </a>
-<img src="misc/LabConnect_Logo.png" alt="LabConnect Logo" width="360">
+<img src="misc/LabConnect_Logo-removebg-preview.png" alt="LabConnect Logo" width="360">
 <h3 align="center">LabConnect</h3>
 
 <p>Connecting students to research opportunities.</p>
@@ -66,6 +66,10 @@
  * Install Libraries 
     ```bash
     $ python3 -m pip install -r requirements.txt
+    ```
+* Initialize db 
+    ```
+    $ sudo -u postgres createdb labconnect
     ```
 
 ## Testing

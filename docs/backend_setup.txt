@@ -1,0 +1,13 @@
+1. Install python and dependencies
+
+    Copy Paste and Run:
+    python3 -m pip install -r requirements.txt
+    sudo -u postgres createdb labconnect
+
+2. Test installation
+
+Run:
+    make test
+
+    Testing isnt working great so you should get 48 failed, 7 passed, this is just
+    to check that the db is working for make develop
