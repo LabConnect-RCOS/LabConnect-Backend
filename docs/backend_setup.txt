@@ -1,5 +1,12 @@
 1. Install python and dependencies
 
+    Run this line by line:
+    sudo -i -u postgres
+    psql
+    ALTER USER postgres WITH PASSWORD 'root';
+    \q
+    exit
+
     Copy Paste and Run:
     python3 -m pip install -r requirements.txt
     sudo -u postgres createdb labconnect
