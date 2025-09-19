@@ -28,6 +28,7 @@ Windows
 
     Run this line by line:
     psql -U postgres -d postgres - Windows
+    CREATE DATABASE labconnect;
     ALTER USER postgres WITH PASSWORD 'root';
     \q
 
