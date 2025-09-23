@@ -66,7 +66,7 @@
     * Windows: [here](https://www.python.org/downloads/release/python-3124/)
     * Linux:
     ```
-    $ sudo apt install postgresql
+    $ sudo apt install python3
     ```
  * Install PostgreSQL 
     * Windows: [here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) 
