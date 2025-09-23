@@ -62,13 +62,37 @@
     $ git clone https://github.com/LabConnect-RCOS/LabConnect-Backend.git
     ```
     * or through [Github Desktop](https://desktop.github.com/)
- * Install Python 3.12.4 [here]([https://www.python.org/downloads/release/python-3122/](https://www.python.org/downloads/release/python-3124/))
+ * Install Python 3.12.4 
+    Windows: [here](https://www.python.org/downloads/release/python-3124/)
+    Linux:
+    ```
+    $ sudo apt install postgresql
+    ```
+ * Install PostgreSQL 
+    Windows: [here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) 
+    Linux:
+    ```
+    $ sudo apt install postgresql
+    ```
  * Install Libraries 
-    ```bash
+    ```
     $ python3 -m pip install -r requirements.txt
     ```
-* Initialize db 
+* Setup user and initialize database
+    Windows:
     ```
+    $ psql -U postgres -d postgres - Windows
+    $ CREATE DATABASE labconnect;
+    $ ALTER USER postgres WITH PASSWORD 'root';
+    $ \q
+    ```
+    Linux:
+    ```
+    $ sudo -i -u postgres
+    $ psql
+    $ ALTER USER postgres WITH PASSWORD 'root';
+    $ \q
+    $ exit
     $ sudo -u postgres createdb labconnect
     ```
 
@@ -125,21 +149,24 @@ Running list of contributors to the LabConnect project:
 
 ### Project Lead
 
-- **Rafael Cenzano** [Project Lead]
+- **Will Broadwell** [Project Lead]
+- **Rafael Cenzano** [Former Project Lead]
 
 ### Rensselaer Center for Open Source Development Team
 
-- **Sarah W** [Backend]
-- **Mohammed P** [Backend]
-- **Will B** [Frontend]
-- **Sidarth E** [Frontend]
-- **Sagar S** [Frontend]
-- **Gowrisankar P** [Frontend]
-- **Devan P** [Frontend]
-
+- **Jaswanth D** [Frontend]
+- **Doan N** [Frontend]
+- **Pragathi A** [Frontend / Backend]
+- **Aniket S** [Backend]
 
 ### Past Rensselaer Center for Open Source Development Team
 
+- **Mohammed P** [Backend] (S'25)
+- **Sagar S** [Frontend] (S'25)
+- **Gowrisankar P** [Frontend] (S'25)
+- **Devan P** [Frontend] (S'25)
+- **Sidarth E** [Frontend] (F'24,S'25)
+- **Sarah W** [Backend] (S'24,F'24,S'25,U'25)
 - **Ramzey Y** [Backend] (S'24,F'24)
 - **Siddhi W** [Frontend / Backend] (F'23,S'24,F'24)
 - **Mrunal A** [Frontend / Backend] (F'23,S'24,F'24)

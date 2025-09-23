@@ -1,6 +1,10 @@
 Ubuntu
 1. Install python and dependencies
 
+    Copy Paste and Run:
+    python3 -m pip install -r requirements.txt
+    sudo apt install postgresql
+
     Run this line by line:
     sudo -i -u postgres
     psql
@@ -8,11 +12,8 @@ Ubuntu
     \q
     exit
 
-    Copy Paste and Run:
-    python3 -m pip install -r requirements.txt
+    Run:
     sudo -u postgres createdb labconnect
-
-
 
 
 2. Test installation
@@ -23,17 +24,22 @@ Run:
     Testing isnt working great so you should get 48 failed, 7 passed, this is just
     to check that the db is working for make develop
 
+
+
+
 Windows
 1. Install python and dependencies
 
+    python3 -m pip install -r requirements.txt
+    winget install PostgreSQL.PostgreSQL    (or install through the site)
+    
     Run this line by line:
     psql -U postgres -d postgres - Windows
     CREATE DATABASE labconnect;
     ALTER USER postgres WITH PASSWORD 'root';
     \q
 
-    Copy Paste and Run:
-    python3 -m pip install -r requirements.txt
+    Run:
     sudo -u postgres createdb labconnect
 
 2. Test installation
