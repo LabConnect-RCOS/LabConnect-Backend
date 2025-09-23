@@ -63,14 +63,14 @@
     ```
     * or through [Github Desktop](https://desktop.github.com/)
  * Install Python 3.12.4 
-    Windows: [here](https://www.python.org/downloads/release/python-3124/)
-    Linux:
+    * Windows: [here](https://www.python.org/downloads/release/python-3124/)
+    * Linux:
     ```
     $ sudo apt install postgresql
     ```
  * Install PostgreSQL 
-    Windows: [here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) 
-    Linux:
+    * Windows: [here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) 
+    * Linux:
     ```
     $ sudo apt install postgresql
     ```
@@ -79,14 +79,14 @@
     $ python3 -m pip install -r requirements.txt
     ```
 * Setup user and initialize database
-    Windows:
+    * Windows:
     ```
     $ psql -U postgres -d postgres - Windows
     $ CREATE DATABASE labconnect;
     $ ALTER USER postgres WITH PASSWORD 'root';
     $ \q
     ```
-    Linux:
+    * Linux:
     ```
     $ sudo -i -u postgres
     $ psql
