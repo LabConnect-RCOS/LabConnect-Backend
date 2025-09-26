@@ -58,48 +58,47 @@
 ## Prerequisites
  * Clone
     * Clone repo through CLI
-    ```bash
-    $ git clone https://github.com/LabConnect-RCOS/LabConnect-Backend.git
-    ```
+        ```bash
+        $ git clone https://github.com/LabConnect-RCOS/LabConnect-Backend.git
+        ```
     * or through [Github Desktop](https://desktop.github.com/)
  * Install Python 3.12.4 
     * Windows: [here](https://www.python.org/downloads/release/python-3124/)
     * Linux:
-    ```
-    $ sudo apt install python3
-    ```
+        ```
+        $ sudo apt install python3
+        ```
  * Install PostgreSQL 
     * Windows: [here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) 
     * Linux:
-    ```
-    $ sudo apt install postgresql
-    ```
+        ```
+        $ sudo apt install postgresql
+        ```
  * Install Libraries 
     ```
     $ python3 -m pip install -r requirements.txt
     ```
 * Setup user and initialize database
     * Windows:
-    ```
-    $ psql -U postgres -d postgres - Windows
-    $ CREATE DATABASE labconnect;
-    $ ALTER USER postgres WITH PASSWORD 'root';
-    $ \q
-    ```
+        ```
+        $ psql -U postgres -d postgres - Windows
+        $ CREATE DATABASE labconnect;
+        $ ALTER USER postgres WITH PASSWORD 'root';
+        $ \q
+        ```
     * Linux:
-    ```
-    $ sudo -i -u postgres
-    $ psql
-    $ ALTER USER postgres WITH PASSWORD 'root';
-    $ \q
-    $ exit
-    $ sudo -u postgres createdb labconnect
-    ```
+        ```
+        $ sudo -i -u postgres
+        $ psql
+        $ ALTER USER postgres WITH PASSWORD 'root';
+        $ \q
+        $ exit
+        $ sudo -u postgres createdb labconnect
+        ```
 
 ## Testing
  * Run pytest
    * Run all the test files and generate a coverage report. Coverage reports are set up to output to the terminal and provide an HTML file that can be viewed to show what branches or statements are not covered. It is in the project's best interest to have high coverage to ensure all statements and branches work as expected.
-
    ```bash
    $ make test
    ```
@@ -115,7 +114,6 @@
 ## Development
  * Run flask with python directly
    * Run all the test files
-
    ```bash
    $ make develop
    ```
