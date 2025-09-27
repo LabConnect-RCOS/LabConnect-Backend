@@ -35,9 +35,10 @@
 <!-- <img src="https://github.com/RafaelCenzano/LabConnect/blob/main/bargeLogo.png" alt="Barge Logo" width="360" height="216"> -->
 </a>
 <img src="misc/LabConnect_Logo-removebg-preview.png" alt="LabConnect Logo" width="360">
-<h3 align="center">LabConnect</h3>
+<br>
 
-<p>Connecting students to research opportunities.</p>
+<p align="center">A centralized website to connect RPI undergraduate students with research or lab positions<br>
+posted by professors, graduate students, or lab staff.</p>
 </div>
 
 
@@ -176,8 +177,10 @@ Running list of contributors to the LabConnect project:
 
 
 ### Special Thanks
-
 We extend our special thanks support and opportunity provided by the RCOS community.
+
+### Contact Us
+Join our Discord for any questions or concerns [here](https://discord.gg/tsaxCKjYHT)
 
 ## License
 
