@@ -21,20 +21,21 @@ from flask.testing import FlaskClient
                         "Computer Science",
                         "Biology",
                         "Materials Engineering",
-                        "Math",
                         "Environmental Engineering",
+                        "Math",
                         "Aerospace Engineering",
-                        "Areonautical Engineering",
+                        "Aeronautical Engineering",
+                        "Mechanical, Aerospace, and Nuclear Engineering"
                     ],
                 },
                 {
                     "field": "description",
                     "values": [
-                        "DS",
-                        "life",
+                        "DS is rough",
+                        "life science",
                         "also pretty cool",
+                        "water stuff",
                         "quick maths",
-                        "water",
                         "space, the final frontier",
                         "flying, need for speed",
                     ],
@@ -42,18 +43,18 @@ from flask.testing import FlaskClient
                 {
                     "field": "school_id",
                     "values": [
-                        "School of science",
-                        "School of science",
-                        "School of engineering",
-                        "School of science",
-                        "School of engineering",
-                        "School of engineering",
-                        "School of engineering",
+                        "School of Science",
+                        "School of Science",
+                        "School of Engineering",
+                        "School of Science",
+                        "School of Engineering",
+                        "School of Engineering",
+                        "School of Engineering",
                     ],
                 },
                 {
                     "field": "id",
-                    "values": ["CSCI", "BIOL", "MTLE", "MATH", "ENVI", "MANE", "MANE"],
+                    "values": ["CSCI", "BIOL", "MTLE", "MATH", "ENVE", "MANE"],
                 },
                 {
                     "field": "image",
@@ -62,7 +63,7 @@ from flask.testing import FlaskClient
                     ]
                     * 7,
                 },
-                {"field": "webcite", "values": ["https://www.rpi.edu"] * 7},
+                {"field": "website", "values": ["https://www.rpi.edu"] * 7},
             ],
         ),
         (
@@ -80,7 +81,7 @@ from flask.testing import FlaskClient
                         "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
                     ],
                 },
-                {"field": "webcite", "values": ["https://www.rpi.edu"]},
+                {"field": "website", "values": ["https://www.rpi.edu"]},
                 {
                     "field": "professors",
                     "subfields": [
