@@ -27,6 +27,30 @@ from labconnect.serializers import serialize_opportunity
 from . import main_blueprint
 
 
+@main_blueprint.route("/opportunities", methods=["GET"])
+def get_opportunities():
+    """
+    Gets all opportunities from the database.
+    """
+    # Query the database to get all opportunity records
+    opportunities = Opportunity.query.all()
+    
+    # Create a list of dictionaries from the opportunity objects
+    opportunity_list = [
+        {
+            "id": op.id,
+            "name": op.name,
+            "description": op.description,
+            "professor_id": op.professor_id,
+            "posted_on": op.posted_on.isoformat() # format datetime for JSON
+        }
+        for op in opportunities
+    ]
+    
+    # Return the list as a JSON response
+    return jsonify(opportunity_list), 200
+
+
 @main_blueprint.get("/searchOpportunity/<string:query>")
 def searchOpportunity(query: str):
     # Perform a search
