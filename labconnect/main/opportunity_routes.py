@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import abort, request
+from flask import abort, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import case, func
 
@@ -49,6 +49,20 @@ def get_opportunities():
     
     # Return the list as a JSON response
     return jsonify(opportunity_list), 200
+
+
+@main_blueprint.get("/opportunity/<int:opportunity_id>")
+def get_single_opportunity(opportunity_id: int):
+    """
+    Retrieves the details of a single opportunity by its ID.
+    """
+    # Query the database for the opportunity with the given ID
+    opportunity = db.session.get(Opportunities, opportunity_id) 
+    if opportunity is None:
+        abort(404, description="Opportunity not found")
+
+    # Serialize the opportunity data and return it as JSON
+    return jsonify(serialize_opportunity(opportunity))
 
 
 @main_blueprint.get("/searchOpportunity/<string:query>")
