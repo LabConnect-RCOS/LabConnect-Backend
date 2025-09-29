@@ -4,6 +4,21 @@ import pytest
 from flask.testing import FlaskClient
 
 
+
+def test_get_all_opportunities(client, auth):
+    """
+    Tests the GET /api/opportunities endpoint to ensure it returns all opportunities.
+    """ 
+    response = client.get("/api/opportunities")
+    
+    assert response.status_code == 200     # request was successful (status code 200)
+    
+    assert isinstance(response.json, list) # response is a list
+    
+    # atleast 1 opportunity in data, not empty JSON return
+    assert len(response.json) > 0
+
+
 def test_get_opportunity_parametrized(test_client: FlaskClient):
     """
     GIVEN a Flask application configured for testing
