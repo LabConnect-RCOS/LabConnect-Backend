@@ -142,6 +142,10 @@ Use the Docker container in the [packages tab](https://github.com/LabConnect-RCO
    $ gunicorn run:app -w 6 --preload --max-requests-jitter 300 --bind 0.0.0.0:8000
    ```
 
+## Contact Us
+[![Discord](https://img.shields.io/badge/Discord-5865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/tsaxCKjYHT)
+[![Jira](https://img.shields.io/badge/Jira-0052CC.svg?style=for-the-badge&logo=jira&logoColor=white)](https://rcoslabconnect.atlassian.net/jira/software/projects/CCS/list)
+
 ## Project Contributors
 
 Running list of contributors to the LabConnect project:
@@ -178,9 +182,6 @@ Running list of contributors to the LabConnect project:
 
 ### Special Thanks
 We extend our special thanks support and opportunity provided by the RCOS community.
-
-### Contact Us
-Join our Discord for any questions or concerns [here](https://discord.gg/tsaxCKjYHT)
 
 ## License
 
