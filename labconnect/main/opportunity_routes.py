@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import abort, request, jsonify
+from flask import abort, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import case, func
 
@@ -27,42 +27,58 @@ from labconnect.serializers import serialize_opportunity
 from . import main_blueprint
 
 
-@main_blueprint.route("/opportunities", methods=["GET"])
-def get_opportunities():
-    """
-    Gets all opportunities from the database.
-    """
-    # Query the database to get all opportunity records
-    opportunities = Opportunity.query.all()
-    
-    # Create a list of dictionaries from the opportunity objects
-    opportunity_list = [
-        {
-            "id": op.id,
-            "name": op.name,
-            "description": op.description,
-            "professor_id": op.professor_id,
-            "posted_on": op.posted_on.isoformat() # format datetime for JSON
-        }
-        for op in opportunities
-    ]
-    
-    # Return the list as a JSON response
-    return jsonify(opportunity_list), 200
+def opportunity_to_dict(opportunity: Opportunities) -> dict:
+    """Return a plain dict representation of an Opportunities model instance."""
+    if opportunity is None:
+        return {}
 
+    return {
+        "id": opportunity.id,
+        "name": opportunity.name,
+        "description": opportunity.description,
+        "recommended_experience": opportunity.recommended_experience,
+        "pay": opportunity.pay,
+        "one_credit": bool(opportunity.one_credit),
+        "two_credits": bool(opportunity.two_credits),
+        "three_credits": bool(opportunity.three_credits),
+        "four_credits": bool(opportunity.four_credits),
+        "semester": str(opportunity.semester) if opportunity.semester is not None else None,
+        "year": opportunity.year,
+        "active": bool(opportunity.active),
+    }
 
+# Single opportunity endpoints used by the frontend/tests
 @main_blueprint.get("/opportunity/<int:opportunity_id>")
 def get_single_opportunity(opportunity_id: int):
+    """Return a single opportunity by id. Returns 404 if not found
     """
-    Retrieves the details of a single opportunity by its ID.
-    """
-    # Query the database for the opportunity with the given ID
-    opportunity = db.session.get(Opportunities, opportunity_id) 
-    if opportunity is None:
-        abort(404, description="Opportunity not found")
+    opp = db.session.get(Opportunities, opportunity_id)
+    if not opp:
+        abort(404)
 
-    # Serialize the opportunity data and return it as JSON
-    return jsonify(serialize_opportunity(opportunity))
+    return opportunity_to_dict(opp)
+
+
+@main_blueprint.get("/opportunity")
+def get_opportunity_via_json():
+    """GET /opportunity expects a JSON payload with {"id": <int>}."""
+    data = request.get_json()
+    if not data:
+        abort(400)
+
+    if "id" not in data:
+        abort(400)
+
+    try:
+        opp_id = int(data["id"])
+    except ValueError:
+        abort(400)
+
+    opp = db.session.get(Opportunities, opp_id)
+    if not opp:
+        abort(404)
+
+    return opportunity_to_dict(opp)
 
 
 @main_blueprint.get("/searchOpportunity/<string:query>")

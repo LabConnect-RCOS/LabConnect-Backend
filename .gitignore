@@ -7,3 +7,8 @@ env/
 .coverage
 *.vscode
 .env
+
+labconnect/bin
+labconnect/include
+labconnect/lib
+labconnect/pyvenv.cfg
