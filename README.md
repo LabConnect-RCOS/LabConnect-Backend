@@ -34,10 +34,11 @@
     <a href="https://github.com/LabConnect-RCOS/LabConnect-Backend">
 <!-- <img src="https://github.com/RafaelCenzano/LabConnect/blob/main/bargeLogo.png" alt="Barge Logo" width="360" height="216"> -->
 </a>
-<img src="misc/LabConnect_Logo.png" alt="LabConnect Logo" width="360">
-<h3 align="center">LabConnect</h3>
+<img src="misc/LabConnect_Logo-removebg-preview.png" alt="LabConnect Logo" width="360">
+<br/><br/>
 
-<p>Connecting students to research opportunities.</p>
+<p align="center">A centralized website to connect RPI undergraduate students with research or lab positions<br>
+posted by professors, graduate students, or lab staff.</p>
 </div>
 
 
@@ -58,20 +59,47 @@
 ## Prerequisites
  * Clone
     * Clone repo through CLI
-    ```bash
-    $ git clone https://github.com/LabConnect-RCOS/LabConnect-Backend.git
-    ```
+        ```bash
+        $ git clone https://github.com/LabConnect-RCOS/LabConnect-Backend.git
+        ```
     * or through [Github Desktop](https://desktop.github.com/)
- * Install Python 3.12.4 [here]([https://www.python.org/downloads/release/python-3122/](https://www.python.org/downloads/release/python-3124/))
+ * Install Python 3.12.4 
+    * Windows: [here](https://www.python.org/downloads/release/python-3124/)
+    * Linux:
+        ```
+        $ sudo apt install python3
+        ```
+ * Install PostgreSQL 
+    * Windows: [here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) 
+    * Linux:
+        ```
+        $ sudo apt install postgresql
+        ```
  * Install Libraries 
-    ```bash
+    ```
     $ python3 -m pip install -r requirements.txt
     ```
+* Setup user and initialize database
+    * Windows:
+        ```
+        $ psql -U postgres -d postgres - Windows
+        $ CREATE DATABASE labconnect;
+        $ ALTER USER postgres WITH PASSWORD 'root';
+        $ \q
+        ```
+    * Linux:
+        ```
+        $ sudo -i -u postgres
+        $ psql
+        $ ALTER USER postgres WITH PASSWORD 'root';
+        $ \q
+        $ exit
+        $ sudo -u postgres createdb labconnect
+        ```
 
 ## Testing
  * Run pytest
    * Run all the test files and generate a coverage report. Coverage reports are set up to output to the terminal and provide an HTML file that can be viewed to show what branches or statements are not covered. It is in the project's best interest to have high coverage to ensure all statements and branches work as expected.
-
    ```bash
    $ make test
    ```
@@ -87,7 +115,6 @@
 ## Development
  * Run flask with python directly
    * Run all the test files
-
    ```bash
    $ make develop
    ```
@@ -115,27 +142,34 @@ Use the Docker container in the [packages tab](https://github.com/LabConnect-RCO
    $ gunicorn run:app -w 6 --preload --max-requests-jitter 300 --bind 0.0.0.0:8000
    ```
 
+## Contact Us
+[![Discord](https://img.shields.io/badge/Discord-5865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/tsaxCKjYHT)
+[![Jira](https://img.shields.io/badge/Jira-0052CC.svg?style=for-the-badge&logo=jira&logoColor=white)](https://rcoslabconnect.atlassian.net/jira/software/projects/CCS/list)
+
 ## Project Contributors
 
 Running list of contributors to the LabConnect project:
 
 ### Project Lead
 
-- **Rafael Cenzano** [Project Lead]
+- **Will Broadwell** [Project Lead]
+- **Rafael Cenzano** [Former Project Lead]
 
 ### Rensselaer Center for Open Source Development Team
 
-- **Sarah W** [Backend]
-- **Mohammed P** [Backend]
-- **Will B** [Frontend]
-- **Sidarth E** [Frontend]
-- **Sagar S** [Frontend]
-- **Gowrisankar P** [Frontend]
-- **Devan P** [Frontend]
-
+- **Jaswanth D** [Frontend]
+- **Doan N** [Frontend]
+- **Pragathi A** [Frontend / Backend]
+- **Aniket S** [Backend]
 
 ### Past Rensselaer Center for Open Source Development Team
 
+- **Mohammed P** [Backend] (S'25)
+- **Sagar S** [Frontend] (S'25)
+- **Gowrisankar P** [Frontend] (S'25)
+- **Devan P** [Frontend] (S'25)
+- **Sidarth E** [Frontend] (F'24,S'25)
+- **Sarah W** [Backend] (S'24,F'24,S'25,U'25)
 - **Ramzey Y** [Backend] (S'24,F'24)
 - **Siddhi W** [Frontend / Backend] (F'23,S'24,F'24)
 - **Mrunal A** [Frontend / Backend] (F'23,S'24,F'24)
@@ -147,7 +181,6 @@ Running list of contributors to the LabConnect project:
 
 
 ### Special Thanks
-
 We extend our special thanks support and opportunity provided by the RCOS community.
 
 ## License
