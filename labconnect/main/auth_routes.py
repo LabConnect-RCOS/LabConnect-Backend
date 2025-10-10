@@ -23,6 +23,7 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
+    LabManager
 )
 
 from . import main_blueprint
@@ -193,6 +194,17 @@ def registerUser() -> Response:
 
     db.session.commit()
     return make_response({"msg": "New user added"})
+
+# work on code that registers a Lab Manager
+
+@main_blueprint.post("/registerLabManager")
+def registerLabManager() -> Response:
+    json_data = request.json
+    if not json_data:
+        abort(400)
+    manager = LabManager()
+    id = json_data.get("id")
+    
 
 
 @main_blueprint.get("/metadata/")
