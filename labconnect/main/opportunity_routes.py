@@ -811,21 +811,23 @@ def saveUserOpportunity(opportunity_id: int):
     if not user:
         return {"error": "User not found"}, 404
 
+    opp_id = save_opp_opportunity_id.id
+
     # Check if the opportunity already exists in saved opportunities
     find_opp = db.session.execute(
         db.select(UserSavedOpportunities).where(
             (UserSavedOpportunities.user_id == user.id)
-            & (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
+            & (UserSavedOpportunities.opportunity_id == opp_id)
         )
     ).scalar_one_or_none()
 
     if find_opp:
         return {"message": "Opportunity already saved"}, 200
 
-    # Save the new opportunity
+    # Save the new opportunity using scalar IDs
     new_opp = UserSavedOpportunities()
-    new_opp.user_id = save_opp_user_id
-    new_opp.opportunity_id = save_opp_opportunity_id
+    new_opp.user_id = user.id
+    new_opp.opportunity_id = opp_id
     db.session.add(new_opp)
     db.session.commit()
 
@@ -835,13 +837,9 @@ def saveUserOpportunity(opportunity_id: int):
 # Delete an opportunitiy saved by a user
 @main_blueprint.delete("/unsaveOpportunity/<int:opportunity_id>")
 @jwt_required()
-def deleteUserOpportunity(opportunity_id: int):
-    data = request.get_json()
-    if not data:
-        abort(400, "Missing JSON data")
-
-    save_opp_opportunity_id = db.session.get(Opportunities, opportunity_id)
-    if not save_opp_opportunity_id:
+def unsaveUserOpportunity(opportunity_id: int):
+    opp_obj = db.session.get(Opportunities, opportunity_id)
+    if not opp_obj:
         return {"error": "Opportunity not found"}, 404
 
     save_opp_user_id = get_jwt_identity()
@@ -853,11 +851,11 @@ def deleteUserOpportunity(opportunity_id: int):
     if not user:
         return {"error": "User not found"}, 404
 
-    # Find the saved opportunity
+    # Find the saved opportunity using scalar IDs
     get_saved_opp_info = db.session.execute(
         db.select(UserSavedOpportunities).where(
             (UserSavedOpportunities.user_id == user.id)
-            & (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
+            & (UserSavedOpportunities.opportunity_id == opportunity_id)
         )
     ).scalar_one_or_none()
 
