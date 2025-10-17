@@ -804,10 +804,17 @@ def saveUserOpportunity(opportunity_id: int):
 
     save_opp_user_id = get_jwt_identity()
 
+    user = db.session.execute(
+        db.select(User).where(User.email == save_opp_user_id)
+    ).scalar_one_or_none()
+
+    if not user:
+        return {"error": "User not found"}, 404
+
     # Check if the opportunity already exists in saved opportunities
     find_opp = db.session.execute(
         db.select(UserSavedOpportunities).where(
-            (UserSavedOpportunities.user_id == save_opp_user_id)
+            (UserSavedOpportunities.user_id == user.id)
             & (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
         )
     ).scalar_one_or_none()
@@ -839,10 +846,17 @@ def deleteUserOpportunity(opportunity_id: int):
 
     save_opp_user_id = get_jwt_identity()
 
+    user = db.session.execute(
+        db.select(User).where(User.email == save_opp_user_id)
+    ).scalar_one_or_none()
+
+    if not user:
+        return {"error": "User not found"}, 404
+
     # Find the saved opportunity
     get_saved_opp_info = db.session.execute(
         db.select(UserSavedOpportunities).where(
-            (UserSavedOpportunities.user_id == save_opp_user_id)
+            (UserSavedOpportunities.user_id == user.id)
             & (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
         )
     ).scalar_one_or_none()
@@ -864,21 +878,56 @@ def allSavedUserOportunities():
     # Get current users ID
     user_id = get_jwt_identity()
 
+    user = db.session.execute(
+        db.select(User).where(User.email == user_id)
+    ).scalar_one_or_none()
+
+    if not user:
+        return {"error": "User not found"}, 404
+
     # Get all saved opportunities for the user
-    saved_opps = (
-        db.session.execute(
-            db.select(UserSavedOpportunities).where(
-                UserSavedOpportunities.user_id == user_id
-            )
+    saved_opps = db.session.execute(
+        db.select(
+            Opportunities.id,
+            Opportunities.name,
+            Opportunities.description,
+            Opportunities.application_due,
+            Opportunities.pay,
+            Opportunities.one_credit,
+            Opportunities.two_credits,
+            Opportunities.three_credits,
+            Opportunities.four_credits,
+            Opportunities.active,
+            Opportunities.semester,
+            Opportunities.year,
+            Opportunities.location,
         )
-        .scalars()
-        .all()
-    )
+        .join(
+            UserSavedOpportunities,
+            Opportunities.id == UserSavedOpportunities.opportunity_id,
+        )
+        .where(UserSavedOpportunities.user_id == user.id)
+    ).all()
+
     if not saved_opps:
         return []
 
     # Put opportunities into a dictionary
-    saved_opportunities_list = [opp.to_dict() for opp in saved_opps]
+    saved_opportunities_list = [
+        {
+            "id": row[0],
+            "name": row[1],
+            "description": row[2],
+            "application_due": row[3].strftime("%-m/%-d/%y"),
+            "pay": row[4],
+            "credits": format_credits(row[5], row[6], row[7], row[8]),
+            "active": row[9],
+            "semester": row[10],
+            "year": row[11],
+            "location": row[12],
+        }
+        for row in saved_opps
+    ]
 
     return saved_opportunities_list
 
