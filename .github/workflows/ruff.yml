@@ -12,5 +12,5 @@ jobs:
   ruff:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: astral-sh/ruff-action@c6bea5606c33b5d04902374392d9233464b90660
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: astral-sh/ruff-action@57714a7c8a2e59f32539362ba31877a1957dded1
