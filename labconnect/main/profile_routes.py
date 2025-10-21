@@ -40,3 +40,29 @@ def get_profile() -> Response:
         return make_response(jsonify({"msg": "User not found"}), 404)
 
     return jsonify(user_to_dict(user))
+
+@main_blueprint.route("/profile", methods=["PUT"])
+@jwt_required()
+def update_profile() -> Response:
+    """ PUT /profile: Updates current user profile """
+    user_email = get_jwt_identity()
+    user = db.session.execute(db.select(User).where(User.email == user_email)).scalar_one_or_none()
+
+    if not user:
+        return make_response(jsonify({"msg": "User not found"}), 404)
+
+    json_data = request.get_json()
+    if not json_data:
+        return make_response(jsonify({"msg": "Missing JSON in request"}), 400)
+
+    # Update basic User fields
+    user.first_name = json_data.get("first_name", user.first_name)
+    user.last_name = json_data.get("last_name", user.last_name)
+    user.preferred_name = json_data.get("preferred_name", user.preferred_name)
+    user.class_year = json_data.get("class_year", user.class_year)
+    user.website = json_data.get("website", user.website)
+    user.description = json_data.get("description", user.description)
+
+    db.session.commit()
+
+    return jsonify({"msg": "Profile updated successfully"})
