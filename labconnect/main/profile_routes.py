@@ -2,7 +2,7 @@ from flask import jsonify, request, Response, make_response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from labconnect import db
-from labconnect.models import User, UserDepartments, UserMajors, Departments, Majors
+from labconnect.models import User, UserDepartments, UserMajors, RPIDepartments, Majors
 from . import main_blueprint
 
 def user_to_dict(user: User) -> dict:
@@ -62,6 +62,20 @@ def update_profile() -> Response:
     user.class_year = json_data.get("class_year", user.class_year)
     user.website = json_data.get("website", user.website)
     user.description = json_data.get("description", user.description)
+    
+    if "departments" in json_data:
+        db.session.query(UserDepartments).filter(UserDepartments.user_id == user.id).delete()
+        for dept_id in json_data["departments"]:
+            if db.session.get(RPIDepartments, dept_id): # Ensure department exists before adding
+                new_user_dept = UserDepartments(user_id=user.id, department_id=dept_id)
+                db.session.add(new_user_dept)
+    
+    if "majors" in json_data:
+        db.session.query(UserMajors).filter(UserMajors.user_id == user.id).delete()
+        for major_code in json_data["majors"]:
+            if db.session.get(Majors, major_code): # Ensure major exists before adding
+                new_user_major = UserMajors(user_id=user.id, major_code=major_code)
+                db.session.add(new_user_major)
 
     db.session.commit()
 
