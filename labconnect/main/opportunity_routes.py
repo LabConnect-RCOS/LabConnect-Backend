@@ -845,11 +845,9 @@ def deleteOpportunity(opportunity_id):
 
 
 # Save User Opportunity
-
-
-@main_blueprint.post("/saveUserOpportunity/<int:opportunity_id>")
+@main_blueprint.post("/saveOpportunity/<int:opportunity_id>")
 @jwt_required()
-def saveUserOpportunity(opportunity_id):
+def saveUserOpportunity(opportunity_id: int):
     data = request.get_json()
     if not data:
         abort(400, "Missing JSON data")
@@ -860,22 +858,30 @@ def saveUserOpportunity(opportunity_id):
 
     save_opp_user_id = get_jwt_identity()
 
+    user = db.session.execute(
+        db.select(User).where(User.email == save_opp_user_id)
+    ).scalar_one_or_none()
+
+    if not user:
+        return {"error": "User not found"}, 404
+
+    opp_id = save_opp_opportunity_id.id
+
     # Check if the opportunity already exists in saved opportunities
     find_opp = db.session.execute(
         db.select(UserSavedOpportunities).where(
-            (UserSavedOpportunities.user_id == save_opp_user_id)
-            & (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
+            (UserSavedOpportunities.user_id == user.id)
+            & (UserSavedOpportunities.opportunity_id == opp_id)
         )
     ).scalar_one_or_none()
 
     if find_opp:
         return {"message": "Opportunity already saved"}, 200
 
-    # Save the new opportunity
+    # Save the new opportunity using scalar IDs
     new_opp = UserSavedOpportunities()
-    new_opp.user_id = save_opp_user_id
-    new_opp.opportunity_id = save_opp_opportunity_id
-
+    new_opp.user_id = user.id
+    new_opp.opportunity_id = opp_id
     db.session.add(new_opp)
     db.session.commit()
 
@@ -883,69 +889,111 @@ def saveUserOpportunity(opportunity_id):
 
 
 # Delete an opportunitiy saved by a user
-@main_blueprint.delete("/deleteUserOpportunity/<int:opportunity_id>")
+@main_blueprint.delete("/unsaveOpportunity/<int:opportunity_id>")
 @jwt_required()
-def deleteUserOpportunity(opportunity_id):
-    data = request.get_json()
-    if not data:
-        abort(400, "Missing JSON data")
-
-    save_opp_user_id = get_jwt_identity()
-    save_opp_opportunity_id = db.session.get(Opportunities, opportunity_id)
-    if not save_opp_opportunity_id:
+def unsaveUserOpportunity(opportunity_id: int):
+    opp_obj = db.session.get(Opportunities, opportunity_id)
+    if not opp_obj:
         return {"error": "Opportunity not found"}, 404
 
-    # Find the saved opportunity
+    save_opp_user_id = get_jwt_identity()
+
+    user = db.session.execute(
+        db.select(User).where(User.email == save_opp_user_id)
+    ).scalar_one_or_none()
+
+    if not user:
+        return {"error": "User not found"}, 404
+
+    # Find the saved opportunity using scalar IDs
     get_saved_opp_info = db.session.execute(
         db.select(UserSavedOpportunities).where(
-            (UserSavedOpportunities.user_id == save_opp_user_id)
-            & (UserSavedOpportunities.opportunity_id == save_opp_opportunity_id)
+            (UserSavedOpportunities.user_id == user.id)
+            & (UserSavedOpportunities.opportunity_id == opportunity_id)
         )
     ).scalar_one_or_none()
 
     if not get_saved_opp_info:
-        return {"message": "Opportunity not found"}, 404
+        return {"message": "Opportunity not saved by user"}
 
     # Delete the opportunity
     db.session.delete(get_saved_opp_info)
     db.session.commit()
 
-    return {"message": "Opportunity deleted"}, 200
+    return {"message": "Opportunity deleted"}
 
 
 # Create route to return a list saved opportunities
-@main_blueprint.get("/AllSavedUserOpportunities/")
+@main_blueprint.get("/savedOpportunities/")
 @jwt_required()
 def allSavedUserOportunities():
     # Get current users ID
     user_id = get_jwt_identity()
 
+    user = db.session.execute(
+        db.select(User).where(User.email == user_id)
+    ).scalar_one_or_none()
+
+    if not user:
+        return {"error": "User not found"}, 404
+
     # Get all saved opportunities for the user
-    saved_opps = (
-        db.session.execute(
-            db.select(UserSavedOpportunities).where(
-                UserSavedOpportunities.user_id == user_id
-            )
+    saved_opps = db.session.execute(
+        db.select(
+            Opportunities.id,
+            Opportunities.name,
+            Opportunities.description,
+            Opportunities.application_due,
+            Opportunities.pay,
+            Opportunities.one_credit,
+            Opportunities.two_credits,
+            Opportunities.three_credits,
+            Opportunities.four_credits,
+            Opportunities.active,
+            Opportunities.semester,
+            Opportunities.year,
+            Opportunities.location,
         )
-        .scalars()
-        .all()
-    )
+        .join(
+            UserSavedOpportunities,
+            Opportunities.id == UserSavedOpportunities.opportunity_id,
+        )
+        .where(UserSavedOpportunities.user_id == user.id)
+    ).all()
+
     if not saved_opps:
-        return {"message": "No saved opportunities found"}, 404
+        return []
 
     # Put opportunities into a dictionary
-    saved_opportunities_list = [opp.to_dict() for opp in saved_opps]
+    saved_opportunities_list = [
+        {
+            "id": row[0],
+            "name": row[1],
+            "description": row[2],
+            "application_due": row[3].strftime("%-m/%-d/%y"),
+            "pay": row[4],
+            "credits": format_credits(row[5], row[6], row[7], row[8]),
+            "active": row[9],
+            "semester": row[10],
+            "year": row[11],
+            "location": row[12],
+        }
+        for row in saved_opps
+    ]
 
-    return saved_opportunities_list, 200
+    return saved_opportunities_list
 
 
 # Create route to allow for multiple pages to be unsaved given a list of opp_ids
-@main_blueprint.delete("/UnsaveMultiplePages/")
+@main_blueprint.delete("/unsaveOpportunities/")
 @jwt_required()
 # Delete id that appear on delete_ids list
 def UnsaveMultipleOpps():
     # Get a list of opportunity IDs
     data = request.get_json()
+    if not data:
+        abort(400)
+
     delete_ids = data.get("delete_ids")
     if not delete_ids or not isinstance(delete_ids, list):
         return {"message": "Invalid or missing delete_ids"}, 400
@@ -963,7 +1011,7 @@ def UnsaveMultipleOpps():
         .all()
     )
     if not saved_opps:
-        return {"message": "User has no saved opportunities"}, 404
+        return {"message": "User did not have these opportunities saved"}
 
     # Delete the opportinities
     for opp in saved_opps:
