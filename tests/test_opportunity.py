@@ -3,6 +3,7 @@ import json
 import pytest
 from flask.testing import FlaskClient
 
+
 def test_get_opportunity_parametrized(test_client: FlaskClient):
     """
     GIVEN a Flask application configured for testing
