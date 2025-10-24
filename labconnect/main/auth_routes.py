@@ -197,13 +197,31 @@ def registerUser() -> Response:
 
 # work on code that registers a Lab Manager
 
-@main_blueprint.post("/registerLabManager")
+@main_blueprint.post("/register-manager")
 def registerLabManager() -> Response:
     json_data = request.json
     if not json_data:
         abort(400)
     manager = LabManager()
-    id = json_data.get("id")
+    manager.id = json_data.get("id")
+    manager.email = json_data.get("email")
+    manager.first_name = json_data.get("first_name")
+    manager.last_name = json_data.get("last_name")
+    manager.preferred_name = json_data.get("preferred_name", "")
+    manager.class_year = json_data.get("class_year", "")
+    manager.profile_picture = json_data.get(
+        "profile_picture", "https://www.svgrepo.com/show/206842/professor.svg"
+    )
+    manager.website = json_data.get("website", "")
+    manager.description = json_data.get("description", "")
+
+    management_permissions = ManagementPermissions()
+    management_permissions.user_id = manager.id
+
+
+    return make_response({"msg": "Lab Manager added"})
+
+
     
 
 
