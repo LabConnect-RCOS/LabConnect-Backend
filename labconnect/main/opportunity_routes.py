@@ -42,16 +42,18 @@ def opportunity_to_dict(opportunity: Opportunities) -> dict:
         "two_credits": bool(opportunity.two_credits),
         "three_credits": bool(opportunity.three_credits),
         "four_credits": bool(opportunity.four_credits),
-        "semester": str(opportunity.semester) if opportunity.semester is not None else None,
+        "semester": str(opportunity.semester)
+        if opportunity.semester is not None
+        else None,
         "year": opportunity.year,
         "active": bool(opportunity.active),
     }
 
+
 # Single opportunity endpoints used by the frontend/tests
 @main_blueprint.get("/opportunity/<int:opportunity_id>")
 def get_single_opportunity(opportunity_id: int):
-    """Return a single opportunity by id. Returns 404 if not found
-    """
+    """Return a single opportunity by id. Returns 404 if not found"""
     opp = db.session.get(Opportunities, opportunity_id)
     if not opp:
         abort(404)

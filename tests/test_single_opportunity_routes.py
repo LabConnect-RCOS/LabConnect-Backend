@@ -1,8 +1,8 @@
 import pytest
 
 from labconnect import db
-from labconnect.models import Opportunities
 from labconnect.main.opportunity_routes import opportunity_to_dict
+from labconnect.models import Opportunities
 
 
 def test_opportunity_to_dict_none():
