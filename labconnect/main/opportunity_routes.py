@@ -27,6 +27,62 @@ from labconnect.serializers import serialize_opportunity
 from . import main_blueprint
 
 
+def opportunity_to_dict(opportunity: Opportunities) -> dict:
+    """Return a plain dict representation of an Opportunities model instance."""
+    if opportunity is None:
+        return {}
+
+    return {
+        "id": opportunity.id,
+        "name": opportunity.name,
+        "description": opportunity.description,
+        "recommended_experience": opportunity.recommended_experience,
+        "pay": opportunity.pay,
+        "one_credit": bool(opportunity.one_credit),
+        "two_credits": bool(opportunity.two_credits),
+        "three_credits": bool(opportunity.three_credits),
+        "four_credits": bool(opportunity.four_credits),
+        "semester": str(opportunity.semester)
+        if opportunity.semester is not None
+        else None,
+        "year": opportunity.year,
+        "active": bool(opportunity.active),
+    }
+
+
+# Single opportunity endpoints used by the frontend/tests
+@main_blueprint.get("/opportunity/<int:opportunity_id>")
+def get_single_opportunity(opportunity_id: int):
+    """Return a single opportunity by id. Returns 404 if not found"""
+    opp = db.session.get(Opportunities, opportunity_id)
+    if not opp:
+        abort(404)
+
+    return opportunity_to_dict(opp)
+
+
+@main_blueprint.get("/opportunity")
+def get_opportunity_via_json():
+    """GET /opportunity expects a JSON payload with {"id": <int>}."""
+    data = request.get_json()
+    if not data:
+        abort(400)
+
+    if "id" not in data:
+        abort(400)
+
+    try:
+        opp_id = int(data["id"])
+    except ValueError:
+        abort(400)
+
+    opp = db.session.get(Opportunities, opp_id)
+    if not opp:
+        abort(404)
+
+    return opportunity_to_dict(opp)
+
+
 @main_blueprint.get("/searchOpportunity/<string:query>")
 def searchOpportunity(query: str):
     # Perform a search
