@@ -16,8 +16,9 @@ from labconnect import create_app, db
 from labconnect.helpers import LocationEnum, SemesterEnum
 from labconnect.models import (
     ClassYears,
+    Codes,
     Courses,
-    LabManager,  # Professors and Grad students
+    LabManager,
     Leads,
     Majors,
     Opportunities,
@@ -31,6 +32,7 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
+    UserSavedOpportunities,
 )
 
 url_regex = re.compile(r"^(https?|ftp)://[^\s/$.?#].[^\s]*$")
@@ -570,6 +572,21 @@ def main() -> None:
                 db.session.add(row)
                 db.session.commit()
 
+            user_saved_opportunities_rows = (
+                ("cenzar", 2),
+                ("cenzar", 3),
+                ("test", 3),
+                ("test", 1),
+            )
+
+            for r in user_saved_opportunities_rows:
+                row = UserSavedOpportunities()
+                row.user_id = r[0]
+                row.opportunity_id = r[1]
+
+                db.session.add(row)
+                db.session.commit()
+
             tables = [
                 ClassYears,
                 Courses,
@@ -586,6 +603,8 @@ def main() -> None:
                 UserCourses,
                 UserDepartments,
                 UserMajors,
+                UserSavedOpportunities,
+                Codes,
             ]
 
             for table in tables:
@@ -595,11 +614,10 @@ def main() -> None:
                 inst = db.inspect(table)
                 attr_names = [c_attr.key for c_attr in inst.mapper.column_attrs]
 
-                print(f"{table.__tablename__}")
-                print(attr_names)
+                app.logger.info(f"{table.__tablename__}")
+                app.logger.info(attr_names)
                 for row in result:
-                    print(row)
-                print()
+                    app.logger.info(row)
 
             print("Number of tables:", len(tables))
 
