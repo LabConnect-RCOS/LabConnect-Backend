@@ -794,9 +794,6 @@ def deleteOpportunity(opportunity_id):
 @main_blueprint.post("/saveOpportunity/<int:opportunity_id>")
 @jwt_required()
 def saveUserOpportunity(opportunity_id: int):
-    data = request.get_json()
-    if not data:
-        abort(400, "Missing JSON data")
 
     save_opp_opportunity_id = db.session.get(Opportunities, opportunity_id)
     if not save_opp_opportunity_id:
@@ -873,6 +870,7 @@ def unsaveUserOpportunity(opportunity_id: int):
 @main_blueprint.get("/savedOpportunities/")
 @jwt_required()
 def allSavedUserOportunities():
+    print("Test")
     # Get current users ID
     user_id = get_jwt_identity()
 
@@ -926,7 +924,6 @@ def allSavedUserOportunities():
         }
         for row in saved_opps
     ]
-
     return saved_opportunities_list
 
 
