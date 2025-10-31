@@ -195,34 +195,35 @@ def registerUser() -> Response:
     db.session.commit()
     return make_response({"msg": "New user added"})
 
-# work on code that registers a Lab Manager
-
-@main_blueprint.post("/register-manager")
-def registerLabManager() -> Response:
+# promotes User to a Lab Manager
+# requires a super admin to promote
+@main_blueprint.patch("/users/<string:email>/permissions")
+@jwt_required()
+def promoteUser(rcsid: str) -> Response:
     json_data = request.json
     if not json_data:
         abort(400)
-    manager = LabManager()
-    manager.id = json_data.get("id")
-    manager.email = json_data.get("email")
-    manager.first_name = json_data.get("first_name")
-    manager.last_name = json_data.get("last_name")
-    manager.preferred_name = json_data.get("preferred_name", "")
-    manager.class_year = json_data.get("class_year", "")
-    manager.profile_picture = json_data.get(
-        "profile_picture", "https://www.svgrepo.com/show/206842/professor.svg"
-    )
-    manager.website = json_data.get("website", "")
-    manager.description = json_data.get("description", "")
+
+    # if user accessing doesn't have the right perms then they can't assign perms
+    promoter_id = get_jwt_identity()
+    promoter_perms = ManagementPermissions() 
+    promoter_perms.user_id = promoter_id 
+    if not promoter_perms.super_admin:
+        return make_response({"msg": "Missing permissions"}, 401)
+    
+    # look for the user that will be promoted
+    manager = db.session.query(User).filter_by(email=rcsid)
+    if not manager:
+        return make_response({"msg": "No user matches RCS ID"}, 500)
 
     management_permissions = ManagementPermissions()
     management_permissions.user_id = manager.id
-
-
-    return make_response({"msg": "Lab Manager added"})
-
-
+    management_permissions.admin = True
     
+    db.session.commit()
+    
+    return make_response({"msg": "User promoted to Lab Manager"}, 200)
+   
 
 
 @main_blueprint.get("/metadata/")
