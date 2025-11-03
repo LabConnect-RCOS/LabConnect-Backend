@@ -1,6 +1,8 @@
 from flask import Response, jsonify, make_response, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
+from sqlalchemy import db
+
 from labconnect import db
 from labconnect.models import Majors, RPIDepartments, User, UserDepartments, UserMajors
 
@@ -52,7 +54,7 @@ def get_profile() -> Response:
     ).scalar_one_or_none()
 
     if not user:
-        return make_response(jsonify({"msg": "User not found"}), 404)
+        return {"msg": "User not found"}, 404
 
     return jsonify(user_to_dict(user))
 
@@ -67,11 +69,11 @@ def update_profile() -> Response:
     ).scalar_one_or_none()
 
     if not user:
-        return make_response(jsonify({"msg": "User not found"}), 404)
+        return {"msg": "User not found"}, 404
 
     json_data = request.get_json()
     if not json_data:
-        return make_response(jsonify({"msg": "Missing JSON in request"}), 400)
+        return {"msg": "Missing JSON in request"}, 400
 
     # Update basic User fields
     user.first_name = json_data.get("first_name", user.first_name)
@@ -82,23 +84,37 @@ def update_profile() -> Response:
     user.description = json_data.get("description", user.description)
 
     if "departments" in json_data:
-        db.session.query(UserDepartments).filter(
-            UserDepartments.user_id == user.id
-        ).delete()
-        for dept_id in json_data["departments"]:
-            if db.session.get(
-                RPIDepartments, dept_id
-            ):  # Ensure department exists before adding
+        db.session.execute(
+            db.delete(UserDepartments).where(UserDepartments.user_id == user.id)
+        )
+        
+        req_dept_ids = set(json_data["departments"])
+        if req_dept_ids: # Only query if list is not empty
+            valid_dept_ids = db.session.execute(
+                db.select(RPIDepartments.id).where(
+                    RPIDepartments.id.in_(req_dept_ids)
+                )
+            ).scalars().all()
+
+            for dept_id in valid_dept_ids: # Add only the valid ones
                 new_user_dept = UserDepartments(user_id=user.id, department_id=dept_id)
                 db.session.add(new_user_dept)
 
     if "majors" in json_data:
-        db.session.query(UserMajors).filter(UserMajors.user_id == user.id).delete()
-        for major_code in json_data["majors"]:
-            if db.session.get(Majors, major_code):  # Ensure major exists before adding
+        db.session.execute(
+            db.delete(UserMajors).where(UserMajors.user_id == user.id)
+        )
+        
+        req_major_codes = set(json_data["majors"])
+        if req_major_codes: # Only query if list is not empty
+            valid_major_codes = db.session.execute(
+                db.select(Majors.code).where(Majors.code.in_(req_major_codes))
+            ).scalars().all()
+
+            for major_code in valid_major_codes: # Add only the valid ones
                 new_user_major = UserMajors(user_id=user.id, major_code=major_code)
                 db.session.add(new_user_major)
 
     db.session.commit()
 
-    return jsonify({"msg": "Profile updated successfully"})
+    return {"msg": "Profile updated successfully"}
