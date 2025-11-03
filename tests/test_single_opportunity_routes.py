@@ -1,17 +1,17 @@
 import pytest
 
+from labconnect import db
+from labconnect.main.opportunity_routes import opportunity_to_dict
+from labconnect.models import Opportunities
+
+
 def test_opportunity_to_dict_none():
-    from importlib import import_module
-    opp_mod = import_module("labconnect.main.opportunity_routes")
-    assert opp_mod.opportunity_to_dict(None) == {}
+    assert opportunity_to_dict(None) == {}
 
 
 def test_opportunity_to_dict_populated():
     # create a lightweight Opportunities instance (no DB persistence needed)
-    import
-    class FakeOpp:
-        pass
-    opp = FakeOpp()
+    opp = Opportunities()
     opp.id = 123
     opp.name = "Unit Test Opportunity"
     opp.description = "A test description"
@@ -25,9 +25,7 @@ def test_opportunity_to_dict_populated():
     opp.year = 2025
     opp.active = True
 
-    from importlib import import_module
-    opp_mod = import_module("labconnect.main.opportunity_routes")
-    out = opp_mod.opportunity_to_dict(opp)
+    out = opportunity_to_dict(opp)
 
     assert out["id"] == 123
     assert out["name"] == "Unit Test Opportunity"
@@ -47,9 +45,6 @@ def test_get_single_opportunity_not_found(test_client):
 @pytest.mark.usefixtures("test_client")
 def test_get_single_opportunity_success_and_json_variant(test_client):
     # create and persist an opportunity to the test database
-    from labconnect import db
-    from labconnect.models import Opportunities
-    
     opp = Opportunities()
     opp.name = "Endpoint Test Opportunity"
     opp.description = "Endpoint description"
