@@ -65,20 +65,16 @@ def get_single_opportunity(opportunity_id: int):
 def get_opportunity_via_json():
     """GET /opportunity expects a JSON payload with {"id": <int>}."""
     data = request.get_json()
-    if not data:
-        abort(400)
-
-    if "id" not in data:
-        abort(400)
+    opp_id_raw = data.get("id") if data else None
 
     try:
-        opp_id = int(data["id"])
-    except ValueError:
-        abort(400)
+        opp_id = int(opp_id_raw)
+    except (ValueError, TypeError):
+        abort(400, description="Invalid or missing 'id' in JSON payload.")
 
     opp = db.session.get(Opportunities, opp_id)
     if not opp:
-        abort(404)
+        abort(404, description="Opportunity not found.")
 
     return opportunity_to_dict(opp)
 
