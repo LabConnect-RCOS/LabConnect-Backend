@@ -114,7 +114,7 @@ posted by professors, graduate students, or lab staff.</p>
    ```
    or individual tests
    ```bash
-   $ python3 -m pytest -q tests/(file_name).py -q
+   $ python3 -m pytest -q tests/(file_name).py
    ```
 
 ## Development
