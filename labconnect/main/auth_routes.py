@@ -206,8 +206,8 @@ def promoteUser(rcsid: str) -> Response:
 
     # if user accessing doesn't have the right perms then they can't assign perms
     promoter_id = get_jwt_identity()
-    promoter_perms = ManagementPermissions() 
-    promoter_perms.user_id = promoter_id 
+    promoter_perms = ManagementPermissions()
+    promoter_perms.user_id = promoter_id
     if not promoter_perms.super_admin:
         return make_response({"msg": "Missing permissions"}, 401)
     
