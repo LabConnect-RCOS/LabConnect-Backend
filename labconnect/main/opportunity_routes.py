@@ -182,6 +182,10 @@ def filterOpportunities():
     filters = request.args.to_dict(flat=False)
     user_id = get_jwt_identity()
     data = None
+    
+    user = db.session.execute(
+        db.select(User).where(User.email == user_id)
+    ).scalar_one_or_none()
 
     query = (
         db.select(
@@ -196,9 +200,7 @@ def filterOpportunities():
                     User.preferred_name,
                 )
             ).label("lab_managers"),
-            case((UserSavedOpportunities.user_id.isnot(None), True), else_=False).label(
-                "is_saved"
-            ),
+            func.bool_or(UserSavedOpportunities.user_id.isnot(None)).label("is_saved"),
         )
         .join(Leads, Opportunities.id == Leads.opportunity_id)
         .join(LabManager, Leads.lab_manager_id == LabManager.id)
@@ -210,7 +212,7 @@ def filterOpportunities():
             UserSavedOpportunities,
             db.and_(
                 Opportunities.id == UserSavedOpportunities.opportunity_id,
-                UserSavedOpportunities.user_id == user_id,  # filter for current user
+                UserSavedOpportunities.user_id == user.id,  # filter for current user
             ),
         )
         .where(Opportunities.active)
@@ -218,6 +220,10 @@ def filterOpportunities():
         .order_by(Opportunities.last_updated)
         .limit(20)
     )
+    
+    results = db.session.execute(query).all()
+    for row in results:
+        print(row)
 
     if filters is not None or filters != {}:
         where_conditions = []
