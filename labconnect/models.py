@@ -1,3 +1,6 @@
+import enum
+from datetime import datetime, timezone
+
 from sqlalchemy import Enum, Index, event, func
 from sqlalchemy.dialects.postgresql import TSVECTOR
 
@@ -351,3 +354,39 @@ class Codes(db.Model):
     email = db.Column(db.String(64), nullable=False)
     expires_at = db.Column(db.DateTime, nullable=False)
     registered = db.Column(db.Boolean, nullable=False)
+
+
+class ApplicationStatusEnum(str, enum.Enum):
+    PENDING = "pending"
+    REVIEWED = "reviewed"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+
+
+class Applications(db.Model):
+    __tablename__ = "applications"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.String(9), db.ForeignKey("user.id"), nullable=False)
+    opportunity_id = db.Column(
+        db.Integer, db.ForeignKey("opportunities.id"), nullable=False
+    )
+
+    # status
+    status = db.Column(
+        Enum(ApplicationStatusEnum),
+        nullable=False,
+        default=ApplicationStatusEnum.PENDING,
+    )
+
+    applied_on = db.Column(
+        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
+
+    user = db.relationship("User")
+    opportunity = db.relationship("Opportunities")
+
+    # apply once per opportunity
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "opportunity_id", name="uq_user_opportunity"),
+    )
