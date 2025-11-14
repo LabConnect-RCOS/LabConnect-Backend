@@ -206,18 +206,16 @@ def promoteUser(rcsid: str) -> Response:
 
     # if user accessing doesn't have the right perms then they can't assign perms
     promoter_id = get_jwt_identity()
-    promoter_perms = ManagementPermissions()
-    promoter_perms.user_id = promoter_id
-    if not promoter_perms.super_admin:
+    promoter_perms = db.session.query(ManagementPermissions).filter_by(user_id=promoter_id).first()
+    if not promoter_perms or not promoter_perms.super_admin:
         return make_response({"msg": "Missing permissions"}, 401)
     
     # look for the user that will be promoted
-    manager = db.session.query(User).filter_by(email=rcsid)
+    manager = db.session.query(User).filter_by(email=rcsid).first()
     if not manager:
         return make_response({"msg": "No user matches RCS ID"}, 500)
 
-    management_permissions = ManagementPermissions()
-    management_permissions.user_id = manager.id
+    management_permissions = db.session.query(ManagementPermissions).filter_by(user_id=manager.id).first()
     management_permissions.admin = True
     
     db.session.commit()

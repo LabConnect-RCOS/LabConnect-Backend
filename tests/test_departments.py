@@ -67,8 +67,8 @@ from flask.testing import FlaskClient
             ],
         ),
         (
-            "/department",
-            {"department": "Computer Science"},
+            "/departments/CSCI",
+            None,
             200,
             [
                 {"field": "name", "values": ["Computer Science"]},
