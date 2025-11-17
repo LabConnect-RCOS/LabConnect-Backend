@@ -1,4 +1,4 @@
-from flask import Response
+from flask import Response, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy.exc import IntegrityError
 
@@ -37,3 +37,40 @@ def apply_to_opportunity(opportunity_id: int) -> Response:
         return {"msg": "Already Applied."}, 409
 
     return {"msg": "Application Submitted."}, 201
+
+
+@main_blueprint.route("/profile/applications", methods=["GET"])
+@jwt_required()
+def get_my_applications() -> Response:
+    # Get list of all applications by User
+    user_email = get_jwt_identity()
+    user = db.session.execute(
+        db.select(User).where(User.email == user_email)
+    ).scalar_one_or_none()
+
+    if not user:
+        return {"msg": "User not found"}, 404
+
+    applications = (
+        db.session.execute(
+            db.select(Applications)
+            .where(Applications.user_id == user.id)
+            .order_by(Applications.applied_on.desc())
+        )
+        .scalars()
+        .all()
+    )
+
+    results = []
+    for app in applications:
+        results.append(
+            {
+                "application_id": app.id,
+                "opportunity_id": app.opportunity_id,
+                "opportunity_name": app.opportunity.name,
+                "status": app.status.value,
+                "applied_on": app.applied_on.isoformat(),
+            }
+        )
+
+    return jsonify(results)
