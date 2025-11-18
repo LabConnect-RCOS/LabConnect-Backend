@@ -390,3 +390,34 @@ class Applications(db.Model):
     __table_args__ = (
         db.UniqueConstraint("user_id", "opportunity_id", name="uq_user_opportunity"),
     )
+
+
+# Notification System
+class NotificationTypeEnum(str, enum.Enum):
+    APPLICATION_UPDATE = "application_update"
+    NEW_APPLICANT = "new_applicant"
+    OPPORTUNITY_MATCH = "opportunity_match"
+    SYSTEM_ALERT = "system_alert"
+
+
+class Notifications(db.Model):
+    __tablename__ = "notifications"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.String(9), db.ForeignKey("user.id"), nullable=False)
+
+    title = db.Column(db.String(128), nullable=False)
+    message = db.Column(db.String(512), nullable=False)
+    notification_type = db.Column(
+        Enum(NotificationTypeEnum),
+        nullable=False,
+        default=NotificationTypeEnum.SYSTEM_ALERT,
+    )
+
+    is_read = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(
+        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
+
+    related_entity_id = db.Column(db.Integer, nullable=True)
+    user = db.relationship("User", backref="notifications")
