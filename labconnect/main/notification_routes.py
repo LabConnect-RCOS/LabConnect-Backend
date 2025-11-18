@@ -71,3 +71,25 @@ def mark_notification_read(notification_id: int) -> Response:
     db.session.commit()
 
     return {"msg": "Notification marked as read"}
+
+
+@main_blueprint.route("/notifications/read-all", methods=["PUT"])
+@jwt_required()
+def mark_all_read() -> Response:
+    # Mark all notification as read
+    user_email = get_jwt_identity()
+    user = db.session.execute(
+        db.select(User).where(User.email == user_email)
+    ).scalar_one_or_none()
+
+    if not user:
+        return {"msg": "User not found"}, 404
+
+    db.session.execute(
+        db.update(Notifications)
+        .where(Notifications.user_id == user.id)
+        .values(is_read=True)
+    )
+    db.session.commit()
+
+    return {"msg": "All notifications marked as read"}
