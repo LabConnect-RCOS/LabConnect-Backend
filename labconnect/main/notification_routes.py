@@ -44,3 +44,30 @@ def get_notifications() -> Response:
         )
 
     return jsonify(results)
+
+
+@main_blueprint.route("/notifications/<int:notification_id>/read", methods=["PUT"])
+@jwt_required()
+def mark_notification_read(notification_id: int) -> Response:
+    # Mark 1 notification as read.
+    user_email = get_jwt_identity()
+    user = db.session.execute(
+        db.select(User).where(User.email == user_email)
+    ).scalar_one_or_none()
+
+    if not user:
+        return {"msg": "User not found"}, 404
+
+    notification = db.session.execute(
+        db.select(Notifications).where(
+            Notifications.id == notification_id, Notifications.user_id == user.id
+        )
+    ).scalar_one_or_none()
+
+    if not notification:
+        return {"msg": "Notification not found"}, 404
+
+    notification.is_read = True
+    db.session.commit()
+
+    return {"msg": "Notification marked as read"}
