@@ -5,6 +5,7 @@ Test general routes
 import pytest
 from flask import json
 from flask.testing import FlaskClient
+from flask_jwt_extended import create_access_token
 
 
 def test_home_page(test_client: FlaskClient) -> None:
@@ -18,25 +19,6 @@ def test_home_page(test_client: FlaskClient) -> None:
     assert response.status_code == 200
     assert {"Hello": "There"} == json.loads(response.data)
 
-# there is no discover page
-# def test_discover_route(test_client: FlaskClient) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/discover' page is requested (GET)
-    THEN check that the response is valid
-    """
-    # response = test_client.get("/discover")
-
-    # assert response.status_code == 200
-    # Uncomment and modify the following line with expected response data
-    # data = json.loads(response.data.decode("utf-8"))
-    # assert data["data"][0] == {
-    #     "title": "Nelson",
-    #     "major": "CS",
-    #     "attributes": ["Competitive Pay", "Four Credits", "Three Credits"],
-    #     "pay": 9000.0,
-    # }
-
 
 @pytest.mark.parametrize(
     "input_id, expected_profile",
@@ -46,7 +28,7 @@ def test_home_page(test_client: FlaskClient) -> None:
             {
                 "id": "cenzar",
                 "first_name": "Rafael",
-                "opportunities": [...],  # Replace with expected opportunities data
+                "opportunities": ["opportunity1"],  # Replace with expected opportunities data
             },
         )
     ],
@@ -57,10 +39,20 @@ def test_profile_page(test_client: FlaskClient, input_id, expected_profile) -> N
     WHEN the '/profile/<user>' page is requested (GET)
     THEN check that the response is valid
     """
-    login_response = test_client.post("/login", json={"username": "test_user", "password": "password123"})
+    # login_response = test_client.post("/login", json={"username": "test_user", "password": "password123"})
+    # login_data = json.loads(login_response.data)
+    with test_client.application.app_context():
+        access_token = create_access_token(identity='cenzar@rpi.edu')
 
-    response = test_client.get("/profile", json={"id": input_id})
+    # response = test_client.get("/profile", json={"id": input_id})
+    # Make the request with the JWT token
+    response = test_client.get(
+        "/profile",
+        json={"id": input_id},
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
 
+    print(response.data)
     assert response.status_code == 200
 
     json_data = json.loads(response.data)

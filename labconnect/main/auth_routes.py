@@ -199,7 +199,7 @@ def registerUser() -> Response:
 # requires a super admin to promote
 @main_blueprint.patch("/users/<string:email>/permissions")
 @jwt_required()
-def promoteUser(rcsid: str) -> Response:
+def promoteUser(email: str) -> Response:
     json_data = request.json
     if not json_data:
         abort(400)
@@ -211,7 +211,7 @@ def promoteUser(rcsid: str) -> Response:
         return make_response({"msg": "Missing permissions"}, 401)
     
     # look for the user that will be promoted
-    manager = db.session.query(User).filter_by(email=rcsid).first()
+    manager = db.session.query(User).filter_by(email=email).first()
     if not manager:
         return make_response({"msg": "No user matches RCS ID"}, 500)
 
