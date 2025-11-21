@@ -2,6 +2,8 @@ import pytest
 from flask import Flask
 from labconnect.models import User, ManagementPermissions
 from labconnect import db
+from flask_jwt_extended import create_access_token
+
 
 
 @pytest.fixture
@@ -30,7 +32,7 @@ def setup_users(test_client, setup_database):
         last_name="Admin"
     )
     db.session.add(super_admin)
-    db.session.flush()
+    db.session.commit()
     
     super_admin_perms = ManagementPermissions(
         user_id=super_admin.id,
@@ -47,7 +49,7 @@ def setup_users(test_client, setup_database):
         last_name="User"
     )
     db.session.add(regular_user)
-    db.session.flush()
+    db.session.commit()
     
     regular_user_perms = ManagementPermissions(
         user_id=regular_user.id,
@@ -64,7 +66,7 @@ def setup_users(test_client, setup_database):
         last_name="Admin"
     )
     db.session.add(non_admin)
-    db.session.flush()
+    db.session.commit()
     
     non_admin_perms = ManagementPermissions(
         user_id=non_admin.id,
@@ -85,7 +87,6 @@ def setup_users(test_client, setup_database):
 @pytest.fixture
 def create_access_token_for_user():
     """Create a real JWT access token for testing"""
-    from flask_jwt_extended import create_access_token
     
     def _create_token(user_id):
         return create_access_token(identity=user_id)
