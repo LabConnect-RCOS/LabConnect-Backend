@@ -379,12 +379,14 @@ class Applications(db.Model):
         default=ApplicationStatusEnum.PENDING,
     )
 
+    resume_url = db.Column(db.String(512), nullable=True)
+
     applied_on = db.Column(
         db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
 
-    user = db.relationship("User")
-    opportunity = db.relationship("Opportunities")
+    user = db.relationship("User", backref="applications")
+    opportunity = db.relationship("Opportunities", backref="applications")
 
     # apply once per opportunity
     __table_args__ = (
