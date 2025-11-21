@@ -16,7 +16,7 @@ If this is something you think you can fix, then fork `main` and create a branch
 A good branch name would be (where issue #123 is the ticket you're working on):
 
 ```sh
-git checkout -b 123-add-japanese-translations
+git switch -c 123-add-japanese-translations
 ```
 
 ### Working with open source projects

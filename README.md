@@ -112,6 +112,10 @@ posted by professors, graduate students, or lab staff.</p>
    ```bash
    $ python3 -m pytest --cov
    ```
+   or individual tests
+   ```bash
+   $ python3 -m pytest -q tests/(file_name).py
+   ```
 
 ## Development
  * Run flask with python directly
