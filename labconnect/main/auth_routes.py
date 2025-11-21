@@ -201,7 +201,7 @@ def registerUser() -> Response:
 @jwt_required()
 def promoteUser(email: str) -> Response:
     json_data = request.json
-    if not json_data:
+    if not json_data or not json_data.get("promote"):
         abort(400)
 
     # if user accessing doesn't have the right perms then they can't assign perms
