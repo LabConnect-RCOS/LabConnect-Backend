@@ -2,8 +2,9 @@
 Test authentication routes
 """
 
-# from flask import json
-# from flask.testing import FlaskClient
+from flask import json
+from flask.testing import FlaskClient
+import pytest
 
 
 # def test_login_route_one(test_client: FlaskClient) -> None:
@@ -159,3 +160,6 @@ Test authentication routes
 #     response = test_client.post("/login")
 
 #     assert response.status_code == 400
+
+# def test_promotion(test_client: FlaskClient) -> None:
+    

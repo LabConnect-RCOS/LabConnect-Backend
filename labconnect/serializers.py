@@ -3,7 +3,8 @@ from labconnect.models import Courses, Opportunities
 
 
 def serialize_course(course: Courses) -> str:
-    return f"{course.code} {course.name}"
+    course = {'code': course.code, 'name': course.name}
+    return course
 
 
 def serialize_opportunity(
