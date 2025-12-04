@@ -216,7 +216,12 @@ def promoteUser(email: str) -> Response:
         return make_response({"msg": "No user matches RCS ID"}, 500)
 
     management_permissions = db.session.query(ManagementPermissions).filter_by(user_id=manager.id).first()
-    management_permissions.admin = True
+    
+    if management_permissions is None:
+        management_permissions = ManagementPermissions(user_id=manager.id, admin=True)
+        db.session.add(management_permissions)
+    else:
+        management_permissions.admin = True
     
     db.session.commit()
     

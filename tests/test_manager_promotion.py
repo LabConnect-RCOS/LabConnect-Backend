@@ -1,5 +1,4 @@
 import pytest
-from flask import Flask
 from labconnect.models import User, ManagementPermissions
 from labconnect import db
 from flask_jwt_extended import create_access_token
@@ -99,11 +98,14 @@ def test_promote_user_success(test_client, setup_users, create_access_token_for_
     users = setup_users
     access_token = create_access_token_for_user(users["super_admin"].id)
     
+    
     # set the JWT token as a cookie
     test_client.set_cookie('access_token', access_token)
     
     response = test_client.patch(
         f"/users/{users['regular_user'].email}/permissions",
+        # get csrf token and then set it in the headers
+        # headers=["X-CSRFToken":],
         json={"promote": True}
     )
     
@@ -140,6 +142,7 @@ def test_promote_user_no_super_admin_perms(test_client, setup_users, create_acce
     
     # set the JWT token as a cookie
     test_client.set_cookie('access_token', access_token)
+    
     
     response = test_client.patch(
         f"/users/{users['regular_user'].email}/permissions",
