@@ -52,7 +52,6 @@ def test_profile_page(test_client: FlaskClient, input_id, expected_profile) -> N
         headers={'Authorization': f'Bearer {access_token}'}
     )
 
-    print(response.data)
     assert response.status_code == 200
 
     json_data = json.loads(response.data)

@@ -17,7 +17,8 @@ from labconnect import create_app
 def test_client():
     # Set the Testing configuration prior to creating the Flask application
     flask_app = create_app()
-    flask_app.config.update({"TESTING": True, "DEBUG": True, "JWT_COOKIE_CSRF_PROTECT": False})
+    flask_app.config.update({"TESTING": True, "DEBUG": True})
+    
 
     # Create a test client using the Flask application configured for testing
     with flask_app.test_client() as testing_client:
