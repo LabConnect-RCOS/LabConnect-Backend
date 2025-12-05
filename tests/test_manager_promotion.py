@@ -1,8 +1,8 @@
 import pytest
-from labconnect.models import User, ManagementPermissions
-from labconnect import db
 from flask_jwt_extended import create_access_token
 
+from labconnect import db
+from labconnect.models import ManagementPermissions, User
 
 
 @pytest.fixture
@@ -84,7 +84,7 @@ def setup_users(test_client, setup_database):
 
 
 @pytest.fixture
-def create_access_token_for_user():
+def create_access_token_for_user(test_client):
     """Create a real JWT access token for testing"""
     
     def _create_token(user_id):
@@ -98,15 +98,11 @@ def test_promote_user_success(test_client, setup_users, create_access_token_for_
     users = setup_users
     access_token = create_access_token_for_user(users["super_admin"].id)
     
-    
-    # set the JWT token as a cookie
-    test_client.set_cookie('access_token', access_token)
-    
+    # make the request with url to ensure cookies work
     response = test_client.patch(
         f"/users/{users['regular_user'].email}/permissions",
-        # get csrf token and then set it in the headers
-        # headers=["X-CSRFToken":],
-        json={"promote": True}
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"promote": True},
     )
     
     assert response.status_code == 200
@@ -119,33 +115,32 @@ def test_promote_user_success(test_client, setup_users, create_access_token_for_
     assert promoted_perms.admin is True
 
 
-def test_promote_user_no_json_data(test_client, setup_users, create_access_token_for_user):
+def test_promote_user_no_json_data(test_client, setup_users, 
+                                   create_access_token_for_user):
     """Test promotion fails when no JSON data is provided"""
     users = setup_users
     access_token = create_access_token_for_user(users["super_admin"].id)
     
-    # set the JWT token as a cookie
-    test_client.set_cookie('access_token', access_token)
-    
     response = test_client.patch(
         f"/users/{users['regular_user'].email}/permissions",
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type='application/json'
     )
     
     assert response.status_code == 400
 
 
-def test_promote_user_no_super_admin_perms(test_client, setup_users, create_access_token_for_user):
+def test_promote_user_no_super_admin_perms(test_client, setup_users, 
+                                           create_access_token_for_user):
     """Test promotion fails when promoter is not a super admin"""
     users = setup_users
     access_token = create_access_token_for_user(users["non_admin"].id)
     
-    # set the JWT token as a cookie
-    test_client.set_cookie('access_token', access_token)
     
     
     response = test_client.patch(
         f"/users/{users['regular_user'].email}/permissions",
+        headers={"Authorization": f"Bearer {access_token}"},
         json={"promote": True}
     )
     
@@ -153,7 +148,8 @@ def test_promote_user_no_super_admin_perms(test_client, setup_users, create_acce
     assert response.json["msg"] == "Missing permissions"
 
 
-def test_promote_user_promoter_has_no_perms_record(test_client, setup_users, create_access_token_for_user):
+def test_promote_user_promoter_has_no_perms_record(test_client, setup_users, 
+                                                   create_access_token_for_user):
     """Test promotion fails when promoter has no permissions record"""
     users = setup_users
     
@@ -169,11 +165,9 @@ def test_promote_user_promoter_has_no_perms_record(test_client, setup_users, cre
     
     access_token = create_access_token_for_user(user_no_perms.id)
     
-    # set the JWT token as a cookie
-    test_client.set_cookie('access_token', access_token)
-    
     response = test_client.patch(
         f"/users/{users['regular_user'].email}/permissions",
+        headers={"Authorization": f"Bearer {access_token}"},
         json={"promote": True}
     )
     
@@ -181,16 +175,15 @@ def test_promote_user_promoter_has_no_perms_record(test_client, setup_users, cre
     assert response.json["msg"] == "Missing permissions"
 
 
-def test_promote_user_target_not_found(test_client, setup_users, create_access_token_for_user):
+def test_promote_user_target_not_found(test_client, setup_users, 
+                                       create_access_token_for_user):
     """Test promotion fails when target user doesn't exist"""
     users = setup_users
     access_token = create_access_token_for_user(users["super_admin"].id)
     
-    # set the JWT token as a cookie
-    test_client.set_cookie('access_token', access_token)
-    
     response = test_client.patch(
         "/users/nonexistent@example.com/permissions",
+        headers={"Authorization": f"Bearer {access_token}"},
         json={"promote": True}
     )
     

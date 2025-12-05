@@ -28,7 +28,8 @@ def test_home_page(test_client: FlaskClient) -> None:
             {
                 "id": "cenzar",
                 "first_name": "Rafael",
-                "opportunities": ["opportunity1"],  # Replace with expected opportunities data
+                "opportunities": ["opportunity1"],  
+                # Replace with expected opportunities data
             },
         )
     ],
@@ -39,7 +40,8 @@ def test_profile_page(test_client: FlaskClient, input_id, expected_profile) -> N
     WHEN the '/profile/<user>' page is requested (GET)
     THEN check that the response is valid
     """
-    # login_response = test_client.post("/login", json={"username": "test_user", "password": "password123"})
+    # login_response = test_client.post("/login", 
+    # json={"username": "test_user", "password": "password123"})
     # login_data = json.loads(login_response.data)
     with test_client.application.app_context():
         access_token = create_access_token(identity='cenzar@rpi.edu')
