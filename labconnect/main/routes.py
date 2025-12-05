@@ -27,13 +27,16 @@ def index() -> dict[str, str]:
 @main_blueprint.get("/departments")
 def departmentCards():
     data = db.session.execute(
-        db.select(RPIDepartments.name, RPIDepartments.school_id, RPIDepartments.id)
+        db.select(RPIDepartments.name, RPIDepartments.school_id, RPIDepartments.id, 
+                  RPIDepartments.description, RPIDepartments.website)
     ).all()
     results = [
         {
-            "title": department.name,
-            "department_id": department.id,
-            "school": department.school_id,
+            "name": department.name,
+            "description": department.description,
+            "id": department.id,
+            "school_id": department.school_id,
+            "website": department.website,
             "image": "https://cdn-icons-png.flaticon.com/512/5310/5310672.png",
         }
         for department in data

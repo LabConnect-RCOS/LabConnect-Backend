@@ -2,8 +2,9 @@ from labconnect.helpers import format_credits
 from labconnect.models import Courses, Opportunities
 
 
-def serialize_course(course: Courses) -> str:
-    return f"{course.code} {course.name}"
+def serialize_course(course: Courses) -> dict:
+    course = {'code': course.code, 'name': course.name}
+    return course
 
 
 def serialize_opportunity(

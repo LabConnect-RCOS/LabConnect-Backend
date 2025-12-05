@@ -194,6 +194,43 @@ def registerUser() -> Response:
     db.session.commit()
     return make_response({"msg": "New user added"})
 
+# promotes User to a Lab Manager
+# requires a super admin to promote
+@main_blueprint.patch("/users/<string:email>/permissions")
+@jwt_required()
+def promoteUser(email: str) -> Response:
+    json_data = request.json
+    if not json_data or not json_data.get("promote"):
+        abort(400)
+
+    # if user accessing doesn't have the right perms then they can't assign perms
+    promoter_id = get_jwt_identity()
+    promoter_perms = db.session.query(ManagementPermissions).filter_by(
+            user_id=promoter_id
+        ).first()
+    if not promoter_perms or not promoter_perms.super_admin:
+        return make_response({"msg": "Missing permissions"}, 401)
+    
+    # look for the user that will be promoted
+    manager = db.session.query(User).filter_by(email=email).first()
+    if not manager:
+        return make_response({"msg": "No user matches RCS ID"}, 500)
+
+    management_permissions = db.session.query(ManagementPermissions).filter_by(
+            user_id=manager.id
+        ).first()
+    
+    if management_permissions is None:
+        management_permissions = ManagementPermissions(user_id=manager.id, admin=True)
+        db.session.add(management_permissions)
+    else:
+        management_permissions.admin = True
+    
+    db.session.commit()
+    
+    return make_response({"msg": "User promoted to Lab Manager"}, 200)
+   
+
 
 @main_blueprint.get("/metadata/")
 def metadataRoute() -> Response:
