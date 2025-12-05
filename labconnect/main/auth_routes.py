@@ -23,7 +23,6 @@ from labconnect.models import (
     UserCourses,
     UserDepartments,
     UserMajors,
-    LabManager
 )
 
 from . import main_blueprint
@@ -206,7 +205,9 @@ def promoteUser(email: str) -> Response:
 
     # if user accessing doesn't have the right perms then they can't assign perms
     promoter_id = get_jwt_identity()
-    promoter_perms = db.session.query(ManagementPermissions).filter_by(user_id=promoter_id).first()
+    promoter_perms = db.session.query(ManagementPermissions).filter_by(
+            user_id=promoter_id
+        ).first()
     if not promoter_perms or not promoter_perms.super_admin:
         return make_response({"msg": "Missing permissions"}, 401)
     
@@ -215,7 +216,9 @@ def promoteUser(email: str) -> Response:
     if not manager:
         return make_response({"msg": "No user matches RCS ID"}, 500)
 
-    management_permissions = db.session.query(ManagementPermissions).filter_by(user_id=manager.id).first()
+    management_permissions = db.session.query(ManagementPermissions).filter_by(
+            user_id=manager.id
+        ).first()
     
     if management_permissions is None:
         management_permissions = ManagementPermissions(user_id=manager.id, admin=True)
