@@ -194,13 +194,13 @@ def registerUser() -> Response:
     db.session.commit()
     return make_response({"msg": "New user added"})
 
-# promotes User to a Lab Manager
+# promotes/demotes User to a Lab Manager
 # requires a super admin to promote
 @main_blueprint.patch("/users/<string:email>/permissions")
 @jwt_required()
 def promoteUser(email: str) -> Response:
     json_data = request.json
-    if not json_data or not json_data.get("promote"):
+    if not json_data or not json_data.get("promote") or not json_data.get("demote"):
         abort(400)
 
     # if user accessing doesn't have the right perms then they can't assign perms
@@ -220,15 +220,19 @@ def promoteUser(email: str) -> Response:
             user_id=manager.id
         ).first()
     
+    if management_permissions.admin == True:
+        management_permissions.admin = False
+        
+    if management_permissions.admin == False:
+        management_permissions.admin = True
+
     if management_permissions is None:
         management_permissions = ManagementPermissions(user_id=manager.id, admin=True)
         db.session.add(management_permissions)
-    else:
-        management_permissions.admin = True
     
     db.session.commit()
     
-    return make_response({"msg": "User promoted to Lab Manager"}, 200)
+    return make_response({"msg": "User Lab Manager permissions changed!"}, 200)
    
 
 
