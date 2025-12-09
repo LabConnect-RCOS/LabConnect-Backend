@@ -56,6 +56,23 @@ def setup_users(test_client, setup_database):
         admin=False
     )
     db.session.add(regular_user_perms)
+
+    # add demotable user
+    regular_user2 = User(
+        id="regular02",
+        email="regular2@example.com",
+        first_name="Regular2",
+        last_name="User2"
+    )
+    db.session.add(regular_user2)
+    db.session.commit()
+    
+    regular_user2_perms = ManagementPermissions(
+        user_id=regular_user2.id,
+        super_admin=False,
+        admin=True
+    )
+    db.session.add(regular_user2_perms)
     
     # add non-super-admin user
     non_admin = User(
@@ -79,6 +96,7 @@ def setup_users(test_client, setup_database):
     yield {
         "super_admin": super_admin,
         "regular_user": regular_user,
+        "regular_user2": regular_user2,
         "non_admin": non_admin
     }
 
@@ -106,13 +124,34 @@ def test_promote_user_success(test_client, setup_users, create_access_token_for_
     )
     
     assert response.status_code == 200
-    assert response.json["msg"] == "User promoted to Lab Manager"
+    assert response.json["msg"] == "User Lab Manager permissions changed!"
     
     # verify the user was actually promoted
     promoted_perms = db.session.query(ManagementPermissions).filter_by(
         user_id=users["regular_user"].id
     ).first()
     assert promoted_perms.admin is True
+
+def test_demote_user_success(test_client, setup_users, create_access_token_for_user):
+    """Test successful user demotion by super admin"""
+    users = setup_users
+    access_token = create_access_token_for_user(users["super_admin"].id)
+    
+    # demote user
+    response = test_client.patch(
+        f"/users/{users['regular_user2'].email}/permissions",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"demote": True},
+    )
+    
+    assert response.status_code == 200
+    assert response.json["msg"] == "User Lab Manager permissions changed!"
+    
+    # verify the user was actually promoted
+    demoted_perms = db.session.query(ManagementPermissions).filter_by(
+        user_id=users["regular_user2"].id
+    ).first()
+    assert demoted_perms.admin is False
 
 
 def test_promote_user_no_json_data(test_client, setup_users, 
