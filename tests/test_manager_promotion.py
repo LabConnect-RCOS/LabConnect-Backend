@@ -120,7 +120,7 @@ def test_promote_user_success(test_client, setup_users, create_access_token_for_
     response = test_client.patch(
         f"/users/{users['regular_user'].email}/permissions",
         headers={"Authorization": f"Bearer {access_token}"},
-        json={"promote": True},
+        json={"change_status": True},
     )
     
     assert response.status_code == 200
@@ -141,7 +141,7 @@ def test_demote_user_success(test_client, setup_users, create_access_token_for_u
     response = test_client.patch(
         f"/users/{users['regular_user2'].email}/permissions",
         headers={"Authorization": f"Bearer {access_token}"},
-        json={"demote": True},
+        json={"change_status": True},
     )
     
     assert response.status_code == 200
@@ -152,7 +152,6 @@ def test_demote_user_success(test_client, setup_users, create_access_token_for_u
         user_id=users["regular_user2"].id
     ).first()
     assert demoted_perms.admin is False
-
 
 def test_promote_user_no_json_data(test_client, setup_users, 
                                    create_access_token_for_user):
@@ -180,7 +179,7 @@ def test_promote_user_no_super_admin_perms(test_client, setup_users,
     response = test_client.patch(
         f"/users/{users['regular_user'].email}/permissions",
         headers={"Authorization": f"Bearer {access_token}"},
-        json={"promote": True}
+        json={"change_status": True}
     )
     
     assert response.status_code == 401
@@ -207,7 +206,7 @@ def test_promote_user_promoter_has_no_perms_record(test_client, setup_users,
     response = test_client.patch(
         f"/users/{users['regular_user'].email}/permissions",
         headers={"Authorization": f"Bearer {access_token}"},
-        json={"promote": True}
+        json={"change_status": True}
     )
     
     assert response.status_code == 401
@@ -223,7 +222,7 @@ def test_promote_user_target_not_found(test_client, setup_users,
     response = test_client.patch(
         "/users/nonexistent@example.com/permissions",
         headers={"Authorization": f"Bearer {access_token}"},
-        json={"promote": True}
+        json={"change_status": True}
     )
     
     assert response.status_code == 500
@@ -239,7 +238,7 @@ def test_promote_user_no_jwt_token(test_client, setup_users):
     
     response = test_client.patch(
         f"/users/{users['regular_user'].email}/permissions",
-        json={"promote": True}
+        json={"change_status": True}
     )
     
     assert response.status_code == 401
