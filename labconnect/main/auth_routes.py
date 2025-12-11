@@ -220,9 +220,9 @@ def promoteUser(email: str) -> Response:
             user_id=manager.id
         ).first()
     
-    if management_permissions.admin == True:
+    if management_permissions.admin:
         management_permissions.admin = False
-    elif management_permissions.admin == False:
+    elif not management_permissions.admin:
         management_permissions.admin = True
 
     if management_permissions is None:
