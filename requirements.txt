@@ -23,7 +23,7 @@ packaging==25.0
 pluggy==1.6.0
 psycopg2-binary==2.9.11
 PyJWT==2.10.1
-pytest==8.3.4
+pytest==9.0.2
 pytest-cov==7.0.0
 python-dotenv==1.2.1
 python3-saml==1.16.0
