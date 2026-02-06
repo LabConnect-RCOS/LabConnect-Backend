@@ -1,3 +1,6 @@
+#Add registration/sign up page/procedure 
+#Make a registration process for professors 
+
 from datetime import datetime, timedelta
 from uuid import uuid4
 
@@ -64,6 +67,7 @@ def validate_code_and_get_user_email(code: str) -> tuple[str, bool] | tuple[None
 
     return None, None
 
+#Past work on rpi login 
 
 @main_blueprint.get("/login")
 def saml_login() -> Response:
@@ -147,11 +151,14 @@ def registerUser() -> Response:
     user.last_name = json_data.get("last_name")
     user.preferred_name = json_data.get("preferred_name", "")
     user.class_year = json_data.get("class_year", "")
+    # Place holder picture 
     user.profile_picture = json_data.get(
         "profile_picture", "https://www.svgrepo.com/show/206842/professor.svg"
     )
+    # Do we still need
     user.website = json_data.get("website", "")
     user.description = json_data.get("description", "")
+
     db.session.add(user)
     db.session.commit()
 
@@ -275,3 +282,77 @@ def logout() -> Response:
     resp = make_response({"msg": "logout successful"})
     unset_jwt_cookies(resp)
     return resp
+
+# Would need to add next --> Make a registration process for professors 
+@main_blueprint.post("/registerProfessors")
+def registerUser() -> Response:
+    # Gather the new user's information
+    json_data = request.get_json()
+    if not json_data:
+        abort(400)
+    # New type of user???
+    user = User()
+    user.email = json_data.get("email")
+    user.first_name = json_data.get("first_name")
+    user.last_name = json_data.get("last_name")
+    user.preferred_name = json_data.get("preferred_name", "")
+    #DONT WANT THIS probably 
+    #user.class_year = json_data.get("class_year", "")
+    # Place holder picture 
+    user.profile_picture = json_data.get(
+        "profile_picture", "https://www.svgrepo.com/show/206842/professor.svg"
+    )
+    # Do we still need
+    user.website = json_data.get("website", "")
+    user.description = json_data.get("description", "")
+
+    db.session.add(user)
+    db.session.commit()
+
+    # Add UserDepartments if provided
+    if json_data.get("departments"):
+        for department_id in json_data["departments"]:
+            user_department = UserDepartments()
+            user_department.department_id = department_id
+            user_department.user_id = user.id
+            db.session.add(user_department)
+    '''
+    # Additional auxiliary records (majors, courses, etc.)
+    if json_data.get("majors"):
+        for major_code in json_data["majors"]:
+            user_major = UserMajors()
+            user_major.user_id = user.id
+            user_major.major_code = major_code
+            db.session.add(user_major)
+    # Add Courses if provided
+    if json_data.get("courses"):
+        for course_code in json_data["courses"]:
+            user_course = UserCourses()
+            user_course.user_id = user.id
+            user_course.course_code = course_code
+            db.session.add(user_course)
+    '''
+    #No major only need department 
+    #Courses taught:
+    if json_data.get("courses"):
+        for course_code in json_data["courses"]:
+            user_course = UserCourses()
+            user_course.user_id = user.id
+            user_course.course_code = course_code
+            db.session.add(user_course)
+
+    # Add ManagementPermissions if provided
+    if json_data.get("permissions"):
+        # permissions = json_data["permissions"]
+        management_permissions = ManagementPermissions()
+        management_permissions.user_id = user.id
+        # management_permissions.super_admin = permissions.get("super_admin", False)
+        # management_permissions.admin = permissions.get("admin", False)
+        # management_permissions.moderator = permissions.get("moderator", False)
+        management_permissions.super_admin = False
+        management_permissions.admin = False
+        management_permissions.moderator = False
+        db.session.add(management_permissions)
+
+    db.session.commit()
+    return make_response({"msg": "New professor added"})
