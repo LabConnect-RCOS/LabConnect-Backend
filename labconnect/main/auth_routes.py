@@ -23,6 +23,7 @@ from labconnect.models import (
     Codes,
     ManagementPermissions,
     User,
+    UserProfessor,
     UserCourses,
     UserDepartments,
     UserMajors,
@@ -285,33 +286,35 @@ def logout() -> Response:
 
 # Would need to add next --> Make a registration process for professors 
 @main_blueprint.post("/registerProfessors")
-def registerUser() -> Response:
+def registerProfessor() -> Response:
     # Gather the new user's information
     json_data = request.get_json()
     if not json_data:
         abort(400)
-    # New type of user???
-    user = User()
+    # New type of user (professor)
+    user = UserProfessor()
+    #user = User()
+    #This could probably stay the same
     user.email = json_data.get("email")
     user.first_name = json_data.get("first_name")
     user.last_name = json_data.get("last_name")
     user.preferred_name = json_data.get("preferred_name", "")
-    #DONT WANT THIS probably 
+
     #user.class_year = json_data.get("class_year", "")
-    # Place holder picture 
+    # Place holder picture  
     user.profile_picture = json_data.get(
         "profile_picture", "https://www.svgrepo.com/show/206842/professor.svg"
     )
-    # Do we still need
+    
     user.website = json_data.get("website", "")
     user.description = json_data.get("description", "")
 
     db.session.add(user)
     db.session.commit()
 
-    # Add UserDepartments if provided
-    if json_data.get("departments"):
-        for department_id in json_data["departments"]:
+    # Should only be one department 
+    if json_data.get("department"):
+        for department_id in json_data["department"]:
             user_department = UserDepartments()
             user_department.department_id = department_id
             user_department.user_id = user.id
@@ -324,17 +327,13 @@ def registerUser() -> Response:
             user_major.user_id = user.id
             user_major.major_code = major_code
             db.session.add(user_major)
-    # Add Courses if provided
-    if json_data.get("courses"):
-        for course_code in json_data["courses"]:
-            user_course = UserCourses()
-            user_course.user_id = user.id
-            user_course.course_code = course_code
-            db.session.add(user_course)
     '''
+    # Re use as courses taught might not even be nessesary
+    
     #No major only need department 
+    #Might not even really need 
     #Courses taught:
-    if json_data.get("courses"):
+    if json_data.get("courses(currently) taught"):
         for course_code in json_data["courses"]:
             user_course = UserCourses()
             user_course.user_id = user.id
@@ -352,7 +351,9 @@ def registerUser() -> Response:
         management_permissions.super_admin = False
         management_permissions.admin = False
         management_permissions.moderator = False
+        management_permissions.professor = True
         db.session.add(management_permissions)
+        #Add more permissions as needed
 
     db.session.commit()
     return make_response({"msg": "New professor added"})
