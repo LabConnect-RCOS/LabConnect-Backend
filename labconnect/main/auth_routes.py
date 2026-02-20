@@ -1,9 +1,10 @@
-#Add registration/sign up page/procedure 
-#Make a registration process for professors 
+# Add registration/sign up page/procedure
+# Make a registration process for professors
 
 from datetime import datetime, timedelta
 from uuid import uuid4
 
+# import flask
 from flask import abort, current_app, make_response, redirect, request
 from flask_jwt_extended import (
     create_access_token,
@@ -68,7 +69,9 @@ def validate_code_and_get_user_email(code: str) -> tuple[str, bool] | tuple[None
 
     return None, None
 
-#Past work on rpi login 
+
+# Past work on rpi login
+
 
 @main_blueprint.get("/login")
 def saml_login() -> Response:
@@ -152,7 +155,7 @@ def registerUser() -> Response:
     user.last_name = json_data.get("last_name")
     user.preferred_name = json_data.get("preferred_name", "")
     user.class_year = json_data.get("class_year", "")
-    # Place holder picture 
+    # Place holder picture
     user.profile_picture = json_data.get(
         "profile_picture", "https://www.svgrepo.com/show/206842/professor.svg"
     )
@@ -202,6 +205,7 @@ def registerUser() -> Response:
     db.session.commit()
     return make_response({"msg": "New user added"})
 
+
 # promotes/demotes User to a Lab Manager
 # requires a super admin to promote
 @main_blueprint.patch("/users/<string:email>/permissions")
@@ -213,21 +217,21 @@ def promoteUser(email: str) -> Response:
 
     # if user accessing doesn't have the right perms then they can't assign perms
     promoter_id = get_jwt_identity()
-    promoter_perms = db.session.query(ManagementPermissions).filter_by(
-            user_id=promoter_id
-        ).first()
+    promoter_perms = (
+        db.session.query(ManagementPermissions).filter_by(user_id=promoter_id).first()
+    )
     if not promoter_perms or not promoter_perms.super_admin:
         return make_response({"msg": "Missing permissions"}, 401)
-    
+
     # look for the user that will be promoted
     manager = db.session.query(User).filter_by(email=email).first()
     if not manager:
         return make_response({"msg": "No user matches RCS ID"}, 500)
 
-    management_permissions = db.session.query(ManagementPermissions).filter_by(
-            user_id=manager.id
-        ).first()
-    
+    management_permissions = (
+        db.session.query(ManagementPermissions).filter_by(user_id=manager.id).first()
+    )
+
     if management_permissions.admin:
         management_permissions.admin = False
     elif not management_permissions.admin:
@@ -236,11 +240,10 @@ def promoteUser(email: str) -> Response:
     if management_permissions is None:
         management_permissions = ManagementPermissions(user_id=manager.id, admin=True)
         db.session.add(management_permissions)
-    
+
     db.session.commit()
-    
+
     return make_response({"msg": "User Lab Manager permissions changed!"}, 200)
-   
 
 
 @main_blueprint.get("/metadata/")
@@ -284,7 +287,8 @@ def logout() -> Response:
     unset_jwt_cookies(resp)
     return resp
 
-# Would need to add next --> Make a registration process for professors 
+
+# Would need to add next --> Make a registration process for professors
 @main_blueprint.post("/registerProfessors")
 def registerProfessor() -> Response:
     # Gather the new user's information
@@ -293,33 +297,33 @@ def registerProfessor() -> Response:
         abort(400)
     # New type of user (professor)
     user = UserProfessor()
-    #user = User()
-    #This could probably stay the same
+    # user = User()
+    # This could probably stay the same
     user.email = json_data.get("email")
     user.first_name = json_data.get("first_name")
     user.last_name = json_data.get("last_name")
     user.preferred_name = json_data.get("preferred_name", "")
 
-    #user.class_year = json_data.get("class_year", "")
-    # Place holder picture  
+    # user.class_year = json_data.get("class_year", "")
+    # Place holder picture
     user.profile_picture = json_data.get(
         "profile_picture", "https://www.svgrepo.com/show/206842/professor.svg"
     )
-    
+
     user.website = json_data.get("website", "")
     user.description = json_data.get("description", "")
 
     db.session.add(user)
     db.session.commit()
 
-    # Should only be one department 
+    # Should only be one department
     if json_data.get("department"):
         for department_id in json_data["department"]:
             user_department = UserDepartments()
             user_department.department_id = department_id
             user_department.user_id = user.id
             db.session.add(user_department)
-    '''
+    """
     # Additional auxiliary records (majors, courses, etc.)
     if json_data.get("majors"):
         for major_code in json_data["majors"]:
@@ -327,12 +331,11 @@ def registerProfessor() -> Response:
             user_major.user_id = user.id
             user_major.major_code = major_code
             db.session.add(user_major)
-    '''
+    """
     # Re use as courses taught might not even be nessesary
-    
-    #No major only need department 
-    #Might not even really need 
-    #Courses taught:
+
+    # No major only need department
+    # Courses taught:
     if json_data.get("courses(currently) taught"):
         for course_code in json_data["courses"]:
             user_course = UserCourses()
@@ -353,7 +356,7 @@ def registerProfessor() -> Response:
         management_permissions.moderator = False
         management_permissions.professor = True
         db.session.add(management_permissions)
-        #Add more permissions as needed
+        # Add more permissions as needed
 
     db.session.commit()
     return make_response({"msg": "New professor added"})
