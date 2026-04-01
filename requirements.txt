@@ -32,7 +32,7 @@ requests==2.33.1
 ruff==0.14.10
 sentry-sdk==2.48.0
 six==1.17.0
-SQLAlchemy==2.0.44
+SQLAlchemy==2.0.48
 typing_extensions==4.15.0
 urllib3==2.6.3
 Werkzeug==3.1.6
