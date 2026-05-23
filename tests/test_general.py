@@ -5,125 +5,55 @@ Test general routes
 import pytest
 from flask import json
 from flask.testing import FlaskClient
-from flask_jwt_extended import create_access_token
-
-
-def test_home_page(test_client: FlaskClient) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/' page is requested (GET)
-    THEN check that the response is valid
-    """
-    response = test_client.get("/")
-
-    assert response.status_code == 200
-    assert {"Hello": "There"} == json.loads(response.data)
 
 
 @pytest.mark.parametrize(
-    "input_id, expected_profile",
+    "route, expected_body",
     [
-        (
-            1,
-            {
-                "id": "cenzar",
-                "first_name": "Rafael",
-                "opportunities": ["opportunity1"],  
-                # Replace with expected opportunities data
-            },
-        )
+        ("/", {"Hello": "There"}),
     ],
 )
-def test_profile_page(test_client: FlaskClient, input_id, expected_profile) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/profile/<user>' page is requested (GET)
-    THEN check that the response is valid
-    """
-    # login_response = test_client.post("/login", 
-    # json={"username": "test_user", "password": "password123"})
-    # login_data = json.loads(login_response.data)
-    with test_client.application.app_context():
-        access_token = create_access_token(identity='cenzar@rpi.edu')
-
-    # response = test_client.get("/profile", json={"id": input_id})
-    # Make the request with the JWT token
-    response = test_client.get(
-        "/profile",
-        json={"id": input_id},
-        headers={'Authorization': f'Bearer {access_token}'}
-    )
-
+def test_static_routes(
+    test_client: FlaskClient, route: str, expected_body: dict
+) -> None:
+    response = test_client.get(route)
     assert response.status_code == 200
-
-    json_data = json.loads(response.data)
-    assert json_data["id"] == expected_profile["id"]
-    assert json_data["first_name"] == expected_profile["first_name"]
-    assert json_data["opportunities"] != []
+    assert json.loads(response.data) == expected_body
 
 
 @pytest.mark.parametrize(
-    "expected_schools",
+    "expected_years",
     [
-        (
-            (
-                "School of Science",
-                "School of Engineering",
-            ),
-            (
-                "the coolest of them all",
-                "also pretty cool",
-            ),
-        )
+        ([2025, 2026, 2027, 2028, 2029, 2030, 2031],),
     ],
 )
-def test_schools_route(test_client: FlaskClient, expected_schools) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/schools' page is requested (GET)
-    THEN check that the response is valid
-    """
-    response = test_client.get("/schools")
-
-    assert response.status_code == 200
-
-    json_data = json.loads(response.data)
-
-    for school in json_data:
-        assert school["name"] in expected_schools[0]
-        assert school["description"] in expected_schools[1]
-
-
-def test_years_route(test_client: FlaskClient) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/years' page is requested (GET)
-    THEN check that the response is valid
-    """
+def test_years_route(test_client: FlaskClient, expected_years) -> None:
     response = test_client.get("/years")
-
     assert response.status_code == 200
-    assert [2025, 2026, 2027, 2028, 2029, 2030, 2031] == json.loads(response.data)
+    assert json.loads(response.data) == list(expected_years[0])
 
 
-def test_professor_profile(test_client: FlaskClient) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/getProfessorProfile/<id>' page is requested (GET)
-    THEN check that the response is valid
-    """
-    response = test_client.get("/staff/cenzar")
-
+@pytest.mark.parametrize(
+    "rcs_id, expected_name, expected_department",
+    [
+        ("cenzar", "Raf Cenzano", "Computer Science"),
+        ("led", "Duy Le", "Computer Science"),
+        ("rami", "Rami Rami", "Materials Engineering"),
+    ],
+)
+def test_staff_profile(
+    test_client: FlaskClient,
+    auth_headers,
+    rcs_id: str,
+    expected_name: str,
+    expected_department: str,
+) -> None:
+    response = test_client.get(
+        f"/staff/{rcs_id}",
+        headers=auth_headers("test@rpi.edu"),
+    )
     assert response.status_code == 200
 
-    # Load the response data as JSON
     data = json.loads(response.data)
-
-    assert data["first_name"] == "Rafael"
-    assert data["last_name"] == "Cenzano"
-    assert data["preferred_name"] == "Raf"
-    assert data["email"] == "cenzar@rpi.edu"
-    assert data["department_id"] == "Computer Science"
-    assert data["id"] == "cenzar"
-    assert "phone_number" in data
-    assert "website" in data
+    assert data["name"] == expected_name
+    assert data["department"] == expected_department

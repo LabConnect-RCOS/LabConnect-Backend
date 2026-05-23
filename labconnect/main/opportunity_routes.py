@@ -42,9 +42,9 @@ def opportunity_to_dict(opportunity: Opportunities) -> dict:
         "two_credits": bool(opportunity.two_credits),
         "three_credits": bool(opportunity.three_credits),
         "four_credits": bool(opportunity.four_credits),
-        "semester": str(opportunity.semester)
-        if opportunity.semester is not None
-        else None,
+        "semester": (
+            opportunity.semester.value if opportunity.semester is not None else None
+        ),
         "year": opportunity.year,
         "active": bool(opportunity.active),
     }
@@ -330,15 +330,10 @@ def filterOpportunities():
                     where_conditions.append(RecommendsMajors.major_code.in_(value))
 
                 # Departments filter
-                # not currently in use
                 elif field == "departments":
                     if not isinstance(value, list):
                         abort(400)
-                    query = (
-                        query.join(Leads, Opportunities.id == Leads.opportunity_id)
-                        .join(LabManager, Leads.lab_manager_id == LabManager.id)
-                        .where(LabManager.department_id.in_(value))
-                    )
+                    where_conditions.append(LabManager.department_id.in_(value))
 
                 # Pay filter
                 elif field == "hourlypay":

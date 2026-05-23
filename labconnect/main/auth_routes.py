@@ -194,6 +194,7 @@ def registerUser() -> Response:
     db.session.commit()
     return make_response({"msg": "New user added"})
 
+
 # promotes/demotes User to a Lab Manager
 # requires a super admin to promote
 @main_blueprint.patch("/users/<string:email>/permissions")
@@ -204,35 +205,37 @@ def promoteUser(email: str) -> Response:
         abort(400)
 
     # if user accessing doesn't have the right perms then they can't assign perms
-    promoter_id = get_jwt_identity()
-    promoter_perms = db.session.query(ManagementPermissions).filter_by(
-            user_id=promoter_id
-        ).first()
+    promoter_email = get_jwt_identity()
+    promoter = db.session.query(User).filter_by(email=promoter_email).first()
+    if not promoter:
+        return make_response({"msg": "Missing permissions"}, 401)
+
+    promoter_perms = (
+        db.session.query(ManagementPermissions).filter_by(user_id=promoter.id).first()
+    )
     if not promoter_perms or not promoter_perms.super_admin:
         return make_response({"msg": "Missing permissions"}, 401)
-    
+
     # look for the user that will be promoted
     manager = db.session.query(User).filter_by(email=email).first()
     if not manager:
         return make_response({"msg": "No user matches RCS ID"}, 500)
 
-    management_permissions = db.session.query(ManagementPermissions).filter_by(
-            user_id=manager.id
-        ).first()
-    
-    if management_permissions.admin:
-        management_permissions.admin = False
-    elif not management_permissions.admin:
-        management_permissions.admin = True
+    management_permissions = (
+        db.session.query(ManagementPermissions).filter_by(user_id=manager.id).first()
+    )
 
     if management_permissions is None:
         management_permissions = ManagementPermissions(user_id=manager.id, admin=True)
         db.session.add(management_permissions)
-    
+    elif management_permissions.admin:
+        management_permissions.admin = False
+    else:
+        management_permissions.admin = True
+
     db.session.commit()
-    
+
     return make_response({"msg": "User Lab Manager permissions changed!"}, 200)
-   
 
 
 @main_blueprint.get("/metadata/")

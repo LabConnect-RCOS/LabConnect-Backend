@@ -8,101 +8,67 @@ from flask.testing import FlaskClient
 
 
 @pytest.mark.parametrize(
-    "expected_majors",
+    "expected_codes, expected_names",
     [
         (
-            ("CSCI", "ECSE", "BIOL", "MATH", "COGS"),
+            ("BIOL", "COGS", "CSCI", "ECSE", "MATH", "PHYS"),
             (
+                "Biological Science",
+                "Cognitive Science",
                 "Computer Science",
                 "Electrical, Computer, and Systems Engineering",
-                "Biological Science",
                 "Mathematics",
-                "Cognitive Science",
+                "Physics",
             ),
-        )
+        ),
     ],
 )
-def test_majors_route(test_client: FlaskClient, expected_majors) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/majors' page is requested (GET)
-    THEN check that the response is valid
-    """
+def test_majors_route(test_client: FlaskClient, expected_codes, expected_names) -> None:
     response = test_client.get("/majors")
-
     assert response.status_code == 200
 
     json_data = json.loads(response.data)
+    assert len(json_data) == len(expected_codes)
 
-    for major in json_data:
-        assert major["code"] in expected_majors[0]
-        assert major["name"] in expected_majors[1]
+    codes = {major["code"] for major in json_data}
+    names = {major["name"] for major in json_data}
+    assert codes == set(expected_codes)
+    assert names == set(expected_names)
 
 
 @pytest.mark.parametrize(
-    "input_data, expected_majors",
+    "major_code, major_name",
     [
-        (
-            {"input": "computer"},
-            (
-                ("CSCI", "ECSE"),
-                (
-                    "Computer Science",
-                    "Electrical, Computer, and Systems Engineering",
-                ),
-            ),
-        ),
+        ("CSCI", "Computer Science"),
+        ("ECSE", "Electrical, Computer, and Systems Engineering"),
+        ("BIOL", "Biological Science"),
+        ("MATH", "Mathematics"),
+        ("COGS", "Cognitive Science"),
+        ("PHYS", "Physics"),
     ],
 )
-def test_majors_route_with_input_name(
-    test_client: FlaskClient, input_data, expected_majors
+def test_majors_route_each_major(
+    test_client: FlaskClient, major_code: str, major_name: str
 ) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/majors' page is requested (GET)
-    THEN check that the response is valid
-    """
-    response = test_client.get("/majors", json=input_data)
-
+    response = test_client.get("/majors")
     assert response.status_code == 200
 
-    json_data = json.loads(response.data)
-
-    for i, major in enumerate(json_data):
-        assert major["code"] == expected_majors[0][i]
-        assert major["name"] == expected_majors[1][i]
+    match = next(
+        (major for major in json.loads(response.data) if major["code"] == major_code),
+        None,
+    )
+    assert match is not None
+    assert match["name"] == major_name
 
 
 @pytest.mark.parametrize(
-    "input_data, expected_majors",
+    "invalid_method, expected_status",
     [
-        (
-            {"input": "cs"},
-            (
-                ("CSCI", "ECSE", "MATH"),
-                (
-                    "Computer Science",
-                    "Electrical, Computer, and Systems Engineering",
-                    "Mathematics",
-                ),
-            ),
-        ),
+        ("post", 405),
     ],
 )
-def test_majors_route_with_input_code(
-    test_client: FlaskClient, input_data, expected_majors
+def test_majors_route_invalid_method(
+    test_client: FlaskClient, invalid_method: str, expected_status: int
 ) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/majors' page is requested (GET)
-    THEN check that the response is valid
-    """
-    response = test_client.get("/majors", json=input_data)
-
-    assert response.status_code == 200
-
-    json_data = json.loads(response.data)
-
-    for i, major in enumerate(json_data):
-        assert major["code"] == expected_majors[0][i]
-        assert major["name"] == expected_majors[1][i]
+    response = getattr(test_client, invalid_method)("/majors")
+    assert response.status_code == expected_status

@@ -1,92 +1,90 @@
+import os
+
 import pytest
+from flask_jwt_extended import create_access_token
+from sqlalchemy import Text, event
 
-from labconnect import create_app
+# Use SQLite for local pytest unless CI/dev sets a Postgres DB URL.
+os.environ.setdefault("DB", "sqlite:///:memory:")
 
-# --------
-# Fixtures
-# https://gitlab.com/patkennedy79/flask_user_management_example/-/blob/main/tests/conftest.py
-# --------
-
-# @pytest.fixture(scope='module')
-# def new_user():
-#     user = User('patkennedy79@gmail.com', 'FlaskIsAwesome')
-#     return user
+from labconnect import create_app, db
+from labconnect.models import Opportunities, update_search_vector
+from tests.seed import seed_development_data
 
 
-@pytest.fixture(scope="module")
+def _use_sqlite() -> bool:
+    uri = os.environ.get("DB", "")
+    return uri.startswith("sqlite")
+
+
+def _configure_sqlite_models() -> None:
+    if Opportunities.__table__ is not None:
+        Opportunities.__table__.c.search_vector.type = Text()
+    Opportunities.__table_args__ = ()
+    for listener in (update_search_vector,):
+        for hook in ("before_insert", "before_update"):
+            try:
+                event.remove(Opportunities, hook, listener)
+            except Exception:
+                pass
+
+
+if _use_sqlite():
+    _configure_sqlite_models()
+
+
+requires_postgres = pytest.mark.skipif(
+    _use_sqlite(), reason="This test requires PostgreSQL-specific SQL"
+)
+
+
+@pytest.fixture(scope="session")
 def test_client():
-    # Set the Testing configuration prior to creating the Flask application
     flask_app = create_app()
-    flask_app.config.update({
-        "TESTING": True, 
-        "DEBUG": True,
-        'JWT_TOKEN_LOCATION': ['cookies', 'headers'],
-        'JWT_COOKIE_CSRF_PROTECT': True
-        })
-    
+    flask_app.config.update(
+        {
+            "TESTING": True,
+            "DEBUG": True,
+            "SQLALCHEMY_DATABASE_URI": os.environ["DB"],
+            "JWT_TOKEN_LOCATION": ["headers"],
+            "JWT_COOKIE_CSRF_PROTECT": False,
+            "JWT_COOKIE_SECURE": False,
+        }
+    )
 
-    # Create a test client using the Flask application configured for testing
     with flask_app.test_client() as testing_client:
-        # Establish an application context
         with flask_app.app_context():
-            yield testing_client  # this is where the testing happens!
+            db.drop_all()
+            db.create_all()
+            seed_development_data()
+        yield testing_client
+        with flask_app.app_context():
+            db.session.remove()
+            db.engine.dispose()
 
 
-# @pytest.fixture(scope="module")
-# def init_database(test_client):
-#     # Create the database and the database table
-#     db.create_all()
+@pytest.fixture
+def auth_headers(test_client):
+    """Bearer token for a seeded or custom user."""
 
-#     # Insert user data
-#     default_user = User(
-#         email="patkennedy79@gmail.com", password_plaintext="FlaskIsAwesome"
-#     )
-#     second_user = User(
-#         email="patrick@yahoo.com", password_plaintext="FlaskIsTheBest987"
-#     )
-#     db.session.add(default_user)
-#     db.session.add(second_user)
+    def _headers(email: str = "test@rpi.edu"):
+        with test_client.application.app_context():
+            token = create_access_token(identity=email)
+        return {"Authorization": f"Bearer {token}"}
 
-#     # Commit the changes for the users
-#     db.session.commit()
-
-#     # Insert book data
-#     book1 = Book("Malibu Rising", "Taylor Jenkins Reid", "5", default_user.id)
-#     book2 = Book("Carrie Soto is Back", "Taylor Jenkins Reid", "4", default_user.id)
-#     book3 = Book("Book Lovers", "Emily Henry", "3", default_user.id)
-#     db.session.add(book1)
-#     db.session.add(book2)
-#     db.session.add(book3)
-
-#     # Commit the changes for the books
-#     db.session.commit()
-
-#     yield  # this is where the testing happens!
-
-#     db.drop_all()
+    return _headers
 
 
-# @pytest.fixture(scope="function")
-# def log_in_default_user(test_client):
-#     test_client.post(
-#         "/login", data={
-#           "email": "patkennedy79@gmail.com",
-#           "password": "FlaskIsAwesome"
-#         }
-#     )
+@pytest.fixture
+def login_as_test_user(test_client, auth_headers):
+    """Authorization headers for test@rpi.edu via the dev login shortcut."""
 
-#     yield  # this is where the testing happens!
+    response = test_client.get("/login")
+    assert response.status_code == 302
+    redirect_url = response.headers["Location"]
+    code = redirect_url.split("code=")[1].split("&")[0]
 
-#     test_client.get("/logout")
+    token_response = test_client.post("/token", json={"code": code})
+    assert token_response.status_code == 200
 
-
-# @pytest.fixture(scope="function")
-# def log_in_second_user(test_client):
-#     test_client.post(
-#         "login", data={"email": "patrick@yahoo.com", "password": "FlaskIsTheBest987"}
-#     )
-
-#     yield  # this is where the testing happens!
-
-#     # Log out the user
-#     test_client.get("/logout")
+    return auth_headers("test@rpi.edu")

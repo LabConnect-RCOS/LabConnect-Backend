@@ -87,8 +87,9 @@ def initialize_extensions(app) -> None:
     app.logger.info("Extensions initialized.")
 
     with app.app_context():
-        db.create_all()
-        app.logger.info("Database tables created.")
+        if not app.config.get("TESTING"):
+            db.create_all()
+            app.logger.info("Database tables created.")
 
     @app.after_request
     def refresh_expiring_jwts(response):

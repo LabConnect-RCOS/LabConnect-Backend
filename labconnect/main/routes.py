@@ -1,7 +1,7 @@
 from typing import NoReturn
 
 from flask import abort, request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import jwt_required
 
 from labconnect import db
 from labconnect.models import (
@@ -12,7 +12,6 @@ from labconnect.models import (
     Opportunities,
     RPIDepartments,
     User,
-    UserDepartments,
 )
 from labconnect.serializers import serialize_course
 
@@ -27,8 +26,13 @@ def index() -> dict[str, str]:
 @main_blueprint.get("/departments")
 def departmentCards():
     data = db.session.execute(
-        db.select(RPIDepartments.name, RPIDepartments.school_id, RPIDepartments.id, 
-                  RPIDepartments.description, RPIDepartments.website)
+        db.select(
+            RPIDepartments.name,
+            RPIDepartments.school_id,
+            RPIDepartments.id,
+            RPIDepartments.description,
+            RPIDepartments.website,
+        )
     ).all()
     results = [
         {
@@ -88,48 +92,6 @@ def departmentDetails(department: str):
             }
             for staff in staff_data
         ],
-    }
-
-    return result
-
-
-@main_blueprint.get("/profile")
-@jwt_required()
-def profile():
-    user_id = get_jwt_identity()
-
-    data = db.session.execute(
-        db.select(
-            User.preferred_name,
-            User.first_name,
-            User.last_name,
-            User.profile_picture,
-            RPIDepartments.name,
-            User.description,
-            User.website,
-            User.lab_manager_id,
-            User.id,
-            User.pronouns,
-        )
-        .where(User.email == user_id)
-        .join(UserDepartments, UserDepartments.user_id == User.id)
-        .join(RPIDepartments, UserDepartments.department_id == RPIDepartments.id)
-    ).first()
-
-    if not data:
-        return {"error": "profile not found"}, 404
-
-    # if data[7]:
-    #     return {"lab_manager": True, "id": data[7]}
-
-    result = {
-        "id": data[8],
-        "name": data[0] + " " + data[2] if data[0] else data[1] + " " + data[2],
-        "image": data[3],
-        "department": data[4],
-        "description": data[5],
-        "website": data[6],
-        "pronouns": data[9],
     }
 
     return result

@@ -11,9 +11,9 @@ def user_to_dict(user: User) -> dict:
     """Helper function to serialize User object data."""
     user_departments = (
         db.session.execute(
-            db.select(UserDepartments.department_id).where(
-                UserDepartments.user_id == user.id
-            )
+            db.select(UserDepartments.department_id)
+            .where(UserDepartments.user_id == user.id)
+            .order_by(UserDepartments.department_id)
         )
         .scalars()
         .all()
@@ -21,7 +21,9 @@ def user_to_dict(user: User) -> dict:
 
     user_majors = (
         db.session.execute(
-            db.select(UserMajors.major_code).where(UserMajors.user_id == user.id)
+            db.select(UserMajors.major_code)
+            .where(UserMajors.user_id == user.id)
+            .order_by(UserMajors.major_code)
         )
         .scalars()
         .all()
@@ -85,31 +87,37 @@ def update_profile() -> Response:
         db.session.execute(
             db.delete(UserDepartments).where(UserDepartments.user_id == user.id)
         )
-        
-        req_dept_ids = set(json_data["departments"])
-        if req_dept_ids: # Only query if list is not empty
-            valid_dept_ids = db.session.execute(
-                db.select(RPIDepartments.id).where(
-                    RPIDepartments.id.in_(req_dept_ids)
-                )
-            ).scalars().all()
 
-            for dept_id in valid_dept_ids: # Add only the valid ones
+        req_dept_ids = set(json_data["departments"])
+        if req_dept_ids:  # Only query if list is not empty
+            valid_dept_ids = (
+                db.session.execute(
+                    db.select(RPIDepartments.id).where(
+                        RPIDepartments.id.in_(req_dept_ids)
+                    )
+                )
+                .scalars()
+                .all()
+            )
+
+            for dept_id in valid_dept_ids:  # Add only the valid ones
                 new_user_dept = UserDepartments(user_id=user.id, department_id=dept_id)
                 db.session.add(new_user_dept)
 
     if "majors" in json_data:
-        db.session.execute(
-            db.delete(UserMajors).where(UserMajors.user_id == user.id)
-        )
-        
-        req_major_codes = set(json_data["majors"])
-        if req_major_codes: # Only query if list is not empty
-            valid_major_codes = db.session.execute(
-                db.select(Majors.code).where(Majors.code.in_(req_major_codes))
-            ).scalars().all()
+        db.session.execute(db.delete(UserMajors).where(UserMajors.user_id == user.id))
 
-            for major_code in valid_major_codes: # Add only the valid ones
+        req_major_codes = set(json_data["majors"])
+        if req_major_codes:  # Only query if list is not empty
+            valid_major_codes = (
+                db.session.execute(
+                    db.select(Majors.code).where(Majors.code.in_(req_major_codes))
+                )
+                .scalars()
+                .all()
+            )
+
+            for major_code in valid_major_codes:  # Add only the valid ones
                 new_user_major = UserMajors(user_id=user.id, major_code=major_code)
                 db.session.add(new_user_major)
 

@@ -50,12 +50,12 @@ jobs:
 
       - name: Set up the Database
         env:
-          DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/labconnect
+          DB: postgresql+psycopg2://postgres:postgres@localhost:5432/labconnect
         run: |
           python db_init.py create
 
       - name: Running pytest
         env:
-          DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/labconnect
+          DB: postgresql+psycopg2://postgres:postgres@localhost:5432/labconnect
         run: |
           python -m pytest tests/
