@@ -26,7 +26,8 @@ class Config:
     SENTRY_PROFILES_SAMPLE_RATE = float(getenv("SENTRY_PROFILES_SAMPLE_RATE", 1.0))
 
     SQLALCHEMY_DATABASE_URI = getenv(
-        "DB", "postgresql+psycopg2://postgres:root@localhost/labconnect"
+        "DATABASE_URL",
+        getenv("DB", "postgresql+psycopg2://postgres:root@localhost/labconnect"),
     )
 
     JWT_SECRET_KEY = getenv("JWT_SECRET_KEY", "jwt-secret")
