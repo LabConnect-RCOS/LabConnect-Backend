@@ -1,7 +1,7 @@
 from typing import NoReturn
 
 from flask import abort, request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import jwt_required
 
 from labconnect import db
 from labconnect.models import (
@@ -27,8 +27,13 @@ def index() -> dict[str, str]:
 @main_blueprint.get("/departments")
 def departmentCards():
     data = db.session.execute(
-        db.select(RPIDepartments.name, RPIDepartments.school_id, RPIDepartments.id, 
-                  RPIDepartments.description, RPIDepartments.website)
+        db.select(
+            RPIDepartments.name,
+            RPIDepartments.school_id,
+            RPIDepartments.id,
+            RPIDepartments.description,
+            RPIDepartments.website,
+        )
     ).all()
     results = [
         {
