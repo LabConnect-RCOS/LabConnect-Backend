@@ -42,9 +42,9 @@ def opportunity_to_dict(opportunity: Opportunities) -> dict:
         "two_credits": bool(opportunity.two_credits),
         "three_credits": bool(opportunity.three_credits),
         "four_credits": bool(opportunity.four_credits),
-        "semester": str(opportunity.semester)
-        if opportunity.semester is not None
-        else None,
+        "semester": (
+            opportunity.semester.value if opportunity.semester is not None else None
+        ),
         "year": opportunity.year,
         "active": bool(opportunity.active),
     }
