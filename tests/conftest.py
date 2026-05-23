@@ -8,8 +8,7 @@ from sqlalchemy import Text, event
 os.environ.setdefault("DB", "sqlite:///:memory:")
 
 from labconnect import create_app, db
-from labconnect.models import Opportunities, User, update_search_vector
-
+from labconnect.models import Opportunities, update_search_vector
 from tests.seed import seed_development_data
 
 

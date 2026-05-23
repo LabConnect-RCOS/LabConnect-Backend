@@ -8,17 +8,14 @@ Then pass an Executable into Session.execute()
 
 import re
 import sys
-from datetime import date, datetime
 
 import requests
 
 from labconnect import create_app, db
-from labconnect.helpers import LocationEnum, SemesterEnum
 from labconnect.models import (
     ClassYears,
     Codes,
     Courses,
-    LabManager,
     Leads,
     Majors,
     Opportunities,

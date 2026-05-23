@@ -9,7 +9,8 @@ from labconnect.models import User, UserDepartments, UserMajors
 
 @pytest.fixture(autouse=True)
 def restore_test_user(test_client):
-    """Reset test@rpi.edu after profile write tests so other modules stay deterministic."""
+    """Reset test@rpi.edu after profile write tests so
+    other modules stay deterministic."""
     yield
     with test_client.application.app_context():
         user = db.session.get(User, "test")
@@ -24,9 +25,7 @@ def restore_test_user(test_client):
         db.session.execute(
             db.delete(UserDepartments).where(UserDepartments.user_id == user.id)
         )
-        db.session.execute(
-            db.delete(UserMajors).where(UserMajors.user_id == user.id)
-        )
+        db.session.execute(db.delete(UserMajors).where(UserMajors.user_id == user.id))
         db.session.add(UserDepartments(user_id=user.id, department_id="CSCI"))
         db.session.add(UserMajors(user_id=user.id, major_code="CSCI"))
         db.session.commit()
@@ -61,9 +60,7 @@ def test_update_profile_success(test_client: FlaskClient, login_as_test_user):
         "majors": ["CSCI", "MATH"],
     }
 
-    response = test_client.put(
-        "/profile", headers=login_as_test_user, json=update_data
-    )
+    response = test_client.put("/profile", headers=login_as_test_user, json=update_data)
     assert response.status_code == 200
     assert "Profile updated successfully" in json.loads(response.data)["msg"]
 
@@ -101,9 +98,7 @@ def test_update_profile_partial(test_client: FlaskClient, login_as_test_user):
         "description": "Only this was updated.",
     }
 
-    response = test_client.put(
-        "/profile", headers=login_as_test_user, json=update_data
-    )
+    response = test_client.put("/profile", headers=login_as_test_user, json=update_data)
     assert response.status_code == 200
 
     user = db.session.execute(
