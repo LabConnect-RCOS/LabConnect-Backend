@@ -3,8 +3,14 @@ from datetime import timedelta
 from os import getenv, path
 
 from dotenv import load_dotenv
+from sqlalchemy.pool import StaticPool
 
 basedir = path.abspath(path.dirname(__file__))
+
+_test_db_uri = getenv(
+    "DATABASE_URL",
+    getenv("DB", "postgresql+psycopg2://postgres:root@localhost/labconnect"),
+)
 
 
 class Config:
@@ -25,10 +31,7 @@ class Config:
     SENTRY_TRACES_SAMPLE_RATE = float(getenv("SENTRY_TRACES_SAMPLE_RATE", 1.0))
     SENTRY_PROFILES_SAMPLE_RATE = float(getenv("SENTRY_PROFILES_SAMPLE_RATE", 1.0))
 
-    SQLALCHEMY_DATABASE_URI = getenv(
-        "DATABASE_URL",
-        getenv("DB", "postgresql+psycopg2://postgres:root@localhost/labconnect"),
-    )
+    SQLALCHEMY_DATABASE_URI = _test_db_uri
 
     JWT_SECRET_KEY = getenv("JWT_SECRET_KEY", "jwt-secret")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
@@ -47,6 +50,12 @@ class TestingConfig(Config):
     TESTING = True
     DEBUG = True
     JWT_COOKIE_SECURE = False
+
+    if _test_db_uri.startswith("sqlite"):
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            "connect_args": {"check_same_thread": False},
+            "poolclass": StaticPool,
+        }
 
 
 class ProductionConfig(Config):
