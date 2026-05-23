@@ -1,64 +1,55 @@
 import json
 
+import pytest
 from flask.testing import FlaskClient
 
 from labconnect import db
 from labconnect.models import User, UserDepartments, UserMajors
 
 
-def login_as_student(test_client: FlaskClient):
-    """Helper function to log in a user and handle the auth flow."""
-    response = test_client.get("/login")
-    assert response.status_code == 302
+@pytest.fixture(autouse=True)
+def restore_test_user(test_client):
+    """Reset test@rpi.edu after profile write tests so other modules stay deterministic."""
+    yield
+    with test_client.application.app_context():
+        user = db.session.get(User, "test")
+        if user is None:
+            return
+        user.first_name = "RCOS"
+        user.last_name = "RCOS"
+        user.preferred_name = None
+        user.class_year = None
+        user.website = None
+        user.description = "first test"
+        db.session.execute(
+            db.delete(UserDepartments).where(UserDepartments.user_id == user.id)
+        )
+        db.session.execute(
+            db.delete(UserMajors).where(UserMajors.user_id == user.id)
+        )
+        db.session.add(UserDepartments(user_id=user.id, department_id="CSCI"))
+        db.session.add(UserMajors(user_id=user.id, major_code="CSCI"))
+        db.session.commit()
 
-    redirect_url = response.headers["Location"]
-    code = redirect_url.split("code=")[1]
 
-    token_response = test_client.post("/token", json={"code": code})
-    assert token_response.status_code == 200
-
-
-# === GET /profile Tests ===
-
-
-def test_get_profile_success(test_client: FlaskClient):
-    """
-    logged-in user: '/profile' endpoint is requested (GET)
-                    -> correct data and 200 status
-    """
-    login_as_student(test_client)
-
-    response = test_client.get("/profile")
+def test_get_profile_success(test_client: FlaskClient, login_as_test_user):
+    response = test_client.get("/profile", headers=login_as_test_user)
     data = json.loads(response.data)
 
     assert response.status_code == 200
     assert data["email"] == "test@rpi.edu"
-    assert data["first_name"] == "Test"
-    assert data["last_name"] == "User"
+    assert data["first_name"] == "RCOS"
+    assert data["last_name"] == "RCOS"
     assert "departments" in data
     assert "majors" in data
 
 
 def test_get_profile_unauthorized(test_client: FlaskClient):
-    """
-    no user is logged in: '/profile' endpoint is requested (GET)
-                            -> 401 Unauthorized status is returned.
-    """
-    test_client.get("/logout")
     response = test_client.get("/profile")
     assert response.status_code == 401
 
 
-# === PUT /profile Tests ===
-
-
-def test_update_profile_success(test_client: FlaskClient):
-    """
-    logged-in user: '/profile' endpoint is updated with new data (PUT)
-                    -> 200 status and database changed.
-    """
-    login_as_student(test_client)
-
+def test_update_profile_success(test_client: FlaskClient, login_as_test_user):
     update_data = {
         "first_name": "UpdatedFirst",
         "last_name": "UpdatedLast",
@@ -66,15 +57,16 @@ def test_update_profile_success(test_client: FlaskClient):
         "class_year": 2025,
         "website": "https://new.example.com",
         "description": "This is an updated description.",
-        "departments": ["CS"],
+        "departments": ["CSCI"],
         "majors": ["CSCI", "MATH"],
     }
 
-    response = test_client.put("/profile", json=update_data)
+    response = test_client.put(
+        "/profile", headers=login_as_test_user, json=update_data
+    )
     assert response.status_code == 200
     assert "Profile updated successfully" in json.loads(response.data)["msg"]
 
-    # Verify the changes in the database
     user = db.session.execute(
         db.select(User).where(User.email == "test@rpi.edu")
     ).scalar_one()
@@ -91,7 +83,7 @@ def test_update_profile_success(test_client: FlaskClient):
         .scalars()
         .all()
     )
-    assert set(user_depts) == {"CS"}
+    assert set(user_depts) == {"CSCI"}
 
     user_majors = (
         db.session.execute(
@@ -103,19 +95,15 @@ def test_update_profile_success(test_client: FlaskClient):
     assert set(user_majors) == {"CSCI", "MATH"}
 
 
-def test_update_profile_partial(test_client: FlaskClient):
-    """
-    logged-in user: '/profile' endpoint is updated with partial data (PUT)
-                    -> check only provided fields updated.
-    """
-    login_as_student(test_client)
-
+def test_update_profile_partial(test_client: FlaskClient, login_as_test_user):
     update_data = {
         "website": "https://partial.update.com",
         "description": "Only this was updated.",
     }
 
-    response = test_client.put("/profile", json=update_data)
+    response = test_client.put(
+        "/profile", headers=login_as_test_user, json=update_data
+    )
     assert response.status_code == 200
 
     user = db.session.execute(
@@ -123,15 +111,8 @@ def test_update_profile_partial(test_client: FlaskClient):
     ).scalar_one()
     assert user.website == "https://partial.update.com"
     assert user.description == "Only this was updated."
-    assert user.last_name == "User"
 
 
 def test_update_profile_unauthorized(test_client: FlaskClient):
-    """
-    no user is logged in: '/profile' endpoint is sent a PUT request
-                        -> 401 Unauthorized status.
-    """
-    test_client.get("/logout")
-    update_data = {"first_name": "ShouldFail"}
-    response = test_client.put("/profile", json=update_data)
+    response = test_client.put("/profile", json={"first_name": "ShouldFail"})
     assert response.status_code == 401

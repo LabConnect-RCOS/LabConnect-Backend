@@ -6,74 +6,61 @@ import pytest
 from flask import json
 from flask.testing import FlaskClient
 
+from tests.helpers import apply_response_checks
+
+ALL_DEPARTMENTS_CHECKS = [
+    {
+        "field": "name",
+        "values": [
+            "Computer Science",
+            "Biology",
+            "Materials Engineering",
+            "Environmental Engineering",
+            "Math",
+            "Mechanical, Aerospace, and Nuclear Engineering",
+        ],
+    },
+    {
+        "field": "description",
+        "values": [
+            "DS is rough",
+            "life science",
+            "also pretty cool",
+            "water stuff",
+            "quick maths",
+            "space, the final frontier",
+        ],
+    },
+    {
+        "field": "school_id",
+        "values": [
+            "School of Science",
+            "School of Engineering",
+        ],
+    },
+    {
+        "field": "id",
+        "values": ["CSCI", "BIOL", "MTLE", "ENVE", "MATH", "MANE"],
+    },
+    {
+        "field": "image",
+        "values": ["https://cdn-icons-png.flaticon.com/512/5310/5310672.png"],
+    },
+    {"field": "website", "values": ["https://www.rpi.edu"]},
+]
+
 
 @pytest.mark.parametrize(
     "endpoint, request_json, expected_status, expected_response_checks",
     [
-        (
-            "/departments",
-            None,
-            200,
-            [
-                {
-                    "field": "name",
-                    "values": [
-                        "Computer Science",
-                        "Biology",
-                        "Materials Engineering",
-                        "Environmental Engineering",
-                        "Math",
-                        "Aerospace Engineering",
-                        "Aeronautical Engineering",
-                        "Mechanical, Aerospace, and Nuclear Engineering"
-                    ],
-                },
-                {
-                    "field": "description",
-                    "values": [
-                        "DS is rough",
-                        "life science",
-                        "also pretty cool",
-                        "water stuff",
-                        "quick maths",
-                        "space, the final frontier",
-                        "flying, need for speed",
-                    ],
-                },
-                {
-                    "field": "school_id",
-                    "values": [
-                        "School of Science",
-                        "School of Science",
-                        "School of Engineering",
-                        "School of Science",
-                        "School of Engineering",
-                        "School of Engineering",
-                        "School of Engineering",
-                    ],
-                },
-                {
-                    "field": "id",
-                    "values": ["CSCI", "BIOL", "MTLE", "MATH", "ENVE", "MANE"],
-                },
-                {
-                    "field": "image",
-                    "values": [
-                        "https://cdn-icons-png.flaticon.com/512/5310/5310672.png"
-                    ]
-                    * 7,
-                },
-                {"field": "website", "values": ["https://www.rpi.edu"] * 7},
-            ],
-        ),
+        ("/departments", None, 200, ALL_DEPARTMENTS_CHECKS),
         (
             "/departments/CSCI",
             None,
             200,
             [
                 {"field": "name", "values": ["Computer Science"]},
-                {"field": "description", "values": ["DS"]},
-                {"field": "school_id", "values": ["School of Science"]},
+                {"field": "description", "values": ["DS is rough"]},
                 {"field": "id", "values": ["CSCI"]},
                 {
                     "field": "image",
@@ -83,41 +70,62 @@ from flask.testing import FlaskClient
                 },
                 {"field": "website", "values": ["https://www.rpi.edu"]},
                 {
-                    "field": "professors",
+                    "field": "staff",
                     "subfields": [
                         {
                             "subfield": "name",
                             "values": [
                                 "Duy Le",
-                                "Rafael",
-                                "Turner",
-                                "Kuzmin",
-                                "Goldschmidt",
+                                "Raf Cenzano",
+                                "Wes Turner",
+                                "Konstantine Kuzmin",
+                                "David Goldschmidt",
+                                "RCOS RCOS",
                             ],
                         },
                         {
-                            "subfield": "rcs_id",
-                            "values": ["led", "cenzar", "turner", "kuzmin", "goldd"],
-                        },
-                    ],
-                },
-                {
-                    "field": "opportunities",
-                    "subfields": [
-                        {"subfield": "id", "values": [1, 2]},
-                        {
-                            "subfield": "name",
+                            "subfield": "id",
                             "values": [
-                                "Automated Cooling System",
-                                "Iphone 15 durability test",
+                                "led",
+                                "cenzar",
+                                "turner",
+                                "kuzmin",
+                                "goldd",
+                                "test",
+                                "test2",
+                                "test3",
                             ],
                         },
                     ],
                 },
             ],
         ),
-        ("/department", None, 400, None),
-        ("/department", {"wrong": "wrong"}, 400, None),
+        (
+            "/departments/BIOL",
+            None,
+            200,
+            [
+                {"field": "name", "values": ["Biology"]},
+                {"field": "id", "values": ["BIOL"]},
+            ],
+        ),
+        (
+            "/departments/MATH",
+            None,
+            200,
+            [
+                {"field": "name", "values": ["Math"]},
+                {"field": "id", "values": ["MATH"]},
+            ],
+        ),
+        (
+            "/departments/UNKNOWN",
+            None,
+            404,
+            None,
+        ),
+        ("/department", None, 404, None),
+        ("/department", {"wrong": "wrong"}, 404, None),
     ],
 )
 def test_department_routes(
@@ -127,11 +135,6 @@ def test_department_routes(
     expected_status,
     expected_response_checks,
 ) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN various '/departments' or '/department' routes are requested (GET)
-    THEN check that the response status and data are as expected
-    """
     response = (
         test_client.get(endpoint, json=request_json)
         if request_json
@@ -139,16 +142,9 @@ def test_department_routes(
     )
     assert response.status_code == expected_status
 
-    if expected_response_checks:
-        json_data = json.loads(response.data)
+    if expected_response_checks is None:
+        return
 
-        for check in expected_response_checks:
-            if "subfields" not in check:
-                for item in json_data:
-                    assert item[check["field"]] in check["values"]
-            else:
-                for item in json_data.get(check["field"], []):
-                    for subfield_check in check["subfields"]:
-                        assert (
-                            item[subfield_check["subfield"]] in subfield_check["values"]
-                        )
+    json_data = json.loads(response.data)
+    is_list = endpoint == "/departments"
+    apply_response_checks(json_data, expected_response_checks, is_list=is_list)

@@ -2,57 +2,30 @@
 Test opportunity filtering routes
 """
 
+import json
+
 import pytest
-from flask import json
 from flask.testing import FlaskClient
 
+from tests.conftest import requires_postgres
 
+
+@requires_postgres
 @pytest.mark.parametrize(
-    "filters, expected_opportunities",
+    "query_string, expected_opportunities",
     [
+        ("hourlypay=14.9", ["Automated Cooling System"]),
+        ("majors=BIOL", ["Iphone 15 durability test"]),
         (
-            [{"field": "pay", "value": {"min": 14.9, "max": 21}}],
-            ["Automated Cooling System"],
+            "majors=CSCI,BIOL",
+            ["Automated Cooling System", "Iphone 15 durability test"],
         ),
         (
-            [{"field": "departments", "value": ["Material Science"]}],
-            ["Checking out cubes"],
-        ),
-        (
-            [
-                {
-                    "field": "departments",
-                    "value": ["Computer Science", "Material Science"],
-                }
-            ],
-            [
-                "Iphone 15 durability test",
-                "Checking out cubes",
-                "Automated Cooling System",
-            ],
-        ),
-        (
-            [{"field": "majors", "value": ["BIOL"]}],
-            [
-                "Iphone 15 durability test",
-                "Checking out cubes",
-                "Automated Cooling System",
-            ],
-        ),
-        (
-            [{"field": "majors", "value": ["CSCI", "BIOL"]}],
-            [
-                "Iphone 15 durability test",
-                "Checking out cubes",
-                "Automated Cooling System",
-            ],
-        ),
-        (
-            [{"field": "credits", "value": [1]}],
+            "credits=1",
             ["Iphone 15 durability test", "Checking out cubes"],
         ),
         (
-            [{"field": "credits", "value": [2, 4]}],
+            "credits=2,4",
             [
                 "Iphone 15 durability test",
                 "Checking out cubes",
@@ -60,46 +33,80 @@ from flask.testing import FlaskClient
                 "Test the water",
             ],
         ),
-        ([{"field": "class_year", "value": [2025]}], ["Iphone 15 durability test"]),
+        ("years=2025", ["Iphone 15 durability test", "Checking out cubes"]),
         (
-            [{"field": "class_year", "value": [2025, 2027]}],
+            "years=2025,2027",
+            [
+                "Iphone 15 durability test",
+                "Checking out cubes",
+                "Automated Cooling System",
+            ],
+        ),
+        ("location=Remote", ["Automated Cooling System"]),
+        (
+            "location=In-Person",
+            [
+                "Iphone 15 durability test",
+                "Checking out cubes",
+                "Test the water",
+                "Data Science Research",
+            ],
+        ),
+        (
+            "location=In-Person&departments=CSCI",
             ["Iphone 15 durability test", "Automated Cooling System"],
         ),
-        ([{"field": "location", "value": "Remote"}], ["Automated Cooling System"]),
         (
-            [{"field": "location", "value": "In-Person"}],
-            ["Iphone 15 durability test", "Checking out cubes", "Test the water"],
-        ),
-        (
-            [
-                {"field": "location", "value": "In-Person"},
-                {"field": "departments", "value": ["Computer Science"]},
-            ],
-            ["Iphone 15 durability test"],
-        ),
-        (
-            [
-                {"field": "credits", "value": [2, 4]},
-                {"field": "departments", "value": ["Computer Science"]},
-            ],
+            "credits=2,4&departments=CSCI",
             ["Iphone 15 durability test", "Automated Cooling System"],
+        ),
+        ("departments=MTLE", ["Test the water"]),
+        (
+            "departments=CSCI,MTLE",
+            [
+                "Automated Cooling System",
+                "Iphone 15 durability test",
+                "Test the water",
+            ],
         ),
     ],
 )
 def test_opportunity_filter(
-    test_client: FlaskClient, filters, expected_opportunities
+    test_client: FlaskClient,
+    auth_headers,
+    query_string,
+    expected_opportunities,
 ) -> None:
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/opportunity/filter' page is requested (GET)
-    THEN check that the response is valid
-    """
-    json_data = {"filters": filters}
-    response = test_client.get("/opportunity/filter", json=json_data)
-
+    response = test_client.get(
+        f"/opportunity/filter?{query_string}",
+        headers=auth_headers("test@rpi.edu"),
+    )
     assert response.status_code == 200
 
-    json_data = json.loads(response.data)
+    names = {item["name"] for item in json.loads(response.data)}
+    for expected in expected_opportunities:
+        assert expected in names
 
-    for data in json_data:
-        assert data["name"] in expected_opportunities
+
+@requires_postgres
+@pytest.mark.parametrize(
+    "query_string, expected_status",
+    [
+        ("years=not-a-year", 400),
+        ("credits=9", 400),
+        ("unknown=value", 400),
+    ],
+)
+def test_opportunity_filter_invalid_params(
+    test_client: FlaskClient, auth_headers, query_string, expected_status
+) -> None:
+    response = test_client.get(
+        f"/opportunity/filter?{query_string}",
+        headers=auth_headers("test@rpi.edu"),
+    )
+    assert response.status_code == expected_status
+
+
+def test_opportunity_filter_requires_auth(test_client: FlaskClient) -> None:
+    response = test_client.get("/opportunity/filter")
+    assert response.status_code == 401
