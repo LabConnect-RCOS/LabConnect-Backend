@@ -54,7 +54,11 @@ from tests.conftest import requires_postgres
         ),
         (
             "location=In-Person&departments=CSCI",
-            ["Iphone 15 durability test", "Automated Cooling System"],
+            [
+                "Iphone 15 durability test",
+                "Checking out cubes",
+                "Data Science Research",
+            ],
         ),
         (
             "credits=2,4&departments=CSCI",
@@ -66,7 +70,9 @@ from tests.conftest import requires_postgres
             [
                 "Automated Cooling System",
                 "Iphone 15 durability test",
+                "Checking out cubes",
                 "Test the water",
+                "Data Science Research",
             ],
         ),
     ],
