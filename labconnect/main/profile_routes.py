@@ -11,9 +11,9 @@ def user_to_dict(user: User) -> dict:
     """Helper function to serialize User object data."""
     user_departments = (
         db.session.execute(
-            db.select(UserDepartments.department_id).where(
-                UserDepartments.user_id == user.id
-            )
+            db.select(UserDepartments.department_id)
+            .where(UserDepartments.user_id == user.id)
+            .order_by(UserDepartments.department_id)
         )
         .scalars()
         .all()
@@ -21,7 +21,9 @@ def user_to_dict(user: User) -> dict:
 
     user_majors = (
         db.session.execute(
-            db.select(UserMajors.major_code).where(UserMajors.user_id == user.id)
+            db.select(UserMajors.major_code)
+            .where(UserMajors.user_id == user.id)
+            .order_by(UserMajors.major_code)
         )
         .scalars()
         .all()
